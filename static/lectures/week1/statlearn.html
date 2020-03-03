@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Supervised Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Supervised Learning
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 1 (b)
+
+---
+
+
+
+
+## Learning from Data
+
+- .orange[Better understand] or .orange[make predictions] about a certain
+phenomenon under study &lt;br&gt; &lt;br&gt;
+- .orange[Construct a model] of that phenomenon by finding relations between several variables  &lt;br&gt; &lt;br&gt;
+- If phenomenon is complex or depends on a large number of variables, an .orange[analytical solution] might not be available  &lt;br&gt; &lt;br&gt;
+- However, we can  .orange[collect data] and learn a model that  .orange[approximates] the true underlying phenomenon
+
+---
+
+# Learning from Data
+
+
+&lt;img src="statlearn_files/figure-html/unnamed-chunk-1-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+.tip[**Statistical learning** provides a framework for constructing models from the data.]
+
+
+---
+
+## Different Learning Problems
+
+- .green[Supervised] learning, `\(y_i\)` .orange[available] for all `\(x_i\)`
+    - Regression (or prediction)
+    - Classification 
+- .green[Unsupervised] learning, `\(y_i\)` .orange[unavailable] for all `\(x_i\)` 
+- .green[Semi-supervised] learning, `\(y_i\)` available only for few `\(x_i\)` 
+- Other types of learning: reinforcement learning, online learning, active learning, etc. 
+
+
+.tip[Being able to .green[**identify**] which is the type of learning problem you have is important in practice]
+
+
+
+---
+## Supervised learning
+
+`\(\mathcal{D} = \{(y_i, x_i)\}_{i = 1}^N\)` 
+
+where `\((y_i, x_i) \sim P(Y, X) = P(X) \underbrace{P(Y|X)}_{}\)` where `\(P(Y, X)\)` means that these arise from some probability distribution. `\(``\sim"\)` means distributed as, arise from. Typically, we only are interested in `\(P(Y|X)\)`, the distribution of `\(Y\)` conditional on `\(X\)`.
+
+---
+## Supervised learning
+
+- `\(Y = (Y_1, \dots, Y_q)\)`: response (output) (could be multivariate, `\(q=1\)` for us)
+- `\(X = (X_1, \dots, X_p)\)`: set of `\(p\)` predictors (input)
+
+We seek a function `\(h(X)\)` for predicting `\(Y\)` given values of the input `\(X\)`. This function is computed using `\(\mathcal{D}\)`.
+
+
+---
+## Supervised learning
+
+`\(\mathcal{D} = \{(y_i, x_i)\}_{i = 1}^N \mbox{ where } (y_i, x_i) \sim P(Y, X)\)`
+
+We are interested in minimizing the expected .orange[out-of-sample] prediction error: 
+
+`\(\mbox{Err}_{\mbox{out}}(h) = E[L(Y, h(X))]\)`
+
+where `\(L(y, {\hat{y}})\)` is a non-negative real-valued .orange[loss function], such as `\(L(y, \hat{y}) = (y - \hat{y})^2\)` and `\(L(y, \hat{y}) = I(y \neq \hat{y})\)`.
+
+.tip[The goal is that the predictions from the model are accurate for future samples.]
+
+
+---
+# Regression vs Classification Problems
+
+&lt;br&gt;
+
+
+&lt;center&gt;
+
+&lt;a href="https://towardsdatascience.com/regression-or-classification-linear-or-logistic-f093e8757b9c" target="_BLANK"&gt; &lt;img src="images/problems.png" style="width: 55%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.center[.font_tiny[Source: [Taylor Fogarty](https://towardsdatascience.com/regression-or-classification-linear-or-logistic-f093e8757b9c) ]]
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Rainbow_after_storm.jpg/1599px-Rainbow_after_storm.jpg)
+class: middle center
+
+# Regression
+
+---
+
+## Regression 
+
+We often assume that our data arose from a statistical model
+
+`\(Y=f(X) + \varepsilon,\)` where `\(f\)` is the true unknown function, `\(\varepsilon\)` is the random error term with `\(E[\varepsilon] = 0\)` and is independent of `\(X\)`.
+
+- The additive error model is a useful approximation to the truth
+- `\(f(x) = E[Y|X = x]\)`
+- Not a deterministic relationship: `\(Y \neq f(X)\)`
+
+
+---
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.2.pdf" target="_BLANK"&gt; &lt;img src="images/2.2.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+.light-blue[Blue curve] is `\(f(x)\)`, the true functional relationship.
+
+.font_tiny[(Chapter2/2.2.pdf)]
+
+
+---
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.3.pdf" target="_BLANK"&gt; &lt;img src="images/2.3.png" style="width: 60%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+.light-blue[Blue surface] is `\(f(x)\)`, the true functional relationship.
+
+.font_tiny[(Chapter2/2.3.pdf)]
+
+
+---
+
+## Goals of a regression analysis
+
+&lt;br&gt;
+
+- **Prediction**: 
+    - `\(\hat{y}_{*} = \hat f(x_{*})\)` for a new observation `\(x_{*}\)`
+- **Inference (or explanation)**:
+    - Which predictors are associated with the response?
+    - What is the relationship between the response and each predictor?
+
+---
+## Estimation
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.3.pdf" target="_BLANK"&gt; &lt;img src="images/2.3.png" style="width: 30%; align: center"/&gt; &lt;/a&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.4.pdf" target="_BLANK"&gt; &lt;img src="images/2.4.png" style="width: 30%; align: center"/&gt;  &lt;/a&gt;
+
+&lt;/center&gt;
+
+Linear model: `\(\hat f(\mbox{education}, \mbox{seniority}) =\)` 
+`\(~~~~~~~~\hat \beta_0 + \hat \beta_1 \times \mbox{education} + \hat \beta_2 \times \mbox{seniority}\)`
+
+.green[Why would we ever choose to use a **more restrictive method** instead of a **very flexible approach**?]
+
+.font_tiny[(Chapter2/2.3.pdf, 2.4.pdf)]
+
+
+
+
+
+---
+class: split-20
+
+.row[.content.vmiddle[
+## Methods
+
+
+
+]]
+
+.row[.content[
+.split-two[
+.column[.pad10px[
+.orange[.center[Parametric methods]]
+    &lt;br&gt; ➗ Assumption about the form of `\(f\)`, e.g. linear
+    &lt;br&gt; 😄 The problem of estimating `\(f\)` reduces to estimating a set of parameters
+    &lt;br&gt; 😄 Usually a good starting point for many learning problems
+    &lt;br&gt; 🙍 Poor performance if model assumtion (such as linearity) is wrong
+  ]]
+.column[.pad10px[
+.orange[.center[Non-parametric methods]]
+    &lt;br&gt; 😄 No *explicit* assumptions about the  form of `\(f\)`, e.g. nearest neighbours: `\(\hat Y(x) = \frac1k \sum_{x_i \in N_k(x)} y_i\)`
+    &lt;br&gt;  😄 High flexibility: it can potentially fit a range of shapes
+    &lt;br&gt; 🙍 A large number of observations is required to estimate `\(f\)` with good accuracy
+
+   ]]
+
+]]]
+
+---
+## Measures of accuracy
+
+Suppose we have a regression model `\(y=f(x)+\varepsilon\)`. .orange[Estimate]
+`\(\hat{f}\)` from some .orange[training data], `\(Tr=\{x_i,y_i\}_{i=1}^n\)`.
+
+One common measure of accuracy is:
+
+.orange[Training Mean Squared Error]
+
+`\(MSE_{Tr} = \mathop{\mbox{Ave}}\limits_{i\in Tr}[y_i-\hat{f}(x_i)]^2 = \frac{1}{n}\sum_{i=1}^n [(y_i-\hat{f}(x_i)]^2\)`
+
+
+
+---
+## Measures of accuracy
+
+Suppose we have a regression model `\(y=f(x)+\varepsilon\)`. .orange[Estimate]
+`\(\hat{f}\)` from some .orange[training data], `\(Tr=\{x_i,y_i\}_{i=1}^n\)`.
+
+
+Measure .orange[real accuracy] using .orange[test data] `\(Te=\{x_j,y_j\}_{j=1}^m\)`, .orange[Test Mean Squared Error]
+
+`\(MSE_{Te} = \mathop{\mbox{Ave}}\limits_{j\in Te}[y_j-\hat{f}(x_j)]^2 = \frac{1}{m}\sum_{j=1}^m [(y_j-\hat{f}(x_j)]^2\)`
+
+
+---
+## Training vs Test MSEs
+
+&lt;br&gt;
+
+- In general, the more .orange[flexible] a method is, the .orange[lower] its
+.orange[training MSE] will be. i.e. it will “fit” the training data very well.
+- However, the .orange[test MSE] may be .orange[higher] for a more .orange[flexible] method than for a simple approach like linear regression. 
+- Flexibility also makes interpretation more difficult. There is
+a trade-off between .orange[flexibility] and .orange[model interpretability].
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Interpretability vs Flexibility
+
+Simplistic overview of methods on the flexibility vs interpretability scale. Interpretability is when it is clear how the explanatory variable is related to the response, e.g. linear model. .orange[Poor interpretability] is often called a .orange["black box"] method.
+
+&lt;br&gt;
+
+.font_tiny[(Chapter2/2.7.pdf)]
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.7.pdf" target="_BLANK"&gt; &lt;img src="images/2.7.png" style="width: 80%; align: center"/&gt; &lt;/a&gt;
+ 
+]]
+
+
+---
+
+class: split-70 
+
+.row.bg-main5[.content.vmiddle.center[
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.9.pdf" target="_BLANK"&gt; &lt;img src="images/2.9.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+]]
+
+.row[.content[
+.split-two[
+.column[.content.vmiddle.center[
+
+.black[LEFT:] .orange[Linear regression]&lt;br&gt; 
+.green[Smoothing splines]&lt;br&gt; 
+.black[True curve]
+     ]]
+.column[.content.vmiddle.center[
+     
+.black[RIGHT:] .gray[Training MSE],
+.red[Test MSE],
+.black[Dashed: Minimum test MSE]
+
+.font_tiny[(Chapter2/2.9.pdf)]]
+     
+  ]]
+]]]
+
+---
+
+class: split-70 
+
+.row.bg-main5[.content.vmiddle.center[
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.10.pdf" target="_BLANK"&gt; &lt;img src="images/2.10.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+]]
+
+.row[.content[
+.split-two[
+.column[.content.vmiddle.center[
+
+.orange[Linear regression]&lt;br&gt;
+.green[Smoothing] splines &lt;br&gt;
+.black[True curve]
+     ]]
+.column[.content.vmiddle.center[
+     
+.gray[Training MSE],
+.red[Test MSE]&lt;br&gt;
+.black[Dashed: Minimum test MSE]
+
+.font_tiny[(Chapter2/2.9.pdf)]]
+     
+  ]]
+]]]
+
+---
+
+class: split-70 
+
+.row.bg-main5[.content.vmiddle.center[
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.11.pdf" target="_BLANK"&gt; &lt;img src="images/2.11.png" style="width: 75%; align: center"/&gt; &lt;/a&gt;
+]]
+
+.row[.content[
+.split-two[
+.column[.content.vmiddle.center[
+
+.orange[Linear regression]&lt;br&gt;
+.green[Smoothing] splines &lt;br&gt;
+.black[True curve]
+     ]]
+.column[.content.vmiddle.center[
+     
+.gray[Training MSE],
+.red[Test MSE]&lt;br&gt;
+.black[Dashed: Minimum test MSE]
+
+.font_tiny[(Chapter2/2.9.pdf)]]
+     
+  ]]
+]]]
+
+
+---
+## Bias - variance tradeoff
+
+&lt;div style="line-height:80%;"&gt;
+    &lt;br&gt;
+&lt;/div&gt;
+
+.tip[There are two competing forces that govern the
+choice of learning method: .orange[bias] and .orange[variance].] 
+
+.orange[Bias]
+is the error that is introduced by modeling a 
+complicated problem by a simpler problem.
+
+
+- For example, linear regression assumes a linear relationship when few real relationships are exactly linear.
+- In general, the .orange[more flexible] a method is, the .orange[less bias] it will have. 
+
+[This site](https://degreesofbelief.roryquinn.com/bias-variance-tradeoff) has a lovely explanation, if you don't like mine.
+
+
+---
+## Bias - variance tradeoff
+
+&lt;div style="line-height:80%;"&gt;
+    &lt;br&gt;
+&lt;/div&gt;
+
+.tip[There are two competing forces that govern the
+choice of learning method: .orange[bias] and .orange[variance].] 
+
+.orange[Variance]
+refers to how much your estimate would change if you had different training data.
+
+
+- In general, the .orange[more flexible] a method is, the .orange[more variance] it has. 
+- The .orange[size] of the training data has an impact on the variance.
+
+
+
+---
+
+### High variance (over fitted) models can be problematic...
+
+&lt;br&gt;
+
+&lt;center&gt;
+ &lt;img src="images/bird.jpg" style="width: 60%"&gt;
+
+&lt;/center&gt;
+
+&lt;br&gt;
+
+.font_tiny[Source: Statistical Statistics Memes]
+
+
+---
+### ... as well as high bias (under fitted) models!
+
+&lt;br&gt;
+
+&lt;center&gt;
+ &lt;img src="images/constraints.png" style="width: 60%"&gt;
+
+&lt;/center&gt;
+
+&lt;br&gt;
+
+.font_tiny[Source: Statistical Statistics Memes]
+
+
+---
+
+## The Bias Variance Tradeoff
+
+As you may have guessed, there is a trade off between increasing variance (flexibility) and decreasing bias (simplicity) and vice versa.
+
+&lt;br&gt;
+
+&lt;center&gt;
+ &lt;img src="images/tradeoff.png" style="width: 60%"&gt;
+
+&lt;/center&gt;
+
+.green[Decomposing the MSE can give us a mathematical intuition as to why this occurs.]
+
+---
+
+
+## MSE decomposition
+
+If `\(Y = f(x) + \varepsilon\)` and `\(f(x)=\mbox{E}[Y\mid X=x]\)`, then the expected **test** MSE for a new `\(Y\)` at `\(x_0\)` will be equal to
+
+`\(E[(Y-\hat{f}(x_0))^2] = [\mbox{Bias}(\hat{f}(x_0))]^2 + \mbox{Var}(\hat{f}(x_0)) + \mbox{Var}(\varepsilon)\)`
+
+Test MSE = Bias `\(^2\)` + Variance + Irreducible variance
+
+- The expectation averages over the variability of `\(Y\)` as well as the variability in the training data.
+- As the flexibility of `\(\hat{f}\)` increases, its variance increases and its bias decreases.
+-  **Choosing the flexibility based on average test MSE amounts to the .orange[bias-variance trade-off]**
+
+---
+.nopadding[
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.12.pdf" target="_BLANK"&gt; &lt;img src="images/2.12.png" style="width: 90%; align: center"/&gt; &lt;/a&gt;
+
+.blue[Squared bias], .orange[variance], .black[Var(ε) (dashed line)], and .red[test MSE] for the three data sets shown earlier. The vertical dotted line indicates the flexibility level corresponding to the smallest test MSE.
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.12.pdf)]
+
+]
+---
+## Optimal Prediction
+
+The optimal MSE is obtained when 
+
+`\(\hat{f}=f = \mbox{E}[Y\mid X=x].\)`
+
+Then .orange[bias=variance=0] and
+
+`\(\mbox{MSE} = \mbox{irreducible variance}\)`
+
+This is called the .orange[oracle predictor] because it is not achievable in practice.
+
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Cat_and_Dog_Game.jpg/2560px-Cat_and_Dog_Game.jpg)
+background-size: cover
+class: middle center
+
+# Classification
+
+
+---
+## Classification
+
+Here the response variable `\(Y\)` is .orange[qualitative].
+
+- e.g., email is one of `\({\cal C} = (\mbox{spam},\mbox{ham})\)`
+- e.g., voters are one of `\({\cal C} = (\mbox{Liberal},\mbox{Labor},\mbox{Green},\mbox{National},\mbox{Other})\)`
+
+---
+
+## Classification - goals
+
+.green[Our goals are:]
+1. Build a classifier `\(C(x)\)` that assigns a class label from `\({\cal C} = \{\mathcal{C}_1, \dots, \mathcal{C}_K\}\)` to a future unlabeled observation `\(x\)`.
+2. Such a classifier will divide the input space into regions `\(\mathcal{R}_k\)` called decision regions, one for each class, such that all points in `\(\mathcal{R}_k\)` are assigned to class `\(\mathcal{C}_k\)`
+3. Assess the uncertainty in each classification (i.e., the probability of misclassification).
+4. Understand the roles of the different predictors among `\(X = (X_1,X_2,\dots,X_p)\)`.
+
+---
+
+## Classification
+
+Recall that we want to minimize the expected prediction error
+
+`\(E_{(Y, X)}[L(Y, C(X))]\)`
+
+where `\(L(y, {\hat{y}})\)` is a non-negative real-valued .orange[loss function]. 
+
+In classification, the output `\(Y\)` is a .orange[categorical variable], and our loss function can be represented by a `\(K \times K\)` matrix `\(L\)`, where `\(K = \mbox{card}(\mathcal{C})\)`. `\(L(k, l)\)` is the cost of classifying `\(C_k\)` as `\(C_l\)`. With zero-one loss, i.e. `\(L(y, \hat{y}) = I(y \neq \hat{y})\)` the cost is equal for mistakes between any class.
+
+
+
+---
+## Error rates
+
+
+.orange[Compute] `\(\hat{C}\)` from some .orange[training data], `\(Tr=\{x_i,y_i\}_1^n\)`.
+
+In place of MSE, we now use the error rate (fraction of misclassifications).
+
+.green[Training Error Rate]
+
+`\(\text{Error rate}_{Tr} = \frac{1}{n}\sum_{i=1}^n I(y_i \ne \hat{C}(x_i))\)`
+
+Measure .orange[real accuracy] using .orange[test data] `\(Te=\{x_j,y_j\}_1^m\)`
+
+.green[Test Error Rate]
+
+`\(\text{Error rate}_{Te} = \frac{1}{m}\sum_{j=1}^m I(y_j \ne \hat{C}(x_j))\)`
+
+
+---
+## Bayes Classifier
+
+Let `\({\cal C} = \{\mathcal{C}_1, \dots, \mathcal{C}_K\}\)`, and let
+
+`\(p_k(x) = \text{P}(Y = C_k\mid X = x),\qquad k = 1, 2, \dots , K.\)`
+
+These are the .orange[conditional class probabilities] at `\(x\)`. 
+
+Then the .orange[Bayes] classifier at `\(x\)` is
+
+`\(C(x) = C_j \quad \mbox{ if } p_j(x) = \max\{p_1(x), p_2(x), \dots, p_K(x)\}\)`
+
+*This gives the minimum average test error rate.* 
+
+
+---
+## Bayes Classifier
+
+`\(1-\text{E}\left(\max_j \text{P}(Y = C_j | X)\right)\)`
+
+- The .orange[Bayes error rate] is the lowest possible error rate that could be achieved *if we knew* exactly the .orange[true] probability distribution of the data.
+- It is analogous to the irreducible error in regression.
+- On test data, no classifier can get lower error rates than the Bayes error rate.
+
+.tip[In reality, the Bayes error rate is not known exactly!!]
+
+
+---
+## Bayes Classifier
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.13.pdf" target="_BLANK"&gt; &lt;img src="images/2.13.png" style="width: 60%; align: center"/&gt; &lt;/a&gt;
+
+
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.13.pdf)]
+
+
+---
+## K Nearest Neighbours (KNN)
+
+
+One of the simplest classifiers. Given a test observation `\(x_0\)`,
+
+- Find the `\(K\)` nearest points to `\(x_0\)` in the training data: `\({\cal N}_0\)`.
+- Estimate conditional probabilities
+`\(=P(Y = C_j \mid X=x_0) = \frac{1}{K}\sum_{i\in {\cal N}_0} I(y_i = C_j).\)`
+- Classify `\(x_0\)` to class with largest probability.
+
+
+
+---
+## KNN
+
+&lt;center&gt;
+ &lt;img src="images/KNN.png" style="width: 60%"&gt;
+
+&lt;/center&gt;
+
+&lt;br&gt;
+
+.font_tiny[Source: Statistical Statistics Memes]
+
+---
+## KNN
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.14.pdf" target="_BLANK"&gt; &lt;img src="images/2.14.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.14.pdf)]
+
+
+---
+## KNN
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.16.pdf" target="_BLANK"&gt; &lt;img src="images/2.16.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.16.pdf)]
+
+---
+## KNN
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.15.pdf" target="_BLANK"&gt; &lt;img src="images/2.15.png" style="width:50%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.15.pdf)]
+
+---
+## KNN
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.17.pdf" target="_BLANK"&gt; &lt;img src="images/2.17.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_tiny[(Chapter2/2.17.pdf)]
+
+---
+## A fundamental picture
+
+
+&lt;img src="images/bias-var-tradeoff.png" style="width: 70%; align: center"/&gt;
+
+
+---
+layout: false
+# 👨‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
