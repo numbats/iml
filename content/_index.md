@@ -8,10 +8,10 @@ title: Home
 
 ## Semester 1 2020
 
-- Lecturers: Professor Di Cook (dicook@monash.edu)
+- Chief examine: Professor Di Cook (ETC3250.Clayton-x@monash.edu)
 - Tutors: Ursula Laa, Samantha Dawson, 
 
-Unless your question is a personal issue or an administrative matter, please do not send us direct email. [Moodle](https://lms.monash.edu/course/view.php?id=49079) is appropriate for questions related to the course material.
+Unless your question is a personal issue or an administrative matter, please do not send us direct email. [Moodle](https://lms.monash.edu/course/view.php?id=63422) is appropriate for questions related to the course material.
 
 **If you register after the start of the semester** or if you miss a lecture/lab, it is your responsibility to catch up with missed material, learn about due dates for material to be turned in, and getting assigned to a group for team work. 
 
