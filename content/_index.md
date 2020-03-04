@@ -28,34 +28,16 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 - Week 1: Introduction to statistical learning, Chapter 2 [slides1](http://monba.dicook.org/lectures/week1/introduction.html) ([Rmd](http://monba.dicook.org/lectures/week1/introduction.Rmd)) ([pdf](http://monba.dicook.org/lectures/week1/introduction.pdf)) [slides2](http://monba.dicook.org/lectures/week1/statlearn.html) ([Rmd](http://monba.dicook.org/lectures/week1/statlearn.Rmd))
 ([pdf](http://monba.dicook.org/lectures/week1/statlearn.pdf))
-- Week 2: Linear regression, Chapter 3 and 7 [slides1](http://monba.dicook.org/lectures/week2/linear-regression.html) ([Rmd](http://monba.dicook.org/lectures/week2/linear-regression.Rmd))
-([pdf](http://monba.dicook.org/lectures/week2/linear-regression.pdf))
-[slides2](http://monba.dicook.org/lectures/week2/flexible-regression.html) ([Rmd](http://monba.dicook.org/lectures/week2/flexible-regression.Rmd))
-([pdf](http://monba.dicook.org/lectures/week2/flexible-regression.pdf))
-- Week 3: Classification, Resampling, Chapter 4, 5 [slides1](http://monba.dicook.org/lectures/week3/classification.html) ([Rmd](http://monba.dicook.org/lectures/week3/classification.Rmd)) ([pdf](http://monba.dicook.org/lectures/week3/classification.pdf))
-[slides2](http://monba.dicook.org/lectures/week3/resampling.html) ([Rmd](http://monba.dicook.org/lectures/week3/resampling.Rmd)) 
+- Week 2: Linear regression, Chapter 3 and 7 
+- Week 3: Classification, Resampling, Chapter 4, 5 
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
-[slides1](http://monba.dicook.org/lectures/week4/dimension_reduction.html) ([Rmd](http://monba.dicook.org/lectures/week4/dimension_reduction.Rmd)) 
-[slides2](http://monba.dicook.org/lectures/week4/dimension_reduction_more.html) ([Rmd](http://monba.dicook.org/lectures/week4/dimension_reduction_more.Rmd)) 
 - Week 5: Visualisation, Instructor's notes
-[slides1](http://monba.dicook.org/lectures/week5/visualisation.html) ([Rmd](http://monba.dicook.org/lectures/week5/visualisation.Rmd)) 
-[slides2](http://monba.dicook.org/lectures/week5/visualisation2.html) ([Rmd](http://monba.dicook.org/lectures/week5/visualisation2.Rmd)) 
 - Week 6: Classification,  Chapter 8
-[slides1](http://monba.dicook.org/lectures/week6/regression_trees.html) ([Rmd](http://monba.dicook.org/lectures/week6/regression_trees.Rmd)) 
-[slides2](http://monba.dicook.org/lectures/week6/classification_trees.html) ([Rmd](http://monba.dicook.org/lectures/week6/classification_trees.Rmd)) 
 - Week 7: Classification, Chapter 9
-[slides1](http://monba.dicook.org/lectures/week7/classification_forests.html) ([Rmd](http://monba.dicook.org/lectures/week7/classification_forests.Rmd))
-[slides2](http://monba.dicook.org/lectures/week7/classification_svm.html) ([Rmd](http://monba.dicook.org/lectures/week7/classification_svm.Rmd)) 
 - Week 8: Ensembles and boosted models, Chapter 8.2 
-[slides1](http://monba.dicook.org/lectures/week8/classification_nn.html) ([Rmd](http://monba.dicook.org/lectures/week8/classification_nn.Rmd))
-[slides2](http://monba.dicook.org/lectures/week8/regularization.html) ([Rmd](http://monba.dicook.org/lectures/week8/regularization.Rmd))
-- Week 9: Regularization methods, Chapter 6 [slides1](http://monba.dicook.org/lectures/week9/regularization.html) ([Rmd](http://monba.dicook.org/lectures/week9/regularization.Rmd))
-[slides2](http://monba.dicook.org/lectures/week9/model_assessment.html) ([Rmd](http://monba.dicook.org/lectures/week9/model_assessment.Rmd))
+- Week 9: Regularization methods, Chapter 6 
 - Week 10: Clustering, Chapter 10
-[slides1](http://monba.dicook.org/lectures/week10/clustering_kmeans.html) ([Rmd](http://monba.dicook.org/lectures/week10/clustering_kmeans.Rmd))
-[slides2](http://monba.dicook.org/lectures/week10/clustering_hierchical.html) ([Rmd](http://monba.dicook.org/lectures/week10/clustering_hierchical.Rmd))
 - Week 11: Guest lecturer and review
-[slides1](http://monba.dicook.org/lectures/week11/wrap_up.html) ([Rmd](http://monba.dicook.org/lectures/week11/wrap_up.Rmd))
 - Week 12: Project presentations
 
 <!--
