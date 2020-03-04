@@ -4,7 +4,7 @@ title: Home
 
 [<img src="img/M.png" style="max-width:15%;min-width:40px;float:right;" alt="Monash Univ" />](https://monash.edu)
 
-# ETC3250: Introduction to machine learning
+# ETC3250/5250: Introduction to machine learning
 
 ## Semester 1 2020
 
