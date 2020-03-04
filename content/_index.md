@@ -46,19 +46,18 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Tutorials
 
-- Week 1: [Instructions](http://monba.dicook.org/labs/lab1.html) ([Rmd](http://monba.dicook.org/labs/lab1.Rmd))
-- Week 2: [Instructions](http://monba.dicook.org/labs/lab2.html) ([Rmd](http://monba.dicook.org/labs/lab2.Rmd))
-- Week 3: [Instructions](http://monba.dicook.org/labs/lab3.html) ([Rmd](http://monba.dicook.org/labs/lab3.Rmd)) [nrc.csv](http://monba.dicook.org/labs/data/nrc.csv)
-- Week 4: [Instructions](http://monba.dicook.org/labs/lab4.html) ([Rmd](http://monba.dicook.org/labs/lab4.Rmd))
-- Week 5: [Instructions](http://monba.dicook.org/labs/lab5.html) ([Rmd](http://monba.dicook.org/labs/lab5.Rmd)) 
-- Week 6: [Instructions](http://monba.dicook.org/labs/lab6.html) ([Rmd](http://monba.dicook.org/labs/lab6.Rmd)) [womens_track.csv](http://monba.dicook.org/labs/data/womens_track.csv)
-- Week 7: [Instructions](http://monba.dicook.org/labs/lab7.html) ([Rmd](http://monba.dicook.org/labs/lab7.Rmd)) 
-- Week 8: [Instructions](http://monba.dicook.org/labs/lab8.html) ([Rmd](http://monba.dicook.org/labs/lab8.Rmd)) 
-- Week 9: [Instructions](http://monba.dicook.org/labs/lab9.html) ([Rmd](http://monba.dicook.org/labs/lab9.Rmd)) 
-- Week 10: [Instructions](http://monba.dicook.org/labs/lab10.html) ([Rmd](http://monba.dicook.org/labs/lab10.Rmd))
-- Week 11: [Instructions](http://monba.dicook.org/labs/lab11.html) ([Rmd](http://monba.dicook.org/labs/lab11.Rmd)) 
-- Week 12: [Instructions](http://monba.dicook.org/labs/lab12.html) ([Rmd](http://monba.dicook.org/labs/lab12.Rmd)) 
-
+- Week 1: [Instructions](http://iml.numbat.space/labs/lab1.html) ([Rmd](http://http://iml.numbat.space/labs/lab1.Rmd))
+- Week 2: 
+- Week 3: 
+- Week 4:
+- Week 5: 
+- Week 6: 
+- Week 7: 
+- Week 8: 
+- Week 9: 
+- Week 10: 
+- Week 11:  
+- Week 12: 
 
 ## Assignments
 
@@ -80,13 +79,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Project
 
-- [Instructions](project/project.html)
-- [Data dictionary](project/data_dictionary.docx)
-- The data for this competition are not to be shared. Go to moodle for the links to the competition. You need to agree to these rules:
-    - Do not to share the data.
-    - Data is to be used only for Monash University's unit ETC3250, and no other purpose.
-	- Apply yourself, work independently until teams can be formed and to not cheat.
-	- Have fun, and still make time for other classwork.
+- Instructions]
 
 ## Exam information
 
