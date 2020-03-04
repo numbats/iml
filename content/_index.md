@@ -26,8 +26,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 *Instructions for printing slides to pdf:* (1) You need to be connected to the internet, (2) Open the slides in your web browser, ideally Google Chrome, (3) Step through each slide, so that the equations are created, (4) using the browser's print function and dialog, print to pdf, with your preferred printing options, eg 2 slides per page.
 
-- Week 1: Introduction to statistical learning, Chapter 2 [slides1](http://monba.dicook.org/lectures/week1/introduction.html) ([Rmd](http://monba.dicook.org/lectures/week1/introduction.Rmd)) ([pdf](http://monba.dicook.org/lectures/week1/introduction.pdf)) [slides2](http://monba.dicook.org/lectures/week1/statlearn.html) ([Rmd](http://monba.dicook.org/lectures/week1/statlearn.Rmd))
-([pdf](http://monba.dicook.org/lectures/week1/statlearn.pdf))
+- Week 1: Introduction to statistical learning, Chapter 2 [slides1](http://iml.numbat.space/lectures/week1/introduction.html) ([Rmd](http://iml.numbat.space/lectures/week1/introduction.Rmd)) ([pdf](http://iml.numbat.space/lectures/week1/introduction.pdf)) [slides2](http://iml.numbat.space/lectures/week1/statlearn.html) ([Rmd](http://iml.numbat.space/lectures/week1/statlearn.Rmd))
+([pdf](http://iml.numbat.space/lectures/week1/statlearn.pdf))
 - Week 2: Linear regression, Chapter 3 and 7 
 - Week 3: Resampling, Chapter 5 
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
