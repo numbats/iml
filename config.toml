@@ -22,11 +22,11 @@ footnotereturnlinkcontents = "↩"
     weight = 2
 [[menu.main]]
     name = "Moodle (Marks, Ass't turn in, Discussion)"
-    url = "https://lms.monash.edu/course/view.php?id=49079"
+    url = "https://lms.monash.edu/course/view.php?id=63422"
     weight = 3
 [[menu.main]]
     name = "Unit guide"
-    url = "https://unitguidemanager.monash.edu/view?unitCode=ETC3250&tpCode=S1-01&tpYear=2019"
+    url = "https://unitguidemanager.monash.edu/view?unitCode=ETC3250&tpCode=S1-01&tpYear=2020"
     weight = 5
 
 [params]
