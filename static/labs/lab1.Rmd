@@ -1,0 +1,174 @@
+---
+title: "Lab 1"
+subtitle: "Monash University, Econ & Bus Stat, ETC3250/5250"
+author: "prepared by Professor Di Cook"
+date: "Materials for Week 1"
+output:
+  html_document: default
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+# Objective
+
+This is the week to get your computing environment set up. `r emo::ji("technologist")`
+You will need the latest versions of the software: 
+
+- R and RStudio
+
+You need to learn about creating a clean and organised environment:
+
+- RStudio Projects
+
+and how to do reproducible work:
+
+- RMarkdown
+
+If you haven't used R before, you should get familiar with using a command line, and scripting to make calculations on data: 
+
+- R syntax and basic functions
+
+# Resources: your turn
+
+1. What is R? 
+    a. Search the internet to learn about R, what it is, and write a two sentence explanation in your own words.
+    b. When was the software project started? 
+    c. Where did it start from?
+    d. What language preceded R, and inspired the birth of R?
+    e. What make R such a powerful data analysis tool?
+    f. What is CRAN? Where do you download the software from?
+    g. What other languages are substitutes for R, and commonly used for similar purposes?
+
+2. What is RStudio?
+    a. Search the internet to learn about RStudio IDE? Write a sentence about the RStudio software. What does IDE mean?
+    b. How does R differ from RStudio? If you have an airplane, and also an airport terminal, which would be most like R, and which would be most like RStudio?
+    c. On your resume/CV would it be more impressive to list R or RStudio in your computer skills set?
+    d. The company producing the software, recently was declared a **Public Benefit Company**. What does this mean? And what are the benefits for you the user?
+
+# Now installs
+
+- Download and install the latest version of R from https://cran.r-project.org
+- Download and install the latest version of RStudio Desktop from https://rstudio.com (*Just for fun:* Do you know what the difference is between RStudio Desktop and RStudio Server?)
+
+# Getting started
+
+## Workflow practices
+
+Read the material at https://r4ds.had.co.nz/workflow-projects.html
+
+### Your turn
+
+3. Create a project this unit. You can call it what you want. It could be a generic name like "ETC3250", or something creative like "lorikeet".
+    a. Write a sentence explaining why YOU SHOULD ALWAYS WORK IN A PROJECT FOR THIS CLASS `r emo::ji("smile")`. **Each time you start RStudio for this class, be sure to open this project.**
+    b. What file is created in your file system/directory when you create a project? How can this be used to restart RStudio?
+    c. In your RStudio settings, set the default to be "Never save the workspace". Why do this?
+    d. Which of these is a "working directory"?
+        - sentence (i): *where R looks for files that you ask it to load*  
+        - sentence (ii): *the home folder on your computer*
+
+## What is RMarkdown?
+
+- Watch the video at https://rmarkdown.rstudio.com/lesson-1.html
+
+### Your turn
+
+4. Create a new RMarkdown file, call it "lab1_solution". 
+    a. What do you find the cheatsheet for Rmarkdown?
+    b. Fill in your answers for all the above activities/your turns into your "Rmd" document. Knit the document to html. Where is the `Rmd` file and the `html` file located on your computer?
+    c. Complete the "yaml" header so that you are listed as the author:
+```
+title: "Lab 1 solution"
+author: ???
+date: "My answers to activities for Week 1"
+output:
+  html_document: default
+``` 
+    d. Add a block of R code, that computes the mean of these numbers: 1.2, -0.5, 2.9, 3.2, 0.1, 2.2
+    e. Equations can be included using LaTeX (<https://latex-project.org/>) commands like this:
+```
+$$s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i-\bar{x})^2.$$
+```  
+produce
+$$s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i-\bar{x})^2.$$
+Write an equation in your document to show how to calculate a sample mean.
+
+## Writing R code
+
+5. 
+    a. Copy the code below into a chunk in your Rmarkdown document. Run the code, line by line. When you hit an error, fix the code. When you are done test that it is all working by knitting your Rmarkdown document.
+```
+(100+2)/3
+5*l0^2
+I/0
+0/0
+(0i-9)^(1/2)
+sqrt(-2*max(-10,0.2,4.5))+100
+```
+    b. One of the powerful aspects of R is to build on the reproducibility. This is a principle called DRY (Don't Repeat Yourself). If you are going to do the same analysis over and over again, compile these operations into a function that you can then apply to different data sets. Here is an example:
+
+```
+average <- function(x)
+{
+  return(sum(x)/length(x))
+}
+
+y1 <- c(1,2,3,4,5,6)
+average(y1)
+
+y2 <- c(1, 9, 4, 4, 0, 1, 15)
+average(y2)
+```
+Write your own function to compute the **mode of some vector**, and confirm that it returns `4` when applied on `y <- c(1, 1, 2, 4, 4, 4, 9, 4, 4, 8)`
+
+6. What's an R package?
+    a. How do you install a package?
+    b. How does the `library()` function relates to a `package`?
+    c. How often do you load a `package`?
+    d. Install and load the package `ISLR`
+
+7. Getting data
+    a. Data can be found in R packages. These are not usually kept up to date but are good for practicing your analysis skills on. How many observations are in the economics data? 
+```
+library(tidyverse)
+data(economics, package = "ggplot2")
+# data frames are essentially a list of vectors
+glimpse(economics)
+```
+    b. Or in their own packages. What variables does the gapminder data have?
+```
+library(gapminder)
+glimpse(gapminder)
+```
+    c. The `readr` package (part of the `tidyverse` suite) is useful for reading data. It mimics the base R reading functions but is implemented in `C` so reads large files relatively quickly, and it also attempts to identify the types of variables. Try reading the candy ranking data from the web using the code below. How many missing values in this data?
+```
+candy <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv")
+glimpse(candy)
+```
+
+7. Read in the OECD PISA data (file `student_sub.rds` is available at from the course web site)
+    a.  Tabulate the countries (CNT)
+    b. Extract the values for Australia (AUS) and Shanghai (QCN)
+    c. Compute the average and standard deviation of the reading scores (PV1READ), for each country
+
+# Got a question?
+
+It is always good to try to solve your problem yourself first. Most likely the error is a simple one, like a missing ")" or ",". For deeper questions about packages, analyses and functions, making your Rmd into a document, or simply the error that is being generated, you can often google for an answer. Often, you will be directed to 
+[Q/A site: http://stackoverflow.com](http://stackoverflow.com).
+
+Stackoverflow is a great place to get answers to tougher questions about R and also data analysis. You always need to check that someone hasn't asked it before, the answer might already be available for you. If not, make a [reproducible example of your problem, following the guidelines here](https://reprex.tidyverse.org/articles/reprex-dos-and-donts.html) and ask away. Remember these people that kindly answer questions on stackoverflow have day jobs too, and do this community support as a kindness to all of us.
+
+
+
