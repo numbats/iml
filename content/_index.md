@@ -9,7 +9,7 @@ title: Home
 ## Semester 1 2020
 
 - Chief examiner: Professor Di Cook (ETC3250.Clayton-x@monash.edu)
-- Tutors: Ursula Laa, Samantha Dawson, 
+- Tutors: Ursula Laa, Samantha Dawson, Kenji MacFarlane
 
 Unless your question is a personal issue or an administrative matter, please do not send us direct email. [Moodle](https://lms.monash.edu/course/view.php?id=63422) is appropriate for questions related to the course material.
 
