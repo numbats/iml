@@ -49,6 +49,7 @@ Ursula Laa <br> *Teaching Associate*
 Samantha Dawson <br> *Teaching Associate* 
 ]
 .row[
+<img src="images/Kenji.png" style="width: 30%"/>
 <br>
 Kenji MacFarlane  <br> *Teaching Associate*
 ]
