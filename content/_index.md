@@ -68,14 +68,14 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Data
 
-- [chocolates.csv](http://monba.dicook.org/data/chocolates.csv)
-- [student_sub.rds](http://monba.dicook.org/data/student_sub.rds)
-- [wiggly.csv](http://monba.dicook.org/labs/data/wiggly.csv)
-- [nnet_best.rda](http://monba.dicook.org/labs/data/nnet_best.rda)
-- [nnet_many.rda](http://monba.dicook.org/labs/data/nnet_many.rda)
-- [paintings-subset.csv](http://monba.dicook.org/labs/data/paintings-subset.csv)
-- [paintings-long-train.csv](http://monba.dicook.org/labs/data/paintings-long-train.csv)
-- [paintings.zip](http://monba.dicook.org/labs/data/paintings.zip)
+- [chocolates.csv](http://iml.numbat.space/data/chocolates.csv)
+- [student_sub.rds](http://iml.numbat.space/data/student_sub.rds)
+- [wiggly.csv](http://iml.numbat.space/labs/data/wiggly.csv)
+- [nnet_best.rda](http://iml.numbat.space/labs/data/nnet_best.rda)
+- [nnet_many.rda](http://iml.numbat.space/labs/data/nnet_many.rda)
+- [paintings-subset.csv](http://iml.numbat.space/labs/data/paintings-subset.csv)
+- [paintings-long-train.csv](http://iml.numbat.space/labs/data/paintings-long-train.csv)
+- [paintings.zip](http://iml.numbat.space/labs/data/paintings.zip)
 
 ## Project
 
@@ -83,7 +83,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Exam information
 
-- [2018 exam](http://monba.dicook.org/exam/practice_exam_2018.pdf) [SOLUTION](http://monba.dicook.org/exam/practice_exam_solution_2018.pdf)
+- [2018 exam](http://iml.numbat.space/exam/practice_exam_2018.pdf) [SOLUTION](http://iml.numbat.space/exam/practice_exam_solution_2018.pdf)
 
 
 ## Computing information
