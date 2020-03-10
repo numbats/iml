@@ -22,6 +22,13 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Tutorials: Menzies E160 - Tue 1:05-2:25, Tue 2:35-3:55, Wed 1:05-2:25, 2:35-3:55, Fri 9:35-10:55
 - Note: You must **attend the tutorial that you have been assigned to.** Only in exceptional circumstances will changes be allowed, and they need to be approved by the chief examiner, one week in advance of the tutorial. [Moodle](https://lms.monash.edu/course/view.php?id=49079) is used for asking for help, marks and assignment turn in. 
 
+## Consultations (starting week2)
+
+- Prof Cook: Wed 3-4 Menzies 762A
+- Ursula Laa: Mon 9:30-10:30 Menzies W1105 or W1106
+- Samantha Dawson: Wed 11:30-12:30 Menzies W1105 or W1106
+- Kenji MacFarlane: TBC
+
 ## Lecture notes
 
 *Instructions for printing slides to pdf:* (1) You need to be connected to the internet, (2) Open the slides in your web browser, ideally Google Chrome, (3) Step through each slide, so that the equations are created, (4) using the browser's print function and dialog, print to pdf, with your preferred printing options, eg 2 slides per page.
