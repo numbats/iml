@@ -55,7 +55,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Tutorials
 
-- Week 1: [Instructions](http://iml.numbat.space/labs/lab1.html) ([Rmd](http://http://iml.numbat.space/labs/lab1.Rmd))
+- Week 1: [Instructions](https://iml.numbat.space/labs/lab1.html) ([Rmd](https://iml.numbat.space/labs/lab1.Rmd))
 - Week 2: 
 - Week 3: 
 - Week 4:
