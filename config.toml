@@ -18,7 +18,7 @@ footnotereturnlinkcontents = "↩"
     weight = 1
 [[menu.main]]
     name = "Textbook"
-    url = "http://www-bcf.usc.edu/~gareth/ISL/"
+    url = "http://faculty.marshall.usc.edu/gareth-james/ISL/"
     weight = 2
 [[menu.main]]
     name = "Moodle (Marks, Ass't turn in, Discussion)"
