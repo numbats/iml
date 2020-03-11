@@ -24,7 +24,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 - **GOOD FRIDAY REPLACEMENTS** Friday, Apr 10 is a Monash holiday. The scheduled lecture and tutorial for that day will be replaced with times ealier in week 6. The lecture will be Wed 12:00-1:00 in LTB 141 (same building, different room). The tutorial will be Tue 4:00-5:30 same room.
 
-## Consultations (starting week2)
+## Consultations (starting week 2)
 
 - Prof Cook: Wed 3-4 Menzies 762A
 - Ursula Laa: Mon 9:30-10:30 Menzies W1105 or W1106
