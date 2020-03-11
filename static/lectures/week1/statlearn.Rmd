@@ -217,7 +217,7 @@ library(emo)
     <br> `r set.seed(1000); emo::ji("math")` Assumption about the form of $f$, e.g. linear
     <br> `r set.seed(1000); emo::ji("smile")` The problem of estimating $f$ reduces to estimating a set of parameters
     <br> `r set.seed(1000); emo::ji("smile")` Usually a good starting point for many learning problems
-    <br> `r set.seed(1000); emo::ji("frown")` Poor performance if model assumtion (such as linearity) is wrong
+    <br> `r set.seed(1000); emo::ji("frown")` Poor performance if model assumption (such as linearity) is wrong
   ]]
 .column[.pad10px[
 .orange[.center[Non-parametric methods]]

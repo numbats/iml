@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Flexible Regression</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Flexible Regression
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 2 (b)
+
+---
+
+
+
+
+class: split-two
+
+.column[.pad50px[
+
+# Moving beyond linearity
+
+Sometimes the relationships we discover are not linear... 
+&lt;br&gt;
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+
+###### Image source: [XKCD](https://xkcd.com/2048/)]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/curve_fitting.png", width="60%"&gt;
+
+]]
+
+
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Moving beyond linearity
+
+- Consider the following Major League Baseball data from the 1986 and 1987 seasons.
+- Would a linear model be appropriate for modelling the relationship between Salary and Career hits, captured in the variables `logSalary` and `logCHits`?
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-1-1.png" width="504" /&gt;
+
+]]
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Moving beyond linearity
+
+
+- Perhaps a more flexible regression model is needed!
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-2-1.png" width="504" /&gt;
+
+]]
+---
+# Flexible regression fits
+
+
+The truth is rarely linear, 
+but often the linearity assumption is good enough. 
+
+When it's not ...
+
+- .orange[polynomials],
+- step functions,
+- .orange[splines],
+- local regression, and
+- .orange[generalized additive models]
+
+offer a lot of flexibility, without losing the ease and interpretability of linear models.
+
+
+---
+# Polynomial basis functions
+
+
+Instead of fitting a linear model (in `\(X\)`), we fit the model
+
+`$$y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \dots + \beta_K b_K(x_i) + e_i,$$`
+
+where `\(b_1(X), b_2(X), \dots, b_K(X)\)` are a family of functions or transformations that can be applied to a variable `\(X\)`, and `\(i = 1, \dots, n\)`.
+
+- Polynomial regression: `\(b_k(x_i) = x_i^k\)`
+- Piecewise constant functions: `\(b_k(x_i) = I(c_k \leq x_i \leq c_{k+1})\)`
+
+
+
+---
+# Polynomial basis functions 
+
+&lt;img src="flexible-regression_files/figure-html/basis-functions-1.png" width="800" height="400" /&gt;
+
+x1 `\(=x\)`, x2= `\(x^2\)`, x3= `\(x^3\)`, x4= `\(x^4\)`, x5= `\(x^5\)`
+
+
+---
+# Splines
+
+Knots: `\(\kappa_1,\dots,\kappa_K\)`.
+
+A spline is a continuous function `\(f(x)\)` consisting of polynomials between each consecutive pair of "knots" `\(x=\kappa_j\)` and `\(x=\kappa_{j+1}\)`.
+
+- Parameters constrained so that `\(f(x)\)` is continuous.
+- Further constraints imposed to give continuous derivatives.
+
+
+---
+# Piecewise Cubic Poly Spline
+
+
+Piecewise cubic polynomial with a single knot at a point `\(c\)`:
+
+`$$\hat{y}_i = \left\{ \begin{array}{l} 
+\beta_{01}+\beta_{11}x_i+\beta_{21}x_i^2+\beta_{31}x_i^3~~~if~x_i&lt; c\\
+\beta_{02}+\beta_{12}x_i+ \beta_{22}x_i^2+\beta_{32}x_i^3~~~if~x_i \geq c\end{array}\right\}$$`
+
+
+---
+# Piecewise Poly
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter7/7.3.pdf" target="_BLANK"&gt; &lt;img src="images/7.3.png" style="width: 60%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_tiny[(Chapter 7/ 7.3)]
+
+
+
+
+---
+# Basis Functions
+
+- Truncated power basis
+- Predictors: `\(x\)`, ..., `\(x^p\)`, `\((x-\kappa_{1})_+^p\)`, ..., `\((x-\kappa_{K})_+^p\)`
+
+Then the regression is piecewise order- `\(p\)` polynomials.
+- `\(p-1\)` continuous derivatives.
+- Usually choose `\(p=1\)` or `\(p=3\)`.
+- `\(p+K+1\)` degrees of freedom
+
+
+---
+# Basis functions
+
+
+
+&lt;img src="flexible-regression_files/figure-html/truncated-1.png" width="800" height="400" /&gt;
+
+x1 `\(=x\)`, x2= `\(x^2\)`, x3= `\(x^3\)`, x4= `\((x+0.5)^3_+\)`, x5= `\((x-0.5)^3_+\)`
+
+
+---
+# Natural splines
+
+- Splines based on truncated power bases have high variance at the outer range of the predictors.
+- Natural splines are similar, but have additional .orange[boundary constraints]: the function is linear at the boundaries. This reduces the variance.
+
+Degrees of freedom `\(\verb|df|=K\)`.
+
+Create predictors using `\(\verb|ns|\)` function in R (automatically chooses knots given `\(\verb|df|\)`).
+
+
+---
+
+
+class: split-two
+
+.column[.pad50px[
+
+# Comparison with Cubic splines
+
+
+We can fit a cubic spline in `R` using `splines::bs()`, and fit a natural cubic spline using `splines::ns()`.
+
+- Notice the difference between the fits towards the end of the curves.
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-4-1.png" width="504" /&gt;
+
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Comparison with Polynomial Regression
+
+
+- Notice the difference between the fits towards the end of the curves.
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-5-1.png" width="504" /&gt;
+
+]]
+---
+
+# Natural cubic splines
+
+&lt;img src="flexible-regression_files/figure-html/natural-1.png" width="800" height="500" /&gt;
+
+
+---
+
+# Knot placement
+
+&lt;br&gt;
+
+.green[<i class="fas  fa-chart-bar "></i>] **Strategy 1:** specify `df` (which creates `df-1` internal knots and 2 boundary knots, so that `df` = `\(K+1\)`) and let `ns()` place them at appropriate quantiles of the observed `\(X\)`. 
+
+&lt;br&gt;
+
+.green[<i class="fas  fa-chart-bar "></i>] **Strategy 2:** choose `\(K\)` and their locations.
+
+
+---
+## Natural cubic splines with differing knots
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-6-1.png" width="936" /&gt;
+---
+# Generalised additive models (GAMs)
+
+Why is it hard to fit models of the form
+
+`$$y = f(x_1,x_2,\dots,x_p) + e?$$`
+- Data is very sparse in high-dimensional space.
+- Model assumes `\(p\)`-way interactions which are hard to estimate.
+
+
+
+---
+# Additive functions
+
+&lt;br&gt;
+
+.tip[
+`\(y_i=\beta_0+f_1(x_{i,1})+f_2(x_{i,2})+...+f_p(x_{p,1})+e_i\)`
+]
+
+where each `\(f\)` is a smooth univariate function.
+
+Allows for flexible nonlinearities in several variables, but retains
+the additive structure of linear models.
+
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Additive functions
+
+`$$\begin{align}
+\log(\mbox{Salary}) &amp; = \beta_0 + f_1(\mbox{log(CHits)})  \\
+&amp; + f_2(\mbox{Years}) + f_3(\mbox{Errors}) \\
+&amp; + f_4(\mbox{Assists}) + \varepsilon
+\end{align}$$`
+
+&lt;br&gt;
+
+
+```r
+my_gam &lt;- gam(logSalary~s(logCHits) +
+                s(Years)+ s(Errors) + 
+                s(Assists),data = hits)
+```
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="flexible-regression_files/figure-html/unnamed-chunk-8-1.png" width="504" /&gt;
+
+]]
+
+---
+# Generalisations
+
+
+- Can fit a GAM simply using, e.g. natural splines:
+- Coefficients not that interesting; fitted functions are. 
+- Use `draw` from `gratia` package to plot GAMs fitted in `mgcv` package.
+-  Can mix terms --- some linear, some nonlinear --- and use
+`anova()` to compare models.
+- GAMs are additive, although low-order interactions can be
+included in a natural way using, e.g. bivariate smoothers or
+interactions of the form `ns(age,df=5):ns(year,df=5)`.
+
+
+---
+# Can we include interaction effects?
+
+
+- Additive models assume no interactions. 
+- Add bivariate smooths for two-way interactions.
+- Graphically check for interactions using faceting.
+
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

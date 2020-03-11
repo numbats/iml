@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Linear Regression</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Linear Regression
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 2 (a)
+
+---
+
+
+
+
+
+## Multiple Regression
+
+&lt;br&gt;
+
+.tip[
+`$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_pX_{p,i} + e_i.$$`]
+
+- Each `\(X_{j,i}\)` is .orange[numerical] and is called a .orange[predictor].
+- The coefficients `\(\beta_1,\dots,\beta_p\)` measure the .orange[effect] of each
+predictor after taking account of the effect of all other predictors
+in the model.
+- Predictors may be .orange[transforms] of other predictors. e.g., `\(X_2=X_1^2\)`.
+
+
+---
+
+## Multiple Regression
+
+
+- The model describes a .orange[**line**, plane or hyperplane] in the predictor space.
+
+
+&lt;center&gt;&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.1.pdf" target="_BLANK"&gt; &lt;img src="images/3.1.png" style="width: 60%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_tiny[(Chapter3/3.1.pdf)]
+
+---
+## Multiple Regression
+
+
+- The model describes a .orange[line, **plane** or hyperplane] in the predictor space.
+
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.5.pdf" target="_BLANK"&gt; &lt;img src="images/3.5.png" style="width: 60%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_tiny[(Chapter3/3.5.pdf)]
+---
+## Categorical Variables
+
+Qualitative variables need to be converted to numeric.
+
+`$$x_i = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+which would result in the model
+
+`$$\hat{y}_i = \left\{\begin{array}
+{ll}
+\beta_0+\beta_1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}   \\
+\beta_0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+
+
+---
+## Categorical Variables
+
+More than two categories
+
+`$$x_{i1} = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+`$$x_{i2} = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a bilby}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+which would result in the model using .orange[dummy variables].
+
+`$$\hat{y}_i = \left\{\begin{array}
+{ll}
+\beta_0+\beta_1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}   \\
+\beta_0+\beta_2 &amp; \mbox{if} ~~~  i^{\text{th}}  \mbox{ obs is a bilby}  \\
+\beta_0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+---
+## Ordinary Least Squares (OLS)
+
+&lt;br&gt;
+
+.orange[Ordinary least squares] is the simplest way to fit the model. Geometrically, this is  the sum of the squared distances, parallel to the axis of the dependent variable, between each observed data point and the corresponding point on the regression surface – the .orange[smaller the sum] of differences, the .orange[better] the model fits the data.
+
+
+
+---
+## Model Diagnostics
+
+&lt;br&gt;
+
+`\(R^2\)` is the proportion of variation explained by the model, and measures the goodness of the fit, close to 1 the model explains most of the variability in `\(Y\)`, close to 0 it explains very little. 
+
+`$$R^2 = 1 - \frac{RSS}{TSS}$$`
+
+where `\(RSS = \sum_{i=1}^n (y_i-\hat{y})^2\)` (read: Residual Sum of Squares), and `\(TSS=\sum_{i=1}^n (y_i-\bar{y})^2\)` (read: Total Sum of Squares).
+
+ 
+
+---
+
+## Model Diagnostics
+
+&lt;br&gt;
+
+.orange[Residual Standard Error (RSE)] is an estimate of the standard deviation of `\(\varepsilon\)`. This is meaningful with the assumption that `\(\varepsilon \sim N(0, \sigma^2)\)`. 
+
+`$$RSE = \sqrt{\frac{1}{n-p-1}RSS}$$`
+
+
+---
+## Model Diagnostics
+
+&lt;br&gt;
+
+F statistic tests whether any predictor explains response, by testing
+
+`\(H_0: \beta_1=\beta_2=...=\beta_p=0\)` vs `\(H_A:\)` at least one is not 0
+
+
+---
+## Think about ...
+
+&lt;br&gt;
+
+- Is at least one of the predictors useful in predicting the response?
+- Do all the predictors help to explain `\(Y\)`, or is only a subset of the predictors useful?
+- How well does the model fit the data?
+- Given a set of predictor values, what response value should we predict and how accurate is our prediction?
+
+
+---
+## Example - Wages
+
+Wage and other data for a group of 3000 male workers in the Mid-Atlantic region. 
+.orange[Goal:] .green[Predict wage based on worker characteristics.]
+
+
+```
+## Observations: 3,000
+## Variables: 11
+## $ year       &lt;int&gt; 2006, 2004, 2003, 2003, 2005, 2008, 2009, 2008, 2006, 2004…
+## $ age        &lt;int&gt; 18, 24, 45, 43, 50, 54, 44, 30, 41, 52, 45, 34, 35, 39, 54…
+## $ maritl     &lt;fct&gt; 1. Never Married, 1. Never Married, 2. Married, 2. Married…
+## $ race       &lt;fct&gt; 1. White, 1. White, 1. White, 3. Asian, 1. White, 1. White…
+## $ education  &lt;fct&gt; 1. &lt; HS Grad, 4. College Grad, 3. Some College, 4. College…
+## $ region     &lt;fct&gt; 2. Middle Atlantic, 2. Middle Atlantic, 2. Middle Atlantic…
+## $ jobclass   &lt;fct&gt; 1. Industrial, 2. Information, 1. Industrial, 2. Informati…
+## $ health     &lt;fct&gt; 1. &lt;=Good, 2. &gt;=Very Good, 1. &lt;=Good, 2. &gt;=Very Good, 1. &lt;…
+## $ health_ins &lt;fct&gt; 2. No, 2. No, 1. Yes, 1. Yes, 1. Yes, 1. Yes, 1. Yes, 1. Y…
+## $ logwage    &lt;dbl&gt; 4.318063, 4.255273, 4.875061, 5.041393, 4.318063, 4.845098…
+## $ wage       &lt;dbl&gt; 75.04315, 70.47602, 130.98218, 154.68529, 75.04315, 127.11…
+```
+
+
+---
+
+## Take a look
+
+What do the following pairwise comparisons of the variables `year`, `age` and, `education` against `wage` show us?
+
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-2-1.png" width="100%" /&gt;
+
+
+
+---
+
+## Take a look
+
+If we examine `logwage` instead of `wage` as response variable - what changes?
+
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-3-1.png" width="100%" /&gt;
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## Take a look
+
+&lt;br&gt;
+- Examine the predictors. Ideally values are spread out without any associations.
+
+]]
+
+.column[.content.vmiddle.center[
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-4-1.png" width="90%" /&gt;
+]]
+---
+## Model for wage data
+
+&lt;br&gt;
+
+.tip[
+`\(Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3X_3 + e\)`
+]
+
+where `\(Y=\)` `logwage`, `\(X_1=\)` `year`, `\(X_2=\)` `age`, and `\(X_3=\)` `education`.
+
+
+---
+## Fitting the model in R
+
+
+```
+lm(formula = logwage ~ year + age + education, data = Wage)
+
+Coefficients:
+                              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                 -1.745e+01  5.469e+00  -3.191  0.00143  
+year                         1.078e-02  2.727e-03   3.952 7.93e-05 
+age                          5.509e-03  4.813e-04  11.447  &lt; 2e-16 
+education2. HS Grad          1.202e-01  2.086e-02   5.762 9.18e-09 
+education3. Some College     2.440e-01  2.195e-02  11.115  &lt; 2e-16 
+education4. College Grad     3.680e-01  2.178e-02  16.894  &lt; 2e-16 
+education5. Advanced Degree  5.411e-01  2.362e-02  22.909  &lt; 2e-16 
+
+Residual standard error: 0.3023 on 2993 degrees of freedom
+Multiple R-squared:  0.2631,	Adjusted R-squared:  0.2616 
+F-statistic: 178.1 on 6 and 2993 DF,  p-value: &lt; 2.2e-16
+```
+
+
+---
+## Interpretation
+
+- The ideal scenario is when the predictors are uncorrelated.
+    - Each coefficient can be interpreted and tested separately.
+- Correlations amongst predictors cause problems.
+    - The variance of all coefficients tends to increase, sometimes dramatically.
+    - Interpretations become hazardous -- when `\(X_j\)` changes, everything else changes.
+    - Predictions still work provided new `\(X\)` values are within the range of training `\(X\)` values.
+- Claims of causality should be avoided for observational data.
+
+---
+## Interactions
+
+- An interaction occurs when the one variable changes the effect of a second variable. (e.g., spending on radio advertising increases the effectiveness of TV advertising).
+- To model an interaction, include the product `\(X_1X_2\)` in the model in addition to `\(X_1\)` and `\(X_2\)`.
+
+
+- **Hierarchy principle**: If we include an interaction in a model, we should also include the main effects, even if the p-values associated
+with their coefficients are not significant. (This is because the interactions are almost impossible to interpret without the main effects.)
+
+
+---
+## Interactions
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.7.pdf" target="_BLANK"&gt; &lt;img src="images/3.7.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+.font_tiny[(Chapter3/3.7.pdf)]
+---
+## Residuals
+
+&lt;br&gt;
+
+- If a plot of the residuals vs any predictor in the model shows a pattern, then the .orange[relationship is nonlinear.]
+- If a plot of the residuals vs any predictor **not** in the model shows a pattern, then .orange[the predictor should be added to the model.]
+- If a plot of the residuals vs fitted values shows a pattern, then there is .orange[heteroscedasticity in the errors]. (Could try a transformation.)
+
+
+---
+## Residuals
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.9.pdf" target="_BLANK"&gt; &lt;img src="images/3.9.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_tiny[(Chapter3/3.9.pdf)]
+
+
+---
+## Model
+
+.green[
+`$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_pX_{p,i} + e_i.$$`
+]
+
+Let `\(Y = (Y_1,\dots,Y_n)'\)`, `\(e = (e_1,\dots,e_n)'\)`, `\(\beta = (\beta_0,\dots,\beta_p)'\)` and
+
+`$$X = \begin{bmatrix}
+  1 &amp; X_{1,1} &amp; X_{2,1} &amp; \dots &amp; X_{p,1}\\
+  1 &amp; X_{1,2} &amp; X_{2,2} &amp; \dots &amp; X_{p,2}\\
+\vdots &amp; \vdots &amp; \vdots &amp; &amp; \vdots\\
+  1 &amp; X_{1,n} &amp; X_{2,n} &amp; \dots &amp; X_{p,n}
+  \end{bmatrix}.$$`
+Then
+
+.green[
+`$${Y} = {X}{\beta} + {e}$$`]
+
+
+---
+## Least squares estimation
+
+Minimize: `\((Y - X\beta)'(Y - X\beta)\)`
+
+Differentiate wrt `\(\beta\)` and equal to zero gives
+
+`\(\hat{\beta}=(X'X)^{-1}X'Y\)`
+
+(The "normal equation".)
+
+
+`$$\hat{\sigma}^2 = \frac{1}{n-p-1}({Y} - {X}\hat{{\beta}})' ({Y} - {X}\hat{{\beta}})$$`
+
+**Note:** If you fall for the dummy variable trap, `\(({X}'{X})\)` is a singular matrix.
+
+
+
+
+---
+
+## Likelihood
+
+
+If the errors are iid and normally distributed, then
+
+`$${Y} \sim \mathcal{N}_n({X}{\beta},\sigma^2{I})$$`
+
+So the likelihood is
+
+`$$L = \frac{1}{\sigma^n(2\pi)^{n/2}}\exp\left(-\frac1{2\sigma^2}({Y}-{X}{\beta})'({Y}-{X}{\beta})\right)$$`
+
+
+which is maximized when `\(({Y}-{X}{\beta})'({Y}-{X}{\beta})\)` is minimized.
+
+.orange[So MLE `\\(\equiv \\)` OLS.]
+
+
+---
+## Predictions
+
+.green[Optimal predictions]
+
+
+`$$\hat{Y}^* = \text{E}(Y^* | {X}^*, {Y},{X}) =
+{X}^*\hat{{\beta}} = {X}^*({X}'{X})^{-1}{X}'{Y}$$`
+
+where `\({X}^*\)` is a row vector containing the values of the regressors for the predictions (in the same format as `\({X}\)`).
+
+.green[Prediction variance]
+
+`$$\text{Var}(Y^* | {X}^*, {Y},{X}) = \sigma^2 \left[1 + {X}^* ({X}'{X})^{-1} ({X}^*)'\right]$$`
+
+- This ignores any errors in `\({X}^*\)`.
+- 95% prediction intervals assuming normal errors:
+`\(\hat{Y}^* \pm 1.96 \sqrt{\text{Var}(Y^*| {Y},{X},{X}^*)}\)`.
+
+
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
