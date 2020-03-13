@@ -29,7 +29,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Prof Cook: Wed 3-4 Menzies 762A
 - Ursula Laa: Mon 9:30-10:30 Menzies W1105 or W1106
 - Samantha Dawson: Wed 11:30-12:30 Menzies W1105 or W1106
-- Kenji MacFarlane: Thu 9:30-10:30 Menzies W1105 or W1106
+- Kenji MacFarlane: Thu 10:30-11:30 Menzies W1105 or W1106
 
 ## Lecture notes
 
