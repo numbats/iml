@@ -301,7 +301,7 @@ with their coefficients are not significant. (This is because the interactions a
 ## Residuals
 
 <center>
-<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.9.pdf" target="_BLANK"> <img src="images/3.9.png" style="width: 100%; align: center"/> </a>
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.9.pdf" target="_BLANK"> <img src="images/3.9.png" style="width: 90%; align: center"/> </a>
 </center>
 
 .font_tiny[(Chapter3/3.9.pdf)]
