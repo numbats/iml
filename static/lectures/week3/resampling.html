@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Resampling</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link href="libs/font-awesome-animation/font-awesome-animation-emi.css" rel="stylesheet" />
+    <script src="libs/fontawesome/js/fontawesome-all.min.js"></script>
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Resampling
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 3 (b)
+
+---
+
+
+
+
+## Model assessment 
+
+&lt;br&gt;
+
+&lt;center&gt;
+&lt;img src="images/newdata.jpg" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+---
+
+
+## Validating models
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.1.pdf" target="_BLANK"&gt; &lt;img src="images/5.1.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+A set of `\(n\)` observations are randomly split into a training set (blue, containing observations 7, 22, 13, ...) and a validation set (yellow, all other observations not in training set).
+
+Drawback: Only one split of data made, may not adequately estimate test error. 
+
+.font_tiny[(Chapter5/5.1.pdf)]
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+
+## Validating models
+
+&lt;br&gt;
+
+Want to choose best degree of polynomial, for `\(\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon\)`
+
+
+```
+##  [1]  2  4  7  9 10 11 12 14 15 16 18 21 23 25 27
+```
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-2-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+]]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Validating models
+
+&lt;br&gt;
+
+Want to choose best degree of polynomial, for `\(\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon\)`
+
+
+```
+##  [1]  3  4  5  6  9 10 13 14 17 20 23 24 25 27 28
+```
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+
+## Validating models
+
+&lt;br&gt;
+
+
+Want to choose best degree of polynomial, for `\(\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon\)`
+
+
+```
+##  [1]  1  3  4  5  8  9 10 12 13 14 15 16 20 22 25
+```
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Validating models
+
+&lt;br&gt;
+
+
+Want to choose best degree of polynomial, for `\(\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon\)`
+
+
+```
+##  [1]  1  2  3  4  5 11 13 15 18 19 21 23 24 26 27
+```
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+class: middle
+
+<span>&lt;i class="fas  fa-dice fa-lg faa-bounce animated faa-slow " style=" color:orange;"&gt;&lt;/i&gt;</span>
+
+The .orange[variability] between different draws of test sets can be .orange[large]. This can provide poor choice of model, or misleading estimate of error.
+
+---
+## LOOCV
+
+Leave-one-out (LOOCV) cross-validation: `\(n\)` validation sets, each with .orange[ONE] observation left out.
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.3.pdf" target="_BLANK"&gt; &lt;img src="images/5.3.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+
+
+---
+## LOOCV
+
+
+Leave-one-out (LOOCV) cross-validation: `\(n\)` validation sets, each with .orange[ONE] observation left out. For each set, `\(i=1, ..., n\)`, compute the `\(MSE_{i}\)`.
+
+The LOOCV estimate for the test MSE is the average of these `\(n\)` test error estimates:
+
+`$$CV_{(n)} = \frac{1}{n}\sum_{i=1}^n MSE_{i}$$`
+
+
+
+---
+## LOOCV
+
+There is a computational shortcut, for linear or polynomial models, where not all `\(n\)` models need to be fitted. 
+
+`$$CV_{(n)} = \frac{1}{n}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$`
+
+where `\(h_i=\frac{1}{n}+\frac{(x_i-\bar{x})^2}{\sum_{i'}^n(x_{i'}-\bar{x})^2}\)` (known as *leverage* from regression diagnostics).
+
+---
+## k-fold cross validation
+
+
+1. Divide the data set into k different parts.
+2. Remove one part, fit the model on the remaining `\(k − 1\)` parts, and compute the MSE on the omitted part.
+3. Repeat `\(k\)` times taking out a different part each time
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.5.pdf" target="_BLANK"&gt; &lt;img src="images/5.5.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+
+.font_tiny[(Chapter 5/ 5.5)]
+
+
+---
+## k-fold cross validation
+
+1. Divide the data set into k different parts.
+2. Remove one part, fit the model on the remaining `\(k − 1\)` parts, and compute the MSE on the omitted part.
+3. Repeat `\(k\)` times taking out a different part each time
+
+`$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$`
+- LOOCV is a special case of `\(k\)`-fold cross-validation.
+- Bias-variance trade-off: 
+    - one vaidation set overestimates test error, LOOCV approximately unbiased estimates, `\(k\)`-fold CV intermediate
+    - LOOCV has higher variance than does `\(k\)`-fold CV
+    - choice of `\(k=5\)` or `\(10\)` is a compromise
+
+
+---
+## Classification
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.7.pdf" target="_BLANK"&gt; &lt;img src="images/5.7.png" style="width: 50%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+
+.font_tiny[(Chapter 5/ 5.7)]
+
+---
+## Classification
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.8.pdf" target="_BLANK"&gt; &lt;img src="images/5.8.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+Black line is .black[10-fold CV]; .blue[training] and TRUE .orange[test] error for different choices of polynomial (left) and KNN classifier (right). 
+
+
+.font_tiny[(Chapter 5/ 5.8)]
+---
+
+layout: false
+
+## Bootstrap procedure
+
+- Draw `\(B\)` independent bootstrap samples `\(X^{*(1)}, \dots, X^{*(B)}\)` from `\(\hat P\)`:
+`$$X_1^{*(b)}, \dots, X_n^{*(b)} \sim \hat P \quad b = 1, \dots, B.$$` 	
+- Evaluate the bootstrap replications:
+`$$\hat \theta^{*(b)} = s(X^{*(b)}) \quad b = 1, \dots, B.$$`	
+- Estimate the quantity of interest from the distribution of the `\(\hat \theta^{*(b)}\)`
+
+
+
+---
+## Example - boostrap model
+
+
+- Fit the model on a set of bootstrap samples, and then keep track of how well it predicts the original dataset
+`$$\text{Err}_{\text{boot}} = \frac1B \frac1N \sum_{b = 1}^B \sum_{i = 1}^N L(y_i, \hat f^{*b}(x_i))$$` 
+- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result .orange[some observations may appear more than once in a given bootstrap data set and some not at all].
+
+
+---
+## Out of bag (OOB) error
+
+For estimating error,  only .orange[use predictions from bootstrap samples not containing that observation]. The leave-one-out bootstrap estimate of prediction error can be defined as
+ 
+`$$\text{Err}_{\text{loo-boot}} = \frac1N \sum_{i = 1}^N \frac{1}{|C^{-i}|}\sum_{b \in C^{-i}} \ L(y_i, \hat f^{*b}(x_i))$$`
+
+where `\(C^{-i}\)` is the set of indices of the bootstrap samples `\(b\)` that do not contain observation `\(i\)`.
+
+
+
+---
+## Uses and variants of the boostrap
+
+- Common uses:
+    - Computing standard errors for complex statistics
+    - Prediction error estimation
+    - Bagging (Bootstrap aggregating) ML models
+- Types of bootstrap based on different assumptions:
+    - block bootstrap
+    - sieve bootstrap
+    - smooth bootstrap
+    - residual bootstrap
+    - wild bootstrap
+
+
+---
+layout: false
+# 👨‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/dicook/Business_Analytics](https://github.com/dicook/Business_Analytics).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
