@@ -74,7 +74,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Assignments
 
-- Assignment 1: 
+- Assignment 1: [Instructions](assignments/assignment1.html)([Rmd](assignments/assignment1.Rmd)) [cuddly_koalas.rds](assignments/data/cuddly_koalas.rds)
 - Assignment 2:
 - Assignment 3:
 - Assignment 4:
@@ -92,7 +92,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Project
 
-- Instructions]
+- Instructions: this will be a kaggle challenge
 
 ## Exam information
 
