@@ -591,7 +591,7 @@ $1-\text{E}\left(\max_j \text{P}(Y = C_j | X)\right)$
 
 <center>
 
-<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.13.pdf" target="_BLANK"> <img src="images/2.13.png" style="width: 60%; align: center"/> </a>
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.13.pdf" target="_BLANK"> <img src="images/2.13.png" style="width: 50%; align: center"/> </a>
 
 
 </center>
