@@ -392,7 +392,7 @@ summary {
 <ol style="list-style-type: decimal">
 <li>This question explores bias-variance trade-off. Read in the simulated data <code>cuddly_koalas.rds</code>. This data is generated using the following function:</li>
 </ol>
-<p><span class="math display">\[ y = -4x + 6x^2 - cos(x) + \varepsilon, ~~\text{where}~~x\in [-10, 20], ~~\varepsilon\sim N(0, 50^2)\]</span></p>
+<p><span class="math display">\[ y = -4x + 6x^2 - 100sin(x) + \varepsilon, ~~\text{where}~~x\in [-10, 20], ~~\varepsilon\sim N(0, 50^2)\]</span></p>
 <ol style="list-style-type: lower-alpha">
 <li><p>(1)Make a plot of the data, overlaying the true model.</p></li>
 <li><p>(1)Break the data into a <span class="math inline">\(2/3\)</span> training and a <span class="math inline">\(1/3\)</span> test set. (Hint: You can use the function <code>createDataPartition</code> from the <code>caret</code> package.) Fit a linear model, using the training set. Compute the training MSE and test MSE. Overlay the linear model fit on a plot of the data and true model.</p></li>

@@ -38,7 +38,7 @@ library(tidyverse)
 
 1. This question explores bias-variance trade-off. Read in the simulated data `cuddly_koalas.rds`. This data is generated using the following function:
 
-$$ y = -4x + 6x^2 - cos(x) + \varepsilon, ~~\text{where}~~x\in [-10, 20], ~~\varepsilon\sim N(0, 50^2)$$
+$$ y = -4x + 6x^2 - 100sin(x) + \varepsilon, ~~\text{where}~~x\in [-10, 20], ~~\varepsilon\sim N(0, 50^2)$$
 
 a. (1)Make a plot of the data, overlaying the true model.
 
