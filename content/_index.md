@@ -42,7 +42,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Week 2: Linear regression, Chapter 3 and 7 
 [slides1](http://iml.numbat.space/lectures/week2/linear-regression.html) ([Rmd](http://iml.numbat.space/lectures/week2/linear-regression.Rmd)) ([pdf](http://iml.numbat.space/lectures/week2/linear-regression.pdf)) [slides2](http://iml.numbat.space/lectures/week2/flexible-regression.html) ([Rmd](http://iml.numbat.space/lectures/week2/flexible-regression.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week2/flexible-regression.pdf))
-- Week 3: Resampling, Chapter 5 
+- Week 3: Resampling, Chapter 5 [slides1](http://iml.numbat.space/lectures/week3/categorical_response_regression.html) ([Rmd](http://iml.numbat.space/lectures/week3/categorical_response_regression.Rmd)) ([pdf](http://iml.numbat.space/lectures/week3/categorical_response_regression.pdf)) [slides2](http://iml.numbat.space/lectures/week3/resampling.html) ([Rmd](http://iml.numbat.space/lectures/week3/resampling.Rmd))
+([pdf](http://iml.numbat.space/lectures/week3/resampling.pdf))
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
 - Week 5: Visualisation, Instructor's notes
 - Week 6: Classification,  Chapter 8, 7
