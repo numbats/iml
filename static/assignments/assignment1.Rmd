@@ -1,6 +1,6 @@
 ---
 title: "ETC3250/5250 Assignment 1"
-date: "DUE: Friday Mar 27, 5pm"
+date: "DUE: Friday Apr 3, 5pm"
 output: html_document
 ---
 
