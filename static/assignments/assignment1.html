@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -330,6 +329,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -362,7 +362,7 @@ summary {
 
 
 <h1 class="title toc-ignore">ETC3250/5250 Assignment 1</h1>
-<h4 class="date">DUE: Friday Apr 3, 5pm</h4>
+<h4 class="date">DUE: Friday Apr 10, 5pm</h4>
 
 </div>
 
@@ -405,13 +405,13 @@ summary {
 <li><p>(2)Make a sketch indicating observed data, the true model, fitted model, and indicate what the bias, variance and MSE refer to. Remember that to understand bias and variance, you need to think about taking multiple (and actually all possible) samples. Your illustration would have predictor (<span class="math inline">\(x\)</span>) on the horizontal axis and response on the vertical axis. Represent and observed value with a dot, and use curves for fitted models and the true model.</p></li>
 </ol>
 <ol start="2" style="list-style-type: decimal">
-<li>The current COVID-19 health crisis worries us all. John Hopkins University has been carefully documenting incidence, recoveries and deaths around the globe. Read the incidence data from <a href="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv" class="uri">https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv</a>, into R.</li>
+<li>The current COVID-19 health crisis worries us all. John Hopkins University has been carefully documenting incidence, recoveries and deaths around the globe at <a href="https://github.com/CSSEGISandData/COVID-19" class="uri">https://github.com/CSSEGISandData/COVID-19</a>. Read the incidence data from <a href="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv" class="uri">https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv</a>, into R.</li>
 </ol>
 <ol style="list-style-type: lower-alpha">
 <li><p>(2)The data shows cumulative counts by date for many countries. Extract the data for Australia. It is currently multiple rows corresponding to counts in different states. Pivot the data into long tidy form, and convert the text date into a date variable. Difference the days, so that you have the incidence for each day. Make a bar chart of incidence by date. Add a loess smooth to the plot.</p></li>
 <li><p>(3)Fit an appropriate linear model, using <code>glm</code> to the data. (Hint: ) Make a summary of the model fit, write down the model equation and a plot of the data with the model overlaid. Compute the ratio of the deviance relative to the null deviance. What does this say about the model fit? Is it a good summary of the variation in counts?</p></li>
 <li><p>(1)Would the <code>glm</code> model be considered a flexible or inflexible model?</p></li>
-<li><p>(1)Use your model to predict the count for Mar 31.</p></li>
+<li><p>(1)Use your model to predict the count for Apr 6.</p></li>
 </ol>
 </div>
 
