@@ -83,6 +83,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 ## Data
 
 - [chocolates.csv](http://iml.numbat.space/data/chocolates.csv)
+- [nrc.csv](http://iml.numbat.space/data/nrc.csv)
 - [student_sub.rds](http://iml.numbat.space/data/student_sub.rds)
 - [wiggly.csv](http://iml.numbat.space/labs/data/wiggly.csv)
 - [nnet_best.rda](http://iml.numbat.space/labs/data/nnet_best.rda)
