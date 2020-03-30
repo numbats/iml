@@ -22,7 +22,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Tutorials: Tue 1:05-2:25, Tue 2:35-3:55, Wed 1:05-2:25, 2:35-3:55, Fri 9:35-10:55 **ALL HAVE BEEN MOVED ONLINE** check moodle for zoom links  frmo your tutors
 - Note: You must **attend the tutorial that you have been assigned to.** Only in exceptional circumstances will changes be allowed, and they need to be approved by the chief examiner, one week in advance of the tutorial. [Moodle](https://lms.monash.edu/course/view.php?id=49079) is used for asking for help, marks and assignment turn in. 
 
-- **GOOD FRIDAY REPLACEMENTS** Friday, Apr 10 is a Monash holiday. The scheduled lecture and tutorial for that day will be replaced with times ealier in week 6. The lecture will be Wed 12:00-1:00 in LTB 141 (same building, different room). The tutorial will be Tue 4:00-5:30 same room.
+- **GOOD FRIDAY REPLACEMENTS** Friday, Apr 10 is a Monash holiday. The scheduled lecture and tutorial for that day will be replaced with times ealier the week. The lecture will be Wed 12:00-1:00 in LTB 141 (same building, different room). The tutorial will be Tue 4:00-5:30 same room.
 
 ## Consultations (starting week 2)
 

@@ -91,8 +91,16 @@ Consider the following data `simcredit` which looks at the default status based 
 
  **Question**: Why is a linear model not appropriate for this data?
 
+```{r}
+countdown::countdown(minutes=0, seconds=30, left = 0, right = 0, 
+                     padding = "1px", margin = "1%",
+                     font_size = "1em", 
+                     style = "position: relative; width: min-content;")
+```
+
 ]]
 .column[.content.vmiddle.center[
+
 
 ```{r}
 library(ISLR)
@@ -328,7 +336,7 @@ class: split-40
 
 <br>
 
-Consider the case when the data is *perfectly* seperated. 
+Consider the case when the data is *perfectly* separated. 
 
 Here, we can see that all balances above $1500 default.
 ]]
@@ -560,7 +568,7 @@ $$\Sigma_B = \frac{1}{K}\sum_{i=1}^{K} (\mu_i-\mu)(\mu_i-\mu)'$$
 ## Multivariate LDA
 
 
-3The dashed lines are the Bayes decision boundaries. Ellipses
+The dashed lines are the Bayes decision boundaries. Ellipses
 that contain 95% of the probability for each of the three classes are shown. Solid line corresponds to the class boundaries from the LDA model fit to the sample.
 
 <a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.6.pdf" target="_BLANK"> <img src="images/4.6.png" style="width: 90%; align: center"/> </a>
