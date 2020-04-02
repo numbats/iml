@@ -64,6 +64,7 @@ Want to choose best degree of polynomial, for `\(\mbox{mpg}=\beta_0+\beta_1f(\mb
 ##  [1]  2  4  7  9 10 11 12 14 15 16 18 21 23 25 27
 ```
 
+Remember: `$$MSE=\frac1n \sum_{i=1}^n (y_i-\hat{y}_i)^2$$`
 ]]
 
 .column[.content.vmiddle.center[
@@ -190,6 +191,71 @@ There is a computational shortcut, for linear or polynomial models, where not al
 where `\(h_i=\frac{1}{n}+\frac{(x_i-\bar{x})^2}{\sum_{i'}^n(x_{i'}-\bar{x})^2}\)` (known as *leverage* from regression diagnostics).
 
 ---
+class: split-two
+
+.column[.pad50px[
+
+Let's take a look at how this works
+
+
+```r
+# This has the cv.glm function
+library(boot) 
+glm.fit &lt;- glm(mpg ~ horsepower, 
+               data=Auto)
+# MSE on all observations
+mse(glm.fit, Auto) 
+```
+
+```
+## [1] 23.94366
+```
+
+```r
+# LOOCV by default
+cv.glm(Auto, glm.fit)$delta[1] 
+```
+
+```
+## [1] 24.23151
+```
+
+Compare with manual calculation
+]]
+
+.column[.pad50px[
+
+
+```r
+# Drop one observation our for fitting
+m &lt;- NULL
+for (i in 1:nrow(Auto)) {
+  fit &lt;- glm(mpg ~ horsepower, 
+             data=Auto[-i,])
+  m &lt;- c(m, 
+         (Auto[i,]$mpg - 
+            predict(fit, Auto[i,]))^2) 
+}
+head(m, 3)
+```
+
+```
+##        1        2        3 
+## 2.020010 1.250924 3.068052
+```
+
+```r
+mean(m)
+```
+
+```
+## [1] 24.23151
+```
+
+👍
+]]
+
+---
 ## k-fold cross validation
 
 
@@ -213,10 +279,41 @@ where `\(h_i=\frac{1}{n}+\frac{(x_i-\bar{x})^2}{\sum_{i'}^n(x_{i'}-\bar{x})^2}\)
 `$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$`
 - LOOCV is a special case of `\(k\)`-fold cross-validation.
 - Bias-variance trade-off: 
-    - one vaidation set overestimates test error, LOOCV approximately unbiased estimates, `\(k\)`-fold CV intermediate
+    - one validation set overestimates test error, LOOCV approximately unbiased estimates, `\(k\)`-fold CV intermediate
     - LOOCV has higher variance than does `\(k\)`-fold CV
     - choice of `\(k=5\)` or `\(10\)` is a compromise
 
+---
+
+
+```r
+glm.fit &lt;- glm(mpg ~ horsepower, 
+               data=Auto)
+# MSE on all observations
+mse(glm.fit, Auto) 
+```
+
+```
+## [1] 23.94366
+```
+
+```r
+# LOOCV by default
+cv.glm(Auto, glm.fit)$delta[1] 
+```
+
+```
+## [1] 24.23151
+```
+
+```r
+# 5-fold CV
+cv.glm(Auto, glm.fit, K=5)$delta[1] 
+```
+
+```
+## [1] 24.3191
+```
 
 ---
 ## Classification
@@ -252,28 +349,136 @@ layout: false
 `$$\hat \theta^{*(b)} = s(X^{*(b)}) \quad b = 1, \dots, B.$$`	
 - Estimate the quantity of interest from the distribution of the `\(\hat \theta^{*(b)}\)`
 
+---
 
+## Bootstrap samples
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.11.pdf" target="_BLANK"&gt; &lt;img src="images/5.11.png" style="width: 75%; align: center"/&gt; &lt;/a&gt;
+
+.font_tiny[(Chapter 5/ 5.11)]
+
+---
+## Bootstrap samples
+
+&lt;img src="resampling_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
 ## Example - boostrap model
 
 
-- Fit the model on a set of bootstrap samples, and then keep track of how well it predicts the original dataset
-`$$\text{Err}_{\text{boot}} = \frac1B \frac1N \sum_{b = 1}^B \sum_{i = 1}^N L(y_i, \hat f^{*b}(x_i))$$` 
-- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result .orange[some observations may appear more than once in a given bootstrap data set and some not at all].
-
+- Fit the model on a set of bootstrap samples, and keep track of how well it predicts the original dataset
+`$$\text{Err}_{\text{boot}} = \frac1B \frac1n \sum_{b = 1}^B \sum_{i = 1}^n L(y_i, \hat f^{*b}(x_i))$$` 
+- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result .orange[some observations may appear more than once in a given bootstrap data set and some not at all.]
 
 ---
-## Out of bag (OOB) error
+class: split-two
 
-For estimating error,  only .orange[use predictions from bootstrap samples not containing that observation]. The leave-one-out bootstrap estimate of prediction error can be defined as
- 
-`$$\text{Err}_{\text{loo-boot}} = \frac1N \sum_{i = 1}^N \frac{1}{|C^{-i}|}\sum_{b \in C^{-i}} \ L(y_i, \hat f^{*b}(x_i))$$`
-
-where `\(C^{-i}\)` is the set of indices of the bootstrap samples `\(b\)` that do not contain observation `\(i\)`.
+.column[.pad50px[
 
 
+```r
+glm.fit &lt;- glm(mpg ~ horsepower, 
+               data=Auto)
+# MSE on all observations
+mse(glm.fit, Auto) 
+```
 
+```
+## [1] 23.94366
+```
+
+```r
+# LOOCV by default
+cv.glm(Auto, glm.fit)$delta[1] 
+```
+
+```
+## [1] 24.23151
+```
+
+```r
+# 5-fold CV
+cv.glm(Auto, glm.fit, K=5)$delta[1] 
+```
+
+```
+## [1] 24.07127
+```
+]]
+
+.column[.pad50px[
+
+
+```r
+mse.fn &lt;- function(d, index) {
+  glm.fit &lt;- glm(mpg ~ horsepower, 
+               data=d[index,])
+  # MSE on all observations
+  return(m = mse(glm.fit, d[-unique(index),]) )
+}
+m &lt;- NULL
+for (i in 1:1000) {
+  idx &lt;- sample(nrow(Auto), replace = TRUE)
+  m &lt;- c(m, mse.fn(Auto, idx))
+}
+mean(m)
+```
+
+```
+## [1] 24.33553
+```
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## Bootstrap for error on a statistic
+
+Overall median is 22.75
+
+
+```r
+# Bootstrap median, and standard error
+med.fn &lt;- function(d, index) {
+  med &lt;- median(d$mpg[index])
+  med
+}
+bmed &lt;- boot(Auto, med.fn, R=1000)
+```
+
+]]
+
+.column[.pad50px[
+
+
+```r
+bmed
+```
+
+```
+## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = med.fn, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##     original   bias    std. error
+## t1*    22.75 -0.10595   0.7653743
+```
+
+
+
+]]
 ---
 ## Uses and variants of the boostrap
 

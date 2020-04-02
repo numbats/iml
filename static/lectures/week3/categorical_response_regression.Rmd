@@ -540,7 +540,7 @@ with $x, \mu$ are $p$-dimensional vectors, $\Sigma$ is a $p\times p$ variance-co
 
 The discriminant functions are:
 
-$$\delta_k(x) = x'\Sigma^{-1}\mu_k - \frac{1}{2}\mu_k'\Sigma^{-1}\mu_k + \pi_k$$
+$$\delta_k(x) = x'\Sigma^{-1}\mu_k - \frac{1}{2}\mu_k'\Sigma^{-1}\mu_k + \log(\pi_k)$$
 
 and Bayes classifier is .orange[assign a new observation] $x_0$ .orange[to the class with the highest] $\delta_k(x_0)$.
 
