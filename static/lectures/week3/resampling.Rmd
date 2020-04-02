@@ -389,20 +389,6 @@ $$\hat \theta^{*(b)} = s(X^{*(b)}) \quad b = 1, \dots, B.$$
 
 ---
 
-## Bootstrap samples
-
-```{r fig.height=3, out.width="100%"}
-library(gridExtra)
-p1 <- ggplot(Auto, aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Full data")
-p2 <- Auto %>%
-  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 1")
-p3 <- Auto %>%
-  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 2")
-grid.arrange(p1, p2, p3, ncol=3)
-```
-
----
-
 <a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.11.pdf" target="_BLANK"> <img src="images/5.11.png" style="width: 75%; align: center"/> </a>
 
 .font_tiny[(Chapter 5/ 5.11)]
@@ -422,7 +408,7 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 ---
 
-## Example - boostrap model
+## Example - bootstrap model
 
 
 - Fit the model on a set of bootstrap samples, and keep track of how well it predicts the original dataset
@@ -453,11 +439,13 @@ mse.fn <- function(d, index) {
   glm.fit <- glm(mpg ~ horsepower, 
                data=d[index,])
   # MSE on all observations
-  return(m = mse(glm.fit, d[-unique(index),]) )
+  return(m = mse(glm.fit, 
+                 d[-unique(index),]) )
 }
 m <- NULL
 for (i in 1:1000) {
-  idx <- sample(nrow(Auto), replace = TRUE)
+  idx <- sample(nrow(Auto), 
+                replace = TRUE)
   m <- c(m, mse.fn(Auto, idx))
 }
 mean(m)
@@ -491,13 +479,13 @@ bmed
 ```
 
 ```{r}
-# Foor coonstructing a confidence interval
+# For constructing a confidence interval
 # boot.ci(bmed, conf=0.95)
 ```
 
 ]]
 ---
-## Uses and variants of the boostrap
+## Uses and variants of the bootstrap
 
 - Common uses:
     - Computing standard errors for complex statistics

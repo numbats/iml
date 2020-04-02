@@ -351,12 +351,6 @@ layout: false
 
 ---
 
-## Bootstrap samples
-
-&lt;img src="resampling_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-
----
-
 &lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.11.pdf" target="_BLANK"&gt; &lt;img src="images/5.11.png" style="width: 75%; align: center"/&gt; &lt;/a&gt;
 
 .font_tiny[(Chapter 5/ 5.11)]
@@ -364,11 +358,11 @@ layout: false
 ---
 ## Bootstrap samples
 
-&lt;img src="resampling_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="resampling_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
 
-## Example - boostrap model
+## Example - bootstrap model
 
 
 - Fit the model on a set of bootstrap samples, and keep track of how well it predicts the original dataset
@@ -407,7 +401,7 @@ cv.glm(Auto, glm.fit, K=5)$delta[1]
 ```
 
 ```
-## [1] 24.07127
+## [1] 24.10951
 ```
 ]]
 
@@ -419,18 +413,20 @@ mse.fn &lt;- function(d, index) {
   glm.fit &lt;- glm(mpg ~ horsepower, 
                data=d[index,])
   # MSE on all observations
-  return(m = mse(glm.fit, d[-unique(index),]) )
+  return(m = mse(glm.fit, 
+                 d[-unique(index),]) )
 }
 m &lt;- NULL
 for (i in 1:1000) {
-  idx &lt;- sample(nrow(Auto), replace = TRUE)
+  idx &lt;- sample(nrow(Auto), 
+                replace = TRUE)
   m &lt;- c(m, mse.fn(Auto, idx))
 }
 mean(m)
 ```
 
 ```
-## [1] 24.33553
+## [1] 24.39521
 ```
 ]]
 
@@ -473,14 +469,14 @@ bmed
 ## 
 ## Bootstrap Statistics :
 ##     original   bias    std. error
-## t1*    22.75 -0.10595   0.7653743
+## t1*    22.75 -0.10245   0.7635539
 ```
 
 
 
 ]]
 ---
-## Uses and variants of the boostrap
+## Uses and variants of the bootstrap
 
 - Common uses:
     - Computing standard errors for complex statistics
