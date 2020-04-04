@@ -333,7 +333,7 @@ mean(m)
 2. Remove one part, fit the model on the remaining $k − 1$ parts, and compute the MSE on the omitted part.
 3. Repeat $k$ times taking out a different part each time
 
-$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$
+$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n MSE_k$$
 - LOOCV is a special case of $k$-fold cross-validation.
 - Bias-variance trade-off: 
     - one validation set overestimates test error, LOOCV approximately unbiased estimates, $k$-fold CV intermediate
@@ -398,11 +398,11 @@ $$\hat \theta^{*(b)} = s(X^{*(b)}) \quad b = 1, \dots, B.$$
 
 ```{r fig.height=3, out.width="100%"}
 library(gridExtra)
-p1 <- ggplot(Auto, aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Full data")
+p1 <- ggplot(Auto, aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Full data") + ylim(c(5,50))
 p2 <- Auto %>%
-  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 1")
+  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 1") + ylim(c(5,50))
 p3 <- Auto %>%
-  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 2")
+  sample_n(size = n(), replace = TRUE) %>% ggplot(aes(x=horsepower, y=mpg)) + geom_point(alpha=0.3) + ggtitle("Bootstrap sample 2") + ylim(c(5,50))
 grid.arrange(p1, p2, p3, ncol=3)
 ```
 

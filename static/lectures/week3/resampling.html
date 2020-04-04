@@ -276,7 +276,7 @@ mean(m)
 2. Remove one part, fit the model on the remaining `\(k − 1\)` parts, and compute the MSE on the omitted part.
 3. Repeat `\(k\)` times taking out a different part each time
 
-`$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$`
+`$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n MSE_k$$`
 - LOOCV is a special case of `\(k\)`-fold cross-validation.
 - Bias-variance trade-off: 
     - one validation set overestimates test error, LOOCV approximately unbiased estimates, `\(k\)`-fold CV intermediate
