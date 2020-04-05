@@ -47,6 +47,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Week 3: Resampling, Chapter 5 [slides1](http://iml.numbat.space/lectures/week3/categorical_response_regression.html) ([Rmd](http://iml.numbat.space/lectures/week3/categorical_response_regression.Rmd)) ([pdf](http://iml.numbat.space/lectures/week3/categorical_response_regression.pdf)) [slides2](http://iml.numbat.space/lectures/week3/resampling.html) ([Rmd](http://iml.numbat.space/lectures/week3/resampling.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week3/resampling.pdf))
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
+[slides1](http://iml.numbat.space/lectures/week4/dimension_reduction.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction.Rmd)) ([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction.pdf)) [slides2](http://iml.numbat.space/lectures/week4/dimension_reduction_more.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction_more.Rmd))
+([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction_morepdf))
 - Week 5: Visualisation, Instructor's notes
 - Week 6: Classification,  Chapter 8, 7
 - Week 7: Classification, Chapter 9
@@ -65,7 +67,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - Week 1: [Instructions](https://iml.numbat.space/labs/lab1.html) ([Rmd](https://iml.numbat.space/labs/lab1.Rmd))
 - Week 2: [Instructions](https://iml.numbat.space/labs/lab2.html) ([Rmd](https://iml.numbat.space/labs/lab2.Rmd))
 - Week 3: [Instructions](https://iml.numbat.space/labs/lab3.html) ([Rmd](https://iml.numbat.space/labs/lab3.Rmd))
-- Week 4:
+- Week 4: [Instructions](https://iml.numbat.space/labs/la4.html) ([Rmd](https://iml.numbat.space/labs/lab4.Rmd))
 - Week 5: 
 - Week 6: 
 - Week 7: 
