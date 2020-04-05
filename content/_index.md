@@ -17,7 +17,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 ## Schedule
 
-- Lectures: Tue 12:05-12:55; Fri 12:05-12:55 **All lectures are recorded, and the lecture time will operate as a Q&A session. You are encouraged to watch the recordings and bring your questioons to Q&A time.**
+- Lectures: Tue 12:05-12:55; Fri 12:05-12:55 **All lectures are recorded, and the lecture time will operate as a Q&A session. You are encouraged to watch the recordings and bring your questions to Q&A time.**
 
 - Tutorials: Tue 1:05-2:25, Tue 2:35-3:55, Wed 1:05-2:25, 2:35-3:55, Fri 9:35-10:55 **ALL HAVE BEEN MOVED ONLINE** check moodle for zoom links  from your tutors
 - Note: You must **attend the tutorial that you have been assigned to.** Only in exceptional circumstances will changes be allowed, and they need to be approved by the chief examiner, one week in advance of the tutorial. [Moodle](https://lms.monash.edu/course/view.php?id=49079) is used for asking for help, marks and assignment turn in. 
