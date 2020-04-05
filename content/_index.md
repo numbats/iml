@@ -80,7 +80,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 ## Assignments
 
 - Assignment 1 (Due week 3): [Instructions](assignments/assignment1.html)( [Rmd](assignments/assignment1.Rmd)) [cuddly_koalas.rds](assignments/data/cuddly_koalas.rds)
-- Assignment 2 (Due week 5):
+- Assignment 2 (Due week 5): [Instructions](assignments/assignment2.html)( [Rmd](assignments/assignment2.Rmd))
 - Assignment 3 (Due week 7):
 - Assignment 4 (Due week 9):
 

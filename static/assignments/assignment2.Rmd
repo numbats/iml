@@ -1,0 +1,281 @@
+---
+title: "ETC3250/5250 Assignment 2"
+date: "DUE: Friday, Apr 24 5pm "
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  eval = FALSE,
+  message = FALSE,
+  warning = FALSE)
+```
+
+## Instructions
+
+- Assignment needs to be turned in as Rmarkdown, and as html, to moodle. That is, two files need to be submitted.
+- You need to list your team members on the report. For each of the four assignments, one team member needs to be nominated as the leader, and is responsible for coordinating the efforts of other team members, and submitting the assignment. 
+- It is strongly recommended that you individually complete the assignment, and then compare your answers and explanations with your team mates. Each student will have the opportunity to report on other team member's efforts on the assignment, and if a member does not substantially contribute to the team submission they may get a reduced mark, or even a zero mark.
+- R code should be hidden in the final report, unless it is specifically requested. Doing equations in Rmarkdown uses latex syntax. It can be fiddly to get it right because small errors corrupt the typesetting. If  you have trouble with this feel free  to hand-write the math, and include as an image.
+- Original work is expected. Any material used from external sources needs to be acknowledged. 
+- To make it a little easier for you, a skeleton of R code is provided in the `Rmd` file. Where you see `???` means that something is missing and you will need to fill it in with the appropriate function, argument or operator. You will also need to rearrange the code as necessary to do the calculations needed.
+
+## Marks
+
+- Total mark will be out or 25
+- 3 points will be reserved for readability, and appropriate citing of external sources 
+- 2 points will be reserved for reproducibility, that the report can be re-generated from the submitted Rmarkdown. 
+- Accuracy and completeness of answers, and clarity of explanations will be the basis for the remaining 20 points. 
+
+## Exercises
+
+1. (5pts)This question is about the normal distribution, and how it relates to the classification rule provided by quadratic discriminant analysis.
+
+    a. Write down the density function for a univariate normal distribution ($p=2$), with mean $\mu_k$ and variance $\sigma_k$. 
+    b. Show that the quadratic discriminant rule for two groups ($K=2$), $\pi_1=\pi_2$ is equal to:
+*Assign a new observation $x_0$ to group 1 if*
+$$-\frac12 \left( \frac{1}{\sigma_1^2}- \frac{1}{\sigma_2^2} \right) {x_0^2} + \left(\frac{\mu_1}{\sigma_1^2}-\frac{\mu_2}{\sigma_2^2}\right)x_0 -\frac12 \left(\frac{\mu_1^2}{\sigma_1^2}-  \frac{\mu_2^2}{\sigma_2^2} \right)  -\log{\sigma_1}+\log{\sigma_2}>0$$
+    c. Suppose $\mu_1=4, \mu_2=-5, \sigma_1=2, \sigma_2=5$ simulate a set of 50 observations from each population. Make a plot of the population model, and add these samples as a rug plot on the horizontal axis. (See the lecture notes for a similar plot and code for linear discriminant analysis.)
+```{r fig.width=6, fig.height=4, out.width="80%"}
+library(tidyverse)
+set.seed("24042020")
+n <- ???; n1 <- ???
+m1 <- ???
+m2 <- ???
+s1 <- ???
+s2 <- ???
+x <- c(rnorm(n1, ???, ???), rnorm(n-n1, ???, ???))
+y <- c(rep(1, ???), rep(2, n-???))
+df <- tibble(x, y)
+
+x <- seq(-20, ???, ???)
+dx <- c(dnorm(x, ???, ???), dnorm(x, ???, ???))
+y <- factor(c(rep(???, length(x)), rep(???, length(x))))
+df_pop <- tibble(x=c(x,x), ???, ???)
+p <- ggplot() + 
+  geom_???(data=???, aes(x=x, y=0, colour=factor(???)), alpha=0.7) +
+  geom_line(data=???, aes(x=x, y=???, colour=???)) + 
+  scale_color_brewer("", palette="Dark2") +
+  xlab("x")  + ylab("density")
+p
+```
+    d. Write down the rule using these parameter values, and sketch the boundary corresponding to the rule on the previous plot.
+```{r}
+p + geom_???(xintercept=???, linetype=2)
+```
+    e. If instead you had made a mistake and assumed that the two variances were equal, this would have produced a linear discrimant rule. Mark this boundary on the previous plot. Explain why and how this differs from result of the QDA rule.
+```{r}
+p + geom_???(xintercept=???, linetype=2) +
+  geom_???(xintercept=???, linetype=3, colour="red")
+```
+2. (4pts)In this question you are going to practice conducting bootstrap to obtain confidence intervals for a reasonably complicated yet simple analysis. 
+
+*A significant gender gap in maths performance in favour of male students has returned, despite closing in 2015* [Natassia Chrysanthos, Sydney Morning Herald](https://www.smh.com.au/national/nsw/urgent-need-to-address-maths-performance-as-nsw-slumps-in-international-test-20191203-p53ge2.html)
+
+Last December, the 2018 [OECD PISA results](http://www.oecd.org/pisa/data/) were released. These are standardised test scores in math, reading and science, of 15 year olds across the globe. It led to a flurry of articles in the news about slipping standards of Australian students. If you also browsed the news of other countries (including New Zealand, Indonesia, Finland), you would find that many had similarly woeful stories. The above headline focuses on the math gap. To explore this, we will compute bootstrap confidence intervals for the difference between weighted averages for boys and girls in each country. The data is from the 2015 results.  
+
+The code block below will compute the difference between weighted averages for boys and girls in each country. A weighted average is often used with survey data, to reflect how the sampling was done relative to the population characteristics. The weighted average will typically better reflect the population mean. 
+
+```{r gender_means}
+library(tidyverse)
+library(ISOcodes)
+data("ISO_3166_1")
+
+# Load data
+load("data/pisa_scores.rda")
+
+# The country information will be used to jooin the data with map data 
+# and the ISOcodes package provides information about codes and country
+scores <- scores %>% 
+  mutate(CNT=recode(CNT, "QES"="ESP", "QCH"="CHN", "QAR"="ARG", "TAP"="TWN")) %>%
+  filter(CNT != "QUC") %>%
+  filter(CNT != "QUD") %>%
+  filter(CNT != "QUE") %>%
+  mutate(gender=factor(gender, levels=c(1,2), labels=c("female","male")))
+score_gap <- scores %>% 
+  group_by(CNT, gender) %>%
+  summarise(math=weighted.mean(???, w=???, na.rm=T),
+            reading=weighted.mean(???, w=???, na.rm=T),
+            science=weighted.mean(???, w=???, na.rm=T)) %>%
+  pivot_longer(cols=???, names_to="test", values_to="score") %>%
+  pivot_wider(names_from=???, values_from=???) %>%
+  mutate(gap = ??? - ???) %>%
+  pivot_wider(id_cols=???, names_from=???, values_from=???)
+```
+
+This block of code will compute 90% bootstrap confidence intervals for the weighted mean difference. 
+
+```{r}
+library(boot)
+# Compute confidence intervals
+cifn <- function(d, i) {
+  x <- d[i,]
+  ci <- weighted.mean(???, w=???, na.rm=T)-
+                     weighted.mean???, w=???, na.rm=T)
+  ci
+}
+bootfn <- function(d) {
+  r <- boot(d, statistic=???, R=???)
+  l <- sort(r$t)[???]
+  u <- sort(r$t)[???]
+  ci <- c(l, u)
+  return(ci)
+}
+#student2012.sub.summary.gap.boot <- ddply(student2012.sub, .(CNT), bootfn)
+score_gap_boot <- ??? %>% 
+  split(.$CNT) %>% purrr::map(bootfn) %>% as_tibble() %>%
+  pivot_longer(cols=???, names_to=???, values_to=???) %>%
+  arrange(???) %>%
+  mutate(bound=rep(c("ml","mu"), length(unique(scores$CNT)))) %>%
+  pivot_wider(names_from = ???, values_from = ???)
+score_gap <- ??? %>%
+  left_join(score_gap_boot, by=???)
+```
+
+This block of code will add country names, and make dotplots with confidence intervals for the math gap for each country. 
+
+```{r gap_dots, fig.height=8, fig.width=6, out.width="60%"}
+score_gap <- ??? %>%
+  left_join(ISO_3166_1[,c("Alpha_3", "Name")], by=c("CNT"="Alpha_3")) %>%
+  rename(name = Name)
+score_gap$name[score_gap$CNT == "KSV"] <- "Kosovo"
+
+library(forcats)
+score_gap <- score_gap %>% 
+  mutate(name = recode(name, "Czechia"="Czech Republic",
+                       "Korea, Republic of"="South Korea",
+                       "Macedonia, Republic of"="Macedonia",
+                       "Moldova, Republic of"="Moldova",
+                       "Russian Federation"="Russia",
+                       "Taiwan, Province of China"="Taiwan",
+                       "Trinidad and Tobago"="Trinidad",
+                       "United States"="USA",
+                       "United Kingdom"="UK",
+                       "Viet Nam"="Vietnam")) 
+
+
+ggplot(data=???, aes(x=fct_reorder(name, ???), y=???)) +
+  geom_???(yintercept=???, colour="red") +
+  geom_???() + 
+  geom_???(aes(ymin=???, ymax=???), width=0) +
+  coord_flip() + 
+  xlab("") + ylab("Gender gap") + ylim(c(-35, 35))
+```
+
+Write a paragraph explaining what you learn about the math gap across the countries tested in 2015. 
+
+3. (9pts)A cross-rate is *an exchange rate between two currencies computed by reference to a third currency, usually the US dollar.*
+The data file `rates_Nov19_Mar20.csv` was extracted from https://openexchangerates.org using the code below (my API key has been hidden from you):
+
+```{r eval=FALSE}
+# WARNING: YOU DON'T NEED TO RUN THIS CODE!!!!!
+library(jsonlite)
+library(lubridate)
+library(tidyverse)
+ru <- NULL
+dt <- ymd("2019-11-01")
+dt_end <- ymd("2020-03-31")
+for (i in 1:151) {
+  cat(i,"\n")
+  url <- paste("http://openexchangerates.org/api/historical/",dt,".json?app_id=XXX", sep="")
+  x <- fromJSON(url)
+  x <- x$rates
+  if (length(x) == 171)
+    x <- x[-c(164,166)]
+  ru <- rbind(ru, data.frame(date=dt, x))
+  dt <- dt + days(1)
+}
+rownames(ru) <- ru$date
+write_csv(ru, path="data/rates_new.csv")
+```
+
+a. (1)What's the data? Make a plot of the Australian dollar against date. Explain how the Australian dollar has changed relative to the US dollar over the 5 month period.
+
+*Over the 5 month period the Australian dollar has weakened against the US dollar, with a big  decline in mid-March as the coronavirus impact affected the world.*
+
+```{r}
+library(tidyverse)
+rates <- read_csv(???)
+ggplot(rates, aes(x=???, y=???)) + geom_???()
+```
+
+b. (1)You are going to work with these currencies: AUD, CAD, CHF, CNY, EUR, GBP, INR, JPY, KRW, MXN, NZD, RUB, SEK, SGD, ZAR. List the names of the countries and currency name that these codes refer to. Secondary question: why is the USD a constant 1 in this data. 
+
+*The US is the base rate, against which all other currencies are compared.*
+
+c. (2)The goal of the principal component analysis is to examine the relative movement of this subset of currencies, especially since coronavirus emerged until the end of March. PCA is used to summarise the volatility (variance) in the currencies, relative to each other. To do this you need to: 
+
+    - Standardise all the currencies, individually. The resulting values will have a mean 0 and standard deviation equal to 1.
+    - Flip the sigm so that high means the currency strengthened against the USD, and low means that it weakened. Its easier to explain trends, if you don't need to talk with double-negatives.
+    - Make a plot of all the currencies to check the result.
+
+```{r}
+library(viridisLite)
+library(plotly)
+rates_sub <- rates %>%
+  select(???) %>%
+  mutate_if(???, function(x) -1*(x-mean(x))/sd(x))
+rates_sub_long <- ??? %>% 
+  pivot_longer(cols=???, names_to=???, values_to=???) 
+ggplot(rates_sub_long, aes(x=???, y=???, colour=???)) + geom_???() +
+  scale_colour_viridis_d("")
+# ggplotly() Make an interactive plot to browse the currencies
+```
+
+d. (5)Conduct a principal component analysis on the subset of currencies. You need to work from a wide format of the data, where dates are in the columns, and currencies are in the rows. Normally, PCA operate on standardised variables but for this data, you need to NOT standardise each date. Think about why this is best.
+
+    - Why is this data considered to be high-dimensional?
+    - Make a scree plot to summarise the variance explained by cumulative principal components. How much of the total variation do two PCs explain?
+    - Plot the first two principal components. Write a summary of what you learn about the similarity and difference between the curreencies. 
+    - Plot the loadings for PC1. Add a base line set at $1/\sqrt{15}$. Why use this as a guide? What time frame generated a big movement (or divergence) in the currencies? Which currencies strengthened relative to the USD in that period? What happened to the Australian dollar? Answer these questions in a paragraph, written in your own words.
+    - Do the same analysis for PC2. What time frame was there another movement of currencies? Which currencies primarily strengthened, and which weakened during this period?
+    - Finish with a paragraph summarising what variability the principal components analysis is summarising. What dimension reduction is being done?
+
+    
+```{r}
+library(ggrepel)
+rates_sub_wide <- ??? %>%
+  pivot_wider(id_cols=???, names_from=???, values_from = ???)
+rates_pca <- prcomp(???, scale=FALSE)
+screeplot(???, type="l")
+summary(rates_pca)
+rates_pca$x %>% 
+  as_tibble() %>% 
+  mutate(currency = ???) %>%
+  ggplot(aes(x=???, y=???)) + 
+    geom_???() +
+    geom_???(aes(x=???, y=???, label=???)) + 
+  theme(aspect.ratio=1)
+rates_pc_loadings <- as_tibble(???) %>%
+  mutate(date = ???, 
+         indx = 1:nrow(???),
+         ymin=rep(0, nrow(rates_pca$rotation)))
+ggplot(rates_pc_loadings) + 
+  geom_hline(yintercept=c(???,
+                          ???)), colour="red") + 
+  geom_???(aes(x=???, ymin=???, ymax=???)) +
+  geom_???(aes(x=???, y=???))
+ggplot(rates_pc_loadings) + 
+  geom_hline(yintercept=c(???,
+                          ???)), colour="red") + 
+  geom_???(aes(x=???, ymin=???, ymax=???)) +
+  geom_???(aes(x=???, y=???))
+```
+
+4. (2pts)What's wrong with the following statement?
+
+**Principle component analysis is a dimension reduction technique**.
+
+### Plots for the different parts will look something like these
+
+![](assgn2_plot1.png)
+
+![](assgn2_plot2.png)
+
+![](assgn2_plot3.png)
+
+![](assgn2_plot4.png)
+
