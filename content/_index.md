@@ -24,7 +24,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 - **GOOD FRIDAY REPLACEMENTS** Friday, Apr 10 is a Monash holiday. The
   scheduled lecture and tutorial for that day will be replaced with
-  times earlier in the week. The lecture will be Wed 12:00-1:00 in LTB 141 (same building, different room). The tutorial will be Tue 4:00-5:30 same room.
+  times earlier in the week. The lecture will be Wed 12:00-1:00. The tutorial will be Tue 4:00-5:30.
 
 ## Consultations (starting week 2)
 

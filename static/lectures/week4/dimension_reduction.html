@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Dimension reduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+    <link rel="stylesheet" href="libs/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Dimension reduction
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 4 (a)
+
+---
+
+
+
+
+class: middle
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg)
+background-position: 50% 50% class: center, bottom, inverse
+
+.white[Space is big. You just won't believe how vastly, hugely, mind-bogglingly big it is. I mean, you may think it's a long way down the road to the chemist's, but that's just peanuts to space.] 
+
+**.white[Douglas Adams, Hitchhiker's Guide to the Galaxy]**
+
+---
+## High Dimensional Data 
+
+&lt;br&gt;
+&lt;br&gt;
+
+Remember, our data can be denoted as:
+
+`\(\mathcal{D} = \{(x_i, y_i)\}_{i = 1}^N, ~~~ \mbox{where}~ x_i = (x_{i1}, \dots, x_{ip})^{T}\)`
+&lt;br&gt;
+&lt;br&gt;
+
+then
+
+.tip[.orange[.content[Dimension ]] .content[of the data is *p*, ] .orange[.content[ the number of variables.]]]
+
+
+
+
+---
+## Cubes and Spheres
+
+
+Space expands exponentially with dimension:
+
+&lt;img src="images/hypercube.png" style="width: 50%; align: center" /&gt;
+&lt;img src="images/cube_sphere.png" style="width: 30%; align: center" /&gt;
+
+As dimension increases the .orange[volume of a sphere] of same radius as cube side length becomes much .orange[smaller than the volume of the cube].
+
+
+---
+
+## Examples of High Dimensional Data
+
+High dimensional data occurs commonly in bioinformatics, when genetic studies often have many more information on genes than patients.
+
+&lt;center&gt;
+&lt;img src="images/microarray.png" style="width: 70%; align: center"/&gt;
+&lt;/center&gt;
+---
+class: split-two
+
+.column[.pad50px[
+
+## Example -  SRBCT cancer prediction 
+
+- The SRBCT dataset (Khan et al., 2001) looks at classifying 4 classes of different childhood tumours sharing similar visual features during routine histology.
+- Data contains 83 microarray samples with 1586 features.
+- .orange[We will revisit this data later on in the course to explore high dimensional Discriminant Analysis.]
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+ &lt;img src="images/SRBCT-nature.jpg", width="70%"&gt;
+
+.purple[Source:] [Nature](https://www.nature.com/articles/modpathol2016119)
+
+]]
+
+---
+# Multivariate data
+
+Mostly though, we're working on problems where `\(n&gt;&gt;p\)`, and `\(p&gt;1\)`. This would more commonly be referred to as .orange[multivariate data].
+
+---
+## Sub-spaces
+
+&lt;br&gt;
+&lt;br&gt;
+Data will often be confined to a region of the space having lower .orange[intrinsic dimensionality]. The data lives in a low-dimensional subspace.
+
+Analyse the data by, .orange[reducing dimensionality], to the subspace containing the data.
+
+---
+## Principal Component Analysis (PCA)
+
+&lt;br&gt;
+
+.tip[Principal component analysis (PCA) produces a low-dimensional representation of a
+dataset. It finds a sequence of linear combinations of the
+variables that have .orange[maximal variance], and are .orange[mutually uncorrelated]. It is an unsupervised learning method. 
+]
+
+
+
+---
+
+## Why use PCA?
+
+&lt;br&gt;
+
+- We may have too many predictors for a regression. Instead, we can use the first few principal components. 
+- Understanding relationships between variables.
+- Data visualization. We can plot a small number of variables more easily than a large number of variables.
+
+---
+
+## First principal component
+
+The first principal component of a set of variables `\(x_1, x_2, \dots, x_p\)` is the linear combination
+
+
+`$$z_1 = \phi_{11}x_1 + \phi_{21} x_2 + \dots + \phi_{p1} x_p$$`
+
+
+that has the largest variance such that  
+
+`$$\displaystyle\sum_{j=1}^p \phi^2_{j1} = 1$$`
+
+The elements `\(\phi_{11},\dots,\phi_{p1}\)` are the .orange[loadings] of the first principal component.
+
+
+---
+## Geometry
+
+- The loading vector `\(\phi_1 = [\phi_{11},\dots,\phi_{p1}]'\)`
+defines direction in feature space along which data
+vary most.
+- If we project the `\(n\)` data points `\({x}_1,\dots,{x}_n\)` onto this
+direction, the projected values are the principal component
+scores `\(z_{11},\dots,z_{n1}\)`.
+- The second principal component is the linear combination `\(z_{i2} = \phi_{12}x_{i1} + \phi_{22}x_{i2} + \dots + \phi_{p2}x_{ip}\)` that has maximal variance among all linear
+combinations that are *uncorrelated* with `\(z_1\)`.
+- Equivalent to constraining `\(\phi_2\)` to be orthogonal (perpendicular) to `\(\phi_1\)`. And so on.
+- There are at most `\(\min(n - 1, p)\)` PCs.
+
+
+---
+## Example
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter6/6.14.pdf" target="_BLANK"&gt; &lt;img src="images/6.14.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.green[First PC]; .blue[second PC]
+
+.font_tiny[(Chapter6/6.14.pdf)]
+
+
+
+---
+## Example
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter6/6.15.pdf" target="_BLANK"&gt; &lt;img src="images/6.15.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+If you think of the first few PCs like a linear model fit, and the others as the error, it is like regression, except that errors are orthogonal to model. 
+
+.font_tiny[(Chapter6/6.15.pdf)]
+
+
+
+---
+## Computation
+
+
+PCA can be thought of as fitting an `\(n\)`-dimensional ellipsoid to the data, where each axis of the ellipsoid represents a principal component. The new variables produced by principal components correspond to .orange[rotating] and .orange[scaling] the ellipse .orange[into a circle].
+
+
+
+
+
+
+
+&lt;center&gt;
+&lt;img src="images/pc-demo.gif" style="width: 40%; align: center" /&gt;
+&lt;/center&gt;
+
+
+---
+## Computation
+
+Suppose we have a `\(n\times p\)` data set `\(X = [x_{ij}]\)`. 
+
+- Centre each of the variables to have mean zero (i.e., the
+column means of `\({X}\)` are zero).
+-  `\(z_{i1} = \phi_{11}x_{i1} + \phi_{21} x_{i2} + \dots + \phi_{p1} x_{ip}\)`
+- Sample variance of `\(z_{i1}\)` is `\(\displaystyle\frac1n\sum_{i=1}^n z_{i1}^2\)`.
+
+
+`$$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} \frac{1}{n}\sum_{i=1}^n 
+\left(\sum_{j=1}^p \phi_{j1}x_{ij}\right)^{\!\!\!2} \text{ subject to }
+\sum_{j=1}^p \phi^2_{j1} = 1$$`
+
+
+---
+## Computation
+
+1. Compute the covariance matrix (after scaling the columns of `\({X}\)`)
+`$${C} = {X}'{X}$$`
+
+2. Find eigenvalues and eigenvectors:
+`$${C}={V}{D}{V}'$$` 
+where columns of `\({V}\)` are orthonormal (i.e., `\({V}'{V}={I}\)`)
+
+3. Compute PCs: `\({\Phi} = {V}\)`. `\({Z} = {X}{\Phi}\)`.
+
+
+---
+
+## Singular Value Decomposition
+
+`$$X = U\Lambda V'$$`
+
+
+- `\(X\)` is an `\(n\times p\)` matrix
+- `\(U\)` is `\(n \times r\)` matrix with orthonormal columns ( `\(U'U=I\)` )
+- `\(\Lambda\)` is `\(r \times r\)` diagonal matrix with non-negative elements.
+- `\(V\)` is `\(p \times r\)` matrix with orthonormal columns ( `\(V'V=I\)` ).
+
+.tip[
+It is always possible to uniquely decompose a matrix in this way.
+]
+
+---
+## Computation
+
+1. Compute SVD: `\({X} = {U}{\Lambda}{V}'\)`.
+
+2. Compute PCs: `\({\Phi} = {V}\)`. `\({Z} = {X}{\Phi}\)`.
+
+Relationship with covariance:
+
+`$${C} = {X}'{X}
+       = {V}{\Lambda}{U}' {U}{\Lambda}{V}'
+       = {V}{\Lambda}^2{V}'
+       = {V}{D}{V}'$$`
+       
+
+- Eigenvalues of `\({C}\)` are squares of singular values of `\({X}\)`.
+- Eigenvectors of `\({C}\)` are right singular vectors of `\({X}\)`.
+- The PC directions `\(\phi_1,\phi_2,\phi_3,\dots\)` are the
+right singular vectors of the matrix `\({X}\)`.
+
+
+---
+## Total variance
+
+.orange[Total variance] in data (assuming variables centered at 0):
+
+`$$\text{TV} = \sum_{j=1}^p \text{Var}(x_j) = \sum_{j=1}^p \frac{1}{n}\sum_{i=1}^n x_{ij}^2$$`
+
+.center[.green[**If variables are standardised, TV=number of variables!**]]
+
+
+
+.orange[Variance explained] by *m*'th PC: `\(V_m = \text{Var}(z_m) = \frac{1}{n}\sum_{i=1}^n z_{im}^2\)`
+
+`$$\text{TV} = \sum_{m=1}^M V_m \text{  where }M=\min(n-1,p).$$`
+
+
+
+---
+## How to choose `\(k\)`?
+
+&lt;br&gt;
+
+PCA is a useful dimension reduction technique for large datasets, but deciding on how many dimensions to keep isn't often clear. 🤔
+
+.tip[.orange[Think:] How do we know how many principal components to choose?]
+
+---
+
+## How to choose `\(k\)`?
+
+.tip[.orange[Proportion of variance explained:]
+`$$\text{PVE}_m = \frac{V_m}{TV}$$`
+
+
+]
+
+Choosing the number of PCs that adequately summarises the variation in `\(X\)`, is achieved by examining the cumulative proportion of variance explained. 
+
+Cumulative proportion of variance explained:
+
+`$$\text{CPVE}_k = \sum_{m=1}^k\frac{V_m}{TV}$$`
+
+---
+class: split-two
+layout: false
+
+.column[.pad50px[
+
+## How to choose `\(k\)`?
+
+&lt;br&gt;
+
+.tip[.orange[Scree plot: ].content[Plot of variance explained by each component vs number of component.]]
+
+]]
+.column[.content.vmiddle.center[
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+
+
+class: split-two
+layout: false
+
+.column[.pad50px[
+
+## How to choose `\(k\)`?
+
+&lt;br&gt;
+
+.tip[.orange[Scree plot: ].content[Plot of variance explained by each component vs number of component.]]
+
+]]
+.column[.content.vmiddle.center[
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+
+]]
+
+
+---
+## Example - track records
+
+The data on national track records for women (as at 1984). 
+
+
+```
+## Rows: 55
+## Columns: 8
+## $ m100     &lt;dbl&gt; 11.61, 11.20, 11.43, 11.41, 11.46, 11.31, 12.14, 11.00, 12.0…
+## $ m200     &lt;dbl&gt; 22.94, 22.35, 23.09, 23.04, 23.05, 23.17, 24.47, 22.25, 24.5…
+## $ m400     &lt;dbl&gt; 54.50, 51.08, 50.62, 52.00, 53.30, 52.80, 55.00, 50.06, 54.9…
+## $ m800     &lt;dbl&gt; 2.15, 1.98, 1.99, 2.00, 2.16, 2.10, 2.18, 2.00, 2.05, 2.08, …
+## $ m1500    &lt;dbl&gt; 4.43, 4.13, 4.22, 4.14, 4.58, 4.49, 4.45, 4.06, 4.23, 4.33, …
+## $ m3000    &lt;dbl&gt; 9.79, 9.08, 9.34, 8.88, 9.81, 9.77, 9.51, 8.81, 9.37, 9.31, …
+## $ marathon &lt;dbl&gt; 178.52, 152.37, 159.37, 157.85, 169.98, 168.75, 191.02, 149.…
+## $ country  &lt;chr&gt; "argentin", "australi", "austria", "belgium", "bermuda", "br…
+```
+
+.font_tiny[*Source*: Johnson and Wichern, Applied multivariate analysis]
+
+
+---
+## Explore the data
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-7-1.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## Compute PCA
+
+
+
+
+```r
+track_pca &lt;- prcomp(track[,1:7], center=TRUE, scale=TRUE)
+track_pca
+```
+
+```
+## Standard deviations (1, .., p=7):
+## [1] 2.41 0.81 0.55 0.35 0.23 0.20 0.15
+## 
+## Rotation (n x k) = (7 x 7):
+##           PC1   PC2    PC3    PC4    PC5     PC6    PC7
+## m100     0.37  0.49 -0.286  0.319  0.231  0.6198  0.052
+## m200     0.37  0.54 -0.230 -0.083  0.041 -0.7108 -0.109
+## m400     0.38  0.25  0.515 -0.347 -0.572  0.1909  0.208
+## m800     0.38 -0.16  0.585 -0.042  0.620 -0.0191 -0.315
+## m1500    0.39 -0.36  0.013  0.430  0.030 -0.2312  0.693
+## m3000    0.39 -0.35 -0.153  0.363 -0.463  0.0093 -0.598
+## marathon 0.37 -0.37 -0.484 -0.672  0.131  0.1423  0.070
+```
+
+
+---
+## Assess
+
+Summary of the principal components: 
+
+&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #7570b3 !important;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC1 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC3 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC4 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC5 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC6 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #7570b3 !important;"&gt; PC7 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5em; color: white !important;background-color: #7570b3 !important;width: 2.5em; "&gt; Variance &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 5.81 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.65 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.30 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.13 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.04 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.02 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5em; color: white !important;background-color: #7570b3 !important;width: 2.5em; "&gt; Proportion &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.83 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.09 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.04 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.02 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.01 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.01 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; "&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5em; color: white !important;background-color: #7570b3 !important;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; Cum. prop &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 0.83 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 0.92 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 0.97 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 0.98 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 0.99 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 1.00 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5em; color: white !important;background-color: #CA6627 !important;"&gt; 1.00 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+Increase in variance explained large until `\(k=3\)` PCs, and then tapers off. A choice of .orange[3 PCs] would explain 97% of the total variance. 
+
+
+---
+class: split-two
+layout: false
+
+.column[.pad50px[
+
+## Assess
+
+&lt;br&gt;
+
+.green[Scree plot: Where is the elbow?]
+
+&lt;br&gt;
+
+At `\(k=2\)`, thus the scree plot suggests 2 PCs would be sufficient to explain the variability.
+
+
+
+]]
+.column[.content.vmiddle.center[
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-11-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+]]
+
+
+---
+
+
+class: split-two
+layout: false
+
+.column[.pad50px[
+
+## Assess
+
+&lt;br&gt;
+
+.tip[.orange[Visualise model using a biplot]: Plot the principal component scores, and also the contribution of the original variables to the principal component.
+]
+
+
+
+]]
+.column[.content.vmiddle.center[
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-12-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+
+# Significance of loadings
+
+Bootstrap can be used to assess whether the coefficients of a PC are significantly different from 0. The 95% bootstrap confidence intervals can be computed by:
+
+1. Generating B bootstrap samples of the data
+2. Compute PCA, record the loadings
+3. Re-orient the loadings, by choosing one variable with large coefficient to be the direction base
+4. If B=1000, 25th and 975th sorted values yields the lower and upper bounds for confidence interval for each PC. 
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-13-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+All of the coefficients on PC1 are significantly different from 0, and positive, approximately equal, .orange[not significantly different from being equal].
+
+
+---
+
+# Loadings for PC2
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+On PC2 m100 and m200 contrast m1500 and m3000 (and possibly marathon). These are significantly different from 0. 
+
+---
+
+# Loadings for PC3
+
+&lt;img src="dimension_reduction_files/figure-html/unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+On PC3 m400 and m800 (and possibly marathon) are significantly different from 0. 
+
+---
+## Interpretation
+
+- PC1 measures overall magnitude, the strength of the athletics program. High positive values indicate .orange[poor] programs with generally slow times across events. 
+- PC2 measures the .orange[contrast] in the program between .orange[short and long distance] events. Some countries have relatively stronger long distance atheletes, while others have relatively stronger short distance athletes.
+- There are several .orange[outliers] visible in this plot, `wsamoa`, `cookis`, `dpkorea`. PCA, because it is computed using the variance in the data, can be affected by outliers. It may be better to remove these countries, and re-run the PCA. 
+- PC3, may or may not be useful to keep. The interpretation would that this variable summarises countries with different middle distance performance.
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
