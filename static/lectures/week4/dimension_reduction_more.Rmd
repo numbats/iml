@@ -1,5 +1,5 @@
 ---
-title: "ETC3250: Dimension reduction"
+title: "ETC3250/5250: Dimension reduction"
 subtitle: "Semester 1, 2020"
 author: "<br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University"
 date: "Week 4 (b)"
@@ -204,15 +204,18 @@ class: split-two
 - Classical MDS is the same as PCA
 - Metric MDS incorporates power transformations on the distances, $d_{ij}^r$.
 - Non-metric MDS incorporates a monotonic transformation of the distances, e.g. rank
+
+```{r echo=TRUE}
+track <- read_csv("data/womens_track.csv")
+track_mds <- cmdscale(dist(track[,1:7])) %>% 
+  as_tibble() %>%
+  mutate(country = track$country)
+```
 ]]
 
 .column[.pad50px[
 ```{r}
 library(ggrepel)
-track <- read_csv("data/womens_track.csv")
-track_mds <- cmdscale(dist(track[,1:7])) %>% 
-  as_tibble() %>%
-  mutate(country = track$country)
 ggplot() + 
   geom_point(data=track_mds, aes(x=V1, y=V2)) +
   geom_text_repel(data=filter(track_mds, V1>50), aes(x=V1, y=V2, label=country)) +

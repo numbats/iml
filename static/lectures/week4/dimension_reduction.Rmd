@@ -1,5 +1,5 @@
 ---
-title: "ETC3250: Dimension reduction"
+title: "ETC3250/5250: Dimension reduction"
 subtitle: "Semester 1, 2020"
 author: "<br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University"
 date: "Week 4 (a)"
