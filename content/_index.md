@@ -46,6 +46,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 ([pdf](http://iml.numbat.space/lectures/week2/flexible-regression.pdf))
 - Week 3: Resampling, Chapter 5 [slides1](http://iml.numbat.space/lectures/week3/categorical_response_regression.html) ([Rmd](http://iml.numbat.space/lectures/week3/categorical_response_regression.Rmd)) ([pdf](http://iml.numbat.space/lectures/week3/categorical_response_regression.pdf)) [slides2](http://iml.numbat.space/lectures/week3/resampling.html) ([Rmd](http://iml.numbat.space/lectures/week3/resampling.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week3/resampling.pdf))
+[Additional note about LDA](http://iml.numbat.space/lectures/week3/lda.pdf) ([Rmd](http://iml.numbat.space/lectures/week3/lda.Rmd)
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
 [slides1](http://iml.numbat.space/lectures/week4/dimension_reduction.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction.Rmd)) ([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction.pdf)) [slides2](http://iml.numbat.space/lectures/week4/dimension_reduction_more.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction_more.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction_more.pdf))
