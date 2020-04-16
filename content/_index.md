@@ -50,7 +50,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Week 4: Dimension reduction, Chapter 6.3, 10.2 + instructor's notes
 [slides1](http://iml.numbat.space/lectures/week4/dimension_reduction.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction.Rmd)) ([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction.pdf)) [slides2](http://iml.numbat.space/lectures/week4/dimension_reduction_more.html) ([Rmd](http://iml.numbat.space/lectures/week4/dimension_reduction_more.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week4/dimension_reduction_more.pdf))
-- Week 5: Visualisation, Instructor's notes
+- Week 5: Visualisation, Instructor's notes [slides1](http://iml.numbat.space/lectures/week5/visualisation.html) ([Rmd](http://iml.numbat.space/lectures/week5/visualisation.Rmd)) ([pdf](http://iml.numbat.space/lectures/week5/visualisation.pdf)) [slides2](http://iml.numbat.space/lectures/week5/visualisation2.html) ([Rmd](http://iml.numbat.space/lectures/week5/visualisation2.Rmd))
+([pdf](http://iml.numbat.space/lectures/week5/visualisation2.pdf))
 - Week 6: Classification,  Chapter 8, 7
 - Week 7: Classification, Chapter 9
 - Week 8: Ensembles and boosted models, Chapter 8.2 

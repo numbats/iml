@@ -50,12 +50,20 @@ layout: false
 
 ## Mahalanobis distance
 
-<br>
+For two $p$-dimensional vectors, Euclidean distance is
+
+$$d(x,y) = \sqrt{(x-y)'(x-y)}$$
+and Mahalanobs distance is
+
+$$d(x,y) = \sqrt{(x-y)'\Sigma^{-1}(x-y)}$$
 
 Which points are closest according to .orange[Euclidean] distance?
-
-
 Which points are closest relative to the .orange[variance-covariance]?
+
+
+
+]]
+.column[.content.vmiddle.center[
 
 ```{r}
 countdown::countdown(minutes=0, seconds=30, left = 0, right = 0, 
@@ -63,9 +71,6 @@ countdown::countdown(minutes=0, seconds=30, left = 0, right = 0,
                      font_size = "1em", 
                      style = "position: relative; width: min-content;")
 ```
-
-]]
-.column[.content.vmiddle.center[
 
 ```{r}
 # Utility functions
