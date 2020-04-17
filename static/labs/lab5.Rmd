@@ -1,0 +1,206 @@
+---
+title: "ETC3250/5250 2020 - Lab 5"
+author: "Dianne Cook"
+date: "Week 5"
+output:
+  html_document: default
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 6,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+# Objective
+
+The purpose of this lab is to 
+
+- learn to use the tour to develop intuition about multiple dimensions
+- understand homogeneous vs heterogeneous variance-covariance
+- recognise features in high dimensions including multivariate outliers, clustering and linear and nonlinear dependence
+- practice simulating data from standard multivariate distributions
+
+# Class discussion 
+
+- In tour 1, how many clusters do you see? [tour1](https://iml.numbat.space/labs/tour1.html)
+
+```{r eval=FALSE}
+# This is code that you can run yourself to see the tour, 
+# but its not necessary to run in order to do the exercise 
+library(tidyverse)
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  select(-X1)
+library(tourr)
+quartz() # use X11() on Windows, if necessary
+animate_xy(olive[,3:10], axes="off")
+```
+
+```{r eval=FALSE}
+# This is code was used to create the animation,
+# but its not necessary to run in order to do the exercise 
+# 
+library(plotly)
+library(htmltools)
+set.seed(20190331)
+bases <- save_history(olive[,3:10], grand_tour(2), 
+    start=matrix(c(1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0), ncol=2, byrow=TRUE), 
+    max = 15)
+# Re-set start bc seems to go awry
+bases[,,1] <- matrix(c(1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0), ncol=2, byrow=TRUE)
+tour_path <- interpolate(bases, 0.1)
+d <- dim(tour_path)
+olive_std <- tourr::rescale(olive[,3:10])
+mydat <- NULL; 
+for (i in 1:d[3]) {
+  fp <- as.matrix(olive_std) %*% matrix(tour_path[,,i], ncol=2)
+  fp <- tourr::center(fp)
+  colnames(fp) <- c("d1", "d2")
+  mydat <- rbind(mydat, cbind(fp, rep(i+10, nrow(fp))))
+}
+colnames(mydat)[3] <- "indx"
+df <- as_tibble(mydat) 
+p <- ggplot() +
+       geom_point(data = df, aes(x = d1, y = d2, 
+                                 frame = indx), size=1) +
+       theme_void() +
+       coord_fixed() +
+  theme(legend.position="none")
+pg <- ggplotly(p, width=400, height=400) %>%
+  animation_opts(200, redraw = FALSE, 
+                 easing = "linear", transition=0)
+save_html(pg, file="tour1.html")
+
+```
+
+- In tour 2, where three classes have been coloured, how many additional clusters do you see? [tour2](https://iml.numbat.space/labs/tour2.html)
+
+```{r eval=FALSE}
+# This is code that you can run yourself to see the tour, 
+# but its not necessary to run in order to do the exercise 
+quartz() # use X11() on Windows
+library(RColorBrewer)
+pal <- brewer.pal(3, "Dark2")
+col <- pal[olive$region]
+animate_xy(olive[,3:10], axes="off", col=col)
+```
+
+```{r eval=FALSE}
+# This is code was used to create the animation,
+# but its not necessary to run in order to do the exercise 
+df <- df %>%
+  mutate(region=factor(rep(olive$region, d[3])))
+p <- ggplot() +
+       geom_point(data = df, aes(x = d1, y = d2, colour=region,
+                                 frame = indx), size=1) +
+       scale_colour_brewer("", palette="Dark2") +
+       theme_void() +
+       coord_fixed() +
+  theme(legend.position="none")
+pg <- ggplotly(p, width=400, height=400) %>%
+  animation_opts(200, redraw = FALSE, 
+                 easing = "linear", transition=0)
+save_html(pg, file="tour2.html")
+
+```
+
+# Do it yourself
+
+This part is replicating the plots made in the class notes. For each example, run  the code from the class notes, and discuss with your group members what you might learn about the data that is different from the LDA and PCA conducted in earlier labs/lecture notes. 
+
+1. Compute the means, standard deviations and correlation for the datasaurus dozen, and check that they are indeed all the same.
+2. Run a 2D projection grand tour for
+    a. the 6D flea data
+    b. the 7D womens track data
+3. Run a 2D guided tour 
+    a. using the holes index for the 6D flea data
+    b. using the lda_pp index for the 6D flea data, using species as the class
+    c. using the cmass index for the 7D womens track data
+
+# Practice
+
+1. Simulate data from a 4D multivariate normal, with three groups, with these features
+ $\mu_1 = (0,0,3,0)', \mu_2 = (0,3,-3,0)', \mu_3 = (-3,0,3,3)'$, $n_1 = 85, n_2 = 104, n_3 = 48$
+
+where **set A** has equal variance-covariance between groups, $\Sigma$: 
+
+$$\Sigma = \begin{bmatrix} 3.0&0.2&-1.2&0.9\\
+0.2&2.5&-1.4&0.3\\
+-1.2&-1.4&2.0&1.0\\
+0.9&0.3&1.0&3.0\\
+\end{bmatrix}$$
+ 
+and **set B** has different variance-covariances between groups, $\Sigma_1, \Sigma_2, \Sigma_3$:
+
+$\Sigma_1 = \Sigma$
+
+$$\Sigma_2 = \begin{bmatrix}3.0&-0.8&1.2&0.3\\
+-0.8&2.5&1.4&0.3\\
+1.2&1.4&2.0&1.0\\
+0.3&0.3&1.0&3.0\\
+\end{bmatrix}$$
+
+$$\Sigma_3 = \begin{bmatrix}2.0&-1.0&1.2&0.3\\
+-1.0&2.5&1.4&0.3\\
+1.2&1.4&4.0&-1.2\\
+0.3&0.3&-1.2&3.0\\
+\end{bmatrix}$$
+
+2. Conduct LDA on the two data sets, and plot the data into the 2D linear discriminant space.
+
+3. View both data sets in a grand tour, where the pooints are coloured by the class variable. Write a paragraph in your own (or group's) words what the difference between homogeneous and heterogeneous variance-covariance.
+
+```{r eval=FALSE}
+library(mvtnorm)
+vc1 <- matrix(c(???), ncol=4, byrow=TRUE)
+vc2 <- matrix(c(???), ncol=4, byrow=TRUE)
+vc3 <- matrix(c(???), ncol=4, byrow=TRUE)
+m1 <- c(???)
+m2 <- c(???)
+m3 <- c(???)
+n1 <- ???
+n2 <- ???
+n3 <- ???
+setA <- rbind(rmvnorm(???), rmvnorm(???), rmvnorm(n3, m3, vc1))
+setA <- data.frame(setA)
+setA$class <- c(rep("1",???), rep("2",???), rep("3", ???))
+setB <- rbind(rmvnorm(???), rmvnorm(???), rmvnorm(???))
+setB <- data.frame(setB)
+setB$class <- c(rep("1", ???), rep("2", ???), rep("3",???))
+```
+
+```{r eval=FALSE}
+library(MASS)
+library(tidyverse)
+setA_lda <- lda(???, data=setA, prior = c(1,1,1)/3)
+setB_lda <- lda???, data=setB, prior =???)
+setA_all <- bind_cols(???, as_tibble(predict(setA_lda, setA)$x))
+ggplot(setA_all, aes(???)) +
+  geom_point() + 
+  scale_colour_brewer("", palette="Dark2") +
+  theme(aspect.ratio=1)
+setB_all <- bind_cols(setB, ???))
+ggplot(setB_all, aes(???)) +
+  geom_point() + 
+  scale_colour_brewer("", palette="Dark2") +
+  theme(aspect.ratio=1)
+```
+
+```{r eval=FALSE}
+library(tourr)
+library(RColorBrewer)
+pal <- brewer.pal(3, "Dark2")
+col <- pal[as.numeric(setA$class)]
+# quartz() or X11()
+animate_xy(???, col=col)
+animate_xy???, col=col)
+```
