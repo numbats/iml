@@ -97,7 +97,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - [paintings-subset.csv](http://iml.numbat.space/labs/data/paintings-subset.csv)
 - [paintings-long-train.csv](http://iml.numbat.space/labs/data/paintings-long-train.csv)
 - [paintings.zip](http://iml.numbat.space/labs/data/paintings.zip)
-- [womens-track.csv]](http://iml.numbat.space/data/womens-track.csv)
+- [womens-track.csv](http://iml.numbat.space/data/womens-track.csv)
 
 ## Project
 
