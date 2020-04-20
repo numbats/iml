@@ -88,16 +88,16 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Data
 
-- [chocolates.csv](http://iml.numbat.space/data/chocolates.csv)
-- [nrc.csv](http://iml.numbat.space/data/nrc.csv)
-- [student_sub.rds](http://iml.numbat.space/data/student_sub.rds)
-- [wiggly.csv](http://iml.numbat.space/data/wiggly.csv)
-- [nnet_best.rda](http://iml.numbat.space/data/nnet_best.rda)
-- [nnet_many.rda](http://iml.numbat.space/data/nnet_many.rda)
-- [paintings-subset.csv](http://iml.numbat.space/data/paintings-subset.csv)
-- [paintings-long-train.csv](http://iml.numbat.space/data/paintings-long-train.csv)
-- [paintings.zip](http://iml.numbat.space/data/paintings.zip)
-- [womens-track.csv](http://iml.numbat.space/data/womens-track.csv)
+- [chocolates.csv](data/chocolates.csv)
+- [nrc.csv](data/nrc.csv)
+- [student_sub.rds](data/student_sub.rds)
+- [wiggly.csv](data/wiggly.csv)
+- [nnet_best.rda](data/nnet_best.rda)
+- [nnet_many.rda](data/nnet_many.rda)
+- [paintings-subset.csv](data/paintings-subset.csv)
+- [paintings-long-train.csv](data/paintings-long-train.csv)
+- [paintings.zip](data/paintings.zip)
+- [womens-track.csv](data/womens-track.csv)
 
 ## Project
 
@@ -105,7 +105,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Exam information
 
-- [2018 exam](http://iml.numbat.space/exam/practice_exam_2018.pdf) [SOLUTION](http://iml.numbat.space/exam/practice_exam_solution_2018.pdf)
+- [2018 exam](exam/practice_exam_2018.pdf) [SOLUTION](exam/practice_exam_solution_2018.pdf)
 
 
 ## Computing information
