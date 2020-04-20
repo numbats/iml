@@ -91,12 +91,12 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - [chocolates.csv](http://iml.numbat.space/data/chocolates.csv)
 - [nrc.csv](http://iml.numbat.space/data/nrc.csv)
 - [student_sub.rds](http://iml.numbat.space/data/student_sub.rds)
-- [wiggly.csv](http://iml.numbat.space/labs/data/wiggly.csv)
-- [nnet_best.rda](http://iml.numbat.space/labs/data/nnet_best.rda)
-- [nnet_many.rda](http://iml.numbat.space/labs/data/nnet_many.rda)
-- [paintings-subset.csv](http://iml.numbat.space/labs/data/paintings-subset.csv)
-- [paintings-long-train.csv](http://iml.numbat.space/labs/data/paintings-long-train.csv)
-- [paintings.zip](http://iml.numbat.space/labs/data/paintings.zip)
+- [wiggly.csv](http://iml.numbat.space/data/wiggly.csv)
+- [nnet_best.rda](http://iml.numbat.space/data/nnet_best.rda)
+- [nnet_many.rda](http://iml.numbat.space/data/nnet_many.rda)
+- [paintings-subset.csv](http://iml.numbat.space/data/paintings-subset.csv)
+- [paintings-long-train.csv](http://iml.numbat.space/data/paintings-long-train.csv)
+- [paintings.zip](http://iml.numbat.space/data/paintings.zip)
 - [womens-track.csv](http://iml.numbat.space/data/womens-track.csv)
 
 ## Project
