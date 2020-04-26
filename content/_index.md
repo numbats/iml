@@ -85,7 +85,8 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 - Assignment 1 (Due week 3): [Instructions](assignments/assignment1.html) ([Rmd](assignments/assignment1.Rmd)) [cuddly_koalas.rds](assignments/data/cuddly_koalas.rds)
 - Assignment 2 (Due week 5): [Instructions](assignments/assignment2.html)  ([Rmd](assignments/assignment2.Rmd)) [pisa_scores.rda](assignments/data/pisa_scores.rda) [rates_Nov19_Mar20.csv](assignments/data/rates_Nov19_Mar20.csv)
-- Assignment 3 (Due week 7):
+- Assignment 3 (Due week 7): [Instructions](assignments/assignment3.html)  ([Rmd](assignments/assignment3.Rmd)) [vis_challenge1.csv](assignments/data/vis_challenge1.csv), [vis_challenge2.csv](assignments/data/vis_challenge2.csv), [vis_challenge3.csv](assignments/data/vis_challenge3.csv), [vis_challenge4.csv](assignments/data/vis_challenge4.csv),
+[vis_challenge5.csv](assignments/data/vis_challenge5.csv)
 - Assignment 4 (Due week 9):
 
 ## Data

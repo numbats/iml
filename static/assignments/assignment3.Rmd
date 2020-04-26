@@ -1,0 +1,81 @@
+---
+title: "ETC3250/5250 Assignment 3"
+date: "DUE: Friday, May 8 5pm"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  eval = FALSE,
+  message = FALSE,
+  warning = FALSE)
+```
+
+## Instructions
+
+- Assignment needs to be turned in as Rmarkdown, and as html, to moodle. That is, all the files that are needed to compile your report to be submitted.
+- You need to list your team members on the report. For each of the four assignments, one team member needs to be nominated as the leader, and is responsible for coordinating the efforts of other team members, and submitting the assignment. 
+- It is strongly recommended that you individually complete the assignment, and then compare your answers and explanations with your team mates. Each student will have the opportunity to report on other team member's efforts on the assignment, and if a member does not substantially contribute to the team submission they may get a reduced mark, or even a zero mark.
+- R code should be hidden in the final report, unless it is specifically requested.
+- Original work is expected. Any material used from external sources needs to be acknowledged. 
+- There is a smaller skeleton of R code (with `???`) this time in the `Rmd` file. You will need  to  write more of your own code from scratch this time. The labs and lecture notes have examples for moost of the code you need.
+
+## Marks
+
+- Total mark will be out or 25
+- 3 points will be reserved for readability, and appropriate citing of external sources 
+- 2 points will be reserved for reproducibility, that the report can be re-generated from the submitted Rmarkdown. 
+- Accuracy and completeness of answers, and clarity of explanations will be the basis for the remaining 20 points. 
+
+## Exercises
+
+1. *About the data*: The chocolates data was compiled by students in a previous class of Prof Cook, by collecting nutrition information on the chocolates as listed on their internet sites. All numbers were normalised to be equivalent to a 100g serving. Units of measurement are listed in the variable name.
+```{r eval=FALSE}
+library(tidyverse)
+choc <- read_csv("data/chocolates.csv")
+choc <- choc %>% mutate(Type = as.factor(Type))
+```
+    a. Use the tour, with type of chocolate mapped to colour, and write a paragraph on whether the two types of chocolate differ on the nutritional variables. 
+```{r eval=FALSE}
+quartz()
+library(RColorBrewer)
+pal <- brewer.pal(3, "Dark2")
+col <- pal[as.numeric(choc$Type)]
+animate_xy(???, axes="bottomleft", col=col)
+```
+    b. Make a parallel coordinate plot of the chocolates, coloured by type, with the variables sorted by how well they separate the groups. Maybe the "uniminmax" scaling might work best for this data. Write a paragraph explaining how the types of chocolates differ in nutritional characteristics.
+```{r eval=FALSE}
+library(GGally)
+library(plotly)
+p <- ggparcoord(choc, columns = ???, groupColumn = ???, order=???, scale=???) +
+  scale_color_brewer(palette="Dark2") + ylab("")
+ggplotly(???)
+```
+    c. Identify one dark chocolate that is masquerading as dark, that is, nutritionally looks more like a milk chocolate. Explain your answer. 
+```{r eval=FALSE}
+ggplot(choc, aes(x=???, y=???, colour=???, label=paste(MFR, Name))) + geom_point() +
+  scale_color_brewer(palette="Dark2") + theme(aspect.ratio=1)
+ggplotly()
+```
+    d. Fit a linear discriminant analysis model, using equal prior probability for each group.
+    e. Write down the LDA rule. Make it clear which type of chocolate is class 1 and class 2 relative to the formula in the notes.
+
+2. This question is about decision trees. Here is a sample data set to work with:
+```{r}
+set.seed <- 20200508
+d <- data.frame(id=c(1:8), x=sort(sample(-5:20, 8)), cl=c("A", "A", "A", "B", "B", "A", "B", "B"))
+d
+```
+    a. Write down the formulae for the impurity metric, Gini, for a two group problem. Show that the Gini function has its highest value at 0.5. Explain why a value of 0.5 leads to the worst possible split. 
+    b. Write an R function to compute the impurity measure. The input should be data frame containing a vector of numeric values, and a vector of the associated classes. 
+    c. Use your function to compute the Gini impurity measure for every possible split of the sample data. 
+    d. Make a plot of your splits and the impurity measure. What partition of the data would yield the best split?
+    e. Fit a classification tree to the chocolates data. Print the tree model.
+    f. Compute Gini impurity measure for all possible splits on the Fiber variable in the chocolates data. Plot this against the splits. Explain where the best split is.
+    g. Compute Gini impurity measure for all possible splits on all of the other nutrition variables. Plot all of these values against the split, all 10 plots. Are there other possible candidates for splitting, that are almost as good as the one chosen by the tree? Explain yourself.
+
+3. For each of the simulated data sets provided, using the tour, parallel coordinate plot, scatterplot matrix or any other technique you like, determine the main structure in the data: how many groups there are, whether there are any outliers, overall shape. Write a paragraph on what you find in the data and your approach.
+
