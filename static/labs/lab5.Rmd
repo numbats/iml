@@ -1,7 +1,8 @@
 ---
-title: "ETC3250/5250 2020 - Lab 5"
-author: "Dianne Cook"
-date: "Week 5"
+title: "Lab 5"
+subtitle: "Monash University, Econ & Bus Stat, ETC3250/5250"
+author: "prepared by Professor Di Cook"
+date: "Materials for Week 6"
 output:
   html_document: default
 ---
@@ -157,7 +158,7 @@ $$\Sigma_3 = \begin{bmatrix}2.0&-1.0&1.2&0.3\\
 
 2. Conduct LDA on the two data sets, and plot the data into the 2D linear discriminant space.
 
-3. View both data sets in a grand tour, where the pooints are coloured by the class variable. Write a paragraph in your own (or group's) words what the difference between homogeneous and heterogeneous variance-covariance.
+3. View both data sets in a grand tour, where the points are coloured by the class variable. Write a paragraph in your own (or group's) words what the difference between homogeneous and heterogeneous variance-covariance.
 
 ```{r eval=FALSE}
 library(mvtnorm)
