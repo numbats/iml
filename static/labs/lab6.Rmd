@@ -82,7 +82,6 @@ ggplot(olive, aes(x=linoleic, y=region, colour=region)) +
 
 1. This question is about entropy as an impurity metric  for a classification  tree.
     a. Write down the formula for entropy as an impurity measure for two groups. 
-    $$- \hat{p}_{1} log_2(\hat{p}_{1}) -  \hat{p}_{2} log_2(\hat{p}_{2})$$
     b. Establish that the the worst case split has 50% one group and 50% the other group, in whatever way you  would like (algebraicly or graphically).
 ```{r}
 p <- seq(0.01, 0.99, 0.01)
@@ -91,7 +90,6 @@ df <- tibble(p, y)
 ggplot(df, aes(???)) + geom_???() + ylab("entropy")
 ```
     c. Extend the entropy formula so that it can be used to describe the  impurity for a possible  split of the data into two subsets. That is, it needs  to be the sum of the impurity for both left and right subsets of data.
-$$p_L(- \hat{p}_{L1} log_2(\hat{p}_{L1}) -  \hat{p}_{L2} log_2(\hat{p}_{L2}))  - p_R(\hat{p}_{R1} log_2(\hat{p}_{R1}) - \hat{p}_{R2} log_2(\hat{p}_{R2}))$$ 
 3. For this sample of data, 
 ```{r}
 df <- tibble(x=c(1,3,4,5,7), y=c("A", "B", "A", "B", "B"))
