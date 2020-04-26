@@ -1,0 +1,189 @@
+---
+title: "Lab 6"
+subtitle: "Monash University, Econ & Bus Stat, ETC3250/5250"
+author: "prepared by Professor Di Cook"
+date: "Materials for Week 6"
+output:
+  html_document: default
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  eval = FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 6,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+# Objective
+
+The objectives for this week are:
+
+- Practice fitting a classification tree model
+- Understand the way the tree model is fitted based on impurity
+- Learn about the relationship between fitting parameters, bias and variance
+
+# Class discussion 
+
+We will focus on two of the three main groups, north, sardinia, in the olive oil data, and think about how to best separate the two groups using the eight variables. 
+
+```{r out.width="100%", fig.width=8, eval=TRUE}
+library(tidyverse)
+library(rpart)
+library(knitr)
+library(kableExtra)
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  rename(name=X1) %>%
+  filter(region != 1) %>% # Drop oils from South
+  dplyr::select(-name, -area) %>%
+  mutate(region = factor(region))
+kable(olive[1:5,]) %>% kable_styling()
+```
+
+*Question 1: Here are plots of two pairs of variables. If you got to choose two variables for splitting the two groups, which would you choose, oleic or arachidic, in association with linoleic? Why?*
+
+```{r out.width="100%", fig.width=8, eval=TRUE}
+library(gridExtra)
+p1 <- ggplot(olive, aes(x=linoleic, y=oleic, colour=region)) + 
+  geom_point() + scale_colour_brewer("", palette="Dark2") +
+  theme(legend.position="none", aspect.ratio=1) 
+p2 <- ggplot(olive, aes(x=linoleic, y=arachidic, colour=region)) + 
+  geom_point() + scale_colour_brewer("", palette="Dark2") +
+  theme(legend.position="none", aspect.ratio=1) 
+grid.arrange(p1, p2, ncol=2)
+```
+
+*Question 2: For the olive oil data set, the classification tree will use just one of the possible eight variables for its model. It splits on linoleic acid as shown. Why do you think the tree fitting algorithm chose this variable? There is no gap between the groups. What problem might this create with future data? Why?*
+
+```{r out.width="70%", eval=TRUE}
+rpart(region~., data=olive)
+ggplot(olive, aes(x=linoleic, y=region, colour=region)) + 
+  geom_point(alpha=0.5) + scale_colour_brewer("", palette="Dark2") +
+  theme(legend.position="none") +
+  geom_vline(xintercept=1053.5)
+```
+
+*Question 3: Suppose you work with linoleic and arachidic. Would quadratic discriminant analysis produce a better separation than the tree? Argue your viewpoint.*
+
+*Question 4: Find a linear combination of linoleic and arachidic, and create a new variable to pass to the tree. Re-fit the tree with this variable instead of the original two. What does the model look like now? Is this better than the original tree?*
+
+*Question 5: In general, why is it often important to create new variables (feature engineering) when building models?*
+
+
+# Practice
+
+1. This question is about entropy as an impurity metric  fora classification  tree.
+    a. Write down the formula for entropy as an impurity measure for two groups. 
+    $$- \hat{p}_{1} log_2(\hat{p}_{1}) -  \hat{p}_{2} log_2(\hat{p}_{2})$$
+    b. Establish that the the worst case split has 50% one group and 50% the other group, in whatever way you  would like (algebraicly or graphically).
+```{r}
+p <- seq(0.01, 0.99, 0.01)
+y <- ???
+df <- tibble(p, y)
+ggplot(df, aes(???)) + geom_???() + ylab("entropy")
+```
+    c. Extend the entropy formula so that it can be used to describe the  impurity for a possible  split of the data into two subsets. That is, it needs  to be the sum of the impurity for both left and right subsets of data.
+$$p_L(- \hat{p}_{L1} log_2(\hat{p}_{L1}) -  \hat{p}_{L2} log_2(\hat{p}_{L2}))  - p_R(\hat{p}_{R1} log_2(\hat{p}_{R1}) - \hat{p}_{R2} log_2(\hat{p}_{R2}))$$ 
+3. For this sample of data, 
+```{r}
+df <- tibble(x=c(1,3,4,5,7), y=c("A", "B", "A", "B", "B"))
+kable(df) %>% kable_styling()
+```
+    a. compute the entropy impurity metric for all possible splits.
+```{r}
+splits <- tibble(split=c(2, 3.5, ???, ???), 
+                 impurity = ???)
+splits
+```
+    b. Write  down the classification rule for the tree that would  be formed for the best split.
+4. For the following data set, compute. Write out the decision  tree, and also sketch the boundary between classes.
+    a. olive oils,  for three regions
+```{r}
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  rename(name=X1) %>%
+  dplyr::select(-name, -area) %>%
+  mutate(region = factor(region))
+olive_rp <- rpart(???, data=olive)
+olive_rp
+ggplot(olive, aes(x=???, y=???, colour=???)) +
+  geom_point() + 
+  scale_color_brewer("", palette="Dark2") +
+  geom_vline(???) +
+  annotate("line", x=???, y=???)
+```
+    b. chocolates, for type
+```{r}
+choc <-  read_csv("data/chocolates.csv") %>%
+  select(Type:Protein_g)
+choc_rp <- rpart???, data=choc)
+choc_rp
+ggplot(choc, aes(x=???, y=???, colour=???)) +
+  geom_point() + 
+  scale_color_brewer("", palette="Dark2") +
+  geom_vline(???) +
+  annotate("line", x=???, y=???)
+```
+    c. flea, for species
+```{r}
+library(tourr)
+flea_rp <- rpart(???, data=flea)
+flea_rp
+ggplot(flea, aes(x=???, y=???, colour=???)) +
+  geom_point() + 
+  scale_color_brewer("", palette="Dark2") +
+  geom_vline(???) +
+  annotate("line", x=???, y=???)
+
+```
+
+5. For the crabs data, make a new variable combining species and gender into one class variable.
+    a. Use the  grand and guided tour with the LDA index to  examine  the data. Describe the shape. Between LDA and a classification  tree which d  youo expect to perform better on this  data?
+    ```{r}
+crabs <- read_csv("http://www.ggobi.org/book/data/australian-crabs.csv") %>%
+  mutate(class = interaction(species, sex)) %>%
+  dplyr::select(-index, -species,-sex)
+```
+
+    b. Fit the default decision tree, using species and gender. Explain why it  is so complicated.
+```{r}
+crabs_rp <- rpart(???, crabs)
+crabs_rp
+```
+
+    c. Break the  data into 50% training data, and 50% test data, ensuring that  sampling is done within the class variable. Change the options for the tree to fit it the training data with increasingly well. Compute the training and test error for each of the options and plot these. What best options would be suggested  based on minimising test error?
+```{r}
+library(caret)
+set.seed(20200429)
+tr_indx <- createDataPartition(???)$Resample1
+crabs_tr <- crabs[???,]
+crabs_ts <- crabs[???,]
+rp_ctl <- tibble(indx=10:1, minsplit=c(???), cp=???)
+tr_err <- NULL; ts_err <- NULL
+for (i  in 1:nrow(rp_ctl)) {
+   crabs_tr_rp <- rpart(???, crabs_tr,
+                        control = rpart.control(minsplit=rp_ctl$minsplit[i],
+                                                cp=rp_ctl$cp[i]))
+   tr_err <- c(tr_err, 
+               1-confusionMatrix(predict(crabs_tr_rp,???, type = "class"),
+                   ???)$overall[1])
+   ts_err <- c(ts_err, 
+               1-confusionMatrix(predict(crabs_tr_rp, ???, type = "class"),
+                   ???)$overall[1])
+}
+crabs_err <- tibble(tr_err, ts_err, indx = rp_ctl$indx,
+                    minsplit=???, 
+                    cp=???) %>%
+  pivot_longer(cols=c(tr_err, ts_err), names_to = "type", values_to = "error")
+ggplot(crabs_err, aes(x=indx, y=error, colour=type)) + xlab("flexibility") +
+  geom_line() + scale_colour_brewer("", palette="Dark2")
+```
+
+
