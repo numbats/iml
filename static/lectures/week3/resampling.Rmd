@@ -467,7 +467,7 @@ med.fn <- function(d, index) {
   med <- median(d$mpg[index])
   med
 }
-bmed <- boot(Auto, med.fn, R=1000)
+bmed <- boot(Auto, med.fn, R=100)
 ```
 
 ]]

@@ -40,8 +40,8 @@ library(magick)
 
 ```{r eval=FALSE, out.width="100%", fig.width=10, fig.height=4, fig.align="center"}
 library(tidyverse)
-library(tourr)
 library(GGally)
+library(tourr)
 library(gridExtra)
 p1 <- ggplot(flea, aes(x=tars1, y=tars2, colour=species)) + geom_rug() +
   geom_point() + scale_colour_brewer(palette="Dark2") + 
@@ -74,8 +74,6 @@ Compare the tour of the flea data, with three clusters:
 With the parallel coordinate plot:
 
 ```{r eval=FALSE, out.width="100%"}
-library(tidyverse)
-library(GGally)
 ggparcoord(flea, columns=1:6, groupColumn = 7) +
   scale_colour_brewer(palette="Dark2") + ylab("") +
   theme(legend.position="none")
