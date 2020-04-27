@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Classification Trees</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+    <link rel="stylesheet" href="libs/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250/5250: Classification Trees
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 6 (a)
+
+---
+
+
+
+
+class: split-two
+
+.column[.pad50px[
+
+## What is a decision tree?
+
+&lt;br&gt;
+
+Tree based models consist of one or more of nested `if-then` statements for the predictors that partition the data. Within these partitions, a model is used to predict the outcome.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/tree.jpg" style="width: 70%"/&gt;
+
+ .font_tiny[Source: [Egor Dezhic](becominghuman.ai)]
+
+
+]]
+
+
+---
+## Classification trees
+
+- A classification tree is used to predict a .orange[categorical response] and regression tree is used to predict a quantitative response
+- Use a recursive binary splitting to grow a classification tree. That is, sequentially break the data into two subsets, typically using a single variable each time.
+- The predicted value for a new observation, `\(x_0\)`, will be the .orange[most commonly occurring class] of training observations in the sub-region in which `\(x_0\)` falls
+
+
+---
+class: middle center
+# In class exercise!
+
+Everyone in the class line up from tallest to shortest.
+
+---
+
+## Sorting algorithms
+
+There are numerous sorting algorithms
+
+&lt;center&gt;
+&lt;img src="images/sorting.gif" style="width:75%"&gt;
+&lt;/center&gt;
+
+The "speed" of classification trees depends on how quickly one can sort. .green[[Source](www.sorting-algorithms.com)]
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# What about two dimensions ?
+
+Consider the dataset `Exam` where two exam scores are given for each student, 
+and a class `Label` represents whether they passed or failed the course.
+
+
+
+
+
+```
+##      Exam1    Exam2 Label
+## 1 34.62366 78.02469     0
+## 2 30.28671 43.89500     0
+## 3 35.84741 72.90220     0
+## 4 60.18260 86.30855     1
+```
+
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" /&gt;
+]]
+
+
+---
+### Calculate the number of misclassifications along all splits for `Exam1` classifying according to the majority class for the left and right splits
+ 
+&lt;center&gt;
+&lt;img src="images/two_d_cart.gif" style="width:70%"&gt;
+&lt;/center&gt;
+
+Red dots are .orange["fails"], blue dots are .green["passes"], and crosses indicate misclassifications.
+
+.font_tiny[Source: John Ormerod, U.Syd]
+---
+
+### Calculate the number of misclassifications along all splits for `Exam2` classifying according to the majority class for the top and bottom splits
+
+&lt;center&gt;
+&lt;img src="images/two_d_cart2.gif" style="width:70%"&gt;
+&lt;/center&gt;
+
+Red dots are .orange["fails"], blue dots are .green["passes"], and crosses indicate misclassifications.
+
+.font_tiny[Source: John Ormerod, U.Syd]
+
+---
+
+## Combining the results from `Exam1` and `Exam2` splits
+
+&lt;br&gt;
+
++ The minimum number of misclassifications from using all possible splits of `Exam1` was 19 when the value of `Exam1` was **56.7**
++ The minimum number of misclassifications from using all possible splits of `Exam2` was 23 when the value of `Exam2` was **52.5**
+
+&lt;br&gt;
+
+So we split on the best of these, i.e., split the data on `Exam1` at 56.7.
+---
+## Split criteria - purity/impurity metrics
+
+
+- The .orange[Gini index] measures total variance across the `\(K\)` classes:
+	`$$G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})$$`
+- .orange[Entropy] is defined as
+	`$$D = - \sum_{k =1}^K \hat{p}_{mk} log(\hat{p}_{mk})$$` 
+- If all `\(\hat{p}_{mk}\)`’s close to zero or one, `\(G\)` and `\(D\)` are small.
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## Example - predicting heart disease
+
+&lt;br&gt;
+
+`\(Y\)`: presence of heart disease (Yes/No)
+
+`\(X\)`: heart and lung function measurements
+
+&lt;br&gt;
+&lt;br&gt;
+
+```
+##  [1] "Age"       "Sex"       "ChestPain" "RestBP"    "Chol"      "Fbs"      
+##  [7] "RestECG"   "MaxHR"     "ExAng"     "Oldpeak"   "Slope"     "Ca"       
+## [13] "Thal"      "AHD"
+```
+
+]]
+
+.column[.content.center[
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+
+]]
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Deeper trees
+
+&lt;br&gt;
+
+Trees can be built deeper by:
+
+- decreasing the value of the complexity parameter `cp`, which sets the difference between impurity values required to continue splitting.
+- reducing  the `minsplit` and `minbucket` parameters,  which control the number of  observations  below splits are forbidden.
+
+]]
+.column[.content.vmiddle[
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]]
+---
+
+Tabulate true vs predicted to make a .orange[confusion table]. 
+
+&lt;center&gt;
+&lt;table&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td colspan="2" align="center" &gt; true &lt;/td&gt; &lt;/tr&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C1 (positive) &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C2 (negative) &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt; pred- &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C1 &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;a&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;b&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt;icted &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C2&lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;c&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;d&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/center&gt;
+
+- .orange[Accuracy: *(a+d)/(a+b+c+d)*]
+- .orange[Error: *(b+c)/(a+b+c+d)*]
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+- .orange[Balanced accuracy: *(sensitivity+specificity)/2*]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+&lt;center&gt;
+    Training confusion and error
+&lt;/center&gt;
+
+
+```
+##           Reference
+## Prediction No Yes
+##        No  75   5
+##        Yes 11  58
+```
+
+```
+##  Accuracy 
+## 0.8926174
+```
+]]
+
+.column[.pad50px[
+&lt;center&gt;
+    Test confusion and error
+&lt;/center&gt;
+
+```
+##           Reference
+## Prediction No Yes
+##        No  59  21
+##        Yes 18  50
+```
+
+```
+##  Accuracy 
+## 0.7364865
+```
+]]
+
+---
+## Training vs testing performance
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## Comparison with LDA
+
+&lt;br&gt;
+
+Look at the following classification problems and resultant decision boundaries for LDA (left) and CART (right). 
+
+&lt;br&gt;
+
+.green[What characteristics determine which method is more appropriate?]
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter8/8.7.pdf" target="_BLANK"&gt; &lt;img src="images/8.7.png" style="width: 70%; align: center"/&gt;  &lt;/a&gt;
+
+
+]]
+
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Example - Crabs
+
+&lt;br&gt;
+
+Physical measurements on WA crabs, males and females.
+
+&lt;br&gt;
+
+.font_small[*Data source*: Campbell, N. A. &amp; Mahon, R. J. (1974)]
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-11-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+
+
+---
+## Example - Crabs
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: split-50
+layout: false
+
+.column[.content.vmiddle.center[
+
+Classification tree
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-13-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]]
+.column[.content.vmiddle.center[
+
+Linear discriminant classifier
+
+&lt;img src="classification_trees_files/figure-html/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+## Pros and cons
+
+
+- The decision rules provided by trees are very easy to explain, and follow. A simple classification model.
+- Trees can handle a mix of predictor types, categorical and quantitative.
+- Trees efficiently operate when there are missing values in the predictors.
+- Algorithm is greedy, a better final solution might be obtained by taking a second best split earlier.
+- When separation is in linear combinations of variables trees struggle to provide a good classification
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
