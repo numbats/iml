@@ -101,6 +101,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - [paintings-long-train.csv](data/paintings-long-train.csv)
 - [paintings.zip](data/paintings.zip)
 - [womens_track.csv](data/womens_track.csv)
+- [Exam.csv](lectures/week6/data/Exam.csv)
 
 ## Project
 
