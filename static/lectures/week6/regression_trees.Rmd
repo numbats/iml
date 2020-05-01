@@ -101,6 +101,10 @@ ggplot(Hitters, aes(x=Years, y=Hits, colour=lSalary)) + geom_point(alpha=0.7, si
   annotate("text", x=c(2, 22, 22), y=c(240, 10, 200), label=c("2.2", "2.6", "2.9"), size=6, colour="orange")
 ```
 
+```{r eval=FALSE}
+ggplot(Hitters, aes(x=Years, y=lSalary)) +
+  geom_point() + geom_vline(xintercept=4.5)
+```
 
 ---
 
@@ -118,7 +122,7 @@ By decreasing the value of the complexity parameter `cp`, we can build deeper tr
 # Fit a regression tree
 hitters_rp2 <- rpart(lSalary~Hits+Years, 
              data=Hitters, 
-             control=rpart.control(cp=0.012)) #<<
+             control=rpart.control(cp=0.012)) 
 ```
 
 ]]
@@ -370,8 +374,8 @@ for (i in 1:length(cp)) {
   MSE_ts <- c(MSE_ts, sum((hitters_ts$lSalary-predict(hitters_rp, hitters_ts))^2)/length(hitters_ts$lSalary))
   nnodes <- c(nnodes, max(hitters_rp$cptable[,2])+1)
 }
-hitters_fit <- tibble(nnodes, train=MSE_tr, test=MSE_ts) %>% 
-  gather(type, MSE, -nnodes) 
+hitters_fit <- tibble(nnodes, train=MSE_tr, test=MSE_ts, cp=c(0.005, cp)) %>% 
+  gather(type, MSE, -nnodes, -cp) 
 ggplot(hitters_fit, aes(x=nnodes, y=MSE, colour=type)) + 
   geom_line() + scale_colour_brewer("", palette="Dark2") +
   xlab("Size of tree") +
@@ -387,7 +391,7 @@ layout: false
 Yielding this model: 
 
 ```{r out.width="100%"}
-hitters_rp <- rpart(lSalary~Hits+Years, data=hitters_tr, control=rpart.control(minsplit=6, cp=0.03))
+hitters_rp <- rpart(lSalary~Hits+Years, data=hitters_tr, control=rpart.control(minsplit=6, cp=0.02))
 prp(hitters_rp, digits=4, roundint=FALSE)
 ```
 
@@ -402,9 +406,9 @@ prp(hitters_rp, digits=4, roundint=FALSE)
 ggplot(Hitters, aes(x=Years, y=Hits, colour=lSalary)) + geom_point(alpha=0.7, size=3) +
   scale_colour_viridis() + 
   geom_vline(xintercept=4.5) + 
-  annotate("segment", x=0, xend=4.5, y=111, yend=111) +
-  annotate("segment", x=4.5, xend=25, y=103.5, yend=103.5) +
-  annotate("segment", x=0, xend=4.5, y=33, yend=33) 
+  annotate("segment", x=0, xend=4.5, y=105.5, yend=105.5) +
+  annotate("segment", x=4.5, xend=25, y=118, yend=118) +
+  annotate("segment", x=6.5, xend=6.5, y=0, yend=118) 
 ```
 
 ]]

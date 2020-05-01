@@ -97,9 +97,10 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - [wiggly.csv](data/wiggly.csv)
 - [nnet_best.rda](data/nnet_best.rda)
 - [nnet_many.rda](data/nnet_many.rda)
-- [paintings-subset.csv](data/paintings-subset.csv)
-- [paintings-long-train.csv](data/paintings-long-train.csv)
-- [paintings.zip](data/paintings.zip)
+- [paintings-train.csv](labs/data/paintings-train.csv)
+- [paintings-long-train.csv](labs/data/paintings-long-train.csv)
+- [paintings-test.csv](labs/data/paintings-test.csv)
+- [paintings.zip](data/paintings.zip) Images of the paintings
 - [womens_track.csv](data/womens_track.csv)
 - [Exam.csv](lectures/week6/data/Exam.csv)
 

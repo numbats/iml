@@ -185,7 +185,7 @@ library(rpart)
 library(rpart.plot)
 library(caret)
 heart <- read_csv("http://faculty.marshall.usc.edu/gareth-james/ISL/Heart.csv") %>%
-  select(-X1) %>% mutate(AHD=factor(AHD))
+  dplyr::select(-X1) %>% mutate(AHD=factor(AHD))
 heart <- heart %>% filter(!is.na(Ca)) %>% filter(!is.na(Thal))
 colnames(heart)
 ```
@@ -195,6 +195,7 @@ colnames(heart)
 .column[.content.center[
 
 ```{r}
+heart <- heart %>% dplyr::select(Age:AHD)
 set.seed(2019)
 tr_indx <- createDataPartition(heart$AHD)$Resample1
 heart_tr <- heart[tr_indx,]
@@ -387,7 +388,7 @@ ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) +
   theme(aspect.ratio=1) + 
   geom_vline(xintercept=16, linetype=2) + 
   geom_segment(aes(x=7, xend=16, y=12, yend=12), color="black", linetype=2) +
-  geom_segment(aes(x=12, xend=12, y=12, yend=17), color="black", linetype=2) + 
+  geom_segment(aes(x=12, xend=12, y=6, yend=12), color="black", linetype=2) + 
   geom_segment(aes(x=7, xend=16, y=8.1, yend=8.1), color="black", linetype=2) +
   geom_segment(aes(x=11, xend=11, y=8.1, yend=12), color="black", linetype=2) +
   geom_segment(aes(x=11, xend=16, y=11, yend=11), color="black", linetype=2) +
