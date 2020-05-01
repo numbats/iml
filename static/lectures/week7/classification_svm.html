@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250: Support Vector Machines</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+    <link rel="stylesheet" href="libs/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250: Support Vector Machines
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 7 (b)
+
+---
+
+
+
+
+## Separating hyperplanes
+
+
+
+In a `\(p\)`-dimensional space, a .orange[hyperplane] is a flat affine subspace of dimension `\(p - 1\)`.
+
+&lt;center&gt;
+&lt;img src="images/9.1.png" style="width: 40%"/&gt;
+&lt;/center&gt;
+
+.font_tiny[(ISLR: Fig 9.1)]
+---
+## Separating hyperplanes 
+
+The equation of `\(p\)`-dimensional hyperplane is given by
+
+`$$\beta_0 + \beta_1 X_1 + \dots + \beta_p X_p = 0$$`
+
+
+If `\(x_i \in \Re^p\)` and `\(y_i \in \{-1, 1\}\)` for `\(i = 1, \dots, n\)`, then
+
+`$$\beta_0 + \beta_1 x_{i1} + \dots + \beta_p x_{ip} &gt; 0 \mbox{ if }  y_i = 1,$$` 
+	
+`$$\beta_0 + \beta_1 x_{i1} + \dots + \beta_p x_{ip} &lt; 0 \mbox{ if } y_i = -1$$`
+
+
+Equivalently,
+
+`$$y_i (\beta_0 + \beta_1 x_{i1} + \dots + \beta_p x_{ip}) &gt; 0$$`
+
+
+
+---
+## Separating hyperplanes
+
+
+- A new observation is assigned a class depending on .orange[which side] of the hyperplane it is located
+- Classify the test observation `\(x^*\)` based on the .orange[sign] of 
+`$$s(x^*) = \beta_0 + \beta_1 x_1^* + \dots + \beta_p x_p^*$$`
+- If `\(s(x^*) &gt; 0\)`, class `\(1\)`, and if `\(s(x^*) &lt; 0\)`, class `\(-1\)`, i.e. `\(h(x^*) = \mbox{sign}(s(x^*)).\)`
+
+
+---
+
+## Separating hyperplanes
+
+What about the .orange[magnitude] of `\(s(x^*)\)`? 
+
+- `\(s(x^*) \mbox{ far from zero } \rightarrow\)` `\(x^*\)` lies far from the hyperplane + **more confident** about our classification
+- `\(s(x^*) \mbox{ close to zero } \rightarrow\)` `\(x^*\)` near the hyperplane + **less confident** about our classification
+
+---
+
+## Separating hyperplane classifiers
+
+We will explore .green[*three*] different types of hyperplane classifiers, with each method generalising the one before it.
+
+- .orange[Maximal marginal classifier] for when the data is perfectly separated by a hyperplane
+- .orange[Support vector classifier/ soft margin classifier] for when data is NOT perfectly separated by a hyperplane but still has a linear decision boundary, and
+- .orange[Support vector machines] used for when the data has non-linear decision boundaries.
+
+In practice, SVMs are used to refer to all three methods, however we will distinguish between the three notions in this lecture.
+
+---
+## Maximal margin classifier
+
+
+All are separating hyperplanes. .orange[Which is best?]
+
+&lt;center&gt;
+&lt;img src="images/svm-hyperplanes.jpg" style="width: 60%"/&gt;
+&lt;/center&gt;
+
+
+---
+## Maximal margin classifier
+
+
+&lt;center&gt;
+&lt;img src="images/svm_diagram.png" style="width: 80%" /&gt;
+&lt;/center&gt;
+
+.font_tiny[Source: Machine Learning Memes for Convolutional Teens]
+
+---
+
+## From LDA to SVM
+
+- Linear discriminant analysis uses the difference between means to set the separating hyperplane.
+- Support vector machines uses .orange[gaps] between points on the outer edge of clusters to set the separating hyperplane.
+
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-1-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+## SVM vs Logistic Regression
+
+- If our data can be perfectly separated using a hyperplane, then there will in fact exist an **infinite number of such hyperplanes**.
+- We compute the (perpendicular) distance from each training observation to a given separating hyperplane. The .orange[smallest] such distance is known as the .orange[margin].
+- The .orange[optimal separating hyperplane] (or maximal margin hyperplane)  is the separating hyperplane for which the margin is .orange[largest]. 
+- We can then classify a test observation based on which side of the maximal margin hyperplane it lies. This is known as the .orange[maximal margin classifier].
+
+
+---
+## Support vectors
+
+&lt;img src="images/sv_diagram.png" style="width: 80%" /&gt;
+
+---
+## Support vectors
+
+- The .orange[support vectors] are equidistant from the maximal margin hyperplane and lie along the dashed lines indicating the width of the margin. 
+- They .orange[support] the maximal margin hyperplane in the sense that if these points were moved slightly then the maximal margin hyperplane would move as well
+
+
+.center[ ** The maximal margin hyperplane depends directly on the support vectors, but .orange[not on the other observations]**]
+
+
+---
+
+## Support vectors
+&lt;br&gt;
+
+&lt;center&gt;
+
+&lt;img src="images/svm-training.png" style="width: 55%"&gt;
+
+&lt;/center&gt;
+---
+
+### Example: Support vectors (and slack vectors)
+
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+## Maximal margin classifier
+
+
+If `\(x_i \in \mathbb{R}^p\)` and `\(y_i \in \{-1, 1\}\)` for `\(i = 1, \dots, n\)`, the separating hyperplane is defined as
+
+`$$\{x:\beta_0+x^T\beta=0\}$$`
+
+where `\(\beta=\sum_{i=1}^s (\alpha_iy_i)x_i\)` and `\(s\)` is the number of support vectors.
+Then the .orange[maximal margin hyperplane] is found by 
+
+*maximising* `\(M\)`, subject to `\(\sum_{j=1}^p\beta_j^2=1\)`, and `\(y_i(x_i^T\beta+\beta_0)\geq M, i=1, ..., n\)`.
+
+
+
+
+---
+class: split-60
+layout: false
+
+.column[.pad50px[
+
+## Non-separable case
+
+The maximal margin classifier only works when we have perfect separability in our data.
+
+.green[What do we do if data is not perfectly separable by a hyperplane?]
+
+ .orange[**The support vector classifier**] allows points to either lie on the wrong side of the margin, or on the wrong side of the hyperplane altogether. 
+ 
+ .font_tiny[Right: ISLR Fig 9.6]
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/9.6-flip.png" style="width: 80%"&gt;
+
+]]
+
+---
+## Support vector classifier - optimisation 
+
+&lt;br&gt;
+
+*Maximise* `\(M\)`, subject to `\(\sum_{i=1}^p\beta_i^2=1\)`, and `\(y_i(x_i'\beta+\beta_0)\geq M(1-\epsilon_i), i=1, ..., n\)`, AND `\(\epsilon_i\geq 0, \sum_{i=1}^n\epsilon_i\leq C\)`.
+
+`\(\varepsilon_i\)` tells us where the `\(i\)`th observation is located and `\(C\)` is a nonnegative .orange[tuning parameter].
+
+- `\(\varepsilon_i = 0\)`: correct side of the margin,
+- `\(\varepsilon_i &gt; 0\)`: wrong side of the margin (violation of the margin),
+- `\(\varepsilon_i &gt; 1\)`: wrong side of the hyperplane.
+
+
+---
+## Non-separable case
+
+.orange[Tuning parameter]: decreasing the value of *C*
+
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter9/9.7.pdf" target="_BLANK"&gt; &lt;img src="images/9.7.png" style="width: 45%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+---
+
+## Non-linear boundaries
+
+The support vector classifier doesn't work well for non-linear boundaries. .green[What solution do we have?]
+
+&lt;center&gt;
+
+&lt;img src="images/9.8.jpg" style="width: 80%"&gt;
+
+&lt;/center&gt;
+---
+
+## Enlarging the feature space
+
+Consider the following 2D non-linear classification problem. We can transform this to a linear problem separated by a maximal margin hyperplane by introducing an additional third dimension.
+
+&lt;center&gt;
+&lt;img src="images/kernel-trick.png" style="width: 80%"&gt;
+&lt;/center&gt;
+
+.font_tiny[Source: Grace Zhang @zxr.nju]
+---
+
+## The inner product
+
+Consider two `\(p\)`-vectors 
+$$
+`\begin{align*}
+\mathbf{x} &amp; = (x_1, x_2, \dots, x_p) \in \mathbb{R}^p \\
+\mbox{and} \quad \mathbf{y} &amp; = (y_1, y_2, \dots, y_p) \in \mathbb{R}^p.
+\end{align*}`
+$$
+The inner product is defined as 
+
+`$$\langle \mathbf{x}, \mathbf{y}\rangle = x_1y_1 + x_2y_2 + \dots + x_py_p = \sum_{j=1}^{p} x_jy_j$$`
+
+.orange[A linear measure of similarity, and allows geometric constrctions such as the maximal marginal hyperplane.]
+
+---
+
+## Kernel functions
+
+A kernel function is an inner product of vectors mapped to a (higher dimensional) feature space `\(\mathcal{H} = \mathbb{R}^d, d &gt; p\)`.
+
+$$
+\mathcal{K}(\mathbf{x}, \mathbf{y})  = \langle \psi(\mathbf{x}), \psi(\mathbf{y}) \rangle
+$$
+$$
+\psi: \mathbb{R}^p \rightarrow \mathcal{H}
+$$
+
+.orange[Non-linear measure of similarity, and allows geometric constructions in high dimensional space.]
+
+---
+
+## Examples of kernels
+
+Standard kernels include:
+$$
+`\begin{align*}
+\mbox{Linear} \quad  \mathcal{K}(\mathbf{x}, \mathbf{y}) &amp; = \langle\mathbf{x}, \mathbf{y} \rangle \\
+\mbox{Polynomial} \quad \mathcal{K}(\mathbf{x}, \mathbf{y}) &amp; = (\langle\mathbf{x}, \mathbf{y} \rangle + 1)^d \\
+\mbox{Radial} \quad \mathcal{K}(\mathbf{x}, \mathbf{y}) &amp; = \exp(-\gamma\lvert\lvert\mathbf{x}-\mathbf{y}\lvert\lvert^2)
+\end{align*}`
+$$
+
+---
+class: split-60
+layout: false
+
+.column[.pad50px[
+## Support Vector Machines
+
+
+.orange[The kernel trick]
+
+The linear support vector classifier can be represented as follows:
+
+`$$f(x) = \beta_0 +  \sum_{i \in \mathcal{S}} \alpha_i \langle x, x_i \rangle.$$`
+
+We can generalise this by replacing the inner product with the kernel function as follows:
+
+`$$f(x) = \beta_0 +  \sum_{i \in \mathcal{S}} \alpha_i \mathcal{K}( x, x_i ).$$`
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/svm_kernels.png" style="width: 80%; align: center" /&gt;
+]]
+
+---
+## Your turn
+
+Let `\(\mathbf{x}\)` and `\(\mathbf{y}\)` be vectors in `\(\mathbb{R}^2\)`. By expanding `\(\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2\)` show that this is equilvalent to an inner product in `\(\mathcal{H} = \mathbb{R}^6\)`.
+
+&lt;br&gt;
+
+.green[Remember:] `\(\langle \mathbf{x}, \mathbf{y}\rangle =\sum_{j=1}^{p} x_jy_j\)`.
+
+<div class="countdown" id="timer_5eabc2e3" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+---
+## Solution
+
+$$
+`\begin{align*}
+\mathcal{K}(\mathbf{x}, \mathbf{y}) &amp; = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2 \\
+                                    &amp; = \left(1 + \sum_{j = 1}^2 x_jy_j \right) ^2 \\
+                                    &amp; = (1 + x_1y_1 + x_2y_2)^2 \\
+                                    &amp; = (1 + x_1^2y_1^2 + x_2^2y_2^2 + 2x_1y_1 + 2x_2y_2 + 2x_1x_2y_1y_2) \\
+                                    &amp; = \langle \psi(\mathbf{x}), \psi(\mathbf{y}) \rangle
+\end{align*}`
+$$
+&lt;br&gt;
+where `\(\psi(\mathbf{x}) = (1, x_1^2, x_2^2, \sqrt2x_1, \sqrt2x_2, \sqrt2x_1x_2)\)`.
+
+---
+## The kernel trick - why is it a trick?
+
+We do not need to know what the high dimensional enlarged feature space `\(\mathcal{H}\)` really looks like.
+
+We just need to know the which kernel function is most appropriate as a measure of similarity.
+
+&lt;br&gt;
+
+.tip[The Support Vector Machine (SVM) is a maximal margin hyperplane in `\\(\mathcal{H}\\)` built by using a kernel function in the low dimensional feature space `\\(\mathbb{R}^p\\)`.]
+
+
+---
+## Non-linear boundaries
+.orange[Polynomial] and .orange[radial] kernel SVMs
+
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter9/9.9.pdf" target="_BLANK"&gt; &lt;img src="images/9.9.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+---
+## Non-linear boundaries
+
+Italian olive oils: Regions 2, 3 (North and Sardinia)
+
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-5-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+## SVM in high dimensions
+
+Examining misclassifications and which points are selected to be support vectors
+
+&lt;center&gt;
+
+&lt;video width="600" controls&gt; &lt;source src="http://www.ggobi.org/book/chap-class/SVM.mov"&gt; &lt;/video&gt;
+
+&lt;/center&gt;
+
+
+
+---
+## SVM in high dimensions
+
+[Examining boundaries](http://www.ggobi.org/book/chap-class/classifly.mov)
+
+&lt;video width="600" controls&gt; &lt;source src="http://www.ggobi.org/book/chap-class/classifly.mov"&gt; &lt;/video&gt;
+
+
+---
+## SVM in high dimensions
+
+[Boundaries of a radial kernel in 3D](https://vimeo.com/125405961)
+
+&lt;video width="700" controls&gt; &lt;source src="https://vimeo.com/125405961"&gt; &lt;/video&gt;
+
+
+---
+## SVM in high dimensions
+
+[Boundaries of a polynomial kernel in 5D](https://vimeo.com/125405962)
+
+&lt;video width="700" controls&gt; &lt;source src="https://vimeo.com/125405962"&gt; &lt;/video&gt;
+
+
+---
+class: center 
+
+## Comparing decision boundaries
+
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+## Increasing the value of `cost` in `svm`
+
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
