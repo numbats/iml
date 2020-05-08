@@ -58,7 +58,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Week 7: Classification, Chapter 9
 [slides1](http://iml.numbat.space/lectures/week7/classification_forests.html) ([Rmd](http://iml.numbat.space/lectures/week7/classification_forests.Rmd)) ([pdf](http://iml.numbat.space/lectures/week7/classification_forests.pdf)) [slides2](http://iml.numbat.space/lectures/week7/classification_svm.html) ([Rmd](http://iml.numbat.space/lectures/week7/classification_svm.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week7/classification_svm.pdf))
-- Week 8: Ensembles and boosted models, Chapter 8.2 
+- Week 8: Ensembles and boosted models, Chapter 8.2 [slides1](http://iml.numbat.space/lectures/week8/classification_nn1.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn1.Rmd)) ([pdf](http://iml.numbat.space/lectures/week8/classification_nn1.pdf)) [slides2](http://iml.numbat.space/lectures/week8/classification_nn2.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn2.Rmd))
+([pdf](http://iml.numbat.space/lectures/week8/classification_nn2.pdf))
 - Week 9: Regularization methods, Chapter 6 
 - Week 10: Model assessment, Instructor's notes
 - Week 11: Clustering, Chapter 10
@@ -77,7 +78,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - Week 5:  [Instructions](https://iml.numbat.space/labs/lab5.html) ([Rmd](https://iml.numbat.space/labs/lab5.Rmd))
 - Week 6: [Instructions](https://iml.numbat.space/labs/lab6.html) ([Rmd](https://iml.numbat.space/labs/lab6.Rmd))
 - Week 7:  [Instructions](https://iml.numbat.space/labs/lab7.html) ([Rmd](https://iml.numbat.space/labs/lab7.Rmd))
-- Week 8: 
+- Week 8:  [Instructions](https://iml.numbat.space/labs/lab8.html) ([Rmd](https://iml.numbat.space/labs/lab8.Rmd))
 - Week 9: 
 - Week 10: 
 - Week 11:  
