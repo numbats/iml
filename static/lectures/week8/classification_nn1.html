@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Neural networks 1</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link href="libs/font-awesome-animation/font-awesome-animation-emi.css" rel="stylesheet" />
+    <script src="libs/fontawesome/js/fontawesome-all.min.js"></script>
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+    <link rel="stylesheet" href="libs/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250/5250: Neural networks 1
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 8 (a)
+
+---
+
+
+
+
+class: split-two
+
+.column[.pad50px[
+
+## What number is this?
+
+&lt;br&gt;
+
+This is a three, right?
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/three-1.JPG" style="width: 80%"/&gt;
+
+
+]]
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## What number is this?
+
+&lt;br&gt;
+
+Is this also a three?
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/three-2.JPG" style="width: 80%"/&gt;
+
+
+]]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## What number is this?
+
+&lt;br&gt;
+
+But what about this number? Not a three?
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/five.JPG" style="width: 80%"/&gt;
+
+
+]]
+---
+## The human brain
+
+The human brain can efficiently recognise that although the images of the two threes are different, they are the same number, and are both distinct from the five.
+
+&lt;center&gt;
+&lt;img src="images/dif.png" style="width: 80%"/&gt;
+&lt;/center&gt;
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## MNIST data
+&lt;br&gt;
+The .green[MNIST data] was presented to AT&amp;T Bell Lab's to build automatic mail sorting machines.
+
+.orange[Goal:] Analyse handwritten digits and predict numbers written, given a `\(28 \times 28\)` grid of pixels for each of the  60000 training images. Digits range from 0-9. 
+
+]]
+
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/MNIST.png" style="width: 80%"/&gt;
+
+.font_tiny[Sample images from MNIST test dataset .]
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## MNIST data
+
+.green[How do we do this?]
+
+Humans are good at detecting different features about the images, such as thickness of line, angles, edges, completeness of circles, etc.
+
+It is evident a complex relationship is presented in the images. .orange[Neural networks] can help us automatically capture these complexities.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/titterington.png" style="width: 80%"/&gt;
+
+
+]]
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## So, what are neural networks?
+
+**Idea:** .green[Capture a complex relationship between outputs and inputs by creating layers of derived variables.]
+
+`\(y\)` = output variable
+
+`\(x\)` = original input variable
+
+`\(f(x)\)` = derived variable input
+
+]]
+
+.column[.content.vmiddle.center[
+
+$$ y = f_1(f_2(\dots (f_d(x))))$$
+
+&lt;br&gt;
+
+&lt;img src="images/feedforward.png" style="width: 80%"/&gt;
+
+.font_tiny[Source: Hands on Machine Learning with R]
+]]
+
+
+
+---
+
+## How do we build a neural network?
+
+&lt;br&gt;
+
+To build a feedforward neural network, we need .orange[four key components:]
+
+1. Input data (*in this case, the MNIST data*)
+2. A pre-defined network architecture;
+3. A feedback mechanism to enable the network to learn; and 
+4. A model training approach.
+
+
+
+---
+
+class:  middle center
+
+# **1. Preparing the data**
+
+
+
+---
+
+## Data preparation
+
+&lt;br&gt;
+
+There are some data cleaning steps we need to keep in mind before we use neural networks.
+
+- Data needs input to be *numeric*. This means if our data has categorical variables, we will need to represent these as *dummy variables* (revise, Week 2!). This is also called .orange[one-hot encoding] in ML literature.
+- Neural nets are sensitive to scale of the feature values - hence they should be *standardised* first (have mean zero and unit variance).
+- If response is categorical (such as "0" through "9" response in MNIST data) - needs to be recoded as binary matrix. Can use `keras` function `to_categorical()`.
+---
+
+## Data preparation
+
+We can obtain the MNIST data from the `dslabs` package. Data prep follow  [Hands on Machine Learning in R](https://bradleyboehmke.github.io/HOML/deep-learning.html). This arose when AT&amp;T Bell Lab’s was asked to help build automatic mail-sorting machines for the USPS aroound 1990. 
+
+
+```r
+library(dplyr) 
+library(keras)
+
+# Import MNIST training data
+mnist &lt;- dslabs::read_mnist()
+mnist_x &lt;- mnist$train$images
+mnist_y &lt;- mnist$train$labels
+
+# Rename columns and standardize feature values
+colnames(mnist_x) &lt;- paste0("V", 1:ncol(mnist_x))
+mnist_x &lt;- mnist_x / 255
+p &lt;- ncol(mnist_x)
+
+# One-hot encode response
+mnist_y &lt;- to_categorical(mnist_y, 10)
+```
+---
+
+class:  middle center
+
+# **2. Network Architecture**
+
+---
+## Network architecture
+
+&lt;br&gt;
+
+When building architecture for the neural network, we are concerned about two key features: 
+
+- The number of layers and nodes, and
+- How signal is activated throughout the network.
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Layers and nodes
+
+&lt;br&gt;
+
+Our complex relationships are captured using layers and nodes. There are two different types of layers, namely,
+
+- Input and output layers, and
+- Hidden layers.
+
+
+.font_tiny[Source: [Gabriela de Quiroz](https://github.com/gdequeiroz/2018-04-25_intro-to-deep-learning-with-R/blob/master/presentation/basic-concepts.pdf)]
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/nn_layers.JPG" style="width: 80%"/&gt;
+
+
+]]
+
+---
+
+## Hidden layers
+
+&lt;br&gt;
+
+- No well-defined approach for selecting the number of hidden layers - this is just one of many hyperparameters we will need to tune! .orange[2-5 layers works well most of the time for regular tabular data].
+- The more hidden layers - the longer the model will take to train (as we are adding more parameters!)
+
+
+
+---
+
+## Output layers
+
+
+Choice of nodes for the output layer is determined by the ML task.
+
+- If you are doing regression - a single node.
+- Classification - a node for each class if multiclass.
+- If binary, single node for probability of predicting success.
+
+&lt;br&gt;
+
+.tip[**Think!** How many output nodes will MNIST data neural network contain?  🤔]
+---
+
+## Building network structure in R
+
+We use the `keras` package to build neural networks in R. This is *very different* to other forms of ML algorithms in R. In `keras`, we first define the network structure as a standalone from our data.
+
+
+```r
+library(keras)
+model &lt;- keras_model_sequential() %&gt;%
+  layer_dense(units = 16,
+              input_shape = p) %&gt;%
+  layer_dense(units = 16) %&gt;%
+  layer_dense(units = 10)
+```
+
+
+---
+
+## Activation - how do the layers speak?
+
+&lt;br&gt;
+
+
+Now that we have our structure in place, we need to determine how to pass signal throughout the network. 
+
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+<span class=" faa-tada animated " data-fa-transform="grow-2 " style=" display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Stay tuned!</span> It uses methods we already know: .orange[logistic] and .orange[linear regression.]
+
+---
+## But first, some history
+
+
+"A logical calculus of the ideas immanent in nervous activity" (1943)
+Warren S. McCulloch &amp; Walter Pitts
+
+Mathematical model for a neuron.
+
+&lt;img src="images/neuron.gif" /&gt;
+
+
+---
+## Logistic regression
+
+Remember the logistic function:
+
+`\begin{align}
+y &amp;=&amp; \frac{e^{\beta_0+\sum_{j=1}^p\beta_jx_j}}{1+e^{\beta_0+\sum_{j=1}^p\beta_jx_j}}\\
+  &amp;=&amp; \frac{1}{1+e^{-(\beta_0+\sum_{j=1}^p\beta_jx_j)}}
+\end{align}`
+
+Alternatively,
+
+`$$\log_e\frac{y}{1 - y} = \beta_0+\sum_{j=1}^p\beta_jx_j$$`
+
+
+---
+class: split-50
+layout: false
+
+.column[.pad50px[
+
+## Logistic regression
+
+&lt;br&gt;
+
+What the .orange[logistic function] looks like:
+
+`\begin{align}
+y =\frac{1}{1+e^{-(\beta_0+\sum_{j=1}^p\beta_jx_j)}}
+\end{align}`
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-3-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+]]
+---
+class: middle
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+&lt;center&gt;
+.font_large[Hang on to this idea....]
+&lt;/center&gt;
+---
+
+class: split-50
+
+.column[.pad50px[
+
+## Linear regression as a network
+
+
+`$$\hat{y} =\beta_0+\sum_{j=1}^p\beta_jx_j$$`
+
+Drawing as a network model: 
+
+`\(p\)` .orange[inputs] (predictors), multiplied by .orange[weights] (coefficients), summed, add a .orange[constant], predicts .orange[output] (response)
+
+]]
+.column[.content.vmiddle[
+
+
+
+&lt;img src="images/reg_nn.png" style="width: 90%; align: center" /&gt;
+
+]]
+
+
+
+---
+## Network explanation - hidden layers
+
+`$$\hat{y} =\alpha_{0}+\sum_{k=1}^s(\alpha_{k}(\beta_{j0}+\sum_{j=1}^p\beta_{jk}x_j))$$`
+
+A linear regression model nested within a linear regression model allows for intrinsic dimension reduction, or expansion.
+
+&lt;center&gt;
+&lt;img src="images/nn.png" style="width: 60%; align: center" /&gt;
+&lt;/center&gt;
+
+---
+## Two layer perceptron
+
+This is a single output, 2 layer, perceptron (neural network), with a linear threshold.
+
+`\begin{align}
+\hat{y} =\alpha_{0}+\sum_{k=1}^s(\alpha_{k}(\beta_{j0}+\sum_{j=1}^p\beta_{jk}x_j))
+\end{align}`
+
+
+&lt;center&gt;
+&lt;img src="images/nn_annotate.png" style="width: 70%; align: center" /&gt;
+&lt;/center&gt;
+
+
+
+
+
+
+
+---
+
+Back to logistic regression: When the proportion gets to 0.5, it .orange[activates] an event to happen `\((Y=1)\)`.
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-5-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+## Activation functions
+
+`\begin{align}
+\hat{y} =\color{orange}g\color{orange}(\alpha_{0}+\sum_{k=1}^s(\alpha_{k}\color{orange}f\color{orange}(\beta_{0k}+\sum_{j=1}^p\beta_{jk}x_j)\color{orange})\color{orange})
+\end{align}`
+
+Let `\(u=\beta_0+\sum_{j=1}^p\beta_jx_j\)`
+- `\(\texttt{Logistic:} \quad \color{orange}{\frac{1}{1+e^{-u}}}\)`
+- `\(\texttt{Gaussian radial:} \quad \color{orange}{\frac{1}{\sqrt{2\pi}}e^{-u^2/2}}\)`
+- `\(\texttt{Hyperbolic tangent:} \quad \color{orange}{\frac{e^u-e^{-u}}{e^u+e^{-u}}}\)`
+
+---
+## Example
+
+Consider the wiggly data
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-6-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Overall fit is good
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-7-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+## Individual layers
+
+&lt;img src="classification_nn1_files/figure-html/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Adding in activation information in R
+
+To add in activation information to our model in `keras`, we simply adjust our model stucture previously by adding in the activation functions we would like to use for each layer.
+
+.green[Note - using different activations doesn't affect what the network can learn, just the speed at which it learns.]
+
+
+```r
+model &lt;- keras_model_sequential() %&gt;%
+  layer_dense(units = 16, 
+              activation = "relu", 
+              input_shape = p) %&gt;%
+  layer_dense(units = 16, activation = "relu") %&gt;%
+  layer_dense(units = 10, activation = "softmax")
+```
+
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer, with help from [Sarah Romanes](https://sarahromanes.github.io)
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

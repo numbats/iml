@@ -103,6 +103,10 @@ All are separating hyperplanes. .orange[Which is best?]
 <img src="images/svm-hyperplanes.jpg" style="width: 60%"/>
 </center>
 
+```{r}
+library(countdown)
+countdown(minutes = 0, seconds = 30)
+```
 
 ---
 ## Maximal margin classifier
@@ -153,7 +157,7 @@ grid.arrange(p1, p2, ncol=2)
 ```
 
 ---
-## SVM vs Logistic Regression
+## SVM 
 
 - If our data can be perfectly separated using a hyperplane, then there will in fact exist an **infinite number of such hyperplanes**.
 - We compute the (perpendicular) distance from each training observation to a given separating hyperplane. The .orange[smallest] such distance is known as the .orange[margin].
@@ -188,7 +192,7 @@ grid.arrange(p1, p2, ncol=2)
 </center>
 ---
 
-### Example: Support vectors (and slack vectors)
+### Example: Support vectors
 
 ```{r out.width="100%", fig.height=3, fig.width=6, align="center"}
 indx <- olive_svm$index[abs(olive_svm$coefs[,1])<1 & abs(olive_svm$coefs[,2])<1]
@@ -198,14 +202,16 @@ p1 <- ggplot() +
   geom_point(data=olive, aes(x=eicosenoic, y=linoleic, color=region, shape=region)) + 
   geom_point(data=svs, aes(x=eicosenoic, y=linoleic), color="black", shape=1, size=3) +
   scale_color_brewer("", palette="Dark2") +
-  theme_bw() + theme(aspect.ratio=1, legend.position="none")
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("Non-bounded")
 svs <- olive[olive_svm$index,]
 p2 <- ggplot() +
   geom_point(data=olive_p, aes(x=eicosenoic, y=linoleic, color=region), alpha=0.01) +
   geom_point(data=olive, aes(x=eicosenoic, y=linoleic, color=region, shape=region)) + 
   geom_point(data=svs, aes(x=eicosenoic, y=linoleic), color="black", shape=1, size=3) +
   scale_color_brewer("", palette="Dark2") +
-  theme_bw() + theme(aspect.ratio=1, legend.position="none")
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("All")
 grid.arrange(p1, p2, ncol=2)
 ```
 
@@ -254,7 +260,7 @@ The maximal margin classifier only works when we have perfect separability in ou
 
 <br>
 
-*Maximise* $M$, subject to $\sum_{i=1}^p\beta_i^2=1$, and $y_i(x_i'\beta+\beta_0)\geq M(1-\epsilon_i), i=1, ..., n$, AND $\epsilon_i\geq 0, \sum_{i=1}^n\epsilon_i\leq C$.
+*Maximise* $M$, subject to $\sum_{i=1}^p\beta_i^2=1$, and $y_i(x_i'\beta+\beta_0)\geq M(1-\varepsilon_i), i=1, ..., n$, AND $\varepsilon_i\geq 0, \sum_{i=1}^n\epsilon_i\leq C$.
 
 $\varepsilon_i$ tells us where the $i$th observation is located and $C$ is a nonnegative .orange[tuning parameter].
 
@@ -368,7 +374,7 @@ $$f(x) = \beta_0 +  \sum_{i \in \mathcal{S}} \alpha_i \mathcal{K}( x, x_i ).$$
 ---
 ## Your turn
 
-Let $\mathbf{x}$ and $\mathbf{y}$ be vectors in $\mathbb{R}^2$. By expanding $\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2$ show that this is equilvalent to an inner product in $\mathcal{H} = \mathbb{R}^6$.
+Let $\mathbf{x}$ and $\mathbf{y}$ be vectors in $\mathbb{R}^2$. By expanding $\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2$ show that this is equivalent to an inner product in $\mathcal{H} = \mathbb{R}^6$.
 
 <br>
 

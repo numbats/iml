@@ -98,6 +98,9 @@ All are separating hyperplanes. .orange[Which is best?]
 &lt;img src="images/svm-hyperplanes.jpg" style="width: 60%"/&gt;
 &lt;/center&gt;
 
+<div class="countdown" id="timer_5eb34168" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
+</div>
 
 ---
 ## Maximal margin classifier
@@ -116,10 +119,10 @@ All are separating hyperplanes. .orange[Which is best?]
 - Linear discriminant analysis uses the difference between means to set the separating hyperplane.
 - Support vector machines uses .orange[gaps] between points on the outer edge of clusters to set the separating hyperplane.
 
-&lt;img src="classification_svm_files/figure-html/unnamed-chunk-1-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ---
-## SVM vs Logistic Regression
+## SVM 
 
 - If our data can be perfectly separated using a hyperplane, then there will in fact exist an **infinite number of such hyperplanes**.
 - We compute the (perpendicular) distance from each training observation to a given separating hyperplane. The .orange[smallest] such distance is known as the .orange[margin].
@@ -154,9 +157,9 @@ All are separating hyperplanes. .orange[Which is best?]
 &lt;/center&gt;
 ---
 
-### Example: Support vectors (and slack vectors)
+### Example: Support vectors
 
-&lt;img src="classification_svm_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
 ## Maximal margin classifier
@@ -203,7 +206,7 @@ The maximal margin classifier only works when we have perfect separability in ou
 
 &lt;br&gt;
 
-*Maximise* `\(M\)`, subject to `\(\sum_{i=1}^p\beta_i^2=1\)`, and `\(y_i(x_i'\beta+\beta_0)\geq M(1-\epsilon_i), i=1, ..., n\)`, AND `\(\epsilon_i\geq 0, \sum_{i=1}^n\epsilon_i\leq C\)`.
+*Maximise* `\(M\)`, subject to `\(\sum_{i=1}^p\beta_i^2=1\)`, and `\(y_i(x_i'\beta+\beta_0)\geq M(1-\varepsilon_i), i=1, ..., n\)`, AND `\(\varepsilon_i\geq 0, \sum_{i=1}^n\epsilon_i\leq C\)`.
 
 `\(\varepsilon_i\)` tells us where the `\(i\)`th observation is located and `\(C\)` is a nonnegative .orange[tuning parameter].
 
@@ -317,13 +320,13 @@ We can generalise this by replacing the inner product with the kernel function a
 ---
 ## Your turn
 
-Let `\(\mathbf{x}\)` and `\(\mathbf{y}\)` be vectors in `\(\mathbb{R}^2\)`. By expanding `\(\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2\)` show that this is equilvalent to an inner product in `\(\mathcal{H} = \mathbb{R}^6\)`.
+Let `\(\mathbf{x}\)` and `\(\mathbf{y}\)` be vectors in `\(\mathbb{R}^2\)`. By expanding `\(\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2\)` show that this is equivalent to an inner product in `\(\mathcal{H} = \mathbb{R}^6\)`.
 
 &lt;br&gt;
 
 .green[Remember:] `\(\langle \mathbf{x}, \mathbf{y}\rangle =\sum_{j=1}^{p} x_jy_j\)`.
 
-<div class="countdown" id="timer_5eabc2e3" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5eb34261" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 ---
@@ -365,7 +368,7 @@ We just need to know the which kernel function is most appropriate as a measure 
 
 Italian olive oils: Regions 2, 3 (North and Sardinia)
 
-&lt;img src="classification_svm_files/figure-html/unnamed-chunk-5-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -410,12 +413,12 @@ class: center
 
 ## Comparing decision boundaries
 
-&lt;img src="classification_svm_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ---
 ## Increasing the value of `cost` in `svm`
 
-&lt;img src="classification_svm_files/figure-html/unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="classification_svm_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 
 

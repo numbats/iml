@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Neural networks 2</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="  Professor Di Cook     Econometrics and Business Statistics   Monash University" />
+    <link href="libs/remark-css/kunoichi.css" rel="stylesheet" />
+    <link href="libs/remark-css/ninjutsu.css" rel="stylesheet" />
+    <link href="libs/font-awesome-animation/font-awesome-animation-emi.css" rel="stylesheet" />
+    <script src="libs/fontawesome/js/fontawesome-all.min.js"></script>
+    <link rel="stylesheet" href="mystyle.css" type="text/css" />
+    <link rel="stylesheet" href="libs/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# ETC3250/5250: Neural networks 2
+## Semester 1, 2020
+### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
+### Week 8 (b)
+
+---
+
+
+
+
+class:  middle center
+
+# **3. Feedback Mechanism**
+
+
+
+
+---
+
+## Compiling the model
+
+Now that we have a model architecture in place - how will the model *learn* from the data? To do this, we need to specify a .orange[**loss function**] and .orange[**optimiser**] to use during training.
+
+- The *loss function* (also called objective function) helps measure performance. For regression you may use the MSE, for classification you may use cross entropy.
+- The *optimiser* controls which optimisation algorithm is implemented in our NN. 
+
+
+
+---
+
+class: middle center
+
+&lt;center&gt;
+&lt;img src="images/loss_update.JPG" style="width: 80%; align: center" /&gt;
+&lt;/center&gt;
+
+
+.font_tiny[Source: [Gabriela de Quiroz (2018) Intro  to Deep Learning with R](https://github.com/gdequeiroz/2018-04-25_intro-to-deep-learning-with-R/blob/master/presentation/basic-concepts.pdf)]
+
+---
+
+## Compiling the model in R
+
+&lt;br&gt;
+
+In R, we pipe our model to the `compile` function. This is all done in place and is not assigned to an object! 
+
+
+```r
+model %&gt;%   compile(
+    loss = 'categorical_crossentropy',
+    optimizer = "rmsprop",
+    metrics = c('accuracy')
+  )
+```
+
+
+
+---
+
+class:  middle center
+
+# **4. Model Training**
+
+---
+
+## Model training
+
+Now that we have created the model specification, we are ready to give it some data! We can use the `fit` function in `keras` to achieve this.
+
+
+```r
+fit &lt;- model %&gt;% fit(
+  x = mnist_x,
+  y = mnist_y,
+  batch_size = 512,
+  epochs = 10
+)
+```
+
+Note - `batch_size` refers to the number of samples fed into the model at a time, and `epoch` refers to how many times we will transverse the input data.
+
+---
+## Model training
+
+Now that we have created the model specification, we are ready to give it some data! We can use the `fit` function in `keras` to achieve this.
+
+.green[Additionally, we can hold out data in `validation_split` to validate that we are not *overfitting* to out data.]
+
+
+```r
+fit &lt;- model %&gt;% fit(
+  x = mnist_x,
+  y = mnist_y,
+  batch_size = 512,
+  epochs = 10,
+  validation_split = 0.2,
+  verbose = FALSE
+)
+```
+
+---
+
+class: split-50
+
+.column[.pad50px[
+
+## Model training
+
+We can plot the accuracy and loss of the neural network using the `plot` function.
+
+
+```r
+plot(fit)
+```
+
+
+
+]]
+.column[.content.vmiddle[
+
+&lt;img src="classification_nn2_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+
+]]
+
+---
+
+# Predict test set
+
+
+
+
+```r
+mnist_ts_yp &lt;- predict_classes(model, mnist_ts_x)
+table(mnist_ts_yp, mnist_ts_y)
+```
+
+```
+##            mnist_ts_y
+## mnist_ts_yp    0    1    2    3    4    5    6    7    8    9
+##           0  960    0   13    3    1    7   10    1    7    9
+##           1    0 1109    3    0    0    1    3    7    2    5
+##           2    0    2  940   13    1    0    4   15    5    1
+##           3    1    3   14  906    0   19    1    5   12    7
+##           4    0    1   10    1  926    4    7    6   13   28
+##           5    7    0    2   33    1  827   14    0   15    4
+##           6    5    3   11    2   12   11  914    0    7    1
+##           7    2    4    9   13    2    3    0  967    8    6
+##           8    4   13   30   28    4   10    4    1  894    4
+##           9    1    0    0   11   35   10    1   26   11  944
+```
+
+---
+## Additional thoughts - regularisation
+
+Place constraints on model complexity. Can use a `\(L_1\)` or `\(L_2\)` penalty to add a cost to the size of the node weights.
+
+`$$RSS + \lambda \sum_{k} w_k^2$$`
+
+where `\(w\)` indicates the set of weights in the model, labelled `\(\alpha, \beta\)` earlier. Forces some of the weights to zero (or close to), to alleviate over-parametrization, and over-fitting.
+
+<span class=" faa-shake animated " data-fa-transform="grow-2 " style=" display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">More on regularisation next week</span>
+
+---
+
+class: middle center
+
+# So why don't we use neural networks for all machine learning problems?
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+## Minimal interpretability
+
+&lt;br&gt;
+
+- Core concept of .orange[prediction] vs .orange[inference].
+- Neural networks are seen as a black box type of model, with limited information provided to as how the neural net is making decisions. (*Contrast this to trees, or logistic regression, say*)
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/hidden-layers.jpg" style="width: 80%"/&gt;
+
+.font_tiny[Source: Machine Learning Memes for Convolutional Teens]
+
+
+]]
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+## Data intensive
+
+&lt;br&gt;
+
+- Deep learning algorithms don't work well when the number of features is larger than the number of observations (highly overparameterised).
+- If we only have a limited number of training data points, the model can potentially .orange[overfit] and fit very closely to the training data whilst lacking predictive performance for new data.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/nodata.png" style="width: 80%"/&gt;
+
+.font_tiny[Source: Machine Learning Memes for Convolutional Teens]
+]]
+---
+class: split-two
+
+.column[.pad50px[
+
+## Computationally intensive
+
+&lt;br&gt;
+
+- Many calculations are required to estimate all of the parameters in many neural networks (the one we have shown today is quite basic ).
+- Deep learning involves huge amounts of matrix multiplications and other operations.
+- Often used in conjuction with GPUs to paralellise computations.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/intense.png" style="width: 80%"/&gt;
+
+.font_tiny[Source: Machine Learning Memes for Convolutional Teens]
+
+]]
+---
+
+## Resources
+
+- [Neural Networks: A Review from a Statistical Perspective](https://projecteuclid.org/euclid.ss/1177010638)
+- [A gentle journey from linear regression to neural networks](https://towardsdatascience.com/a-gentle-journey-from-linear-regression-to-neural-networks-68881590760e)
+- [McCulloch-Pitts Neuron -- Mankind’s First Mathematical Model Of A Biological Neuron](https://towardsdatascience.com/mcculloch-pitts-model-5fdf65ac5dd1)
+- [Hands on Machine Learning with R - Deep Learning](https://bradleyboehmke.github.io/HOML/deep-learning.html)
+
+---
+layout: false
+# 👩‍💻 Made by a human with a computer, with help from [Sarah Romanes](https://sarahromanes.github.io)
+
+### Slides at [https://iml.numbat.space](https://iml.numbat.space).
+### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
+&lt;br&gt;
+
+### Created using [R Markdown](https://rmarkdown.rstudio.com) with flair by [**xaringan**](https://github.com/yihui/xaringan), and [**kunoichi** (female ninja) style](https://github.com/emitanaka/ninja-theme).
+
+&lt;br&gt; 
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

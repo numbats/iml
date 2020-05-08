@@ -35,7 +35,7 @@ The objectives for this week are:
 
 # Class discussion 
 
-The focus this week is understanding how to determine the impoortance of variables in tree and foorest models. 
+The focus this week is understanding how to determine the importance of variables in tree and forest models. 
 
 *Question 1: In the following tree,  what would you says is the order of importance of the variables for classifying region?*
 

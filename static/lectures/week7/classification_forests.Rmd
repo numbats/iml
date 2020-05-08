@@ -253,7 +253,7 @@ Classifying the olive oils in the south of Italy - difficult classification task
 
 ```{r}
 library(tidyverse)
-olive <- read_csv("data/olive.csv") %>%
+olive <- read_csv("http://ggobi.org/book/data/olive.csv") %>%
   rename(name=X1)
 olive <- olive %>%
   filter(region == 1)
@@ -387,6 +387,10 @@ We can then fit a Random Forest model. Provided from the package `randomForest`.
 library(randomForest)
 olive_rf <- randomForest(area~., data=olive_tr, importance=TRUE, proximity=TRUE)
 olive_rf
+#olive_noSicily <- olive_tr[olive_tr$area != 4,]
+#olive_noSicily$area <- factor(olive_noSicily$area)
+#olive_rf <- randomForest(area~., data=olive_noSicily,
+#												 importance=TRUE, proximity=TRUE)
 ```
 
 ---
