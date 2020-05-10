@@ -48,11 +48,11 @@ Fill in the steps to go from the first line to the last
 
 $$
 \begin{align*}
-\mathcal{K}(\mathbf{x}, \mathbf{y}) & = ??? \\
+\mathcal{K}(\mathbf{x}, \mathbf{y}) & =  (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2 \\
                                     & = ??? \\
                                     & =  ???\\
                                     & =  ???\\
-                                    & =  (???)^T(???) \\
+                                    & =  (1, x_1^2, x_2^2, \sqrt2x_1, \sqrt2x_2, \sqrt2x_1x_2)^T(???) \\
                                     & = \langle \psi(\mathbf{x}), \psi(\mathbf{y}) \rangle
 \end{align*}
 $$
