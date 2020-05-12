@@ -95,7 +95,7 @@ fit &lt;- model %&gt;% fit(
 )
 ```
 
-Note - `batch_size` refers to the number of samples fed into the model at a time, and `epoch` refers to how many times we will transverse the input data.
+Note - `batch_size` refers to the number of samples fed into the model at a time, which can manage the computational load, and model stability, and `epoch` refers to how many iterations through the entire training data.
 
 ---
 ## Model training
@@ -157,16 +157,16 @@ table(mnist_ts_yp, mnist_ts_y)
 ```
 ##            mnist_ts_y
 ## mnist_ts_yp    0    1    2    3    4    5    6    7    8    9
-##           0  960    0   13    3    1    7   10    1    7    9
-##           1    0 1109    3    0    0    1    3    7    2    5
-##           2    0    2  940   13    1    0    4   15    5    1
-##           3    1    3   14  906    0   19    1    5   12    7
-##           4    0    1   10    1  926    4    7    6   13   28
-##           5    7    0    2   33    1  827   14    0   15    4
-##           6    5    3   11    2   12   11  914    0    7    1
-##           7    2    4    9   13    2    3    0  967    8    6
-##           8    4   13   30   28    4   10    4    1  894    4
-##           9    1    0    0   11   35   10    1   26   11  944
+##           0  969    0   12    1    2    9   20    3    6   12
+##           1    0 1101    2    1    1    4    3    8    2    5
+##           2    0    3  946   15    7    4   13   27    4    1
+##           3    2    3   10  918    0   19    2    7   14    9
+##           4    0    1   11    0  929    5    9    6    8   36
+##           5    4    2    4   37    1  810   24    1   26   10
+##           6    1    3    7    0    5    5  879    0    4    0
+##           7    1    1    9   14    5    6    0  961    6   15
+##           8    3   21   31   23   13   25    8    2  902   15
+##           9    0    0    0    1   19    5    0   13    2  906
 ```
 
 ---
@@ -176,7 +176,7 @@ Place constraints on model complexity. Can use a `\(L_1\)` or `\(L_2\)` penalty 
 
 `$$RSS + \lambda \sum_{k} w_k^2$$`
 
-where `\(w\)` indicates the set of weights in the model, labelled `\(\alpha, \beta\)` earlier. Forces some of the weights to zero (or close to), to alleviate over-parametrization, and over-fitting.
+where `\(w\)` indicates the set of weights in the model, labelled `\(\alpha, \beta\)` earlier. Forces some of the weights to zero (or close to), to alleviate over-parameterisation, and over-fitting.
 
 <span class=" faa-shake animated " data-fa-transform="grow-2 " style=" display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">More on regularisation next week</span>
 
@@ -222,7 +222,7 @@ class: split-two
 
 &lt;br&gt;
 
-- Deep learning algorithms don't work well when the number of features is larger than the number of observations (highly overparameterised).
+- Deep learning algorithms don't work well when the number of features is larger than the number of observations (highly over-parameterised).
 - If we only have a limited number of training data points, the model can potentially .orange[overfit] and fit very closely to the training data whilst lacking predictive performance for new data.
 
 ]]

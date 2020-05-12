@@ -121,7 +121,7 @@ fit <- model %>% fit(
 )
 ```
 
-Note - `batch_size` refers to the number of samples fed into the model at a time, and `epoch` refers to how many times we will transverse the input data.
+Note - `batch_size` refers to the number of samples fed into the model at a time, which can manage the computational load, and model stability, and `epoch` refers to how many iterations through the entire training data.
 
 ---
 ## Model training
@@ -191,7 +191,7 @@ Place constraints on model complexity. Can use a $L_1$ or $L_2$ penalty to add a
 
 $$RSS + \lambda \sum_{k} w_k^2$$
 
-where $w$ indicates the set of weights in the model, labelled $\alpha, \beta$ earlier. Forces some of the weights to zero (or close to), to alleviate over-parametrization, and over-fitting.
+where $w$ indicates the set of weights in the model, labelled $\alpha, \beta$ earlier. Forces some of the weights to zero (or close to), to alleviate over-parameterisation, and over-fitting.
 
 `r anicon::nia("More on regularisation next week", grow=2, animate="shake")`
 
@@ -237,7 +237,7 @@ class: split-two
 
 <br>
 
-- Deep learning algorithms don't work well when the number of features is larger than the number of observations (highly overparameterised).
+- Deep learning algorithms don't work well when the number of features is larger than the number of observations (highly over-parameterised).
 - If we only have a limited number of training data points, the model can potentially .orange[overfit] and fit very closely to the training data whilst lacking predictive performance for new data.
 
 ]]
