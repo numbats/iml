@@ -113,7 +113,10 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Exam information
 
+These are the exams for the past two years. This year's exam will be completed through moodle, mostly but not all multiple choice, open notes. 
+
 - [2018 exam](exam/practice_exam_2018.pdf) [SOLUTION](exam/practice_exam_solution_2018.pdf)
+- [2019 exam](exam/exam_2019.pdf) [SOLUTION](exam/exam_solution_2019.pdf)
 
 
 ## Computing information
