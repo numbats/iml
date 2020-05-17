@@ -1,5 +1,5 @@
 ---
-title: "ETC3250 - Project 2020"
+title: "ETC3250/5250 - Project 2020"
 subtitle: Recognising hand-sketches of objects
 author: Professor Di Cook
 output:
