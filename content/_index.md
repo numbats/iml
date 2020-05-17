@@ -60,8 +60,8 @@ Unless your question is a personal issue or an administrative matter, please do 
 ([pdf](http://iml.numbat.space/lectures/week7/classification_svm.pdf))
 - Week 8: Classification, Chapter 9 [slides1](http://iml.numbat.space/lectures/week8/classification_nn1.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn1.Rmd)) ([pdf](http://iml.numbat.space/lectures/week8/classification_nn1.pdf)) [slides2](http://iml.numbat.space/lectures/week8/classification_nn2.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn2.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week8/classification_nn2.pdf))
-- Week 9: Regularization methods, Chapter 6 [slides1](http://iml.numbat.space/lectures/week8/classification_nn1.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn1.Rmd)) ([pdf](http://iml.numbat.space/lectures/week8/classification_nn1.pdf)) [slides2](http://iml.numbat.space/lectures/week8/classification_nn2.html) ([Rmd](http://iml.numbat.space/lectures/week8/classification_nn2.Rmd))
-([pdf](http://iml.numbat.space/lectures/week8/classification_nn2.pdf))
+- Week 9: Regularization methods, Chapter 6 [slides1](http://iml.numbat.space/lectures/week9/regularization.html) ([Rmd](http://iml.numbat.space/lectures/week9/regularization.Rmd)) ([pdf](http://iml.numbat.space/lectures/week9/regularization.pdf)) [slides2](http://iml.numbat.space/lectures/week9/model_assessment.html) ([Rmd](http://iml.numbat.space/lectures/week9/model_assessment.Rmd))
+([pdf](http://iml.numbat.space/lectures/week9/model_assessment.pdf))
 - Week 10: Model assessment, Instructor's notes
 - Week 11: Clustering, Chapter 10
 - Week 12: Project presentations
