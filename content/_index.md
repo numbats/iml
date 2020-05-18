@@ -114,6 +114,8 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Exam information
 
+**The 2020 final exam is scheduled for 22/06/2020 Evening session.** The exam will be made available as a moodle quiz, and it is expected that you would be able to complete it within an hour appoximately. You will have 3.5 hours from starting until it closes, to alleviate any technical difficulties. It will be open book.
+
 These are the exams for the past two years. This year's exam will be completed through moodle, mostly but not all multiple choice, open notes. 
 
 - [2018 exam](exam/practice_exam_2018.pdf) [SOLUTION](exam/practice_exam_solution_2018.pdf)
