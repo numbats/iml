@@ -65,7 +65,7 @@ set.seed(20190428)
 tr <- matrix(rnorm(20*100),ncol=100)
 colnames(tr) <- paste0("x", 1:100)
 tr[1:10,1] <- tr[1:10,1]+5
-tr <- scale(tr)
+tr <- apply(tr, 2, function(x) (x-mean(x))/sd(x))
 tr <- as_tibble(tr) %>% mutate(cl=c(rep("A",10), rep("B",10)))
 p1 <- ggplot(data=tr, aes(x=x1, y=x2, colour=cl, shape=cl)) + 
   geom_point(size=3) + 
@@ -85,7 +85,7 @@ grid.arrange(p1, p2, ncol=2)
 ts <- matrix(rnorm(10*100),ncol=100)
 colnames(ts) <- paste0("x", 1:100)
 ts[1:5,1] <- ts[1:5,1]+5
-ts <- scale(ts)
+ts <- apply(ts, 2, function(x) (x-mean(x))/sd(x))
 ts <- as_tibble(ts) %>% mutate(cl=c(rep("A",5), rep("B",5)))
 ```
 
@@ -114,10 +114,10 @@ Predict the training and test sets
 
 ```{r}
 tr_p <- predict(tr_lda, tr)
-table(tr$cl, tr_p$class)
+table(tr_p$class, tr$cl)
 
 ts_p <- predict(tr_lda, ts)
-table(ts$cl, ts_p$class)
+table(ts_p$class, ts$cl)
 ```
 
 ```{r out.width="80%", fig.width=4, fig.height=2}
