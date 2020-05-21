@@ -2,7 +2,7 @@
 title: "ETC3250/5250: Regularization"
 subtitle: "Semester 1, 2020"
 author: "<br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University"
-date: "Week 9 (a)"
+date: "Week 9 (b)"
 output: 
   xaringan::moon_reader:
     css: ["kunoichi", "ninjutsu", "mystyle.css", "libs/animate.css"]
@@ -35,7 +35,7 @@ library(magick)
 
 ## Penalised LDA
 
-Recall: LDA involves the eigen decomposition of $\color{orange}{\Sigma^{-1}\Sigma_B}$, where
+Recall: LDA involves the eigen-decomposition of $\color{orange}{\Sigma^{-1}\Sigma_B}$, where
 
 $$\small{\Sigma_B = \frac{1}{K}\sum_{i=1}^{K} (\mu_i-\mu)(\mu_i-\mu)'}$$
 
@@ -159,7 +159,7 @@ $$C(\mathbf{x}^*) = \ell \quad \mbox{if} \quad \delta_{\ell}(\mathbf{x}^*) = \ma
 
 ## Filter features for prediction
 
-To motivate the upcoming method, consider a binary classfication DLDA problem. 
+To motivate the upcoming method, consider a binary classification DLDA problem. 
 
 One way we could establish which of the features are driving prediction would be to perform a two-sample $t$-test 
 
@@ -235,7 +235,7 @@ $$d'_{kj} = \mbox{sign}(d_{kj})( \lvert d_{kj} \lvert - \Delta)_{+},$$
 ---
 ## Nearest Shrunken Centroids Classifier
 
-The NSC uses either version of the statistic $d'_{kj}$ to regularise by shinking the class means towards the overall mean for each predictor seperately as follows:
+The NSC uses either version of the statistic $d'_{kj}$ to regularise by shrinking the class means towards the overall mean for each predictor separately as follows:
 
 $$\bar{x}'_{kj} = \bar{x}_j + m_k(s_j + s_0)d'_{kj}$$
 
@@ -259,18 +259,26 @@ Another approach to high dimensional DA involves formulating the problem as a mu
 
 
 ---
+class: split-50
+
+.column[.pad10px[
 ## LRT – compare to the null
 
 .green[For `\\(K=3\\)` classes, there are `\\(m=5\\)` potential partitions of the data.]
 
+<img src="images/bell_number.jpg" width="80%">
+
+
+]]
+.column[.pad10px[
 For all 5 hypotheses, compare the likelihood to the null. Pick the "partition" that is the most likely.
 
 <center>
 
-<img src="images/LRT.png", width="80%">
+<img src="images/LRT.png" width="80%">
 
 </center>
-
+]]
 
 ---
 

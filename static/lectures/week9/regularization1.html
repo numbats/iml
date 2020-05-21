@@ -57,7 +57,7 @@ To .orange[invert] a matrix, requires it to be .orange[full rank].
 
 .orange[What will be the optimal LDA coefficients?]
 
-<div class="countdown" id="timer_5ec2351f" style="bottom:0;left:0;font-size:1em;" data-audio="true" data-warnwhen="0">
+<div class="countdown" id="timer_5ec5b953" style="bottom:0;left:0;font-size:1em;" data-audio="true" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">23</span></code>
 </div>
 
@@ -224,7 +224,7 @@ model simply predicts the sample mean for each observation.
 .font_tiny[(Chapter 6/6.1)]
 
 ---
-## Foward stepwise selection 
+## Forward stepwise selection 
 
 .orange[Forward stepwise selection] is a computationally efficient alternative to best subset selection. It considers a much smaller set of models.
 
@@ -232,7 +232,7 @@ When `\(p = 20\)`, best subset selection requires fitting 1,048,576 models, wher
 
 ---
 
-## Foward stepwise selection - algorithm
+## Forward stepwise selection - algorithm
 
 &lt;br&gt;
 
@@ -244,7 +244,7 @@ model simply predicts the sample mean for each observation.
 3. Select a single best model from among `\({\mathcal M}_o\)`, . . . , `\({\mathcal M}_p\)` using cross- validated prediction error, `\(C_p\)` (AIC), BIC, or adjusted `\(R^2\)`.
 
 ---
-## Backwise stepwise selection
+## Backwards stepwise selection
 
 &lt;br&gt;
 
@@ -467,7 +467,7 @@ PCR, ridge regression, and the lasso compared on simulated data. PCR does well w
 
 &lt;center&gt;
 &lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter6/6.21.pdf" target="_BLANK"&gt; &lt;img src="images/6.21.png" style="width: 55%; align: center"/&gt; &lt;/a&gt;
-&lt;/center&gt;
+&lt;/
 
 Two predictors are shown: .green[Solid line is PLS], dashed line is PCR. 
 
@@ -476,7 +476,7 @@ Two predictors are shown: .green[Solid line is PLS], dashed line is PCR.
 ## Partial least squares
 
 1. .orange[Standardise] all variables
-2. Find `\(Z_1=\phi_{1j}X_j\)` by setting `\(\phi_{1j}\)` to be the coefficient from a .orange[simple linear regression] model `\(Y\)` ~ `\(X_j\)`.
+2. Find `\(Z_1=\phi_{1j}X_j\)` by setting `\(\phi_{1j}\)` to be the coefficient from a .orange[simple linear regression] model `\(Y\)` ~ `\(X_j\)`. (Yes, there are `\(p\)` regressions fitted.)
 3. To find `\(Z_2\)`, first regress each variable on `\(Z_1\)` and use the .orange[residuals], call these `\(X^r_j\)`. Then find `\(Z_2 = \phi_{2j}X^r_j\)` by setting `\(\phi_{2j}\)` to be the coefficient from a simple linear regression model `\(Y\)` ~ `\(X^r_j\)`.
 4. Repeat steps 2-3 until we have `\(Z_1, ..., Z_M\)`. 
 
@@ -484,23 +484,6 @@ Final model fitted for `\(Y\)` using `\(Z_1, ..., Z_M\)`.
 
 Performance is no better than ridge regression or PCR. Can reduce bias, has potential to increase variance. .orange[PLS is similar to partial regression], where new variables are first regressed on predictors that are already in the model, and it is the residuals that are used.
 
-
----
-## Penalised LDA
-
-Recall: LDA involves the eigen decomposition of `\(\color{orange}{\Sigma^{-1}\Sigma_B}\)`, where
-
-`$$\small{\Sigma_B = \frac{1}{K}\sum_{i=1}^{K} (\mu_i-\mu)(\mu_i-\mu)'}$$`
-
-`$$\small{\Sigma = \frac{1}{n} \sum_{i=1}^{n} (x_i-\mu_i)(x_i-\mu_i)'}$$`
-
-The eigen-decomposition is an analytical solution to a sequential optimisation problem: 
-
-
-`\begin{align*}
-&amp; \small{\underset{{\beta_k}}{\text{maximize}} \beta_k^T\hat{\Sigma}_B \beta_k} \\
-&amp; \small{\mbox{ subject to  }  \beta_k^T\hat{\Sigma} \beta_k \leq 1, \beta_k^T\hat{\Sigma}\beta_j = 0 \mbox{  } \forall i&lt;k}
-\end{align*}`
 
 
 

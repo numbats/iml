@@ -88,7 +88,7 @@ What about the .orange[magnitude] of $s(x^*)$?
 We will explore .green[*three*] different types of hyperplane classifiers, with each method generalising the one before it.
 
 - .orange[Maximal marginal classifier] for when the data is perfectly separated by a hyperplane
-- .orange[Support vector classifier/ soft margin classifier] for when data is NOT perfectly separated by a hyperplane but still has a linear decision boundary, and
+- .orange[Support vector classifier/soft margin classifier] for when data is NOT perfectly separated by a hyperplane but still has a linear decision boundary, and
 - .orange[Support vector machines] used for when the data has non-linear decision boundaries.
 
 In practice, SVMs are used to refer to all three methods, however we will distinguish between the three notions in this lecture.
@@ -170,6 +170,7 @@ grid.arrange(p1, p2, ncol=2)
 
 <img src="images/sv_diagram.png" style="width: 80%" />
 
+See more detailed explanations [here](https://math.stackexchange.com/questions/1305925/why-is-the-svm-margin-equal-to-frac2-mathbfw).
 ---
 ## Support vectors
 

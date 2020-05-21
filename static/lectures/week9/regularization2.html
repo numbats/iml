@@ -20,7 +20,7 @@ class: center, middle, inverse, title-slide
 # ETC3250/5250: Regularization
 ## Semester 1, 2020
 ### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
-### Week 9 (a)
+### Week 9 (b)
 
 ---
 
@@ -30,7 +30,7 @@ class: center, middle, inverse, title-slide
 
 ## Penalised LDA
 
-Recall: LDA involves the eigen decomposition of `\(\color{orange}{\Sigma^{-1}\Sigma_B}\)`, where
+Recall: LDA involves the eigen-decomposition of `\(\color{orange}{\Sigma^{-1}\Sigma_B}\)`, where
 
 `$$\small{\Sigma_B = \frac{1}{K}\sum_{i=1}^{K} (\mu_i-\mu)(\mu_i-\mu)'}$$`
 
@@ -116,7 +116,7 @@ The classification rule is then
 
 ## Filter features for prediction
 
-To motivate the upcoming method, consider a binary classfication DLDA problem. 
+To motivate the upcoming method, consider a binary classification DLDA problem. 
 
 One way we could establish which of the features are driving prediction would be to perform a two-sample `\(t\)`-test 
 
@@ -132,7 +132,7 @@ with the `\(t\)` statistic providing a measure of how significant the difference
 .green[Think about it:] Using the `\(t\)` statistic -  `\(t_{j} = \frac{\bar{x}_{1j} - \bar{x}_{0j}}{s_j}\)` for all features, what is one way we can determine important features for prediction?
 
 
-<div class="countdown" id="timer_5ec234bb" style="bottom:0;left:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5ec5c148" style="bottom:0;left:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">32</span></code>
 </div>
 ---
@@ -172,7 +172,7 @@ Each `\(d_{kj}\)` is reduced by an amount `\(\Delta\)` in absolute value, and is
 ---
 ## Nearest Shrunken Centroids Classifier
 
-The NSC uses either version of the statistic `\(d'_{kj}\)` to regularise by shinking the class means towards the overall mean for each predictor seperately as follows:
+The NSC uses either version of the statistic `\(d'_{kj}\)` to regularise by shrinking the class means towards the overall mean for each predictor separately as follows:
 
 `$$\bar{x}'_{kj} = \bar{x}_j + m_k(s_j + s_0)d'_{kj}$$`
 
@@ -196,18 +196,26 @@ Another approach to high dimensional DA involves formulating the problem as a mu
 
 
 ---
+class: split-50
+
+.column[.pad10px[
 ## LRT – compare to the null
 
 .green[For `\\(K=3\\)` classes, there are `\\(m=5\\)` potential partitions of the data.]
 
+&lt;img src="images/bell_number.jpg" width="80%"&gt;
+
+
+]]
+.column[.pad10px[
 For all 5 hypotheses, compare the likelihood to the null. Pick the "partition" that is the most likely.
 
 &lt;center&gt;
 
-&lt;img src="images/LRT.png", width="80%"&gt;
+&lt;img src="images/LRT.png" width="80%"&gt;
 
 &lt;/center&gt;
-
+]]
 
 ---
 
