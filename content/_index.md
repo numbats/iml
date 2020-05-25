@@ -81,7 +81,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - Week 7:  [Instructions](https://iml.numbat.space/labs/lab7.html) ([Rmd](https://iml.numbat.space/labs/lab7.Rmd))
 - Week 8:  [Instructions](https://iml.numbat.space/labs/lab8.html) ([Rmd](https://iml.numbat.space/labs/lab8.Rmd))
 - Week 9:  [Instructions](https://iml.numbat.space/labs/lab9.html) ([Rmd](https://iml.numbat.space/labs/lab9.Rmd))
-- Week 10: 
+- Week 10: [Instructions](https://iml.numbat.space/labs/lab10.html) ([Rmd](https://iml.numbat.space/labs/lab10.Rmd))
 - Week 11:  
 - Week 12: 
 
