@@ -183,7 +183,7 @@ two_class_example %>%
   conf_mat(my_predicted, truth)  
 ```
 
-sensitivity = 0.82, 1-specificity = 0.25
+sensitivity = 0.82, 1-specificity = 0.14
 ]
 
 .column[
