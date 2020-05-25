@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # ETC3250/5250: Model assessment
 ## Semester 1, 2020
 ### <br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University
-### Week 9 (b)
+### Week 10 (a)
 
 ---
 
@@ -57,9 +57,9 @@ statquote(source="Box")
 ```
 
 ```
-## A useful type of time series model is a recipe for transforming serial 
-## data into white noise. 
-## --- George E. P. Box
+## To find out what happens when you change something, it is necessary to 
+## change it. 
+## --- Box, Hunter, and Hunter, Statistics for Experimenters (1978)
 ```
 
 
@@ -117,7 +117,7 @@ The .orange[ROC curve] is a popular graphic for simultaneously displaying the tw
 &lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.8.pdf" target="_BLANK"&gt; &lt;img src="images/4.8.png" style="width: 40%; align: center"/&gt; &lt;/a&gt;
 &lt;/center&gt;
 
-
+.font_tiny[Fig 4.8]
 ---
 
 class: split-50
@@ -142,34 +142,8 @@ The .orange[ideal ROC curve hugs the top left corner], indicating a high true po
 
 ]]
 
----
-class: split-33
-layout: false
 
-.row[.center[
-Possible outcomes with a two class classification model:
 
-&lt;img src="images/error_table.png" style="width: 60%" /&gt;
-
-]]
-.row[
-.split-50[
-.column[.pad50px[
-`+` .orange[has disease] (class = 1 or "P")
-
-`-` does .orange[NOT] have disease (class = 0 or "N")
-
-True = we get it .orange[right]
-
-False = we got it .orange[wrong] 
-]]
-.column[.pad50px[
-
-.orange[False positive rate] = FP/N, also known as Type I error or 1-specificity
-
-.orange[True positive rate] = TP/P, also known as power, sensitivity, recall
-]]
-]]
 ---
 class: split-50
 layout: false
@@ -185,9 +159,69 @@ layout: false
 
 &lt;br&gt;
 
-If the classifier returns a prediction between 0 and 1, interpret as the probability of a positive, then threshold this at different values, e.g. 0.1, 0.2, 0.3, 0.4, 0.5, ...
+If the classifier returns a prediction between 0 and 1, interpret as the probability of a positive, then threshold (split the data) at different values, e.g. 0.1, 0.2, 0.3, 0.4, 0.5, ... 
+
+Compute the confusion table for each split, record the sensitivity and specificity and plot the resulting numbers. 
 
 ]]
+---
+&lt;center&gt;
+&lt;table&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td colspan="2" align="center" &gt; true &lt;/td&gt; &lt;/tr&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C1 (positive) &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C2 (negative) &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt; pred- &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C1 &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;a&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;b&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt;icted &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C2&lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;c&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;d&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/center&gt;
+
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+
+---
+class: split-50
+
+.column[
+
+```r
+library(tidyverse)
+library(yardstick)
+*glimpse(two_class_example)
+```
+
+```
+## Rows: 500
+## Columns: 4
+## $ truth     &lt;fct&gt; Class2, Class1, Class2, Class1, Class2, Class1, Class1, Cla…
+## $ Class1    &lt;dbl&gt; 0.0035892426, 0.6786210540, 0.1108935221, 0.7351617031, 0.0…
+## $ Class2    &lt;dbl&gt; 9.964108e-01, 3.213789e-01, 8.891065e-01, 2.648383e-01, 9.8…
+## $ predicted &lt;fct&gt; Class2, Class1, Class2, Class1, Class2, Class1, Class1, Cla…
+```
+
+Set threshold to 0.5
+
+
+```
+##           Truth
+## Prediction Class1 Class2
+##     Class1    227     31
+##     Class2     50    192
+```
+
+sensitivity = 0.82, 1-specificity = 0.25
+]
+
+.column[
+&lt;img src="model_assessment_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+Your turn: Set the threshold to be 0.75, re-compute the confusion matrix, and sensitivity, specificity.
+]
+
+---
+
+Really nice explanation by Parul Pandey [here](https://towardsdatascience.com/understanding-the-roc-and-auc-curves-a05b68550b69): 
+
+&lt;img src="images/ROC.png" width="80%"&gt;
+
 ---
 
 ## ROC for classification
@@ -199,6 +233,7 @@ If the classifier returns a prediction between 0 and 1, interpret as the probabi
 
 .font_tiny[Fig 9.10]
 
+
 ---
 
 class: split-30
@@ -208,7 +243,7 @@ layout: false
 
 .orange[Mahalanobis distance] measures the distance from the mean, relative to the variance-covariance matrix, and is useful for .orange[outlier detection]: `\(D^2 = (X-\mu)'\Sigma^{-1}(X-\mu)\)`
 
-&lt;img src="model_assessment_files/figure-html/unnamed-chunk-3-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="model_assessment_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 Related to "leverage" in regression diagnostics.
 
@@ -221,7 +256,7 @@ Related to "leverage" in regression diagnostics.
 
 .orange[Cook's distance] measures the change in the model estimates due to the observation: `\(D_i = \frac{e_i^2}{MSE\times p}\frac{h_i}{(1-h_i)^2}\)` where `\(h_i\)` is the leverage of observation `\(i\)`. 
 
-&lt;img src="model_assessment_files/figure-html/unnamed-chunk-4-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="model_assessment_files/figure-html/unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 .font_tiny[Developed by Dennis Cook, University of Minnesota. ]
 
@@ -255,10 +290,11 @@ With bagging, multiple out of bag predictions produces uncertainty measure for e
 
 ---
 layout: false
+# Bigger picture
 
 .orange[All possible model fits] to housing data with 7 variables, from [Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)
 
-&lt;img src="images/houses1.png" style="width:90%" /&gt;
+&lt;img src="images/houses1.png" style="width:70%" /&gt;
 ---
 class: split-60
 layout: false

@@ -2,7 +2,7 @@
 title: "ETC3250/5250: Model assessment"
 subtitle: "Semester 1, 2020"
 author: "<br> Professor Di Cook <br> <br> Econometrics and Business Statistics <br> Monash University"
-date: "Week 9 (b)"
+date: "Week 10 (a)"
 output: 
   xaringan::moon_reader:
     css: ["kunoichi", "ninjutsu", "mystyle.css", "libs/animate.css"]
@@ -104,7 +104,7 @@ The .orange[ROC curve] is a popular graphic for simultaneously displaying the tw
 <a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.8.pdf" target="_BLANK"> <img src="images/4.8.png" style="width: 40%; align: center"/> </a>
 </center>
 
-
+.font_tiny[Fig 4.8]
 ---
 
 class: split-50
@@ -129,34 +129,8 @@ The .orange[ideal ROC curve hugs the top left corner], indicating a high true po
 
 ]]
 
----
-class: split-33
-layout: false
 
-.row[.center[
-Possible outcomes with a two class classification model:
 
-<img src="images/error_table.png" style="width: 60%" />
-
-]]
-.row[
-.split-50[
-.column[.pad50px[
-`+` .orange[has disease] (class = 1 or "P")
-
-`-` does .orange[NOT] have disease (class = 0 or "N")
-
-True = we get it .orange[right]
-
-False = we got it .orange[wrong] 
-]]
-.column[.pad50px[
-
-.orange[False positive rate] = FP/N, also known as Type I error or 1-specificity
-
-.orange[True positive rate] = TP/P, also known as power, sensitivity, recall
-]]
-]]
 ---
 class: split-50
 layout: false
@@ -172,9 +146,65 @@ layout: false
 
 <br>
 
-If the classifier returns a prediction between 0 and 1, interpret as the probability of a positive, then threshold this at different values, e.g. 0.1, 0.2, 0.3, 0.4, 0.5, ...
+If the classifier returns a prediction between 0 and 1, interpret as the probability of a positive, then threshold (split the data) at different values, e.g. 0.1, 0.2, 0.3, 0.4, 0.5, ... 
+
+Compute the confusion table for each split, record the sensitivity and specificity and plot the resulting numbers. 
 
 ]]
+---
+<center>
+<table>
+<tr>  <td> </td><td> </td> <td colspan="2" align="center" > true </td> </tr>
+<tr>  <td> </td><td> </td> <td align="center" bgcolor="#daf2e9" width="80px"> C1 (positive) </td> <td align="center" bgcolor="#daf2e9" width="80px"> C2 (negative) </td> </tr>
+<tr height="50px">  <td> pred- </td><td bgcolor="#daf2e9"> C1 </td> <td align="center" bgcolor="#D3D3D3"> <em>a</em> </td> <td align="center" bgcolor="#D3D3D3"> <em>b</em> </td> </tr>
+<tr height="50px">  <td>icted </td><td bgcolor="#daf2e9"> C2</td> <td align="center" bgcolor="#D3D3D3"> <em>c</em> </td> <td align="center" bgcolor="#D3D3D3"> <em>d</em> </td> </tr>
+</table>
+</center>
+
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+
+---
+class: split-50
+
+.column[
+```{r echo=TRUE}
+library(tidyverse)
+library(yardstick)
+glimpse(two_class_example) #<<
+```
+
+Set threshold to 0.5
+
+```{r}
+two_class_example %>%
+  mutate(my_predicted = ifelse(Class1 > 0.5, "Class1", "Class2")) %>%
+  mutate(my_predicted = factor(my_predicted)) %>%
+  conf_mat(my_predicted, truth)  
+```
+
+sensitivity = 0.82, 1-specificity = 0.25
+]
+
+.column[
+```{r}
+roc_curve(two_class_example, truth, Class1) %>%
+  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
+  geom_path() +
+  geom_abline(lty = 3) +
+  coord_equal() +
+  theme_bw()
+```
+
+Your turn: Set the threshold to be 0.75, re-compute the confusion matrix, and sensitivity, specificity.
+]
+
+---
+
+Really nice explanation by Parul Pandey [here](https://towardsdatascience.com/understanding-the-roc-and-auc-curves-a05b68550b69): 
+
+<img src="images/ROC.png" width="80%">
+
 ---
 
 ## ROC for classification
@@ -185,6 +215,7 @@ If the classifier returns a prediction between 0 and 1, interpret as the probabi
 (right) SVM radial basis with $\gamma=10^{-1}$ is the best.
 
 .font_tiny[Fig 9.10]
+
 
 ---
 
@@ -273,10 +304,11 @@ With bagging, multiple out of bag predictions produces uncertainty measure for e
 
 ---
 layout: false
+# Bigger picture
 
 .orange[All possible model fits] to housing data with 7 variables, from [Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)
 
-<img src="images/houses1.png" style="width:90%" />
+<img src="images/houses1.png" style="width:70%" />
 ---
 class: split-60
 layout: false

@@ -337,7 +337,7 @@ res <- multiDA(y = SRBCT$y,
 We can then examine the class groupings using the `plot()` method for `multiDA`:
 
 ```{r, eval = FALSE, echo = TRUE}
-plot(res, ranks= 1)
+plot(res, ranks=1)
 ```
 
 
