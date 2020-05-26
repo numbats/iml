@@ -6,6 +6,18 @@ output:
   html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  eval = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 5, 
+  out.width = "100%",
+  fig.retina = 3)
+```
+
 ## `r emo::ji("llama")` Introduction
 
 Sentence about the data
@@ -13,17 +25,42 @@ Sentence about the data
 - what are the variables, 
 - what are the observations, and how many
 
-ADD A PICTURE OF SOME SKETCHES
+INCLUDE YOUR VERSION OF A SKETCH OF SAMPLES, eg
+
+```{r fig.height=2}
+load("data/sketches_train.rda")
+library(ggpubr)
+library(tidyverse)
+sketch1 <- sketches %>% 
+	group_by(word) %>%
+	sample_n(1) %>%
+	ungroup() %>%
+	pivot_longer(cols = contains("V"), names_to = "pixel", values_to = "grey") %>%
+	mutate(pixel = as.numeric(sub("V", "", pixel))) %>%
+	mutate(x=(pixel-1)%%28+1, y = -(floor((pixel-1)/28)+1))
+ggplot(sketch1, aes(x=x, y=y, fill=grey)) + geom_tile() + 
+	scale_fill_distiller("", palette="Greys", direction=1) + 
+	facet_wrap(~word, ncol=6) + theme_transparent() + 
+	theme(aspect.ratio=1, legend.position="none")
+```
 
 ## `r emo::ji("wrench")` Methodology  
 
 Summarise your best model and how you trained your model. This section needs to be understandable by your class members.  
 
-Also include a sentence or two describing the full range of models examined/ 
+Also include a sentence or two describing the full range of models examined.
 
 ## `r emo::ji("seedling")` Results and Discussion
 
 This includes for example graphs and tables, as well as a discussion of the results. You should summarise your training error, the important variables. Include at least one plot that is important, ideally of the important variables, or of observations that are consistently misclassified. It could be good to have one interesting fact about the data. 
+
+```{r}
+library(gridExtra)
+library(ggpubr)
+p1 <- ggplot(data=sketches, aes(x=word, y=V71, fill=word)) + geom_violin() + theme_minimal() + theme(legend.position = "none")
+p2 <- ggplot(data=sketches, aes(x=word, y=V99, fill=word)) + geom_violin() + theme_minimal() + theme(legend.position = "none")
+grid.arrange(p1, p2, ncol=2)
+```
 
 ## `r emo::ji("moon_cake")` Conclusion
 
