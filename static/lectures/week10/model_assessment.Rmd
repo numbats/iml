@@ -239,7 +239,8 @@ p1 <- ggplot(df, aes(x=V1, y=V2)) + geom_point() +
   annotate("text", 2.3, 2.2, label="outlier", colour="orange") +
   annotate("point", 2, 2, colour="orange") +
   coord_equal()
-df <- df %>% mutate(mah=mahalanobis(df[,1:2], center=c(0,0), cov=cov(df)))
+df <- df %>% mutate(mah=mahalanobis(df[,1:2], center=c(0,0),
+                                    cov=cov(df[,1:2])))
 p2 <- ggplot(df, aes(x=mah)) + geom_histogram() + 
   xlab("Mahalanobis distance") +
   annotate("text", 33, 10, label="outlier", colour="orange") 
