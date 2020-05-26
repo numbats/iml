@@ -110,7 +110,8 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 
 ## Project
 
-- [Instructions: this is a kaggle prediction challenge](project/project.html)
+- [Instructions: this is a kaggle prediction challenge](project/project.html) 
+- [Template for report](project/project_template/project_report.html) ([Rmd](project/project_template/project_report.Rmd))
 
 ## Exam information
 
