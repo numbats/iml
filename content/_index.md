@@ -63,6 +63,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 - Week 9: Regularization methods, Chapter 6 [slides1](http://iml.numbat.space/lectures/week9/regularization1.html) ([Rmd](http://iml.numbat.space/lectures/week9/regularization1.Rmd)) ([pdf](http://iml.numbat.space/lectures/week9/regularization1.pdf)) [slides2](http://iml.numbat.space/lectures/week9/regularization2.html) ([Rmd](http://iml.numbat.space/lectures/week9/regularization2.Rmd))
 ([pdf](http://iml.numbat.space/lectures/week9/regularization2.pdf))
 - Week 10: Model assessment, Instructor's notes [slides1](http://iml.numbat.space/lectures/week10/model_assessment.html) ([Rmd](http://iml.numbat.space/lectures/week10/model_assessment.Rmd)) ([pdf](http://iml.numbat.space/lectures/week10/model_assessment.pdf)) 
+[slides2](http://iml.numbat.space/lectures/week10/clustering_kmeans.html) ([Rmd](http://iml.numbat.space/lectures/week10/clustering_kmeans.Rmd)) ([pdf](http://iml.numbat.space/lectures/week10/clustering_kmeans.pdf)) 
 - Week 11: Clustering, Chapter 10
 - Week 12: Project presentations
 
