@@ -64,7 +64,7 @@ Unless your question is a personal issue or an administrative matter, please do 
 ([pdf](http://iml.numbat.space/lectures/week9/regularization2.pdf))
 - Week 10: Model assessment, Instructor's notes [slides1](http://iml.numbat.space/lectures/week10/model_assessment.html) ([Rmd](http://iml.numbat.space/lectures/week10/model_assessment.Rmd)) ([pdf](http://iml.numbat.space/lectures/week10/model_assessment.pdf)) 
 [slides2](http://iml.numbat.space/lectures/week10/clustering_kmeans.html) ([Rmd](http://iml.numbat.space/lectures/week10/clustering_kmeans.Rmd)) ([pdf](http://iml.numbat.space/lectures/week10/clustering_kmeans.pdf)) 
-- Week 11: Clustering, Chapter 10
+- Week 11: Clustering, Chapter 10 GUEST LECTURE by Dr JULIA SILGE
 - Week 12: Project presentations
 
 <!--
@@ -83,7 +83,7 @@ https://www.monash.edu/policy-bank/academic/education/learning-and-teaching
 - Week 8:  [Instructions](https://iml.numbat.space/labs/lab8.html) ([Rmd](https://iml.numbat.space/labs/lab8.Rmd))
 - Week 9:  [Instructions](https://iml.numbat.space/labs/lab9.html) ([Rmd](https://iml.numbat.space/labs/lab9.Rmd))
 - Week 10: [Instructions](https://iml.numbat.space/labs/lab10.html) ([Rmd](https://iml.numbat.space/labs/lab10.Rmd))
-- Week 11:  
+- Week 11: [Instructions](https://iml.numbat.space/labs/lab11.html) ([Rmd](https://iml.numbat.space/labs/lab11.Rmd))
 - Week 12: 
 
 ## Assignments

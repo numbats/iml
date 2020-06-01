@@ -1,9 +1,12 @@
 ---
-title: "ETC3250 2020 - Lab 10"
-author: "Dianne Cook"
-date: "Week 10"
+title: "Lab 10"
+subtitle: "Monash University, Econ & Bus Stat, ETC3250/5250"
+author: "prepared by Professor Di Cook"
+date: "Materials for Week 10"
 output:
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
