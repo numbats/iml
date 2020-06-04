@@ -884,7 +884,7 @@ save_html(pg, file="cluster_average.html")
 ---
 
 layout: false
-# `r set.seed(2019); emo::ji("technologist")` Made by a human with a computer
+# `r emo::ji("woman_technologist")` Made by a human with a computer
 
 ### Slides at [https://iml.numbat.space](https://iml.numbat.space).
 ### Code and data at [https://github.com/numbats/iml](https://github.com/numbats/iml).
