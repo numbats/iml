@@ -63,7 +63,7 @@ This sample code will build a random forest model, predict the test data, and wr
 
 ```{r echo=TRUE}
 library(tidyverse)
-library(randomForest)
+library(randomForest) 
 
 load("data/sketches_train.rda")
 load("data/sketches_test.rda")
