@@ -15,6 +15,18 @@ Unless your question is a personal issue or an administrative matter, please do 
 
 **If you register after the start of the semester** or if you miss a lecture/lab, it is your responsibility to catch up with missed material, learn about due dates for material to be turned in, and getting assigned to a group for team work. 
 
+## Final grade distribution
+
+<pre>
+HD 38
+D   38
+C   17
+P     1
+
+  mean    sd    p0   p25   p50   p75  p100 
+  75.8  9.52    31  70.5    77  81.5    91
+</pre>
+
 ## Schedule
 
 - Lectures: Tue 12:05-12:55; Fri 12:05-12:55 **All lectures are recorded, and the lecture time will operate as a Q&A session. You are encouraged to watch the recordings and bring your questions to Q&A time.**
