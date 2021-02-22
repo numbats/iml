@@ -1,2 +1,0 @@
-# Redirect default Netlify subdomain to primary domain
-http://iml-monash.netlify.com/* http://iml.numbat.space/:splat 301!
