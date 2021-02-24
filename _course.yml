@@ -16,6 +16,7 @@ schedule:
   - week: 5 (Mar 29)
     topic: "Visualising high dimensions"
     readings: "Instructor notes on moodle"
+    assessment: "Assignment 1 due""
   - week: 6 (Apr 12)
     topic: "Classification and regression trees"
     readings: "Chapter 8"
@@ -25,6 +26,7 @@ schedule:
   - week: 8 (Apr 26)
     topic: "Regularisation"
     readings: "Chapter 6"
+    assessment: "Assignment 2 due"
   - week: 9 (May 3)
     topic: "Model assessment"
     readings: "Instructor notes on moodle"
@@ -34,6 +36,7 @@ schedule:
   - week: 11 (May 17)
     topic: "Unsupervised classification"
     readings: "Chapter 10.3.2"
+    assessment: "Project due"
   - week: 12 (May 24)
     topic: "Kaggle challenge discussion"
 assessments:
