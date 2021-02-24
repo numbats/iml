@@ -1,0 +1,27 @@
+
+.display.dataTable {
+  font-size: 15pt;
+}
+
+.monash-bg-blue a {
+  color: white!important;
+}
+
+ul li {
+  list-style-type: none;
+}
+ul li:before {
+  content: "\29BF";
+  font-size: 28px;
+  font-family: "Font Awesome 5 Free";
+  margin-right: 10px;
+  color: #027EB6;
+}
+
+ul li li:before {
+  content: "\f1fe";
+  font-size: 20px;
+  font-family: "Font Awesome 5 Free";
+  margin-right: 5px;
+  color: #027EB6;
+}

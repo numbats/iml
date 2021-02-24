@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+---
+
+class: transition 
+
+# About this class
+
+---
+# Meet the team
+
+.border-box.monash-border-blue.w-30[
+Me - Hi! Responsible for everything.
+
+&lt;img src="images/week1/di-2018.png" width="300px"&gt;
+]
+
+.border-box.monash-border-blue.w-20[
+Kenji - Tutoring four sessions.
+
+&lt;img src="images/week1/kenji.png" width="150px"&gt;
+]
+
+.border-box.monash-border-blue.w-25[
+Patrick - Tutoring two sessions.
+
+&lt;img src="images/week1/patrick.jpg" width="200px"&gt;
+]
+
+.border-box.monash-border-blue.w-20[
+Mahdi - Tutoring two sessions.
+
+&lt;img src="https://numbat.space/authors/abolghasemi-mahdi/avatar_hu3ea53bbfeca567d0c48325f5ec5f7573_16751_270x270_fill_q90_lanczos_center.jpg" width="200px"&gt;
+]
+
+&lt;br&gt;
+&lt;br&gt;
+And Shin (data analyst at EY) tutoring one session virtually.
+
+---
+class: monash-slide
+background-image: url("images/bg-06.png")
+# Where to find things
+
+- Moodle: zoom links, assignments, marks, discussion forum, and announcements
+- Website (https://iml.numbat.space) schedule, lecture slides, tutorial instructions 
+- Textbook (https://www.statlearning.com) free pdf online, data and code (we will use more modern coding style though)
+- Got questions? Post in the discussion forum. Of a .monash-blue2[private] nature (e.g. about marks) you can send email to .monash-orange2[etc3250-clayton-x@monash.edu].
+
+---
+class: monash-slide
+background-image: url("images/bg-06.png")
+# Computing
+
+- Using [R](https://cran.r-project.org) (2021-02-15, Lost Library Book) and the [RStudio](https://rstudio.com) (1.4.1103) interface
+- Slides are made in [Rmarkdown](https://rmarkdown.rstudio.com), [xaringan](https://github.com/yihui/xaringan) style, using a [monash](https://github.com/numbats/monash) theme made by [Emi Tanaka](https://emitanaka.org), best viewed as html.
+- The code for creating examples in the lecture slides can be found in the `Rmd` file. Look for the code blocks in the Rmd like
+
+
+```
+  library(tidyverse)
+  library(gapminder)
+  library(gridExtra)
+```
+
+---
+# Learning objectives
+
+- .monash-blue2[Select and develop] appropriate models for regression, classification or clustering
+--
+
+- .monash-blue2[Estimate and simulate] from a variety of statistical models, and measure the uncertainty of a prediction using resampling methods
+--
+
+-  Manage large data sets in a modern software environment, and .monash-blue2[explain and interpret] the analyses undertaken clearly and effectively
+--
+
+- .monash-blue2[Apply] business analytic tools to produce innovative solutions in finance, marketing, economics and related areas
+
+---
+# How to do well in this class
+
+.aim-box[Come to class]
+--
+
+.code-box[Work through tutorial exercises]
+--
+
+.question-box[Bring questions to consultation]
+--
+
+.think-box[Read ahead in the textbook, and attempt some of the questions]
+--
+
+.aim-box[Start assignments early!]
+
+--
+.question-box[Ask and answer questions in the discussion forum]
+
+--
+.work-box[Do the weekly quizzes]
+
+--
+
+.idea-box[Don't procrastinate - if you don't understand something or can't work how to do a problem, ask, get help, no question is too simple or stupid!]
+
+---
+class: hide-slide-number
+# Where this material fits in your career skills development
+
+.grid[
+.column[
+.blockquote[
+See the **Math and Statistics** box: machine learning, statistical modeling, supervised and unsupervised learning. 
+]
+.blockquote[And also the **Communication and Visualisation** box: Translate data-driven insights into decisions and actions, plotting using ggplot2.
+]
+]
+
+&lt;img src="https://cdn-images-1.medium.com/max/1600/1*T5GfsoZ-IWK3rcVkZ7R2bw.png" style="width: 95%" /&gt;
+]
+
+---
+# If you like this course, what others could you do
+
+.info-box[**ETC3555 - Statistical Machine Learning**: This unit covers the methods and practice of statistical machine learning for modern data analysis problems. Topics covered will include recommender systems, social networks, text mining, matrix decomposition and completion, and sparse multivariate methods. All computing will be conducted using the R programming language.&lt;br&gt; *Prerequisites: ETC3250 or FIT3154*]
+
+.info-box[**ETC5550 - Advanced Statistical Modelling**: This unit introduces extensions of linear regression models for handling a wide variety of data analysis problems. Three extensions will be considered: generalised linear models for handling counts and binary data; mixed-effect models for handling data with a grouped or hierarchical structure; and non-parametric regression for handling non-linear relationships. All computing will be conducted using R.&lt;br&gt; *Prerequisites: ETC2410, ETC2420, ETC3440 or equivalent*]
+
+---
+
+class: transition 
+
+# Introduction to machine learning
+
+---
+# Notation
+
+`\(n\)` number of observations or sample points
+
+`\(p\)` number of variables or the dimension of the data
+
+A data matrix is denoted as:
+`\begin{align*}
+{\mathbf X}_{n\times p}= ({\mathbf x}_1 ~ {\mathbf x}_2 ~ \dots  ~ {\mathbf x}_p) = \left(\begin{array}{cccc} 
+x_{11} &amp; x_{12} &amp; \dots &amp; x_{1p} \\
+x_{21} &amp; x_{22} &amp; \dots &amp; x_{2p} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_{n1} &amp; x_{n2} &amp; \dots &amp; x_{np} \end{array} \right)
+\end{align*}`
+
+---
+# Notation
+
+The `\(i^{th}\)` observation is denoted as
+
+`\begin{align*}
+x_i = \left(\begin{array}{c}
+x_{i1} \\ x_{i2} \\ \vdots \\ x_{ip} \\
+\end{array} \right)
+\end{align*}`
+
+The `\(j^{th}\)` variable is denoted as
+
+`\begin{align*}
+x_j = \left(\begin{array}{c}
+x_{1j} \\ x_{2j} \\ \vdots \\ x_{nj} \\
+\end{array} \right)
+\end{align*}`
+
+---
+# Notation
+
+A transposed data matrix is denoted as
+`\begin{align*}
+{\mathbf X}^T_{p\times n} = \left(\begin{array}{cccc} 
+x_{11} &amp; x_{21} &amp; \dots &amp; x_{n1} \\
+x_{12} &amp; x_{22} &amp; \dots &amp; x_{n2} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_{1p} &amp; x_{2p} &amp; \dots &amp; x_{np} \end{array} \right)
+\end{align*}`
+
+and 
+
+`\begin{align*}
+x^T_i = \left(\begin{array}{cccc}
+x_{i1} &amp; x_{i2} &amp; \dots &amp; x_{ip} \\
+\end{array} \right)
+\end{align*}`
+
+---
+# Notation
+
+The response vector, when it exists, is denoted as
+
+`\begin{align*}
+{\mathbf y} = \left(\begin{array}{c}
+y_{1} \\ y_{2} \\ \vdots \\ y_{n} \\
+\end{array} \right)
+\end{align*}`
+
+and then an observation can be written as 
+
+`\(\mathcal{D} = \{(y_i, x_i)\}_{i = 1}^n = \{(y_1, x_1), (y_2, x_2), \dots, (y_n, x_n)\}\)` 
+
+where `\(x_i\)` is a vector with `\(p\)` elements.
+
+---
+# Notation
+
+If `\({\mathbf y}\)` is categorical, with `\(K\)` levels, it can be useful to write it as a binary matrix
+
+`\begin{align*}
+{\mathbf Y}_{n\times K} = \left(\begin{array}{cccc} 
+1 &amp; 0 &amp; \dots &amp; 0 \\
+\vdots &amp; \vdots &amp;  &amp; \vdots \\
+1 &amp; 0 &amp;  &amp; 0 \\
+0 &amp; 1 &amp; \dots &amp; 0 \\
+\vdots &amp; \vdots &amp;  &amp; \vdots \\
+0 &amp; 1 &amp; \dots &amp; 0 \\
+0 &amp; 0 &amp; \dots &amp; 1 \\
+\vdots &amp; \vdots &amp;  &amp; \vdots \\
+0 &amp; 0 &amp; \dots &amp; 1 \\
+\end{array} \right)
+\end{align*}`
+
+---
+# Matrix multiplication
+
+.grid[
+.column[
+Suppose that 
+
+`\begin{align*}
+{\mathbf A}_{2\times 3} = \left(\begin{array}{ccc} 
+1 &amp; 2 &amp; 3 \\
+4 &amp; 5 &amp; 6 \\ \end{array} \right)
+\end{align*}`
+
+`\begin{align*}
+{\mathbf B}_{3\times 4} = \left(\begin{array}{cccc} 
+-1 &amp; -2 &amp; -3 &amp; -4\\
+-5 &amp; -6 &amp; -7 &amp; -8\\
+-9 &amp; -10 &amp; -11 &amp; -12\\ \end{array} \right)
+\end{align*}`
+
+then 
+
+`\begin{align*}
+{\mathbf A}{\mathbf B}_{2\times 4} = \left(\begin{array}{cccc} 
+-38 &amp; -44 &amp; -50 &amp; -56\\
+-83 &amp; -98 &amp; -113 &amp; -128\\ \end{array} \right)
+\end{align*}`
+
+*Pour the rows into the columns.* 
+
+Note: You can't do `\({\mathbf B}{\mathbf A}\)`!
+]
+.column[
+
+Using R as a matrix calculator
+
+
+```r
+a &lt;- matrix(c(1,2,3,4,5,6), 
+            ncol=3, byrow=T)
+b &lt;- -1*matrix(c(1,2,3,4,5,6, 
+                 7,8,9,10,11,12),
+               ncol=4,byrow=T)
+a%*%b
+```
+]
+]
+---
+# Inverting a matrix 
+
+Suppose that `\({\mathbf A}\)` is square and symmetric
+
+`\begin{align*}
+{\mathbf A}_{2\times 2} = \left(\begin{array}{cc} 
+a_1 &amp; a_2  \\
+a_3 &amp; a_4 \\ \end{array} \right)
+\end{align*}`
+
+then the inverse is (if `\(ad-bc \neq 0\)`)
+
+`\begin{align*}
+{\mathbf A}^{-1}_{2\times 2} = \frac{1}{ad-bc} \left(\begin{array}{cc} 
+d &amp; -b \\
+-c &amp; a \\ \end{array} \right)
+\end{align*}`
+
+and `\({\mathbf A}{\mathbf A}^{-1} = I\)` where
+
+`\begin{align*}
+{\mathbf I}_{2\times 2} = \left(\begin{array}{cc} 
+1 &amp; 0 \\
+0 &amp; 1 \\ \end{array} \right)
+\end{align*}`
+
+---
+# Notation
+
+`\(d (\leq p)\)` is used to denote the number of variables in a lower dimensional space, usually by taking a projection
+
+
+
+---
+# Different types of learning 
+
+.grid[
+1. Supervised learning: `\(y_i\)` is .monash-orange2[available] for all `\(x_i\)`
+    - Regression: quantitative `\(y_i\)`
+    - Classification: categorical `\(y_i\)` &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+2. Unsupervised learning: `\(y_i\)` .monash-orange2[unavailable] for all `\(x_i\)` &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+3. Semi-supervised learning: `\(y_i\)` available for some `\(x_i\)` (not covered in this unit)
+
+
+]
+
+.info-box[Being able to .monash-blue2[**identify**] which is the type of learning problem you have is important in practice]
+
+---
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
