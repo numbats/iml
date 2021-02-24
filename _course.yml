@@ -1,43 +1,43 @@
 schedule:
   - week: 0
     topic: "Course information"
-  - week: 1 (Mar 1)
+  - week: "1 (Mar 1)"
     topic: "Introduction to statistical learning"
     readings: "Chapter 2"
-  - week: 2 (Mar 8)
+  - week: "2 (Mar 8)"
     topic: "Regression methods"
     readings: "Chapters 3 and 7"
-  - week: 3 (Mar 15)
+  - week: "3 (Mar 15)"
     topic: "Categorical response regression and resampling methods"
     readings: "Chapters 4 and 5"
-  - week: 4 (Mar 22)
+  - week: "4 (Mar 22)"
     topic: "Dimension reduction"
     readings: "Chapters 6.3, 10.2"
-  - week: 5 (Mar 29)
+  - week: "5 (Mar 29)"
     topic: "Visualising high dimensions"
     readings: "Instructor notes on moodle"
-    assessment: "Assignment 1 due""
-  - week: 6 (Apr 12)
+    assessment: "Assignment 1 due"
+  - week: "6 (Apr 12)"
     topic: "Classification and regression trees"
     readings: "Chapter 8"
-  - week: 7 (Apr 19)
+  - week: "7 (Apr 19)"
     topic: "Support vector machines and neural networks"
     readings: "Chapter 9 + https://keras.rstudio.com"
-  - week: 8 (Apr 26)
+  - week: "8 (Apr 26)"
     topic: "Regularisation"
     readings: "Chapter 6"
     assessment: "Assignment 2 due"
-  - week: 9 (May 3)
+  - week: "9 (May 3)"
     topic: "Model assessment"
     readings: "Instructor notes on moodle"
-  - week: 10 (May 10)
+  - week: "10 (May 10)""
     topic: "Unsupervised classification"
     readings: "Chapter 10.3.1"
-  - week: 11 (May 17)
+  - week: "11 (May 17)"
     topic: "Unsupervised classification"
     readings: "Chapter 10.3.2"
     assessment: "Project due"
-  - week: 12 (May 24)
+  - week: "12 (May 24)"
     topic: "Kaggle challenge discussion"
 assessments:
   assignment1:
