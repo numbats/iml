@@ -144,6 +144,5 @@ schedule_df %>%
 This is the list of R packages as of the start of semester. You should be able to install by cutting and pasting this code into your RStudio console.
 
 ```
-install.packages(c("knitr", "tidyverse", "tidymodels", "gapminder", "gridExtra", "patchwork", "tourr", "kableExtra", "fpc", "statquotes", "yardstick", "ISLR", "broom", "mvtnorm", "ggdendro", "RColorBrewer", "plotly", "htmltools", "splines", "grid", "rpart", "mgcv", "gratia", "GGally", "ggpubr", "MASS", "caret", "modelr", "boot", "gganimate", "ggrepel", "ggthemes", "datasauRus", "geozoo", "ggparallel", "ggmosaic", "nullabor", "rpart.plot", "e1071", "viridis", "randomForest", "mlbench", "gtable", "keras", "nnet", "penalizedLDA", 
-"ggExtra", "magick"))
+install.packages(c("knitr", "tidyverse", "tidymodels", "gapminder", "gridExtra", "patchwork", "tourr", "kableExtra", "fpc", "statquotes", "yardstick", "ISLR", "broom", "mvtnorm", "ggdendro", "RColorBrewer", "plotly", "htmltools", "splines", "grid", "rpart", "mgcv", "gratia", "GGally", "ggpubr", "MASS", "caret", "modelr", "boot", "gganimate", "ggrepel", "ggthemes", "datasauRus", "geozoo", "ggparallel", "ggmosaic", "nullabor", "rpart.plot", "e1071", "viridis", "randomForest", "mlbench", "gtable", "keras", "nnet", "penalizedLDA", "ggExtra", "magick"))
 ```
