@@ -1,5 +1,5 @@
 ---
-title: "ETC3250/5205: Introduction to Machine Learning"
+title: "ETC3250/5250: Introduction to Machine Learning"
 ---
 
 ```{r setup, include = FALSE}
@@ -110,22 +110,21 @@ schedule_df <- schedule_df %>%
   topic = ifelse(is.na(topic), "", topic),
   readings = ifelse(is.na(readings), "", readings),
   assessment = ifelse(is.na(assessment), "", assessment)) %>% 
-  select(weekno, lecturer, slides, tut, topic, readings, assessment)
+  select(weekno, slides, tut, topic, readings, assessment)
 
 
 midsem_break <- 5 + 1 # after which week # needs the fix after week 0 was added
 
 schedule_df %>% 
-  kable(escape = FALSE, align = c("c", "c", "c", "c", "l", "l", "l"),
-        col.names = c("Week", "Lecturer", "Slides", "Tutorial", 
+  kable(escape = FALSE, align = c("c", "c", "c", "l", "l", "l"),
+        col.names = c("Week", "Slides", "Tutorial", 
                       "Topic", "Readings", "Assessments")) %>% 
   kable_styling(bootstrap_options = "striped",
                 fixed_thead = T) %>% 
   column_spec(1, width = "0.5cm") %>% 
   column_spec(2, width = "1cm") %>% 
   column_spec(3, width = "1cm") %>% 
-  column_spec(4, width = "1cm") %>% 
-  column_spec(7, width = "6cm") %>% 
+  column_spec(6, width = "6cm") %>% 
   group_rows("Midsemester Break (1 week)", midsem_break + 1, 12, label_row_css = "background-color: #d9e1e8;") %>% 
   add_indent(1:midsem_break) # this needs to be done to match up with above
 ```
