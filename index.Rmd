@@ -1,5 +1,5 @@
 ---
-title: "ETC5512: Wild Caught Data"
+title: "ETC3250/5205: Introduction to Machine Learning"
 ---
 
 ```{r setup, include = FALSE}
@@ -76,19 +76,25 @@ team_df %>%
 
 ## Tentative Schedule
 
-* Lectures: **Mon 5-7pm** on zoom (see Moodle for link)
+* Lectures: **Mon 2-3pm, Tue 12-1** on zoom (see Moodle for link)
 * Tutorials:
-  * A: **Wed 2-3.30pm** on zoom
-  * B: **Wed 3.30-5pm** on zoom 
-  * C: **Fri 12.30-2pm** on campus
+  * A: **Mon 17:00** CL_Anc-19.LTB_G21
+  * B: **Mon 19:00** CL_Inn-33.SciPort_GG01
+  * C: **Mon 19:00** on zoom
+  * D: **Tue 08:00** CL_Chn-20.Menzies_H1
+  * E: **Tue 08:00** on zoom
+  * F: **Thu 18:00** CL_Anc-15.Law_G07
+  * G: **Fri 16:00** CL_Anc-19.LTB_393
+  * H: **Fri 18:00** CL_Inn-33.SciPort_G101
+  * I: **Fri 18:00** on zoom
 
 There are no lectures, tutorials or consultations during the midsemester break. You are expected to attend the lecture and ONE tutorial stream. Please see your timetable which tutorial stream you are scheduled in.
 
 ```{r}
 schedule_df <- schedule_df %>% 
   mutate(weekno = as.integer(str_extract(week, "^[0-9]+"))) %>% 
-  mutate(lecture_a = file.exists(sprintf("lectures/lecture-%.2dA.html", weekno)),
-         lecture_b = file.exists(sprintf("lectures/lecture-%.2dB.html", weekno)),
+  mutate(lecture_a = file.exists(sprintf("lectures/lecture-%.2da.html", weekno)),
+         lecture_b = file.exists(sprintf("lectures/lecture-%.2db.html", weekno)),
          tutorial = file.exists(sprintf("tutorials/tutorial-%.2d.html", weekno)),
          solution = file.exists(sprintf("tutorials/tutorial-%.2dsol.html", weekno))) %>%  
   mutate(slides = case_when(
@@ -127,7 +133,7 @@ schedule_df %>%
 ## Expectations
 
 * Unless your question is a personal issue or an administrative matter, please do not send us direct email. The moodle discussion forum is appropriate for questions related to the course.
-* For personal or private administrative issues, the email contact is: ETC5521.Clayton-x@monash.edu
+* For personal or private administrative issues, the email contact is: ETC3250.Clayton-x@monash.edu
 * Lectures are recorded, and you are expected to have either attended the lecture, or watched the recordings fully, prior to the tutorial for the week.
 * Tutorials are not recorded, and attendance is expected.
 * Bring your own laptop to the computer labs. If you do not have a laptop you can borrow one from MoVE
