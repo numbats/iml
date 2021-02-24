@@ -1,8 +1,4 @@
 schedule:
-  - week: 0
-    topic: "Course information"
-    readings: ""
-    assessment: ""
   - week: "1 (Mar 1)"
     topic: "Introduction to statistical learning"
     readings: "Chapter 2"
