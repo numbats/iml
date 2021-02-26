@@ -1,0 +1,92 @@
+---
+title: "ETC3250/5250 Tutorial 1 Instructions"
+subtitle: "Introduction to tidymodels"
+author: "prepared by Professor Di Cook"
+date: "Week 1"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+## `r emo::ji("target")` Objective
+
+This tutorial aims to be a refresher on R, and to introduce you to working with `tidymodels`, an organised way to fit models as a part of data analysis.
+
+## `r emo::ji("wrench")` Preparation 
+
+Get the packages installed:
+
+```
+install.packages(c("tidyverse","tidymodels","dotwhisker","patchwork"))
+```
+
+This tutorial also assumes that you have previously used R before. If you are new to R you can get started by working through materials at https://education.rstudio.com/learn/. 
+
+## `r emo::ji("book")` Reading
+
+Browse over the tidymodels web site: https://www.tidymodels.org/.
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hellow to your tutor and to your neighbours. 
+
+## `r emo::ji("gear")` Exercise 1.1
+
+Work your way through the exercises at https://www.tidymodels.org/start/models/
+
+This explains how to build a model for sea urchin data using the tidy approach. 
+
+## `r emo::ji("gear")` Exercise 1.2
+
+The `nrc` data contains information collected on Statistics graduate programs in the USA. There are several ranking variables, and indicators of the departments' describing research, student and diversity, summarising many individual variables such as number of publications, student entrance scores and demographics. You can learn more about this data [here](https://en.wikipedia.org/wiki/United_States_National_Research_Council_rankings).
+
+The goal here is to follow the tidy models approach to fit a model for rank against indicators of research. 
+
+a. Read the data, simplify names and select variables. You will want `rank = R.Rankings.5th.Percentile`, `research = Research.Activity.5th.Percentile`, `student = Student.Support.Outcomes.5th.Percentile` and `diversity = Diversity.5th.Percentile`. 
+
+b. Make a plot of the observed response against predictors. What do you learn about the relationship between these variables?
+
+
+c. Set up and fit the model. Report the coefficient of the model fit, make a dot and whisker plot and report the fit statistics. What do you learn about the strength of the fit, and which variables are important?
+
+
+d. Explore the model fit visually. Plot the predicted values against observed, residuals against fitted, and predicted against each of the predictors. Summarise what you learn about the model fit.
+
+
+e. Generate a grid of new data values to predict, with all combinations of `research = c(10, 40, 70)`, `student = c(10, 40, 70)`, `diversity = c(10, 40, 70)`. Predict these values, as point and confidence intervals. 
+
+
+f. Make a plot of predicted values vs research for the observed data and the new data, with new data coloured differently. How do the predicted values compare?
+
+## `r emo::ji("stop_sign")` Wrapping up
+
+Talk to your tutor about what you think you learned today, what was easy, what was fun, what you found hard.
+
+## `r emo::ji("owl")` Got a problem you can't solve?
+
+It is always good to try to suspect something simple is going wrong first. Most likely the error is a simple one, like a missing ")" or ",". 
+
+For deeper answers to questions about packages, analyses and functions, compiling an Rmarkdown document, or simply the error that is being generated, you can usually find an answer using google. 
+
+If you are still having problems, and you need someone to help you, the first step is to explain the problem clearly. Make a [reproducible example of your problem, following the guidelines here](https://reprex.tidyverse.org/articles/reprex-dos-and-donts.html). Bring this to a consultation, or post on the discussion forum on moodle. 
+
+Externally, [Q/A site: http://stackoverflow.com](http://stackoverflow.com) is a great place to get answers to tougher questions about R and also data analysis. You always need to check that someone hasn't asked it before, the answer might already be available for you. Remember these people that kindly answer questions on stackoverflow have day jobs too, and do this community support as a kindness to all of us.
+
+
+
