@@ -13,7 +13,7 @@ navbar:
       href: index.html
     - text: "Moodle"
       icon: fa-archive
-      href: https://lms.monash.edu/local/preview/manage.php?courseid=104347
+      href: https://lms.monash.edu/course/view.php?id=104347
     - text: "textbook"
       icon: fa-book
       href: https://www.statlearning.com
