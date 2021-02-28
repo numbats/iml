@@ -39,6 +39,52 @@
 
 
 
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-01a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Getting started&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 1
+
+&lt;br&gt;
+
+]
+
+
+
 ---
 
 class: transition 
@@ -61,20 +107,17 @@ Kenji - Tutoring four sessions.
 ]
 
 .border-box.monash-border-blue.w-25[
-Patrick - Tutoring two sessions.
+Patrick - Tutoring three sessions.
 
 &lt;img src="images/week1/patrick.jpg" width="200px"&gt;
 ]
 
 .border-box.monash-border-blue.w-20[
-Mahdi - Tutoring two sessions.
+Shin (data analyst at EY) - Tutoring two sessions.
 
-&lt;img src="https://numbat.space/authors/abolghasemi-mahdi/avatar_hu3ea53bbfeca567d0c48325f5ec5f7573_16751_270x270_fill_q90_lanczos_center.jpg" width="200px"&gt;
+&lt;img src="images/week1/shin.jpg" width="200px"&gt;
+
 ]
-
-&lt;br&gt;
-&lt;br&gt;
-And Shin (data analyst at EY) tutoring one session virtually.
 
 ---
 class: monash-slide
@@ -162,9 +205,9 @@ See the **Math and Statistics** box: machine learning, statistical modeling, sup
 ---
 # If you like this course, what others could you do
 
-.info-box[**ETC3555 - Statistical Machine Learning**: This unit covers the methods and practice of statistical machine learning for modern data analysis problems. Topics covered will include recommender systems, social networks, text mining, matrix decomposition and completion, and sparse multivariate methods. All computing will be conducted using the R programming language.&lt;br&gt; *Prerequisites: ETC3250 or FIT3154*]
+.info-box[**ETC3555/5555 - Statistical Machine Learning**: This unit covers the methods and practice of statistical machine learning for modern data analysis problems. Topics covered will include recommender systems, social networks, text mining, matrix decomposition and completion, and sparse multivariate methods. All computing will be conducted using the R programming language.]
 
-.info-box[**ETC5550 - Advanced Statistical Modelling**: This unit introduces extensions of linear regression models for handling a wide variety of data analysis problems. Three extensions will be considered: generalised linear models for handling counts and binary data; mixed-effect models for handling data with a grouped or hierarchical structure; and non-parametric regression for handling non-linear relationships. All computing will be conducted using R.&lt;br&gt; *Prerequisites: ETC2410, ETC2420, ETC3440 or equivalent*]
+.info-box[**ETC3580/5580 - Advanced Statistical Modelling**: This unit introduces extensions of linear regression models for handling a wide variety of data analysis problems. Three extensions will be considered: generalised linear models for handling counts and binary data; mixed-effect models for handling data with a grouped or hierarchical structure; and non-parametric regression for handling non-linear relationships. All computing will be conducted using R. ]
 
 ---
 
@@ -173,7 +216,7 @@ class: transition
 # Introduction to machine learning
 
 ---
-# Notation
+# Notation 1/6
 
 `\(n\)` number of observations or sample points
 
@@ -189,7 +232,7 @@ x_{n1} &amp; x_{n2} &amp; \dots &amp; x_{np} \end{array} \right)
 \end{align*}`
 
 ---
-# Notation
+# Notation 2/6
 
 The `\(i^{th}\)` observation is denoted as
 
@@ -208,7 +251,7 @@ x_{1j} \\ x_{2j} \\ \vdots \\ x_{nj} \\
 \end{align*}`
 
 ---
-# Notation
+# Notation 3/6
 
 A transposed data matrix is denoted as
 `\begin{align*}
@@ -228,7 +271,7 @@ x_{i1} &amp; x_{i2} &amp; \dots &amp; x_{ip} \\
 \end{align*}`
 
 ---
-# Notation
+# Notation 4/6
 
 The response vector, when it exists, is denoted as
 
@@ -245,7 +288,7 @@ and then an observation can be written as
 where `\(x_i\)` is a vector with `\(p\)` elements.
 
 ---
-# Notation
+# Notation 5/6
 
 If `\({\mathbf y}\)` is categorical, with `\(K\)` levels, it can be useful to write it as a binary matrix
 
@@ -338,9 +381,14 @@ and `\({\mathbf A}{\mathbf A}^{-1} = I\)` where
 \end{align*}`
 
 ---
-# Notation
+# Notation 6/6
 
-`\(d (\leq p)\)` is used to denote the number of variables in a lower dimensional space, usually by taking a projection
+`\(d (\leq p)\)` is used to denote the number of variables in a lower dimensional space, usually by taking a projection.
+
+`\(A\)` is a `\(p\times d\)` orthonormal basis, `\(A^TA=I_d\)` ( `\(A'A=I_d\)` ).
+
+The projection of `\({\mathbf x_i}\)` onto `\(A\)` is `\(A^T{\mathbf x}_i\)`.
+
 
 
 
@@ -350,16 +398,87 @@ and `\({\mathbf A}{\mathbf A}^{-1} = I\)` where
 .grid[
 1. Supervised learning: `\(y_i\)` is .monash-orange2[available] for all `\(x_i\)`
     - Regression: quantitative `\(y_i\)`
-    - Classification: categorical `\(y_i\)` &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
-2. Unsupervised learning: `\(y_i\)` .monash-orange2[unavailable] for all `\(x_i\)` &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
-3. Semi-supervised learning: `\(y_i\)` available for some `\(x_i\)` (not covered in this unit)
+    - Classification: categorical `\(y_i\)` &lt;br&gt;&lt;br&gt;
+2. Unsupervised learning: `\(y_i\)` .monash-orange2[unavailable] for all `\(x_i\)` &lt;br&gt;&lt;br&gt;
+3. Semi-supervised learning: `\(y_i\)` available for some `\(x_i\)` (not covered in this unit) &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.info-box[Being able to recognise the type of problem is an important skill.]
 
+&lt;img src="images/lecture-01a/unnamed-chunk-3-1.png" width="432" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+# What type of problem is this? (1/3)
+
+Food servers' tips in restaurants
+may be influenced by many factors, including the nature of the
+restaurant, size of the party, and table locations in the restaurant.
+Restaurant managers need to know which factors matter when they assign
+tables to food servers.  For the sake of staff morale, they usually
+want to avoid either the substance or the appearance of unfair treatment
+of the servers, for whom tips (at least in restaurants in the United
+States) are a major component of pay.
+
+In one restaurant, a food server recorded the following data on all
+customers they served during an interval of two and a half months in
+early 1990. The restaurant, located in a suburban shopping mall, was
+part of a national chain and served a varied menu. In observance of
+local law the restaurant offered seating in a non-smoking section to
+patrons who requested it. Each record includes a day and time, and
+taken together, they show the server's work schedule.
+
+---
+# What type of problem is this? (2/3)
+
+Measurements on rock crabs of the genus
+*Leptograpsus*. One species *L. variegatus* had been split into
+two new species, previously grouped by color, orange and
+blue. Preserved specimens lose their color, so it was hoped that
+morphological differences would enable museum specimens to be
+classified. There are 50 specimens of each sex of each species,
+collected on site at Fremantle, Western Australia. For each specimen,
+five measurements were made, using vernier calipers.
+
+---
+# What type of problem is this? (3/3)
+
+ This data contains 
+observations taken from a high-energy particle physics scattering
+experiment that yielded four particles.  The reaction
+`\(\pi_b^+p_t\rightarrow p\pi_1^+\pi_2^+\pi^-\)` can be described
+completely by seven independent measurements. Below, `\(\mu^2(A,B,\pm C)=(E_A+E_B\pm E_C)^2-(P_A+P_B\pm P_C)^2\)` and `\(\mu^2(A,\pm B)=(E_A\pm E_B)^2-(P_A\pm P_B)^2\)`, where `\(E\)` and `\(P\)` represent the particle's
+energy and momentum, respectively, as measured in billions of electron
+volts. The notation `\((p)^2\)` represents the inner product `\(P/P\)`. The
+ordinal assignment of the two `\(\pi^+\)`'s was done randomly. What are the clusters in the data?
+
+---
+
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 1
+
+&lt;br&gt;
 
 ]
 
-.info-box[Being able to .monash-blue2[**identify**] which is the type of learning problem you have is important in practice]
 
----
 
 
     </textarea>
