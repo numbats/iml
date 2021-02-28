@@ -129,6 +129,10 @@ schedule_df %>%
   add_indent(1:midsem_break) # this needs to be done to match up with above
 ```
 
+## Class data sets
+
+- [nrc.csv](data/nrc.csv)
+
 ## Expectations
 
 * Unless your question is a personal issue or an administrative matter, please do not send us direct email. The moodle discussion forum is appropriate for questions related to the course.
@@ -138,10 +142,18 @@ schedule_df %>%
 * Tutorials are not recorded, and attendance is expected.
 * The on-campus labs have computers, but we recommend bringing your own laptop with the software installed. Check the tutorial instructions ahead to get the list of software. (If you do not have a laptop you can borrow one from MoVE, and we recommend that you have R/RStudio and the packages necessary on a memory stick to attach to the borrowed laptop.)
 * If you register after the start of the semester or if you miss a lecture/tutorial, it is your responsibility to catch up with missed material, learn about due dates for material to be turned in, and getting assigned to a group for team work, as necessary.
+* As a Monash unit, instructors and students agree to adhere to [Assessment and Academic Integrity Policy](https://www.monash.edu/__data/assets/pdf_file/0019/2300923/Assessment-and-Academic-Integrity-Policy.pdf). Students are responsible for their own good academic practice and must:
+    - undertake their studies and research responsibly and with honesty and integrity;
+    - credit the work of others and seek permission to use that work where required;
+    - not plagiarise, cheat or falsify their work;
+    - ensure that their work is not falsified;
+    - not resubmit any assessment they have previously submitted, without the permission of the chief examiner; appropriately acknowledge the work of others;
+    - take reasonable steps to ensure that other students are unable to copy or misuse their work; and
+    - be aware of and comply with University regulations, policies and procedures relating to academic integrity.
 
 # R package installation list
 
-This is the list of R packages as of the start of semester. You should be able to install by cutting and pasting this code into your RStudio console.
+Here is the list of R packages as of the start of semester. There may be more packages to install as the semester progresses. You should be able to install by cutting and pasting this code into your RStudio console.
 
 ```
 install.packages(c("knitr", "tidyverse", "tidymodels", "gapminder", "gridExtra", "patchwork", "tourr", "kableExtra", "fpc", "statquotes", "yardstick", "ISLR", "broom", "mvtnorm", "ggdendro", "RColorBrewer", "plotly", "htmltools", "splines", "grid", "rpart", "mgcv", "gratia", "GGally", "ggpubr", "MASS", "caret", "modelr", "boot", "gganimate", "ggrepel", "ggthemes", "datasauRus", "geozoo", "ggparallel", "ggmosaic", "nullabor", "rpart.plot", "e1071", "viridis", "randomForest", "mlbench", "gtable", "keras", "nnet", "penalizedLDA", "ggExtra", "magick"))
