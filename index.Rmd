@@ -113,7 +113,7 @@ schedule_df <- schedule_df %>%
   select(weekno, slides, tut, topic, readings, assessment)
 
 
-midsem_break <- 5 + 1 # after which week # needs the fix after week 0 was added
+midsem_break <- 5 + 0 # after which week # needs the fix after week 0 was added
 
 schedule_df %>% 
   kable(escape = FALSE, align = c("c", "c", "c", "l", "l", "l"),
