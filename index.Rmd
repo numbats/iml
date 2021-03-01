@@ -72,7 +72,9 @@ team_df %>%
   ui_list()
 ```
 
+## Assessments
 
+Final exam 60%, project 15%, each assignment is 10%, weekly quizzes 5%.
 
 ## Tentative Schedule
 
@@ -88,7 +90,7 @@ team_df %>%
   * H: **Fri 18:00** CL_Inn-33.SciPort_G101 (Kenji)
   * I: **Fri 18:00** on zoom (Shin)
 
-There are no lectures, tutorials or consultations during the midsemester break. You are expected to attend the lecture and ONE tutorial stream. Please see your timetable which tutorial stream you are scheduled in.
+There are no lectures, tutorials or consultations during the mid-semester break. You are expected to attend the lecture and ONE tutorial stream. Please see your timetable which tutorial stream you are scheduled in.
 
 ```{r}
 schedule_df <- schedule_df %>% 
