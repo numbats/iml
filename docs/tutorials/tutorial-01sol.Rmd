@@ -1,0 +1,159 @@
+---
+title: "ETC3250/5250 Tutorial 1 Solution"
+subtitle: "Introduction to tidymodels"
+author: "prepared by Professor Di Cook"
+date: "Week 1"
+output:
+  html_document:
+    toc: true
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  echo=TRUE,
+  fig.height = 4,
+  fig.width = 8,
+  out.width = "100%",
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+## `r emo::ji("gear")` Exercise 1.1
+
+Work your way through the exercises at https://www.tidymodels.org/start/models/
+
+This explains how to build a model for sea urchin data using the tidy approach. 
+
+## `r emo::ji("gear")` Exercise 1.2
+
+The `nrc` data contains information collected on Statistics graduate programs in the USA. There are several ranking variables, and indicators of the departments' describing research, student and diversity, summarising many individual variables such as number of publications, student entrance scores and demographics. You can learn more about this data [here](https://en.wikipedia.org/wiki/United_States_National_Research_Council_rankings).
+
+The goal here is to follow the tidy models approach to fit a model for rank against indicators of research. 
+
+a. Read the data, simplify names and select variables. You will want `rank = R.Rankings.5th.Percentile`, `research = Research.Activity.5th.Percentile`, `student = Student.Support.Outcomes.5th.Percentile` and `diversity = Diversity.5th.Percentile`. 
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(tidymodels)
+library(dotwhisker)
+library(patchwork)
+
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+# Simplify names of and select variables to use
+nrc <- nrc %>%
+  mutate(rank = R.Rankings.5th.Percentile,
+         research = Research.Activity.5th.Percentile,
+         student = Student.Support.Outcomes.5th.Percentile,
+         diversity = Diversity.5th.Percentile) %>%
+  select(rank, research, student, diversity)
+```
+
+b. Make a plot of the observed response against predictors. What do you learn about the relationship between these variables?
+
+```{r fig.height=3}
+# Make some plots of data
+a1 <- ggplot(nrc, aes(x=research, y=rank)) + geom_point() +
+  geom_smooth(se=FALSE)
+a2 <- ggplot(nrc, aes(x=student, y=rank)) + geom_point() +
+  geom_smooth(se=FALSE)
+a3 <- ggplot(nrc, aes(x=diversity, y=rank)) + geom_point() +
+  geom_smooth(se=FALSE)
+a1 + a2 + a3
+```
+
+*You can see that the relationship between rank and research is very strong. There is very little relationship with either of the other predictors.*
+
+c. Set up and fit the model. Report the coefficient of the model fit, make a dot and whisker plot and report the fit statistics. What do you learn about the strength of the fit, and which variables are important?
+
+```{r}
+# Set up and fit model
+lm_mod <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+lm_fit <- 
+  lm_mod %>% 
+  fit(rank ~ research + student + diversity, data = nrc)
+lm_fit
+
+# Summarise the fit
+tidy(lm_fit)
+
+tidy(lm_fit) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+
+glance(lm_fit)
+```
+
+*The model explains about half the variation in rank, because $R^2 is 0.485. The only important variable contributing to the model is research, because the confidence intervals for the other two overlap with 0, and the hypothesis test measuring  difference from 0 is only significant for research.The coefficient for research is positive, meaning that the higher the research score the higher the rank.*
+
+*Wait! Shouldn't higher research score indicate smaller rank, because low values of rank indicate better. The research indicator must be scored with low values meaning lots of research and high values being less research. To check this you would need to plot the research against the other variables like number of publications and number of citations - that should have a negative relationship.*
+
+d. Explore the model fit visually. Plot the predicted values against observed, residuals against fitted, and predicted against each of the predictors. Summarise what you learn about the model fit.
+
+```{r}
+# Plot the fit
+nrc_all <- augment(lm_fit, nrc)
+p1 <- ggplot(nrc_all, aes(x=.pred, y=rank)) + geom_point()
+
+p2 <- ggplot(nrc_all, aes(x=.pred, y=.resid)) + geom_point()
+
+p1 + p2
+```
+
+*Observed vs predicted shows the fit is reasonably good. There are two outliers, revealed more by the residual plot. These are two programs that poor ranking, but predicted to be much better.*
+
+```{r fig.height=3}
+p3 <- ggplot(nrc_all, aes(x=research, y=.pred)) + geom_point()
+p4 <- ggplot(nrc_all, aes(x=student, y=.pred)) + geom_point()
+p5 <- ggplot(nrc_all, aes(x=diversity, y=.pred)) + geom_point()
+
+p3 + p4 + p5
+```
+
+*There is a very strong relationship between research and predicted values, which further supports that the model is primarily using research as the predictor.*
+
+e. Generate a grid of new data values to predict, with all combinations of `research = c(10, 40, 70)`, `student = c(10, 40, 70)`, `diversity = c(10, 40, 70)`. Predict these values, as point and confidence intervals. 
+
+```{r}
+# Predict new data
+new_points <- expand.grid(research = c(10, 40, 70), 
+                          student = c(10, 40, 70),
+                          diversity = c(10, 40, 70))
+new_points
+
+mean_pred <- predict(lm_fit, new_data = new_points)
+mean_pred
+
+conf_int_pred <- predict(lm_fit, 
+                         new_data = new_points, 
+                         type = "conf_int")
+conf_int_pred
+
+new_points <- augment(lm_fit, new_points)
+```
+
+f. Make a plot of predicted values vs research for the observed data and the new data, with new data coloured differently. How do the predicted values compare?
+
+```{r}
+# Plot predicted data, with observed data
+ggplot() + 
+  geom_point(data=nrc_all, aes(x=research, y=.pred)) +
+  geom_point(data=new_points, aes(x=research, y=.pred), colour="red")
+```
+
+*The new points are at just three values of research, so you can see the vertical stripes here. The predicted ranks for these points are more varied than the observed data. Its likely that this is due to the combination of values in the new data being different than what exists in the observed data. It would be a good idea to plot the predictors against eaach other to confirm that this is true.*
+

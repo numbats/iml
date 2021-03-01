@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-01b.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Conceptual framework&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 1b
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+class: transition
+
+# Two purposes 
+
+## Prediction and inference (or understanding)
+
+
+---
+# Supervised learning
+
+.grid[
+We assume that there is a relationship between `\(Y\)` and `\({\mathbf X}\)` that can be written as
+`$$Y = f({\mathbf X}) + \varepsilon$$`
+where function `\(f(X)\)` is .monash-blue2[fixed but unknown], and `\(\varepsilon\)` is independent of `\({\mathbf X}\)` and has mean 0.
+
+&lt;img src="images/lecture-01b/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;br&gt;&lt;br&gt;*Note: Here, I've simulated data so I know what `\(f\)` is.*
+]
+
+
+---
+# Why estimate `\(f\)`?
+
+.grid[
+In many situations, `\({\mathbf X}\)` may be readily available, but `\(Y\)` might be hard to collect. SO, we would like to be able to use `\({\mathbf X}\)` to .monash-orange2[predict] new values of `\(Y\)`. 
+&lt;br&gt;
+We might not so much be concerned about whether `\(f\)` is easy to understand, just that we are confident that its going to do a good job of predicting new values.
+`$$\hat{Y} = \hat{f}({\mathbf X})$$`
+where `\(\hat{ }\)` reflects what we estimate, the unknown function to be, and the estimated response value.
+
+
+...
+]
+
+---
+# Why estimate `\(f\)`?
+
+.grid[
+In many situations, `\({\mathbf X}\)` may be readily available, but `\(Y\)` might be hard to collect. SO, we would like to be able to use `\({\mathbf X}\)` to .monash-orange2[predict] new values of `\(Y\)`. 
+&lt;br&gt;
+We might not so much be concerned about whether `\(f\)` is easy to understand, just that we are confident that its going to do a good job of predicting new values.
+`$$\hat{Y} = \hat{f}({\mathbf X})$$`
+where `\(\hat{ }\)` reflects what we estimate, the unknown function to be, and the estimated response value.
+
+&lt;br&gt;&lt;br&gt;The accuracy of `\(\hat{Y}\)` as a prediction for `\(Y\)` depends on what we will call .monash-orange2[reducible] AND .monash-orange2[irreducible] error. We can write this as
+`\begin{align*}
+E(Y-\hat{Y})^2 &amp;=&amp; E(f({\mathbf X})+\varepsilon-\hat{f}({\mathbf X}))^2\\
+&amp;=&amp; \underbrace{E(f({\mathbf X}) - \hat{f}({\mathbf X}))^2} + \underbrace{\mbox{Var}(\varepsilon)} \\
+&amp; &amp; reducible + irreducible
+\end{align*}`
+where `\(E(Y-\hat{Y})^2\)` represents the average or .monash-blue2[expected value] of the squared difference between the observed and predicted response, and `\(\mbox{Var}(\varepsilon)\)` represents the .monash-blue2[variance] of the error.
+]
+
+---
+
+.grid[
+&lt;img src="images/lecture-01b/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;br&gt;
+Line indicates **true** `\(f\)`. This is the best possible because all that is left is irreducible error. 
+
+&lt;img src="images/lecture-01b/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;br&gt;
+.monash-orange2[Orange] line indicates an .monash-orange2[estimated model] ( `\(\hat{f}\)` ). This could be improved. 
+]
+
+
+---
+
+.grid[
+&lt;img src="images/lecture-01b/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;br&gt;
+.monash-orange2[Orange] line indicates an .monash-orange2[estimated model] ( `\(\hat{f}\)` ). This could be improved. 
+
+**Suppose we used a much simpler model, a linear model.**
+&lt;br&gt;&lt;br&gt;
+&lt;img src="images/lecture-01b/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;br&gt;
+.monash-blue2[Blue] line indicates a simpler .monash-blue2[estimated model] ( `\(\hat{f}\)` ). There is a lot of room to improve this.
+
+]
+---
+class: informative middle
+
+# Remember
+
+.info-box[.monash-orange2[reducible] is what we can .monash-orange2[improve] on by producing the .monash-orange2[best model].]
+
+&lt;br&gt;&lt;br&gt;
+
+.info-box[.monash-orange2[irreducible] there is some random fluctuation from one sample to the next which is not systematic.]
+
+---
+class: middle center
+
+.idea-box[The goal is that the predictions from the model are accurate for future samples.]
+
+---
+class: transition
+
+# Inference (understanding)
+---
+# Inference
+
+We would like to understand the way that `\(Y\)` is related to `\({\mathbf X}\)`. 
+
+- Which predictors are associated with the response? 
+- What is the relationship between the response and each predictor?
+- Can the relationship between `\(Y\)` and each predictor be adequately summarized using a linear equation, or is the relationship more complicated? 
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+**It is important here not to treat `\(f\)` as a black box.**
+
+&lt;br&gt;&lt;br&gt;
+.idea-box[Ideally, good prediction also allows for good inference and understanding.]
+
+---
+# How do we estimate `\(f\)`?
+
+.flex[
+- Parametric methods: 
+    - Assume that the model takes a specific form
+    - Fitting then is a matter of estimating the parameters of the model
+    - Generally considered to be less flexible
+    - If assumptions are wrong, performance likely to be poor
+- Non-parametric methods: 
+    - No specific assumptions
+    - Allow the data to specify the model form, without being too rough or wiggly
+    - More flexible
+    - Generally needs more observations
+]
+    
+---
+# Parametric models
+
+.grid[
+ &lt;img src="images/constraints.png" style="width: 100%"&gt;
+ 
+A linear regression model: `\(f({\mathbf X}) = \beta_0 + \beta_1 X_1 + ... + \beta_p X_p\)`
+&lt;img src="images/lecture-01b/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+And nonlinear regression model: `\(f({\mathbf X}) = \beta_0 + \beta_1 X_1 + \beta_2 X_1^2 + ...\)`
+&lt;img src="images/lecture-01b/unnamed-chunk-9-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+# Non-parametric models
+
+.grid[
+
+Example: Local polynomial regression, called loess. Fit a linear model to many small subsets of the data.
+&lt;img src="images/lecture-01b/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+A more general approach is called `\(k\)`-nearest neighbours,  `\(\hat Y(x) = \frac1k \sum_{x_i \in n_k(x)} y_i\)`. 
+]
+
+---
+# Trade-off between predictive accuracy and model interpretability
+
+.grid[
+A summary of common models and how they tend to lie in terms of predictive accuracy vs interpretability.
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.font_smaller2[Chapter2/2.7.pdf]
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.7.pdf" target="_BLANK"&gt; &lt;img src="images/2.7.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+]
+
+---
+class: transition
+# Assessing model accuracy
+
+---
+# Assessing model accuracy
+
+&lt;center&gt;
+.info-box[.monash-blue2[Training data]: the set of observations used to train or teach the method to estimate `\(f\)`.]
+&lt;/center&gt;
+
+&lt;br&gt;&lt;br&gt;
+Suppose we have a regression model `\(y=f(x)+\varepsilon\)`. .monash-orange2[Estimate]
+`\(\hat{f}\)` from some .monash-orange2[training data], `\(Tr= \{(y_i, x_i)\}_{i = 1}^n\)`.
+
+The most common measure of accuracy is the .monash-orange2[training Mean Squared Error (MSE)]
+
+`$$MSE_{Tr} = \mathop{\mbox{Ave}}\limits_{i\in Tr}[y_i-\hat{f}(x_i)]^2 = \frac{1}{n}\sum_{i=1}^n [(y_i-\hat{f}(x_i)]^2$$`
+
+---
+# Assessing model accuracy
+
+&lt;center&gt;
+.info-box[.monash-blue2[Test data]: the set of observations reserved to compute accuracy of the model for .monash-blue2[new] data.]
+&lt;/center&gt;
+
+&lt;br&gt;&lt;br&gt;
+
+A better measure of .monash-orange2[accuracy] is obtained by using the .monash-orange2[test data], denoted as `\(Te=\{(y_i, x_i)\}_{i = 1}^m\)`, .monash-orange2[Test Mean Squared Error]
+
+`$$MSE_{Te} = \mathop{\mbox{Ave}}\limits_{j\in Te}[y_j-\hat{f}(x_j)]^2 = \frac{1}{m}\sum_{j=1}^m [(y_j-\hat{f}(x_j)]^2$$`
+
+---
+class: informative 
+
+.grid[
+## Regression vs classification
+
+&lt;a href="https://towardsdatascience.com/regression-or-classification-linear-or-logistic-f093e8757b9c" target="_BLANK"&gt; &lt;img src="images/problems.png" style="width: 85%; align: center"/&gt; &lt;/a&gt;
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.font_smaller2[Source: [Taylor Fogarty](https://towardsdatascience.com/regression-or-classification-linear-or-logistic-f093e8757b9c) ]]
+
+]
+
+---
+# Assessing model accuracy for classification
+
+&lt;center&gt;
+.info-box[To indicate the categorical response, we will use `\(\hat{C}\)` instead of `\(\hat{f}\)`.]
+&lt;/center&gt;
+
+Compute `\(\hat{C}\)` from some .monash-orange2[training data], `\(Tr= \{(y_i, x_i)\}_{i = 1}^n\)`. In place of MSE, we now use the error rate (.monash-orange2[fraction of misclassifications]) to get the .monash-green2[Training Error Rate]
+
+`$$\text{Error rate}_{Tr} = \frac{1}{n}\sum_{i=1}^n I(y_i \ne \hat{C}(x_i))$$`
+
+And again a better estimate of future .monash-orange2[accuracy] is obtained using .monash-orange2[test data] `\(Te=\{(y_i, x_i)\}_{i = 1}^m\)` to get the .monash-green2[Test Error Rate]
+
+`$$\text{Error rate}_{Te} = \frac{1}{m}\sum_{j=1}^m I(y_j \ne \hat{C}(x_j))$$`
+
+---
+class: informative middle 
+
+&lt;center&gt;
+.info-box[Generally, training error will be smaller than test error.]
+&lt;/center&gt;
+
+&lt;br&gt;&lt;br&gt;
+Because the training data is used to fit the model, by design the error will be small relative to the error when the model is used on new data.
+
+---
+# Bias-variance trade-off
+
+.idea-box[There are two competing forces that govern the
+choice of learning method: .monash-orange2[bias] and .monash-orange2[variance].] 
+
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.monash-orange2[Bias] is the error that is introduced by modeling a 
+complicated problem by a simpler problem.
+
+
+- For example, linear regression assumes a linear relationship and perhaps the relationship is not exactly linear.
+- In general, but not always, the .monash-orange2[more flexible] a method is, the .monash-orange2[less bias] it will have. 
+
+
+[This site](https://degreesofbelief.roryquinn.com/bias-variance-tradeoff) has a lovely explanation.
+
+---
+# Bias-variance trade-off
+
+.idea-box[There are two competing forces that govern the
+choice of learning method: .monash-orange2[bias] and .monash-orange2[variance].] 
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+.monash-orange2[Variance]
+refers to how much your estimate would change if you had different training data. Its measuring how much your model depends on the data you have, to the neglect of future data.
+
+
+- In general, the .monash-orange2[more flexible] a method is, the .monash-orange2[more variance] it has. 
+- The .monash-orange2[size] of the training data has an impact on the variance.
+
+---
+# Flexibility, bias and variance
+
+[This blog post by Harriet Mason, former ETC3250 student](https://numbat.space/post/bias_variance_flexibility/training_and_test_mse/) has a lovely explanation of the trade-off in flexibility and effect on bias and variance.
+
+&lt;center&gt;
+&lt;img src="images/week1/biasandvariance_sketch.png" width="80%"&gt;
+&lt;/center&gt;
+
+---
+## MSE decomposition into bias and variance
+
+The expected **test** MSE for a new `\(y_0\)` at a new observation, called `\({\mathbf x}_0\)`, will be equal to
+
+`$$E[(y_0-\hat{f}(x_0))^2] = [\mbox{Bias}(\hat{f}(x_0))]^2 + \mbox{Var}(\hat{f}(x_0)) + \mbox{Var}(\varepsilon)$$`
+
+Test MSE = Bias `\(^2\)` + Variance + Irreducible variance
+
+- The expectation averages over the variability of `\(Y\)` as well as the variability in the training data.
+- As the flexibility of `\(\hat{f}\)` increases, its variance increases and its bias decreases.
+- The decide on the best model, from a range with different flexibility, you choose based on average test MSE at the .monash-orange2[bias-variance trade-off], where both are minimised.
+
+---
+# Bias-variance tradeoff
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.12.pdf" target="_BLANK"&gt; &lt;img src="images/2.12.png" style="width: 75%; align: center"/&gt; &lt;/a&gt;
+
+&lt;br&gt;
+
+.blue[Squared bias], .orange[variance], .black[Var(ε) (dashed line)], and .red[test MSE] for the three data sets shown earlier. The vertical dotted line indicates the flexibility level corresponding to the smallest test MSE.
+&lt;/center&gt;
+
+.font_smaller2[(Chapter2/2.12.pdf)]
+
+---
+class: transition
+
+# A case study using nearest neighbours classification
+
+---
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.13.pdf" target="_BLANK"&gt; &lt;img src="images/2.13.png" style="width: 40%; align: center"/&gt; &lt;/a&gt;
+&lt;br&gt;
+
+Colour indicates true class of each observation. &lt;br&gt;.purple[Dashed line indicates true boundary]. 
+&lt;/center&gt;
+
+&lt;br&gt;&lt;br&gt;
+.font_smaller2[(Chapter2/2.13.pdf)]
+
+---
+# K Nearest Neighbours (KNN)
+
+
+One of the simplest classifiers. Given a test observation `\({\mathbf x}_0\)`,
+
+- Find the `\(K\)` nearest points to `\(x_0\)` in the training data, call this `\({\cal N}_0\)`.
+- Estimate conditional probabilities
+`$$P(Y = C_j \mid X=x_0) = \frac{1}{K}\sum_{i\in {\cal N}_0} I(y_i = C_j).$$`
+- Classify `\(x_0\)` to class with largest probability.
+
+
+---
+# KNN: too flexible and not enough
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.16.pdf" target="_BLANK"&gt; &lt;img src="images/2.16.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_smaller2[(Chapter2/2.16.pdf)]
+
+---
+# KNN: about as good as possible
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.15.pdf" target="_BLANK"&gt; &lt;img src="images/2.15.png" style="width:40%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_smaller2[(Chapter2/2.15.pdf)]
+
+---
+# KNN: bias variance trade-off, using training and test error
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.17.pdf" target="_BLANK"&gt; &lt;img src="images/2.17.png" style="width: 60%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_smaller2[(Chapter2/2.17.pdf)]
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 1b
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
