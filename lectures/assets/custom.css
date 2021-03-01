@@ -19,9 +19,14 @@ ul li:before {
 }
 
 ul li li:before {
-  content: "\f1fe";
+  content: "-";
   font-size: 20px;
   font-family: "Font Awesome 5 Free";
   margin-right: 5px;
   color: #027EB6;
 }
+
+.font_small { font-size: 18pt;}
+.font_smaller { font-size: 16pt }
+.font_smaller2 { font-size: 13pt }
+
