@@ -53,6 +53,7 @@ knitr::opts_chunk$set(
   fig.path = sprintf("images/%s/", basename),
   fig.width = 6,
   fig.height = 4,
+  out.width = "100%",
   fig.align = "center",
   fig.retina = 3,
   echo = FALSE,
@@ -105,7 +106,7 @@ class: monash-slide
 background-image: url("images/bg-06.png")
 # Where to find things
 
-- Moodle: zoom links, assignments, marks, discussion forum, and announcements
+- Moodle: zoom links, quizzes, assignments, marks, discussion forum, and announcements
 - Website (https://iml.numbat.space) schedule, lecture slides, tutorial instructions 
 - Textbook (https://www.statlearning.com) free pdf online, data and code (we will use more modern coding style though)
 - Got questions? Post in the discussion forum. Of a .monash-blue2[private] nature (e.g. about marks) you can send email to .monash-orange2[etc3250-clayton-x@monash.edu].
