@@ -134,6 +134,7 @@ schedule_df %>%
 ## Class data sets
 
 - [nrc.csv](data/nrc.csv)
+- [chocolates.csv](data/chocolates.csv)
 
 ## Expectations
 
