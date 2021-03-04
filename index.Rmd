@@ -81,14 +81,14 @@ Final exam 60%, project 15%, each assignment is 10%, weekly quizzes 5%.
 * Lectures: **Mon 2-3pm, Tue 12-1** on zoom (see Moodle for link)
 * Tutorials:
   * A: **Mon 17:00** CL_Anc-19.LTB_G21 (Patrick)
-  * B: **Mon 19:00** CL_Inn-33.SciPort_GG01 (Patrick)
-  * C: **Mon 19:00** on zoom (Shin)
+  * B: **Mon 19:00** CL_Inn-33.SciPort_GG01 (Kenji)
+  * C: **Mon 19:00** on zoom (Naveen)
   * D: **Tue 08:00** CL_Chn-20.Menzies_H1 (Kenji)
   * E: **Tue 08:00** on zoom (Patrick)
   * F: **Thu 18:00** CL_Anc-15.Law_G07 (Kenji)
   * G: **Fri 16:00** CL_Anc-19.LTB_393 (Kenji)
   * H: **Fri 18:00** CL_Inn-33.SciPort_G101 (Kenji)
-  * I: **Fri 18:00** on zoom (Shin)
+  * I: **Fri 18:00** on zoom (Naveen)
 
 There are no lectures, tutorials or consultations during the mid-semester break. You are expected to attend the lecture and ONE tutorial stream. Please see your timetable which tutorial stream you are scheduled in.
 
