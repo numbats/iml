@@ -51,7 +51,7 @@ Make sure you have these packages installed:
 install.packages(c("tidyverse", "kableExtra", "broom"))
 ```
 
-## `r emo::ji("book")` Reading
+### `r emo::ji("book")` Reading
 
 - Read through chapter 2 of the textbook.
 - Take a look at the textbook questions: 2.1, 2.2, 2.4. Come up with an answer for each, to discuss with your class mates.
