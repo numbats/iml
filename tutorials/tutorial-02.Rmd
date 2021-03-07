@@ -48,7 +48,7 @@ The objectives for this week are to discuss key concepts for machine learning, p
 Make sure you have these packages installed:
 
 ```
-install.packages(c("tidyverse", "kableExtra", "broom"))
+install.packages(c("tidyverse", "kableExtra"))
 ```
 
 ### `r emo::ji("book")` Reading
