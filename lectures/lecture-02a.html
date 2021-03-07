@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    <script src="lib/kePrint-0.0.1/kePrint.js"></script>
+    <link href="lib/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-02a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Review of regression&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 2a
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+# Multiple Regression
+
+&lt;br&gt;
+
+&lt;center&gt;
+.info-box[
+`$$Y_i = \beta_0 + \beta_1 X_{i1} + \beta_2 X_{i2} + \cdots + \beta_pX_{ip} + \varepsilon_i, ~~~ i=1, \dots, n$$`
+]
+&lt;/center&gt;
+
+- Each `\(X_j\)` is called a .monash-orange2[predictor], or independent variable or input variable.
+- The coefficients `\(\beta_1,\dots,\beta_p\)` measure the .monash-orange2[effect] of each
+predictor after taking account of the effect of all other predictors in the model.
+- Predictors may be .monash-orange2[transforms] of other predictors. e.g., `\(x_2=x_1^2\)`. Then the model form would be nonlinear. Categorical predictors need to be converted into dummy variables (see a few slides along).
+- Once we .monash-orange2[estimate] the model, we will have estimated coefficients `\(\hat{\beta}_1,\dots,\hat{\beta}_p\)`, predicted values, `\(\hat{Y}\)`, and residuals, `\(e_i, i=1, \dots, n\)`.
+
+
+---
+
+# Multiple Regression
+
+.flex[
+.w-45[
+The model describes a .monash-orange2[**line**, plane or hyperplane] in the predictor space.&lt;br&gt;
+
+&lt;center&gt;&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.1.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.1.png" style="width: 90%"/&gt; &lt;/a&gt;
+&lt;/center&gt; 
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+.font_smaller2[(Chapter3/3.1.pdf)]
+]
+
+.w-45[
+The model describes a .monash-orange2[line, **plane** or hyperplane] in the predictor space. &lt;br&gt;
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.5.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.5.png" style="width: 90%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+.font_smaller2[(Chapter3/3.5.pdf)]
+]
+]
+---
+# Categorical Variables
+
+Qualitative variables need to be converted to numeric, by making a set of dummy variables.
+
+`$$x_i = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+which would result in the model
+
+`$$\hat{y}_i = \left\{\begin{array}
+{ll}
+\beta_0+\beta_1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}   \\
+\beta_0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+
+
+---
+# Categorical Variables
+
+More than two categories
+
+`$$x_{i1} = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+`$$x_{i2} = \left\{\begin{array}
+{ll}
+1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a bilby}  \\
+0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+which would result in the model using .monash-orange2[dummy variables].
+
+`$$\hat{y}_i = \left\{\begin{array}
+{ll}
+\beta_0+\beta_1 &amp; \mbox{if} ~~~ i^{\text{th}} \mbox{ obs is a koala}   \\
+\beta_0+\beta_2 &amp; \mbox{if} ~~~  i^{\text{th}}  \mbox{ obs is a bilby}  \\
+\beta_0 &amp; \mbox{otherwise}  
+\end{array}\right\}$$`
+
+---
+# Interactions are induced by categorical predictors
+
+.info-box[When you have a categorical variable, it can be convenient to allow .monash-orange2[BOTH slope and intercept to vary] across category levels. This is called an .monash-orange2[interaction].]
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.7.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.7.png" style="width: 70%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+
+.font_smaller2[(Chapter3/3.7.pdf)]
+---
+# Inference 
+
+&lt;br&gt;
+
+- Is at least one of the predictors useful in predicting the response?
+- Do all the predictors help to explain `\(Y\)`, or is only a subset of the predictors useful?
+- How well does the model fit the data?
+- Given a set of predictor values, what response value should we predict and how accurate is our prediction?
+
+---
+.flex[
+.border-box[
+# Model fitting
+
+.monash-orange2[Least squares] is a common way to fit the model, where `\(\hat{\beta}_j\)` are chosen to minimise `$$RSS=\sum_{i=1}^n (y_i-\hat{y}_i)^2$$` The .monash-orange2[smaller the sum] of differences, the .monash-orange2[better] the model fits the data.
+]
+
+
+
+.border-box[
+# Goodness-of-fit
+
+`\(R^2\)` is the .monash-orange2[proportion of variation] explained by the model, and measures the goodness of the fit, close to 1 the model explains most of the variability in `\(Y\)`, close to 0 it explains very little. 
+
+`$$R^2 = 1 - \frac{RSS}{TSS}$$`
+
+where `\(TSS=\sum_{i=1}^n (y_i - \bar{y})^2\)`. RSS is residual sum of squares, and TSS is total sum of squares.
+
+]
+
+.border-box[
+# Model Diagnostics
+
+.monash-orange2[Residual Standard Error (RSE)] is an estimate of the standard deviation of `\(\varepsilon\)`. This is meaningful with the assumption that `\(\varepsilon \sim N(0, \sigma^2)\)`. 
+
+`$$RSE = \sqrt{\frac{1}{n-p-1}RSS}$$`
+
+This is another way to examine the variation around the model. Unlike `\(R^2\)` it is not on a standard scale.
+]
+
+]
+
+---
+
+# Maximum Likelihood Estimation and Least Squares
+
+
+If the errors are iid and normally distributed, then
+
+`$${Y} \sim N({X}{\beta},\sigma^2{I})$$`
+
+So the likelihood is
+
+`$$L = \frac{1}{\sigma^n(2\pi)^{n/2}}\exp\left(-\frac1{2\sigma^2}\sum_{i=1}^n (Y_i-\hat{Y}_i)^2\right)$$`
+
+
+which is maximized when `\(\sum_{i=1}^n ({Y}-\hat{Y})^2\)` is minimized.
+
+&lt;br&gt;&lt;br&gt;
+&lt;center&gt;
+.info-box[MLE `\(\equiv\)` OLS.]
+&lt;/center&gt;
+
+---
+
+# Significance tests
+
+An `\(F\)`-test can be computed to assess if **any** predictor explains response, by testing this hypothesis
+
+`$$H_0: \beta_1=\beta_2=...=\beta_p=0 \mbox{   vs   } H_a: \mbox{at least one is not 0}$$`
+where the test statistic is `\(F=\frac{(TSS-RSS)/p}{RSS/(n-p-1)}\)`.
+
+&lt;br&gt;
+
+## Individual variables
+
+The strength of relationship between the response and an individual variable can be tested using a `\(t\)`-test for the hypothesis:
+
+`$$H_0: \beta_j=0 \mbox{   vs   } H_a: \beta_j\neq 0$$` 
+
+where the test statistic is `\(t=\frac{\hat{\beta}_j}{SE({\hat{\beta}_j})}\)`
+
+
+---
+class: middle center
+
+# Interpreting the effect of any predictor
+
+&gt; We interpret `\(\beta_j\)` as the average effect on `\(Y\)` of a one unit increase in `\(X_j\)`, holding all other predictors fixed.
+
+&lt;br&gt;&lt;br&gt;
+.info-box[⚠️ This is association and .monash-orange2[not causation]. ]
+
+---
+# Assessing model fit using residuals
+
+
+.flex[
+.border-box[
+- If a plot of the residuals vs any predictor in the model shows a pattern, then the .monash-orange2[relationship is nonlinear.]
+- If a plot of the residuals vs any predictor **not** in the model shows a pattern, then .monash-orange2[the predictor should be added to the model.]
+- If a plot of the residuals vs fitted values shows a pattern, then there is .monash-orange2[heteroscedasticity in the errors]. (Try a transformation, but may not fix.)
+]
+
+.border-box[
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.9.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.9.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+.font_smaller2[(Chapter3/3.9.pdf)]
+]
+]
+
+---
+
+# Comparing models
+
+An `\(F\)`-test can be computed to assess if **any additional**  predictors significantly help to explain response, by testing this hypothesis
+
+`$$H_0: \beta_{p-q+1}=\beta_{p-q+2}=...=\beta_p=0 \mbox{   vs   } H_a: \mbox{at least one is not 0}$$`
+where the test statistic is `\(F=\frac{(RSS_0-RSS)/q}{RSS/(n-p-1)}\)`.
+
+(We are considering a model with just `\(q\)` variables as opposed to all `\(p\)`.)
+
+---
+# Common pitfalls
+
+1. Non-linearity of the response-predictor relationships.
+--
+
+2. Correlation of error terms.
+--
+
+3. Non-constant variance of error terms.
+--
+
+4. Outliers.
+--
+
+5. High-leverage points.
+--
+
+6. Collinearity.
+--
+
+&lt;!-- Prediction is still ok, but interpretation not --&gt;
+
+---
+# Example - Wages
+
+Wage and other data for a group of 3000 male workers in the Mid-Atlantic region. 
+.monash-orange2[Goal:] .monash-green2[Predict wage based on worker characteristics.]
+
+.overflow-scroll[
+
+```
+## Rows: 3,000
+## Columns: 11
+## $ year       &lt;int&gt; 2006, 2004, 2003, 2003, 2005, 2008, 2009, 2008, 2006, 2004,…
+## $ age        &lt;int&gt; 18, 24, 45, 43, 50, 54, 44, 30, 41, 52, 45, 34, 35, 39, 54,…
+## $ maritl     &lt;fct&gt; 1. Never Married, 1. Never Married, 2. Married, 2. Married,…
+## $ race       &lt;fct&gt; 1. White, 1. White, 1. White, 3. Asian, 1. White, 1. White,…
+## $ education  &lt;fct&gt; 1. &lt; HS Grad, 4. College Grad, 3. Some College, 4. College …
+## $ region     &lt;fct&gt; 2. Middle Atlantic, 2. Middle Atlantic, 2. Middle Atlantic,…
+## $ jobclass   &lt;fct&gt; 1. Industrial, 2. Information, 1. Industrial, 2. Informatio…
+## $ health     &lt;fct&gt; 1. &lt;=Good, 2. &gt;=Very Good, 1. &lt;=Good, 2. &gt;=Very Good, 1. &lt;=…
+## $ health_ins &lt;fct&gt; 2. No, 2. No, 1. Yes, 1. Yes, 1. Yes, 1. Yes, 1. Yes, 1. Ye…
+## $ logwage    &lt;dbl&gt; 4.318063, 4.255273, 4.875061, 5.041393, 4.318063, 4.845098,…
+## $ wage       &lt;dbl&gt; 75.04315, 70.47602, 130.98218, 154.68529, 75.04315, 127.115…
+```
+]
+
+---
+
+# Take a look
+
+What do the following pairwise comparisons of the variables `year`, `age` and, `education` against `wage` show us?
+
+
+&lt;img src="images/lecture-02a/unnamed-chunk-4-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+# Take a look
+
+If we examine `logwage` instead of `wage` as response variable - what changes?
+
+
+&lt;img src="images/lecture-02a/unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Take a look
+
+.flex[
+- Examine the predictors. *Ideally values are spread out without any associations.*
+- There is no evidence of any association between the predictors here. 
+- One category of "education" has much fewer observations than the others - this is not ideal. 
+
+&lt;img src="images/lecture-02a/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+# Model for wage data
+
+&lt;br&gt;
+&lt;center&gt;
+.color-box.monash-blue2[
+`\(Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3X_3 + \varepsilon\)`
+]
+&lt;/center&gt;
+
+where `\(Y=\)` `logwage`, `\(X_1=\)` `year`, `\(X_2=\)` `age`, and `\(X_3=\)` `education`.
+
+
+---
+# Fitting the model in R
+
+
+```r
+library(broom)
+library(parsnip)
+library(kableExtra)
+lm_mod &lt;- 
+  linear_reg() %&gt;% 
+  set_engine("lm")
+
+*fit &lt;- lm_mod %&gt;%
+* fit(logwage~year+age+education, data=Wage)
+```
+
+
+---
+# Parameter estimates
+
+
+```r
+*tidy(fit) %&gt;%
+  kable(digits = 3) %&gt;% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+&lt;table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; term &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; estimate &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; std.error &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; statistic &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p.value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -17.450 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.469 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -3.191 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.001 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; year &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.011 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.003 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.952 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; age &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.006 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11.447 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; education2. HS Grad &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.120 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.021 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.762 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; education3. Some College &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.244 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.022 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11.115 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; education4. College Grad &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.368 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.022 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 16.894 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; education5. Advanced Degree &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.541 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.024 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22.909 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Model fit
+
+
+```r
+*glance(fit)  %&gt;%
+  kable(digits = 2) %&gt;% 
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+&lt;table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; r.squared &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; adj.r.squared &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; sigma &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; statistic &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p.value &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; logLik &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; AIC &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; BIC &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; deviance &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; df.residual &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; nobs &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.26 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.26 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 178.09 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -663.9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1343.8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1391.85 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 273.44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2993 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3000 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+# Polynomial regression
+
+A simple non-linear model can be achieved by adding polynomial terms, like
+
+`$$\mbox{mpg} = \beta_0 + \beta_1 \mbox{horsepower} + \beta_2 \mbox{horsepower}^2 + \varepsilon$$`
+.flex[
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.8.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.8.png" style="width: 110%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+&lt;br&gt;&lt;br&gt;
+
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.9.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-02a/3.9.png" style="width: 80%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+
+
+]
+.font_smaller2[(Chapter3/3.8.pdf,3.9.pdf)]
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 2a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
