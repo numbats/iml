@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-03a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Categorical response regression&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 3a
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+# Categorical responses
+
+In **classification**, the output `\(Y\)` is a .monash-orange2[categorical variable]. For example,
+
+- Loan approval: `\(Y \in \{\mbox{successful}, \mbox{unsuccessful}\}\)` 
+- Type of business culture: `\(Y \in \{\mbox{clan}, \mbox{adhocracy}, \mbox{market}, \mbox{hierarchical}\}\)`
+- Historical document author: `\(Y \in \{\mbox{Austen}, \mbox{Dickens}, \mbox{Imitator}\}\)`
+- Email: `\(Y \in \{\mbox{spam}, \mbox{ham}\}\)`
+
+Map the categories to a numeric variable, or possibly a binary matrix.
+
+
+&lt;!--
+- A person arrives at the emergency room with a set of symptoms that could possibly be attributed to one of three medical conditions. Which of the three conditions does the individual have?
+- An online banking service must be able to determine whether or not a transaction being performed on the site is fraudulent, on the basis of the user's IP address, past transaction history, and so forth.
+- On the basis of DNA sequence data for a number of patients with and without a given disease, a biologist would like to figure out which DNA mutations are deleterious (disease-causing) and which are not.
+- An email comes into the server. Should it be moved into the inbox or the junk mail box, based on header text, sender, origin, time of day, ...?
+--&gt;
+
+---
+# When linear regression is not appropriate
+
+.flex[
+.w-40[
+
+&lt;br&gt;
+Consider the following data `simcredit` in the ISLR R package (textbook) which looks at the default status based on credit balance.
+
+&lt;br&gt;&lt;br&gt;
+
+.question-box.monash-blue2[Why is a linear model not appropriate for this data?]
+
+]
+.w-10[
+
+.white[this is just space]
+
+]
+.w-45[
+
+&lt;br&gt;
+&lt;img src="images/lecture-03a/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+]
+]
+---
+# Modelling binary responses
+
+.flex[
+.w-45[
+&lt;img src="images/lecture-03a/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+.monash-orange2[Orange] line is a loess smooth of the data. It's much better than the linear fit. 
+
+]
+.w-45[
+
+&lt;br&gt;
+
+- To model **binary data**, we need to .monash-orange2[link] our **predictors** to our response using a *link function*. Another way to think about it is that we will transform `\(Y\)`, to convert it to a proportion, and then build the linear model on the transformed response.
+- There are many different types of link functions we could use, but for a binary response we typically use the .monash-orange2[logistic] link function.
+
+]
+.w-10[
+
+.white[this is just space]
+
+]
+
+]
+---
+# The logistic function
+
+.flex[
+.w-40[
+
+Instead of predicting the outcome directly, we instead predict the probability of being class 1, given the (linear combination of) predictors, using the .monash-orange2[logistic] link function.
+
+$$ p(y=1|\beta_0 + \beta_1 x)  = f(\beta_0 + \beta_1 x) $$
+where
+
+`$$f(\beta_0 + \beta_1 x) = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$`
+
+]
+.w-10[
+
+.white[this is just space]
+
+]
+.w-45[
+&lt;img src="images/lecture-03a/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+.flex[
+.w-40[
+
+# Logistic function
+
+Transform the function:
+
+`$$~~~~y = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$`
+
+`\(\longrightarrow  y = \frac{1}{1/e^{\beta_0+\beta_1x}+1}\)`
+
+`\(\longrightarrow  1/y = 1/e^{\beta_0+\beta_1x}+1\)`
+
+`\(\longrightarrow 1/y - 1 = 1/e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow  \frac{1}{1/y - 1} = e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow \frac{y}{1 - y} = e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow \log_e\frac{y}{1 - y} = \beta_0+\beta_1x\)`
+]
+.w-10[
+
+.white[this is just space]
+
+]
+]
+
+---
+count: false
+
+.flex[
+.w-40[
+
+# Logistic function
+
+Transform the function:
+
+`$$~~~~y = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$`
+
+`\(\longrightarrow  y = \frac{1}{1/e^{\beta_0+\beta_1x}+1}\)`
+
+`\(\longrightarrow  1/y = 1/e^{\beta_0+\beta_1x}+1\)`
+
+`\(\longrightarrow 1/y - 1 = 1/e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow  \frac{1}{1/y - 1} = e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow \frac{y}{1 - y} = e^{\beta_0+\beta_1x}\)`
+
+`\(\longrightarrow \log_e\frac{y}{1 - y} = \beta_0+\beta_1x\)`
+]
+.w-10[
+
+.white[this is just space]
+
+]
+.w-40[
+
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+Transforming the response `\(\log_e\frac{y}{1 - y}\)` makes it possible to use a linear model fit.
+ 
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+
+.info-box[The left-hand side, `\(\log_e\frac{y}{1 - y}\)`, is known as the .monash-orange2[log-odds ratio] or logit.
+&lt;i class="fas fa-dice" style="color: #D93F00"&gt;&lt;/i&gt;
+]
+
+]]
+
+---
+# The logistic regression model
+
+The fitted model, where `\(P(Y=0|X) = 1 - P(Y=1|X)\)`, is then written as:
+
+&lt;center&gt;
+.info-box[
+`\(\log_e\frac{P(Y=1|X)}{1 - P(Y=1|X)} = \beta_0+\beta_1X\)`
+]
+&lt;/center&gt;
+
+*Multiple categories*:
+  This formula can be extended to more than binary response variables. Writing the equation is not simple, but follows from   the above, extending it to provide probabilities for each level/category. The sum of all  probabilities is 1.
+
+---
+# Interpretation
+
+- .monash-blue2[**Linear regression**]
+    - `\(\beta_1\)` gives the average change in `\(Y\)` associated with a one-unit increase in `\(X\)`
+--
+- .monash-blue2[**Logistic regression**]
+    - Increasing `\(X\)` by one unit changes the log odds by `\(\beta_1\)`, or equivalently it multiplies the odds by `\(e^{\beta_1}\)`
+    - However, because the model is not linear in `\(X\)`, `\(\beta_1\)` does not correspond to the change in response associated with a one-unit increase in `\(X\)`
+
+---
+# Maximum Likelihood Estimation
+
+Given the logistic `\(p(x_i) = \frac{1}{e^{-(\beta_0+\beta_1x_i)}+1}\)`
+
+We choose parameters `\(\beta_0, \beta_1\)` to maximize the likelihood of the data given the model. The likelihood function is
+
+`$$\mathcal{l}_n(\beta_0, \beta_1) = \prod_{y_i=1,i}^n p(x_i)\prod_{y_i=0,i}^n (1-p(x_i)).$$`
+
+It is more convenient to maximize the *log-likelihood*:
+
+`$$\text{max}_{\beta_0, \beta_1} ~ \log  l_n(\beta_0, \beta_1) = \text{max}_{\beta_0, \beta_1}  - \sum_{i = 1}^n \log\big(1 + e^{-(\beta_0+\beta_1x_i)} \big)$$`
+
+---
+# Making predictions
+
+.flex[
+.w-45[
+With estimates from the model fit, `\(\hat{\beta}_0, \hat{\beta}_1\)`, we can predict the **probability of belonging to class 1** using:
+
+
+`$$p(y=1|\hat{\beta}_0 + \hat{\beta}_1 x) = \frac{e^{\hat{\beta}_0+ \hat{\beta}_1x}}{1+e^{\hat{\beta}_0+ \hat{\beta}_1x}}$$`
+
+.monash-orange2[Round to 0 or 1] for class prediction.
+]
+.w-45[
+
+&lt;img src="images/lecture-03a/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+.monash-orange2[Orange points] are fitted values, `\(\hat{y}_i\)`. Black points are observed response, `\(y_i\)`. (Residual is the difference between observed and predicted.) To generate categorical predictions, round the fitted values. 
+]
+]
+
+---
+.flex[
+.w-45[
+## Fitting credit data in R &lt;i class="fas fa-credit-card" style="color: #D93F00"&gt;&lt;/i&gt;
+
+&lt;br&gt;
+
+ We use the `glm` function in R to fit a logistic regression model. The `glm` function can support many response types, so we specify `family="binomial"` to let R know that our response is *binary*.
+]
+.w-45[
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+
+```r
+logistic_mod &lt;- logistic_reg() %&gt;% 
+* set_engine("glm") %&gt;%
+* set_mode("classification") %&gt;%
+  translate()
+
+logistic_fit &lt;- 
+  logistic_mod %&gt;% 
+  fit(default ~ balance, 
+      data = simcredit)
+```
+
+]
+]
+
+
+---
+
+# Examine the fit
+
+&lt;br&gt;
+
+
+```r
+*tidy(logistic_fit)
+```
+
+```
+## # A tibble: 2 x 5
+##   term         estimate std.error statistic   p.value
+##   &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1 (Intercept) -10.7      0.361        -29.5 3.62e-191
+## 2 balance       0.00550  0.000220      25.0 1.98e-137
+```
+
+```r
+*glance(logistic_fit)
+```
+
+```
+## # A tibble: 1 x 8
+##   null.deviance df.null logLik   AIC   BIC deviance df.residual  nobs
+##           &lt;dbl&gt;   &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt; &lt;int&gt;
+## 1         2921.    9999  -798. 1600. 1615.    1596.        9998 10000
+```
+
+---
+# Write out the model
+
+`\(\hat{\beta}_0 =\)` -10.6513306
+
+`\(\hat{\beta}_1 =\)` 0.3611574
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+# Model fit summary
+
+Null model deviance 2920.6 (think of this as TSS)
+
+Model deviance 1596.5 (think of this as RSS)
+
+---
+# Check model fit
+
+
+```r
+*simcredit_fit &lt;- augment(logistic_fit, simcredit)
+simcredit_fit %&gt;% 
+  count(default, .pred_class) %&gt;%
+  pivot_wider(names_from = "default", values_from = n)
+```
+
+```
+## # A tibble: 2 x 3
+##   .pred_class    No   Yes
+##   &lt;fct&gt;       &lt;int&gt; &lt;int&gt;
+## 1 No           9625   233
+## 2 Yes            42   100
+```
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;center&gt;
+.info-box[Note: Residuals not typically useful.]
+&lt;center&gt;
+
+---
+.flex[
+.w-45[
+
+# A warning for using GLMs!
+
+&lt;br&gt;
+
+Logistic regression model fitting fails when the data is *perfectly* separated.
+
+MLE fit will try and fit a step-wise function to this graph, pushing coefficients sizes towards infinity and produce large standard errors.
+
+.monash-orange2[Pay attention to warnings!]
+
+]
+.w-45[
+
+&lt;img src="images/lecture-03a/unnamed-chunk-9-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+
+
+```r
+logistic_fit &lt;- 
+  logistic_mod %&gt;% 
+  fit(default_new ~ balance, 
+      data = simcredit)
+```
+
+```
+## Warning: glm.fit: algorithm did not converge
+```
+
+```
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+```
+
+
+---
+class: informative middle center
+# More on supervised classification to come
+
+Logistic regression is a technique for supervised classification. We'll see a lot more techniques: linear discriminant analysis, trees, forests, support vector machines, neural networks. 
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 3a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
