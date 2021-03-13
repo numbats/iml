@@ -21,3 +21,8 @@ tune
 workflows
 yardstick
 patchwork
+ISLR
+countdown
+latex2exp
+GGally
+kableExtra

@@ -1,0 +1,155 @@
+---
+title: "ETC3250/5250 Tutorial 3 Instructions"
+subtitle: "Fitting nonlinear regression models"
+author: "prepared by Professor Di Cook"
+date: "Week 3"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- understand why to use orthogonal polynomials, for polynomial regression. 
+- understand the purpose of breaking the model fitting into pre-processing with `recipes`, and model specification with `parsnip`.
+- learn to use `yardstick` to compute test error.
+- develop your ability to support your choice of model from among several.
+- practice plotting of data and models to help understand the fit.
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "kableExtra", "recipes", "parsnip", "yardstick", "GGally", "ISLR", "here", "rsample", "mgcv", "patchwork"))
+```
+
+### `r emo::ji("book")` Reading and thinking
+
+- Read through the Introduction and the Simple Example at https://recipes.tidymodels.org/index.html on the package `recipes`. What is the purpose of this package? What types of tasks would you accomplish by using it?
+- Read through the textbook lab instructions for the first half of section 7.8.1 pages 288-289, and the explanation of textbook figure 7.1. (If this latter explanation is confusing, you're not alone. The approach of handling the two wage clusters is too messy, and we will look at a simpler approach in the tutorial.)
+- Read about [lurking variables here](https://courses.lumenlearning.com/wmopen-concepts-statistics/chapter/causation-and-lurking-variables-1-of-2/)
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+## 💬 Class discussion exercises
+
+Why do you think polynomials and splines considered to be part of recipes rather than the model fitting?
+
+## `r emo::ji("gear")` Exercise 
+
+```{r load_libraries}
+library(tidyverse)
+library(ISLR)
+library(recipes)
+library(parsnip)
+library(yardstick)
+library(rsample)
+library(GGally)
+library(mgcv)
+library(patchwork)
+```
+
+### 1. Explore the polynomial model fitting 
+
+Following the textbook lab exercise for Chapter 7. Read through the textbook lab instructions for the first half of section 7.8.1 pages 288-289, *BUT* use the code below. (Note, recipes prevents fitting the orthogonal polynomials, from what I can see, so the code is NOT using the tidymodels approach.)
+
+a. This builds from the polynomial model fit for the Wage data, using variables wage and age, in Figure 7.1. 
+
+The function `poly` is a convenient way to generate a fourth-degree polynomial. By default it uses "orthonormal polynomials". 
+
+```{r fig.width=3, fig.height=12, out.width="50%"}
+# Old style way to fit because recipes doesn't seem to all to choose orthogonal polynomials
+fit1 <- lm(wage ~ poly(age, 4), data=Wage)
+tidy(fit1)
+```
+
+b. We can request that "raw" polynomials are generated instead, with the `raw=TRUE` argument. 
+
+```{r}
+# Old style way to fit because recipes doesn't seem to all to choose orthogonal polynomials
+fit2 <- lm(wage ~ poly(age, 4, raw=TRUE), data=Wage)
+tidy(fit2)
+```
+
+c. The coefficients are different, but effectively the fit is the same, which can be seen by plotting the fitted values from the two models.
+
+```{r fig.show='hide'}
+wage_fit <- Wage %>% 
+  mutate(yhat1 = predict(fit1, Wage), 
+         yhat2 = predict(fit2, Wage))
+ggplot(wage_fit, aes(x=yhat1, y=yhat2)) + 
+  geom_point() + theme(aspect.ratio = 1)
+```
+
+d. To examine the differences between orthonormal polynomials and "raw" polynomials, we can make scatterplot matrices of the two sets of polynomials. 
+
+```{r fig.show='hide'}
+p_orth <- as_tibble(poly(Wage$age, 4))
+ggscatmat(p_orth)
+p_raw <- as_tibble(poly(Wage$age, 4, raw=TRUE))
+ggscatmat(p_raw)
+```
+
+e. **Please discuss:** What is the benefit of using orthonomal polynomials?
+
+### 2. Lurking variables
+
+This question is based on "Why not to do what the textbook suggests!"
+
+a. The wages data poses an interesting analytical dilemma. There appear to be two wage clusters, one small group with relatively consistent high wage, and the other big group with lower and varied wages. Make a histogram or a density plot of wage to check this more carefully. 
+
+b. What do you think might have caused this? Check the relationship between wage, and other variables such as `jobclass`. Do any of the other variables provided in the data explain the clustering?
+
+c. The textbook includes an analysis where a separate probabilistic model (a logistic model, which we will learn about this week) where a binary response ($\leq 250$, $>250$) is used. Why doesn't this make sense? An alternative approach is to treat this as a "lurking variable", let's call it "manager", create a new predictor and include this in the model. Alternatively, we could treat the high group as outliers, and exclude them from the analysis. The argument for these values are likely due to some unobserved factor, and their presence affects the ability to accurately model the rest of the data. Try to fit the model (using polynomials) with either approach, and then explain the relationship (on average) between wage and age. Do you need to use a degree=4 polynomial, or would degree=3 be sufficient?
+
+### 3. Fitting NRC rankings
+
+In 2010, the National Research Council released rankings for all doctorate programs in the USA (https://en.wikipedia.org/wiki/United_States_National_Research_Council_rankings). The data was initially released and then only available for a fee. I managed to get a copy during the free period, and this is the data that we will use for this exercise. There hasn't been another set of rankings publicly released since then, and I don't know why. Only the rankings and statistics for Statistics programs are included in this data set.
+
+Your job is to answer the question: "How is R Ranking related to rankings on research, student support and diversity?" using the 5th percentile for each of these quantities. Fit your best model, try using splines, and justify your choices.
+
+a. Read the data. Rename the columns containing the variables of interest to `rank`, `research`, `student` and `diversity`). Using recipes, split the data into 2/3 training and 1/3 test sets.
+b. Make response vs predictor plots and predictor vs predictor plots of the training data. Explain the relationships, outliers, and how this would affect the modeling, and what you would expect the results of the modeling to be. 
+c. Fit a linear model. Report estimates, model fit statistics, and the test MSE. Plot the fitted model against each predictor.
+d. Fit a GAM model. Report estimates, model fit statistics, and the test MSE. Plot the fitted model against each predictor.
+e. Based on the model fit statistics, and test mse, and plots, which model is best? How do the predictors relate to the rank? Are all the predictors important for predicting rank? Could the model be simplified?
+
+## `r emo::ji("stop_sign")` Wrapping up
+
+Talk to your tutor about what you think you learned today, what was easy, what was fun, what you found hard.
