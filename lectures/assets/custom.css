@@ -30,3 +30,8 @@ ul li li:before {
 .font_smaller { font-size: 16pt }
 .font_smaller2 { font-size: 13pt }
 
+.scroll-800 {
+  overflow-y: scroll;
+  height: 600px;
+}
+
