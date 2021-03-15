@@ -386,10 +386,10 @@ $$\begin{align}
 <br>
 ```{r fig.retina=4, message = FALSE, warning = FALSE, echo = TRUE}
 hits_gam <- 
-  gam(logSalary~
+  gam(logSalary ~
         s(logCHits) +
-        s(Years)+ s(Errors) + 
-        s(Assists),data = hits)
+        s(Years) + s(Errors) + 
+        s(Assists), data = hits)
 ```
 ]
 
