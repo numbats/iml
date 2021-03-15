@@ -396,7 +396,7 @@ glance(logistic_fit) #<<
 
 $\hat{\beta}_0 =$ `r broom::tidy(logistic_fit)[1, 2]`
 
-$\hat{\beta}_1 =$ `r broom::tidy(logistic_fit)[1, 3]`
+$\hat{\beta}_1 =$ `r broom::tidy(logistic_fit)[2, 2]`
 
 <br><br><br>
 
