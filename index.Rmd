@@ -80,7 +80,7 @@ Final exam 60%, project 15%, each assignment is 10%, weekly quizzes 5%.
 
 * Lectures: **Mon 2-3pm, Tue 12-1** on zoom (see Moodle for link)
 * Tutorials:
-  * A: **Mon 17:00** CL_Anc-19.LTB_G21 (Patrick)
+  * A: **Mon 17:00** CL_Anc-19.LTB_393 (Patrick)
   * B: **Mon 19:00** CL_Inn-33.SciPort_GG01 (Kenji)
   * C: **Mon 19:00** on zoom (Naveen)
   * D: **Tue 08:00** CL_Chn-20.Menzies_H1 (Kenji)
