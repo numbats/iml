@@ -5,7 +5,6 @@ title: "ETC3250/5250: Introduction to Machine Learning"
 ```{r setup, include = FALSE}
 # please add any R-packages used here in DESCRIPTION imports
 library(yaml)
-library(stringr)
 library(tibble)
 library(dplyr)
 library(purrr)
@@ -94,7 +93,7 @@ There are no lectures, tutorials or consultations during the mid-semester break.
 
 ```{r}
 schedule_df <- schedule_df %>% 
-  mutate(weekno = as.integer(str_extract(week, "^[0-9]+"))) %>% 
+  mutate(weekno = as.integer(regmatches(week, regexpr("^[0-9]+", week)))) %>% 
   mutate(lecture_a = file.exists(sprintf("lectures/lecture-%.2da.html", weekno)),
          lecture_b = file.exists(sprintf("lectures/lecture-%.2db.html", weekno)),
          tutorial = file.exists(sprintf("tutorials/tutorial-%.2d.html", weekno)),
