@@ -1,0 +1,99 @@
+---
+title: "ETC3250/5250 Tutorial 4 Instructions"
+subtitle: "Categorical response, and resampling"
+author: "prepared by Professor Di Cook"
+date: "Week 4"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- explore the process of fitting a categorical response. 
+- understand the the training/test split procedure for estimating your model error.
+- practice plotting of data and models to help understand model fit, in particular boundaries between groups induced by a classification model.
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "kableExtra", "recipes", "parsnip", "yardstick", "rsample", "discrim", "mgcv", "patchwork"))
+```
+
+### `r emo::ji("book")` Reading 
+
+- Textbook sections 4.3.1, 4.4.3, 5.1.3
+- Alison Hill's [Take a Sad Script & Make it Better: Tidymodels Edition](https://alison.rbind.io/post/2020-02-27-better-tidymodels/)
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+## 💬 Class discussion exercises
+
+Textbook question, chapter 4 Q8
+
+> "Suppose that we take a data set, divide it into equally-sized training and test sets, and then try out two different classification procedures. First we use logistic regression and get an error rate of 20 % on the training data and 30 % on the test data. Next we use 1-nearest neigh- bors (i.e. K = 1) and get an average error rate (averaged over both test and training data sets) of 18%. Based on these results, which method should we prefer to use for classification of new observations? Why?"
+
+## `r emo::ji("gear")` Exercise 
+
+### 1. Fitting a logistic regression model to produce a spam filter
+
+a. Read about the `spam` data in [here](http://ggobi.org/book/chap-data.pdf). Read the data into R. Subset the data to contains these variables: `day of week`, `time of day`, `size.kb`, `domain`, `cappct`.  Set the levels of day of the week to match our regular week day order. Filter the data to contain only these domains "com", "edu", "net", "org", "gov".
+b. Make some summary plots of these variables. 
+c. Fit a logistic regression model for spam to remaining variables.
+d. By computing the model "deviance" for various choices of predictors, decide on an optimal number of these variables for predicting whether an email is spam. You could plot the model deviance against the different number of predictors. Explain why `null.deviance` is the same across all the models.
+e. Compute the confusion table and report the classification error for your model. What proportion of ham (good emails) would end up in the spam folder?
+f. Conduct 10-fold cross-validation on the model fitting and estimate the test classification error. 
+g. Explain why linear discriminant analysis would not be suitable for modeling spam.
+
+### 2. Fitting various catgorical response models to food quality data
+
+a. Read about the `olive` data in [here](http://ggobi.org/book/chap-data.pdf). Download the data, filter the data to remove Southern oils, and select just the variables, region, oleic and linoleic. Make a plot of oleic vs linoleic, coloured by region. (You will need to set region to be a factor variable.) Split the data into 2/3 training and 1/3 test sets. When you make the split for a classification data set, why should you ensure that each level of your response variable is sampled in the same training/test proportion?
+
+b. Fit a logistic regression. Compute the training and test error. 
+
+c. Fit a linear discriminant classifier. Compute the training and test error. 
+
+d. Examine the boundaries between groups. Generate a grid of points between the minimum and maximum values for the two predictors. Predict the region at these locations. Make a plot of the this data, coloured by predicted region. Compare the two boundaries. 
+
+## `r emo::ji("stop_sign")` Wrapping up
+
+Talk to your tutor about what you think you learned today, what was easy, what was fun, what you found hard.
+
+##### © Copyright 2021 Monash University
