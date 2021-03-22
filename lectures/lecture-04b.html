@@ -260,7 +260,7 @@ column means of `\({X}\)` are zero).
 \left(\sum_{j=1}^p \phi_{j1}x_{ij}\right)^{\!\!\!2} \text{ subject to }
 \sum_{j=1}^p \phi^2_{j1} = 1$$`
 
-Repeat optimisation to estimate `\(\phi_{jk}\)`, with additional constraint that `\(\sum_{{j=1}^p, k&lt;k'} \phi_{jk}\phi_{jk'} = 0\)` (next vector is orthogonal to previous eigenvector).
+Repeat optimisation to estimate `\(\phi_{jk}\)`, with additional constraint that `\(\sum_{{j=1}, k&lt;k'}^p \phi_{jk}\phi_{jk'} = 0\)` (next vector is orthogonal to previous eigenvector).
 
 ---
 .flex[
@@ -313,8 +313,9 @@ It is always possible to uniquely decompose a matrix in this way.
 
 PCA is a useful dimension reduction technique for large datasets, but deciding on how many dimensions to keep isn't often clear. 🤔
 
-.info-box[.monash-orange2[Think:] How do we know how many principal components to choose?]
-
+&lt;center&gt;
+.think-box[How do we know how many principal components to choose?]
+&lt;/center&gt;
 ---
 
 # How to choose `\(k\)`?
@@ -625,7 +626,7 @@ class: split-two
 .column[.pad50px[
 # MDS can do nonlinear dimension reduction
 
-- Classical MDS  similar results to PCA
+- Classical MDS similar results to PCA
 - Metric MDS incorporates power transformations on the distances, `\(d_{ij}^r\)`.
 - Non-metric MDS incorporates a monotonic transformation of the distances, e.g. rank
 
