@@ -626,21 +626,6 @@ Black line is .black[10-fold CV]; .blue[training] and  .orange[test] error (base
 .font_smaller2[(Chapter 5/ 5.8)]
 ---
 
-# Bootstrap procedure
-
-- Draw `\(B\)` independent bootstrap samples `\(X^{*(1)}, \dots, X^{*(B)}\)` from `\(\hat P\)`:
-`$$X_1^{*(b)}, \dots, X_n^{*(b)} \sim \hat P \quad b = 1, \dots, B.$$` 	
-- Evaluate the bootstrap replications:
-`$$\hat \theta^{*(b)} = s(X^{*(b)}) \quad b = 1, \dots, B.$$`	
-- Estimate the quantity of interest from the distribution of the `\(\hat \theta^{*(b)}\)`
-
----
-
-&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.11.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.11.png" style="width: 75%; align: center"/&gt; &lt;/a&gt;
-
-.font_smaller2[(Chapter 5/ 5.11)]
-
----
 # Bootstrap samples
 
 &lt;img src="images/lecture-03b/unnamed-chunk-20-1.png" width="90%" style="display: block; margin: auto;" /&gt;
@@ -651,12 +636,13 @@ Black line is .black[10-fold CV]; .blue[training] and  .orange[test] error (base
 
 ---
 
-# Example - bootstrap model
+# Bootstrap MSE
 
+- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result some observations may appear more than once in a given bootstrap data set and .monash-orange2[some not at all]. 
+- Fit the model on each set of bootstrap samples, and calculate MSE for the observations left out of each sample (out-of-bag), call this `\(MSE_{(b)}\)`
 
-- Fit the model on a set of bootstrap samples, and keep track of how well it predicts the original dataset
-`$$\text{Err}_{\text{boot}} = \frac1B \frac1n \sum_{b = 1}^B \sum_{i = 1}^n L(y_i, \hat f^{*b}(x_i))$$` 
-- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result .monash-orange2[some observations may appear more than once in a given bootstrap data set and some not at all.]
+`$$MSE_{boot} = \frac1B \sum_{b = 1}^B MSE_{(b)}$$` 
+
 
 ---
 

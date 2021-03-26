@@ -173,7 +173,7 @@ and the rule Bayes classifier will assign $x_0$ to the class with the largest va
 ---
 # LDA with $p=1$ predictors
 
-If $K = 2$ and $\pi_1 = \pi_2$, we assign $x_0$ to class if
+If $K = 2$ and $\pi_1 = \pi_2$, we assign $x_0$ to class 1 if
 
 $$\delta_1(x_0) > \delta_2(x_0)$$
 

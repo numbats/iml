@@ -1,0 +1,149 @@
+---
+title: "ETC3250/5250 Tutorial 5 Instructions"
+subtitle: "Dimension reduction"
+author: "prepared by Professor Di Cook"
+date: "Week 5"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- explore the use of PCA to study temporal trends
+- compute dimension reductions using PCA and LDA, and extract the relevant parts
+- interpret the results of PCA and LDA
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "kableExtra", "MASS", "tourr", "viridisLite", "plotly", "mvtnorm", "GGally"))
+```
+
+### `r emo::ji("book")` Reading 
+
+- Textbook sections 4.4, 10.2
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+
+## `r emo::ji("gear")` Exercises 
+
+### 1. Principal Component Analysis
+
+A cross-rate is *an exchange rate between two currencies computed by reference to a third currency, usually the US dollar.*
+
+The data file `rates_Nov19_Mar20.csv` was extracted from https://openexchangerates.org.
+
+a. What's the data? Make a plot of the Australian dollar against date. Explain how the Australian dollar has changed relative to the US dollar over the 5 month period.
+
+b. You are going to work with these currencies: AUD, CAD, CHF, CNY, EUR, GBP, INR, JPY, KRW, MXN, NZD, RUB, SEK, SGD, ZAR. List the names of the countries and currency name that these codes refer to. Secondary question: why is the USD a constant 1 in this data. 
+
+c. The goal of the principal component analysis is to examine the relative movement of this subset of currencies, especially since coronavirus emerged until the end of March. PCA is used to summarise the volatility (variance) in the currencies, relative to each other. To do this you need to: 
+
+    - Standardise all the currencies, individually. The resulting values will have a mean 0 and standard deviation equal to 1.
+    - Flip the sign so that high means the currency strengthened against the USD, and low means that it weakened. Its easier to explain trends, if you don't need to talk with double-negatives.
+    - Make a plot of all the currencies to check the result.
+
+d. Conduct a principal component analysis on the subset of currencies. The base function `prcomp` can be used for this. You need to work from a wide format of the data, where dates are in the columns, and currencies are in the rows. Normally, PCA operates on standardised variables but for this data, you need to NOT standardise each date. Think about why this is best.
+
+    - Why is this data considered to be high-dimensional?
+    - Make a scree plot to summarise the variance explained by cumulative principal components. How much of the total variation do two PCs explain?
+    - Plot the first two principal components. Write a summary of what you learn about the similarity and difference between the currencies. 
+    - Plot the loadings for PC1. Add a base line set at $1/\sqrt{15}$. Why use this as a guide? What time frame generated a big movement (or divergence) in the currencies? Which currencies strengthened relative to the USD in that period? What happened to the Australian dollar? Answer these questions in a paragraph, written in your own words.
+    - Do the same analysis for PC2. In what time frame was there another movement of currencies? Which currencies primarily strengthened, and which weakened during this period?
+    - Finish with a paragraph summarising what variability the principal components analysis is summarising. What dimension reduction is being done?
+    
+### 2. Linear Discriminant Analysis
+
+1. Simulate data from a 4D multivariate normal, with three groups, with these features
+ $\mu_1 = (0,0,3,0)', \mu_2 = (0,3,-3,0)', \mu_3 = (-3,0,3,3)'$, $n_1 = 85, n_2 = 104, n_3 = 48$
+
+where **set A** has equal variance-covariance between groups, $\Sigma$: 
+
+$$\Sigma = \begin{bmatrix} 3.0&0.2&-1.2&0.9\\
+0.2&2.5&-1.4&0.3\\
+-1.2&-1.4&2.0&1.0\\
+0.9&0.3&1.0&3.0\\
+\end{bmatrix}$$
+ 
+and **set B** has different variance-covariances between groups, $\Sigma_1, \Sigma_2, \Sigma_3$:
+
+$\Sigma_1 = \Sigma$
+
+$$\Sigma_2 = \begin{bmatrix}3.0&-0.8&1.2&0.3\\
+-0.8&2.5&1.4&0.3\\
+1.2&1.4&2.0&1.0\\
+0.3&0.3&1.0&3.0\\
+\end{bmatrix}$$
+
+$$\Sigma_3 = \begin{bmatrix}2.0&-1.0&1.2&0.3\\
+-1.0&2.5&1.4&0.3\\
+1.2&1.4&4.0&-1.2\\
+0.3&0.3&-1.2&3.0\\
+\end{bmatrix}$$
+
+You can use this code to do the simulation:
+
+```{r echo=TRUE, eval=FALSE}
+set.seed(20200416)
+library(mvtnorm)
+vc1 <- matrix(c(3, 0.2, -1.2, 0.9, 0.2, 2.5, -1.4, 0.3, -1.2, -1.4, 2.0, 1.0, 0.9, 0.3, 1.0, 3.0), ncol=4, byrow=TRUE)
+vc2 <- matrix(c(3, -0.8, 1.2, 0.3, -0.8, 2.5, 1.4, 0.3, 1.2, 1.4, 2.0, 1.0, 0.3, 0.3, 1.0, 3.0), ncol=4, byrow=TRUE)
+vc3 <- matrix(c(2.0, -1.0, 1.2, 0.3, -1.0, 2.5, 1.4, 0.3, 1.2, 1.4, 4.0, -1.2, 0.3, 0.3, -1.2, 3.0), ncol=4, byrow=TRUE)
+m1 <- c(0,0,3,0)
+m2 <- c(0,3,-3,0)
+m3 <- c(-3,0,3,3)
+n1 <- 85
+n2 <- 104
+n3 <- 48
+setA <- rbind(rmvnorm(n1, m1, vc1), rmvnorm(n2, m2, vc1), rmvnorm(n3, m3, vc1))
+setA <- data.frame(setA)
+setA$class <- c(rep("1", n1), rep("2", n2), rep("3", n3))
+setB <- rbind(rmvnorm(n1, m1, vc1), rmvnorm(n2, m2, vc2), rmvnorm(n3, m3, vc3))
+setB <- data.frame(setB)
+setB$class <- c(rep("1", n1), rep("2", n2), rep("3", n3))
+```
+
+2. Conduct LDA on the two data sets, and plot the data into the 2D linear discriminant space. (Use `lda` from the `MASS` package for this. You can check the code from tutorial 4 that uses the tidymodels approach.)
+
+3. View both data sets using a scatterplot matrix, where the points are coloured by the class variable. Write a paragraph in your own words explaining the difference between homogeneous and heterogeneous variance-covariance.
+
+##### © Copyright 2021 Monash University
