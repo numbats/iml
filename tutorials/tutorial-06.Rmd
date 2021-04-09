@@ -1,0 +1,220 @@
+---
+title: "ETC3250/5250 Tutorial 6 Instructions"
+subtitle: "Visualising high-dimensional data"
+author: "prepared by Professor Di Cook"
+date: "Week 6"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- learn to use the tour to develop intuition about multiple dimensions
+- recognise features in high dimensions including multivariate outliers, clustering and linear and nonlinear dependence
+- use the manual tour for interpretation, to assess variable importance
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "tourr", "MASS", "spinifex", "mvtnorm", "tidymodels", "discrim", "broom"))
+```
+
+### `r emo::ji("book")` Reading 
+
+- Reading material on high-dimensional data visualisation on moodle
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+## 💬 Class discussion exercises
+
+- In tour 1, how many clusters do you see? [tour1](https://iml.numbat.space/tutorials/tour1.html)
+
+```{r eval=FALSE, echo=TRUE}
+# This is code that YOU CAN RUN YOURSELF to see the tour, 
+# but its not necessary to run in order to do the exercise 
+library(tidyverse)
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  dplyr::select(-X1)
+library(tourr)
+animate_xy(olive[, 3:10], axes="off")
+```
+
+```{r eval=FALSE, echo=FALSE}
+# This is code was used to create the animation,
+# YOU DO NOT NEED to run in order to do the exercise 
+# 
+library(plotly)
+library(htmltools)
+set.seed(20190331)
+bases <- save_history(olive[,3:10], grand_tour(2), 
+    start=matrix(c(1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0), ncol=2, byrow=TRUE), 
+    max = 15)
+# Re-set start bc seems to go awry
+bases[,,1] <- matrix(c(1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0), ncol=2, byrow=TRUE)
+tour_path <- interpolate(bases, 0.1)
+d <- dim(tour_path)
+olive_std <- tourr::rescale(olive[,3:10])
+mydat <- NULL; 
+for (i in 1:d[3]) {
+  fp <- as.matrix(olive_std) %*% matrix(tour_path[,,i], ncol=2)
+  fp <- tourr::center(fp)
+  colnames(fp) <- c("d1", "d2")
+  mydat <- rbind(mydat, cbind(fp, rep(i+10, nrow(fp))))
+}
+colnames(mydat)[3] <- "indx"
+df <- as_tibble(mydat) 
+p <- ggplot() +
+       geom_point(data = df, aes(x = d1, y = d2, 
+                                 frame = indx), size=1) +
+       theme_void() +
+       coord_fixed() +
+  theme(legend.position="none")
+pg <- ggplotly(p, width=400, height=400) %>%
+  animation_opts(200, redraw = FALSE, 
+                 easing = "linear", transition=0)
+save_html(pg, file="tour1.html")
+```
+
+- In tour 2, where three classes have been coloured, how many additional clusters do you see? [tour2](https://iml.numbat.space/labs/tour2.html)
+
+```{r eval=FALSE, echo=TRUE}
+# This is code that YOU CAN RUN YOURSELF to see the tour, 
+# but its not necessary to run in order to do the exercise 
+animate_xy(olive[,3:10], axes="off", col=olive$region)
+```
+
+```{r eval=FALSE, echo=FALSE}
+# This is code was used to create the animation,
+# YOU DO NOT NEED to run it in order to do the exercise 
+df <- df %>%
+  mutate(region=factor(rep(olive$region, d[3])))
+p <- ggplot() +
+       geom_point(data = df, aes(x = d1, y = d2, colour=region,
+                                 frame = indx), size=1) +
+       scale_colour_brewer("", palette="Dark2") +
+       theme_void() +
+       coord_fixed() +
+  theme(legend.position="none")
+pg <- ggplotly(p, width=400, height=400) %>%
+  animation_opts(200, redraw = FALSE, 
+                 easing = "linear", transition=0)
+save_html(pg, file="tour2.html")
+```
+
+## `r emo::ji("gear")` Exercises 
+
+### 1. Data with different variance-covariances
+
+Take a look at the data from tutorial 5 using a grand tour. Can you see the difference between the two sets better now? You should see that one group has roughly the same spread of observations for each group, in any combination of the variables. The other has some combinations of the variables where the spread is different for each group. 
+
+You can use this code to run the tour:
+
+```{r eval=FALSE}
+library(tourr)
+animate_xy(setA[,1:3], col=setA$class)
+animate_xy(setB[,1:3], col=setB$class)
+```
+
+**Set A** has equal variance-covariance between groups, $\Sigma$: 
+
+$$\Sigma = \begin{bmatrix} 3.0&0.2&-1.2&0.9\\
+0.2&2.5&-1.4&0.3\\
+-1.2&-1.4&2.0&1.0\\
+0.9&0.3&1.0&3.0\\
+\end{bmatrix}$$
+ 
+and **set B** has different variance-covariances between groups, $\Sigma_1, \Sigma_2, \Sigma_3$:
+
+$\Sigma_1 = \Sigma$
+
+$$\Sigma_2 = \begin{bmatrix}3.0&-0.8&1.2&0.3\\
+-0.8&2.5&1.4&0.3\\
+1.2&1.4&2.0&1.0\\
+0.3&0.3&1.0&3.0\\
+\end{bmatrix}$$
+
+$$\Sigma_3 = \begin{bmatrix}2.0&-1.0&1.2&0.3\\
+-1.0&2.5&1.4&0.3\\
+1.2&1.4&4.0&-1.2\\
+0.3&0.3&-1.2&3.0\\
+\end{bmatrix}$$
+
+This code is used simulate the data:
+
+```{r echo=TRUE, eval=FALSE}
+set.seed(20200416)
+library(mvtnorm)
+vc1 <- matrix(c(3, 0.2, -1.2, 0.9, 0.2, 2.5, -1.4, 0.3, -1.2, -1.4, 2.0, 1.0, 0.9, 0.3, 1.0, 3.0), ncol=4, byrow=TRUE)
+vc2 <- matrix(c(3, -0.8, 1.2, 0.3, -0.8, 2.5, 1.4, 0.3, 1.2, 1.4, 2.0, 1.0, 0.3, 0.3, 1.0, 3.0), ncol=4, byrow=TRUE)
+vc3 <- matrix(c(2.0, -1.0, 1.2, 0.3, -1.0, 2.5, 1.4, 0.3, 1.2, 1.4, 4.0, -1.2, 0.3, 0.3, -1.2, 3.0), ncol=4, byrow=TRUE)
+m1 <- c(0,0,3,0)
+m2 <- c(0,3,-3,0)
+m3 <- c(-3,0,3,3)
+n1 <- 85
+n2 <- 104
+n3 <- 48
+setA <- rbind(rmvnorm(n1, m1, vc1), rmvnorm(n2, m2, vc1), rmvnorm(n3, m3, vc1))
+setA <- data.frame(setA)
+setA$class <- c(rep("1", n1), rep("2", n2), rep("3", n3))
+setB <- rbind(rmvnorm(n1, m1, vc1), rmvnorm(n2, m2, vc2), rmvnorm(n3, m3, vc3))
+setB <- data.frame(setB)
+setB$class <- c(rep("1", n1), rep("2", n2), rep("3", n3))
+```
+
+### 2. Exploring for class separations, heterogeneous variance-covariance and outliers
+
+Remember the chocolates data? The chocolates data was compiled by students in a previous class of Prof Cook, by collecting nutrition information on the chocolates as listed on their internet sites. All numbers were normalised to be equivalent to a 100g serving. Units of measurement are listed in the variable name. You are interested in answering "How do milk and dark chocolates differ on nutritional values?"
+
+a. Examine all of the nutritional variables, relative to the chocolate type, using a grand tour (`tourr::animate_xy()`) and a guided tour (look up the help for `tourr::guided_tour` to see example of how to use the `lda_pp` index). Explain what you see in terms of differences between groups.
+b. From the tour, should you assume that the variance-covariance matrices of the two types of chocolates is the same? Regardless of your answer, conduct a linear discriminant analysis, on the standardised chocolates data. Because the variables are standardised the magnitude of the coefficients of the linear discriminant can be used to determine the most important variables. What are the three most important variables? What are the four least important variables? Look at the data with a grand tour of only the three important variables, and discuss the differences between the groups. 
+c. Filter the data to only focus on the milk chocolates. Explain what you see in terms of association between variables, and outliers. (Note that sometimes the guided tour using the `cmass` index can be useful for detecting multivariate outliers, but it doesn't help here. The grand tour alone is the best for spotting them.)
+
+
+### 3. Assessing variable importance with the manual tour
+
+This example uses the olive oils data. 
+
+a. Read in the data. Keep `region` and the fatty acid content variables. Standardize the variables to have mean and variance 1.
+b. Fit a linear discriminant analysis model, to a training set of data. This will produce a 2D discriminant space because there are three variables. Based on the coefficients which variable(s) are important for the first direction, and which are important for the second direction?
+c. Using a manual tour, with the `play_manual_tour` function from the `spinifex` package, , starting from the projection given by the discriminant space explore the importance of (i) `eicosenoic` for separating region 1, (ii) `oleic` and `linoleic` for separating regions 2 and 3, (iii) and that `stearic` is not important for any of the separations.
+
+
+##### © Copyright 2021 Monash University
