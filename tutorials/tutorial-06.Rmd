@@ -65,7 +65,7 @@ If you are in a zoom tutorial, say hello in the chat. If in person, do say hello
 
 ## 💬 Class discussion exercises
 
-- In tour 1, how many clusters do you see? [tour1](https://iml.numbat.space/tutorials/tour1.html)
+- In tour 1, how many clusters do you see? 
 
 ```{r eval=FALSE, echo=TRUE}
 # This is code that YOU CAN RUN YOURSELF to see the tour, 
@@ -77,10 +77,14 @@ library(tourr)
 animate_xy(olive[, 3:10], axes="off")
 ```
 
-```{r eval=FALSE, echo=FALSE}
+```{r eval=TRUE, echo=FALSE, message=FALSE}
 # This is code was used to create the animation,
 # YOU DO NOT NEED to run in order to do the exercise 
 # 
+library(tidyverse)
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  dplyr::select(-X1)
+library(tourr)
 library(plotly)
 library(htmltools)
 set.seed(20190331)
@@ -110,10 +114,11 @@ p <- ggplot() +
 pg <- ggplotly(p, width=400, height=400) %>%
   animation_opts(200, redraw = FALSE, 
                  easing = "linear", transition=0)
-save_html(pg, file="tour1.html")
+pg
+# save_html(pg, file="tour1.html")
 ```
 
-- In tour 2, where three classes have been coloured, how many additional clusters do you see? [tour2](https://iml.numbat.space/labs/tour2.html)
+- In tour 2, where three classes have been coloured, how many additional clusters do you see? 
 
 ```{r eval=FALSE, echo=TRUE}
 # This is code that YOU CAN RUN YOURSELF to see the tour, 
@@ -121,7 +126,7 @@ save_html(pg, file="tour1.html")
 animate_xy(olive[,3:10], axes="off", col=olive$region)
 ```
 
-```{r eval=FALSE, echo=FALSE}
+```{r eval=TRUE, echo=FALSE}
 # This is code was used to create the animation,
 # YOU DO NOT NEED to run it in order to do the exercise 
 df <- df %>%
@@ -136,7 +141,8 @@ p <- ggplot() +
 pg <- ggplotly(p, width=400, height=400) %>%
   animation_opts(200, redraw = FALSE, 
                  easing = "linear", transition=0)
-save_html(pg, file="tour2.html")
+pg
+# save_html(pg, file="tour2.html")
 ```
 
 ## `r emo::ji("gear")` Exercises 
