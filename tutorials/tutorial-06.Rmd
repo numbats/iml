@@ -68,8 +68,7 @@ If you are in a zoom tutorial, say hello in the chat. If in person, do say hello
 - In tour 1, how many clusters do you see? 
 
 ```{r eval=FALSE, echo=TRUE}
-# This is code that YOU CAN RUN YOURSELF to see the tour, 
-# but its not necessary to run in order to do the exercise 
+# This is code that YOU CAN RUN YOURSELF to see the tour 
 library(tidyverse)
 olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
   dplyr::select(-X1)
@@ -77,9 +76,8 @@ library(tourr)
 animate_xy(olive[, 3:10], axes="off")
 ```
 
-```{r eval=TRUE, echo=FALSE, message=FALSE}
-# This is code was used to create the animation,
-# YOU DO NOT NEED to run in order to do the exercise 
+```{r eval=FALSE, echo=FALSE, message=FALSE}
+# This is code was used to create the animation 
 # 
 library(tidyverse)
 olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
@@ -126,7 +124,7 @@ pg
 animate_xy(olive[,3:10], axes="off", col=olive$region)
 ```
 
-```{r eval=TRUE, echo=FALSE}
+```{r eval=FALSE, echo=FALSE}
 # This is code was used to create the animation,
 # YOU DO NOT NEED to run it in order to do the exercise 
 df <- df %>%
@@ -142,7 +140,7 @@ pg <- ggplotly(p, width=400, height=400) %>%
   animation_opts(200, redraw = FALSE, 
                  easing = "linear", transition=0)
 pg
-# save_html(pg, file="tour2.html")
+save_html(pg, file="tour2.html")
 ```
 
 ## `r emo::ji("gear")` Exercises 
