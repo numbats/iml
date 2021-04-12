@@ -138,8 +138,9 @@ class: split-two
 
 # Split criteria - purity/impurity metrics
 
+For `\(K\)` classes, and subset `\(m\)`
 
-- The .monash-orange2[Gini index] measures total variance across the `\(K\)` classes, for subset `\(m\)`:
+- The .monash-orange2[Gini index] measures is defined as:
 	`$$G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})$$`
 - .monash-orange2[Entropy] is defined as
 	`$$D = - \sum_{k =1}^K \hat{p}_{mk} log(\hat{p}_{mk})$$` 
@@ -298,7 +299,7 @@ Using Gini `\(G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})\)`
 Combine with weighted sum to get .monash-orange2[impurity for the split]:
 
 `$$5/7G_L + 2/7G_R=0.32$$`
-.monash-blue2[Your turn: compute the impurity for split2.]
+.monash-blue2[Your turn: compute the impurity for split 2.]
 ]]
 
 ---
