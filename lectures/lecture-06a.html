@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    <script src="lib/kePrint-0.0.1/kePrint.js"></script>
+    <link href="lib/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-06a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Classification Trees&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 6a
+
+&lt;br&gt;
+
+]
+
+
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# What is a decision tree?
+
+&lt;br&gt;
+
+Tree based models consist of one or more of nested `if-then` statements for the predictors that partition the data. Within these partitions, a model is used to predict the outcome.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/lecture-06a/tree.jpg" style="width: 70%"/&gt;
+
+ .font_tiny[Source: [Egor Dezhic](becominghuman.ai)]
+
+
+]]
+
+
+---
+# Classification trees
+
+- A classification tree is used to predict a .monash-orange2[categorical response] and regression tree is used to predict a quantitative response
+- Use a recursive binary splitting to grow a classification tree. That is, sequentially break the data into two subsets, typically using a single variable each time.
+- The predicted value for a new observation, `\(x_0\)`, will be the .monash-orange2[most commonly occurring class] of training observations in the sub-region in which `\(x_0\)` falls
+
+---
+# Algorithm: growing a tree
+
+1. All observations in a single set
+2. Sort values on first variable
+3. Compute split criteria for all possible splits into two sets
+4. Choose the best split on this variable
+5. Repeat 2-4 for all other variables
+6. Choose the best split among all variables. Your data is now in two sets. 
+7. Repeat 1-6 on each subset.
+8. Stop when stopping rule is achieved. 
+---
+class: split-two
+
+.column[.pad50px[
+
+# Split criteria - purity/impurity metrics
+
+
+- The .monash-orange2[Gini index] measures total variance across the `\(K\)` classes, for subset `\(m\)`:
+	`$$G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})$$`
+- .monash-orange2[Entropy] is defined as
+	`$$D = - \sum_{k =1}^K \hat{p}_{mk} log(\hat{p}_{mk})$$` 
+- If all `\(\hat{p}_{mk}\)`’s close to zero or one, `\(G\)` and `\(D\)` are small. .monash-orange2[Lower is better!]
+]]
+.column[.pad50px[
+# Stopping rules
+
+- .monash-orange2[Minimum split]: number of observations in a node, in order for a split to be made
+- .monash-orange2[Minimum bucket]: Minimum number of observations allowed in a terminal node
+- .monash-orange2[Complexity parameter]: minimum difference between impurity values required to continue splitting
+]
+]
+
+---
+class: split-two
+
+
+.column[.pad50px[
+# Illustration for one variable
+
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.monash-orange2[Note that x is sorted from lowest to highest!]
+
+]]
+.column[.pad50px[
+
+&lt;br&gt; &lt;br&gt;
+
+&lt;img src="images/lecture-06a/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+What do you think is the best split? 2, 3 or 5??
+
+]]
+
+---
+
+class: split-two
+
+
+.column[.pad50px[
+# Calculate the impurity for a split
+
+.monash-orange2[Look at split 5.] 
+
+The .monash-orange2[left] bucket is
+
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+and the .monash-orange2[right] bucket is
+
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+]]
+.column[.pad50px[
+
+Using Gini `\(G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})\)`
+
+.monash-orange2[Left] bucket: 
+
+`$$\hat{p}_{LA} = 4/5, \hat{p}_{LB} = 1/5, ~~ p_L = 5/7$$`
+
+`$$G_L=0.8(1-0.8)+0.2(1-0.2) = 0.32$$`
+
+.monash-orange2[Right] bucket: 
+
+`$$\hat{p}_{RA} = 0/2, \hat{p}_{RB} = 2/2, ~~ p_R = 2/7$$`
+
+`$$G_R=0(1-0)+1(1-1) = 0$$`
+Combine with weighted sum to get .monash-orange2[impurity for the split]:
+
+`$$5/7G_L + 2/7G_R=0.32$$`
+.monash-blue2[Your turn: compute the impurity for split2.]
+]]
+
+---
+
+class: split-two
+
+
+.column[.pad50px[
+# Splits on categorical variables
+
+&lt;img src="images/lecture-06a/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+Split would be "if koala then assign to B else assign to A"
+]]
+
+.column[.pad50px[
+# Handling missing values
+
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; x1 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; x2 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; x3 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; x4 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -24 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 26 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -26 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -27 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -25 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -23 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -30 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -31 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+50% of cases have missing values, which causes most methods to falter. For trees missings only on a single variable are ignored. 
+
+]]
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Example - predicting heart disease
+
+&lt;br&gt;
+
+`\(Y\)`: AHD, presence of heart disease (Yes/No)
+
+`\(X\)`: heart and lung function measurements
+
+&lt;br&gt;
+
+
+```
+##  [1] "Age"       "Sex"      
+##  [3] "ChestPain" "RestBP"   
+##  [5] "Chol"      "Fbs"      
+##  [7] "RestECG"   "MaxHR"    
+##  [9] "ExAng"     "Oldpeak"  
+## [11] "Slope"     "Ca"       
+## [13] "Thal"      "AHD"
+```
+
+
+]]
+
+.column[.content.center[
+
+&lt;img src="images/lecture-06a/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+
+]]
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Deeper trees
+
+&lt;br&gt;
+
+Trees can be built deeper by:
+
+- decreasing the value of the complexity parameter `cp`, which sets the difference between impurity values required to continue splitting.
+- reducing  the `minsplit` and `minbucket` parameters,  which control the number of  observations  below splits are forbidden.
+
+]]
+.column[.content.vmiddle[
+
+Larger complexity, simpler tree
+
+&lt;img src="images/lecture-06a/unnamed-chunk-11-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]]
+---
+
+Tabulate true vs predicted to make a .monash-orange2[confusion table]. 
+
+&lt;center&gt;
+&lt;table&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td colspan="2" align="center" &gt; true &lt;/td&gt; &lt;/tr&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C1 (positive) &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C2 (negative) &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt; pred- &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C1 &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;a&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;b&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt;icted &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C2&lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;c&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;d&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/center&gt;
+
+- .monash-orange2[Accuracy: *(a+d)/(a+b+c+d)*]
+- .monash-orange2[Error: *(b+c)/(a+b+c+d)*]
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+- .monash-orange2[Balanced accuracy: *(sensitivity+specificity)/2*]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+&lt;center&gt;
+    Training confusion and error
+&lt;/center&gt;
+
+
+```
+##           Truth
+## Prediction No Yes
+##        No  88   8
+##        Yes 17  85
+```
+
+]]
+
+.column[.pad50px[
+&lt;center&gt;
+    Test confusion and error
+&lt;/center&gt;
+
+```
+##           Truth
+## Prediction No Yes
+##        No  44   9
+##        Yes 11  35
+```
+]]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+# Training vs testing performance
+
+- Cross-validation, 5-fold
+- Grid of values in complexity, and min split
+
+&lt;img src="images/lecture-06a/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+```
+## # A tibble: 1 x 3
+##   cost_complexity min_n
+##             &lt;dbl&gt; &lt;int&gt;
+## 1    0.0000000001    21
+## # … with 1 more variable:
+## #   .config &lt;chr&gt;
+```
+]]
+
+.column[.pad50px[
+
+&lt;img src="images/lecture-06a/unnamed-chunk-15-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+### Test confusion matrix
+
+
+```
+##           Truth
+## Prediction No Yes
+##        No  44   9
+##        Yes 11  35
+```
+
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Comparison with LDA
+
+&lt;br&gt;
+
+Look at the following classification problems and resultant decision boundaries for LDA (left) and CART (right). 
+
+&lt;br&gt;
+
+.green[What characteristics determine which method is more appropriate?]
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter8/8.7.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-06a/8.7.png" style="width: 70%; align: center"/&gt;  &lt;/a&gt;
+
+
+]]
+
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Example - Crabs
+
+&lt;br&gt;
+
+Physical measurements on WA crabs, males and females.
+
+&lt;br&gt;
+
+.font_small[*Data source*: Campbell, N. A. &amp; Mahon, R. J. (1974)]
+
+Decision tree parameters: minsplit=9. It's been forced to fit small subsets. 
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+
+&lt;img src="images/lecture-06a/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+
+
+---
+# Example - Crabs
+
+&lt;img src="images/lecture-06a/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+class: split-50
+# Boundaries induced by different models
+
+layout: false
+
+.column[.content.vmiddle.center[
+
+Classification tree
+
+&lt;img src="images/lecture-06a/unnamed-chunk-19-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]]
+.column[.content.vmiddle.center[
+
+Linear discriminant classifier
+
+&lt;img src="images/lecture-06a/unnamed-chunk-20-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+# Pros and cons
+
+
+- The decision rules provided by trees are very easy to explain, and follow. A simple classification model.
+- Trees can handle a mix of predictor types, categorical and quantitative.
+- Trees efficiently operate when there are missing values in the predictors.
+- Algorithm is greedy, a better final solution might be obtained by taking a second best split earlier.
+- When separation is in linear combinations of variables trees struggle to provide a good classification
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 6a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

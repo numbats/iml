@@ -112,8 +112,8 @@ p <- ggplot() +
 pg <- ggplotly(p, width=400, height=400) %>%
   animation_opts(200, redraw = FALSE, 
                  easing = "linear", transition=0)
-pg
-# save_html(pg, file="tour1.html")
+# pg
+save_html(pg, file="tour1.html")
 ```
 
 - In tour 2, where three classes have been coloured, how many additional clusters do you see? 
@@ -139,7 +139,7 @@ p <- ggplot() +
 pg <- ggplotly(p, width=400, height=400) %>%
   animation_opts(200, redraw = FALSE, 
                  easing = "linear", transition=0)
-pg
+#pg
 save_html(pg, file="tour2.html")
 ```
 
