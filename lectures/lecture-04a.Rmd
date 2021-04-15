@@ -463,8 +463,9 @@ If the groups have different variance-covariance matrices, but still come from a
 
 If the variance-covariance matrices for the groups are .monash-orange2[NOT EQUAL], then the discriminant functions are:
 
-$$\delta_k(x) = x^T\Sigma^{-1}x + x^T\Sigma^{-1}\mu_k - \frac12\mu_k^T\Sigma^{-1}\mu_k - \frac12 \log{|\Sigma_k|} + \log(\pi_k)$$
+$$\delta_k(x) = x^T\Sigma_k^{-1}x + x^T\Sigma_k^{-1}\mu_k - \frac12\mu_k^T\Sigma_k^{-1}\mu_k - \frac12 \log{|\Sigma_k|} + \log(\pi_k)$$
 
+where $\Sigma_k$ is the population variance-covariance for class $k$, estimated by the sample variance-covariance $S_k$, and $\mu_k$ is the population mean vector for class $k$, estimated by the sample mean $\bar{x}_k$.
 ---
 ## Quadratic DA (QDA)
 A quadratic boundary is obtained by relaxing the assumption of equal variance-covariance, and assume that $\Sigma_k \neq \Sigma_l, ~~k\neq l, k,l=1,...,K$
