@@ -1,0 +1,113 @@
+---
+title: "ETC3250/5250 Tutorial 7 Instructions"
+subtitle: "Tree models"
+author: "prepared by Professor Di Cook"
+date: "Week 7"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  eval = FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- Practice fitting a classification tree model
+- Understand the way the tree model is fitted based on impurity
+- Learn about the relationship between fitting parameters, bias and variance
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "tidymodels", "tourr", "rpart.plot", "discrim"))
+```
+
+### `r emo::ji("book")` Reading 
+
+- Textbook sections 8.1, 8.3
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+
+## `r emo::ji("gear")` Exercises 
+
+### 1. This question is about entropy as an impurity metric  for a classification  tree.
+
+a. Write down the formula for entropy as an impurity measure for two groups. 
+b. Establish that the the worst case split has 50% one group and 50% the other group, in whatever way you  would like (algebraicly or graphically).
+c. Extend the entropy formula so that it can be used to describe the  impurity for a possible  split of the data into two subsets. That is, it needs  to be the sum of the impurity for both left and right subsets of data.
+
+### 2. Computing impurity
+
+For this sample of data, 
+```{r}
+df <- tibble(x=c(1,3,4,5,7), y=c("A", "B", "A", "B", "B"))
+kable(df) %>% kable_styling()
+```
+a. Compute the entropy impurity metric for all possible splits.
+b. Write  down the classification rule for the tree that would  be formed for the best split.
+    
+### 4. Write decision tree model
+
+For the following data set, compute the default classification tree. Write out the tree rules, and also sketch the boundary between classes.
+
+a. olive oils,  for three regions
+
+```{r}
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  rename(name=X1) %>%
+  dplyr::select(-name, -area) %>%
+  mutate(region = factor(region))
+```
+
+b. chocolates, for type
+
+```{r}
+choc <-  read_csv("data/chocolates.csv") %>%
+  select(Type:Protein_g)
+```
+
+c. flea, for species
+
+```{r}
+data(flea)
+```
+
+### 5. Which model should perform best
+
+For the crabs data, make a new variable combining species and gender into one class variable.
+
+a. Use the  grand and guided tour with the LDA index to  examine  the data. Describe the shape. Between LDA and a classification  tree which do  you expect to perform better on this  data?
+    
+```{r}
+crabs <- read_csv("http://www.ggobi.org/book/data/australian-crabs.csv") %>%
+  mutate(class = interaction(species, sex)) %>%
+  dplyr::select(-index, -species,-sex)
+```
+b. Use 10-fold cross-validation to determine the best choice of minsplit, for the training set of an 80:20 training:test split of the original data. (Check the code from the lecture 6a/b notes to use as an example.)
+c. Fit the classification tree with the recommended minsplit. Compute the test accuracy, using your 20% test set. Explain why the tree is so complicated. Compare with the accuracy from an LDA. Is this consistent with what you thought would be the best model?
+
+
+##### © Copyright 2021 Monash University
