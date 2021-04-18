@@ -69,7 +69,7 @@ kable(df) %>% kable_styling()
 a. Compute the entropy impurity metric for all possible splits.
 b. Write  down the classification rule for the tree that would  be formed for the best split.
     
-### 4. Write decision tree model
+### 3. Write decision tree model
 
 For the following data set, compute the default classification tree. Write out the tree rules, and also sketch the boundary between classes.
 
@@ -95,7 +95,7 @@ c. flea, for species
 data(flea)
 ```
 
-### 5. Which model should perform best
+### 4. Which model should perform best
 
 For the crabs data, make a new variable combining species and gender into one class variable.
 

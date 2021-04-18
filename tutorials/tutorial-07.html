@@ -185,7 +185,7 @@ pre code {
 <div id="preparation" class="section level2">
 <h2>🔧 Preparation</h2>
 <p>Make sure you have these packages installed:</p>
-<pre><code>install.packages(c(&quot;tidyverse&quot;, &quot;tidymodels&quot;, &quot;tourr&quot;, &quot;rpart.plot&quot;))</code></pre>
+<pre><code>install.packages(c(&quot;tidyverse&quot;, &quot;tidymodels&quot;, &quot;tourr&quot;, &quot;rpart.plot&quot;, &quot;discrim&quot;))</code></pre>
 <div id="reading" class="section level3">
 <h3>📖 Reading</h3>
 <ul>
@@ -218,7 +218,7 @@ kable(df) %&gt;% kable_styling()</code></pre>
 </ol>
 </div>
 <div id="write-decision-tree-model" class="section level3">
-<h3>4. Write decision tree model</h3>
+<h3>3. Write decision tree model</h3>
 <p>For the following data set, compute the default classification tree. Write out the tree rules, and also sketch the boundary between classes.</p>
 <ol style="list-style-type: lower-alpha">
 <li>olive oils, for three regions</li>
@@ -238,7 +238,7 @@ kable(df) %&gt;% kable_styling()</code></pre>
 <pre class="r"><code>data(flea)</code></pre>
 </div>
 <div id="which-model-should-perform-best" class="section level3">
-<h3>5. Which model should perform best</h3>
+<h3>4. Which model should perform best</h3>
 <p>For the crabs data, make a new variable combining species and gender into one class variable.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Use the grand and guided tour with the LDA index to examine the data. Describe the shape. Between LDA and a classification tree which do you expect to perform better on this data?</li>
