@@ -235,6 +235,9 @@ layout: true
 .row[.content[
 Alternatively, .monash-orange2[Gini importance] adds up the difference in impurity value of the descendant nodes with the parent node. Quick to compute.
 ]]
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+Read a fun explanation here by [Harriet Mason](https://numbat.space/post/permutation_variable_importance/permutationvariableimportance/)
 ---
 class: fade-row2 fade-row3 fade-row4
 count: false
@@ -339,7 +342,7 @@ olive_ts &lt;- testing(olive_split)
 ```
 ## parsnip model object
 ## 
-## Fit time:  84ms 
+## Fit time:  85ms 
 ## 
 ## Call:
 ##  randomForest(x = maybe_data_frame(x), y = y, importance = ~TRUE,      proximity = ~TRUE) 
@@ -501,7 +504,8 @@ Boosting iteratively fits multiple trees, sequentially putting .monash-orange2[m
     c. Update the residuals `\(r_i = r_i - \lambda\hat{f}^b(x_i)\)` &lt;br&gt;
 3. Output boosted model, `\(\hat{f}(x) = \sum_{b=1}^B\lambda\hat{f}^b(x)\)`
 
-
+&lt;br&gt;&lt;br&gt;
+Read a fun explanation of boosting here by [Harriet Mason](https://numbat.space/post/boosting/).
 ---
 
 # Boosting a regression tree - watch this!
