@@ -65,7 +65,7 @@ Now, $i, k = 1, ..., n$ but because only some observations are used to compute $
 
 With the kernel trick, 
 
-$$\sum_i{\alpha_i} - \sum_i\sum_k\alpha_i\alpha_ky_iy_kK(\mathbf{x}_i^T\mathbf{x}_k)$$
+$$\sum_i{\alpha_i} - \frac12\sum_i\sum_k\alpha_i\alpha_ky_iy_kK(\mathbf{x}_i^T\mathbf{x}_k)$$
 
 Try one kernel function transformation to show that $K(\mathbf{x}_i^T\mathbf{x}_k) = \psi(\mathbf{x}_i)^T\psi(\mathbf{x}_k)$. You can think of $\psi()$ as transformations of the predictors, $\mathbf{x}$.
 
