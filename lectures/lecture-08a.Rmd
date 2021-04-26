@@ -1,6 +1,6 @@
 ---
 title: "ETC3250/5250: Introduction to Machine Learning"
-subtitle: "Neural netorks and deep learning"
+subtitle: "Neural networks and deep learning"
 author: "Professor Di Cook"
 email: "ETC3250.Clayton-x@monash.edu"
 date: "Week 8a"
