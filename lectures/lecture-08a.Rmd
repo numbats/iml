@@ -328,7 +328,7 @@ Our complex relationships are captured using layers and nodes. There are two dif
 
 - Input and output layers, and
 - Hidden layers.
-    - No well-defined approach for selecting the number of hidden layers - this is just one of many hyperparameters we will need to tune! .monash-orange2[2-5 layers works well most of the time for regular tabular data].
+    - No well-defined approach for selecting the number of hidden layers - this is just one of many hyperparameters we will need to tune! 2-5 layers works well most of the time for regular tabular data.
     - The more hidden layers - the longer the model will take to train (as we are adding more parameters!)
 
 
