@@ -36,3 +36,9 @@ ul li li:before {
 }
 
 .pad50px{ padding: 50px; }
+
+.shuriken-full>.blade1 {height: 50%; width:50%; position: absolute; top: 0; left: 0;}
+.shuriken-full>.blade2 {height: 50%; width:50%; position: absolute; top: 0; right: 0;}
+.shuriken-full>.blade3 {height: 50%; width:50%; position: absolute; bottom: 0; right: 0;}
+.shuriken-full>.blade4 {height: 50%; width:50%; position: absolute; bottom: 0; left: 0;}
+.shuriken-full>.hole {height: 0%; width:0%; position: absolute; top: 300px; left: 300px;}

@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-09a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Model assessment&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 9a
+
+&lt;br&gt;
+
+]
+
+
+
+---
+class: middle center
+
+
+```r
+library(statquotes)
+search_quotes(search="Holdane", fuzzy=TRUE)
+```
+
+```
+## In scientific thought we adopt the simplest theory which will explain 
+## all the facts under consideration and enable us to predict new facts of 
+## the same kind. The catch in this criterion lies in the world 
+## ``simplest.'' It is really an aesthetic canon such as we find implicit 
+## in our criticisms of poetry or painting. The layman finds such a law as 
+## $dx/dt = K(d^2x/dy^2)$ much less simple than "it oozes," of which it is 
+## the mathematical statement. The physicist reverses this judgment, and 
+## his statement is certainly the more fruitful of the two, so far as 
+## prediction is concerned. It is, however, a statement about something 
+## very unfamiliar to the plainman, namely, the rate of change of a rate 
+## of change. 
+## --- John Burdon Sanderson Haldane (1892--1964) Possible Worlds, 1927.
+```
+
+---
+
+class: middle center
+
+
+```r
+statquote(source="Box")
+```
+
+```
+## It is the data that are real (they actually happened!) The model is a 
+## hypothetical conjecture that might or might not summarize and/or 
+## explain important features of the data 
+## --- George E. P. Box
+```
+
+
+---
+layout: true
+class: shuriken-full white 
+
+.blade1.bg-green[.content[
+.white.font_large[Know your data] ✈️&lt;br&gt;Quantitative or qualitative response?  Predictors all quantitative? Do you have independent observations? 
+]]
+.blade2.bg-purple[.content[
+.white.font_large[Plot your data] 🖼&lt;br&gt;Is there a relationship between response and predictors?  Is the relationship linear? Are boundaries linear? Is variability heterogeneous? Are groups distinct? Are there unusual observations? 
+]]
+.blade3.bg-deep-orange[.content[
+.white.font_large[Check for missing values] 🔥&lt;br&gt;Do some variables have too many missings to use them? Do some observations have too many missings to use them? What would be a useful imputation method to fix the sporadic missing value? 
+]]
+.blade4.bg-pink[.content[
+.white.font_large[Fit a versatile model] 💻 &lt;br&gt;Compute and plot model diagnostics. Where doesn't the model do well? How can it be refined? 
+]]
+
+---
+
+class: hide-blade2 hide-blade3 hide-blade4 hide-hole
+
+---
+
+class: hide-blade3 hide-blade4 hide-hole
+count: false
+
+---
+
+class: hide-blade4 hide-hole
+count: false
+
+---
+
+class: hide-hole
+count: false
+
+---
+
+count: false 
+
+---
+layout: false
+class: transition middle
+
+# Data quality
+
+---
+
+class: split-30
+
+# Multivariate outliers
+
+.monash-orange2[Mahalanobis distance] measures the distance from the mean, relative to the variance-covariance matrix, and is useful for .monash-orange2[outlier detection]: `\(D^2 = (X-\mu)'\Sigma^{-1}(X-\mu)\)`
+
+&lt;img src="images/lecture-09a/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+Related to "leverage" in regression diagnostics.
+
+
+
+---
+
+# Influential observations
+
+
+.monash-orange2[Cook's distance] measures the change in the model estimates due to the observation: `\(D_i = \frac{e_i^2}{MSE\times p}\frac{h_i}{(1-h_i)^2}\)` where `\(h_i\)` is the leverage of observation `\(i\)`. 
+
+&lt;img src="images/lecture-09a/unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+.font_smaller2[Developed by Dennis Cook, University of Minnesota. ]
+
+---
+
+
+layout: false
+class: transition middle
+
+# Model choice and comparison
+
+
+
+
+---
+
+# Comparing statistical models using ANOVA
+
+- Models are nested when one model is a particular case of the other model
+   - Model 1: `\(\hat{y} = \beta_0 + \beta_1X_1\)`
+   - Model 2: `\(\hat{y} = \beta_0 + \beta_1X_1 + \beta_2X_2\)`
+   - Model 3: `\(\hat{y} = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3X_1X_2\)`
+- Nested models can be compared using ANOVA F test
+
+`$$F = \frac{(SSE_{reduced}-SSE_{full})/(p-k)}{SSE_{full}/(n-p-1)} \tilde \cal{F}_{p-k,n-p-1}$$`
+&lt;br&gt;&lt;br&gt;
+.font_smaller2[Material adapted from [YaRrr! The Pirate’s Guide to R by Nathaniel D. Phillips](https://bookdown.org/ndphillips/YaRrr/comparing-regression-models-with-anova.html) and [Professor Cécile Ané Stat 572 slides](http://pages.stat.wisc.edu/~ane/st572/notes/lec05.pdf).]
+
+---
+# Example
+
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: read ~ 1
+## Model 2: read ~ country + year0 + television + math
+## Model 3: read ~ country * year0 + country * television + country * math
+## Model 4: read ~ country * year0 * television + country * math
+## Model 5: read ~ country * year0 * television * math
+##   Res.Df       RSS Df Sum of Sq          F    Pr(&gt;F)    
+## 1  44837 510140630                                      
+## 2  44830 143570284  7 366570346 16754.0671 &lt; 2.2e-16 ***
+## 3  44818 140516614 12   3053670    81.4145 &lt; 2.2e-16 ***
+## 4  44813 140394227  5    122387     7.8312 2.226e-07 ***
+## 5  44798 140022447 15    371780     7.9297 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+---
+# Remember the confusion table
+
+&lt;center&gt;
+&lt;table&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td colspan="2" align="center" &gt; true &lt;/td&gt; &lt;/tr&gt;
+&lt;tr&gt;  &lt;td&gt; &lt;/td&gt;&lt;td&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C1 (positive) &lt;/td&gt; &lt;td align="center" bgcolor="#daf2e9" width="80px"&gt; C2 (negative) &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt; pred- &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C1 &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;a&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;b&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;tr height="50px"&gt;  &lt;td&gt;icted &lt;/td&gt;&lt;td bgcolor="#daf2e9"&gt; C2&lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;c&lt;/em&gt; &lt;/td&gt; &lt;td align="center" bgcolor="#D3D3D3"&gt; &lt;em&gt;d&lt;/em&gt; &lt;/td&gt; &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/center&gt;
+
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+- False positive: *c/(a+c)* 
+- False negative: *b/(b+d)* (1-specificity)
+
+&lt;center&gt;
+.info-box[From a quantitative prediction, a cutoff needs to be used to create a categorical prediction.]
+&lt;/center&gt;
+
+---
+class: split-50
+
+.column[
+
+```r
+library(tidyverse)
+library(yardstick)
+options(digits=2)
+*glimpse(two_class_example)
+```
+
+```
+## Rows: 500
+## Columns: 4
+## $ truth     &lt;fct&gt; Class2, Class1, Class2, Class1, Class2, Class1, Class1, Clas…
+## $ Class1    &lt;dbl&gt; 0.00359, 0.67862, 0.11089, 0.73516, 0.01624, 0.99928, 0.9992…
+## $ Class2    &lt;dbl&gt; 1.0e+00, 3.2e-01, 8.9e-01, 2.6e-01, 9.8e-01, 7.2e-04, 8.0e-0…
+## $ predicted &lt;fct&gt; Class2, Class1, Class2, Class1, Class2, Class1, Class1, Clas…
+```
+
+Set threshold to 0.5
+
+
+```
+##           Truth
+## Prediction Class1 Class2
+##     Class1    227     31
+##     Class2     50    192
+```
+
+sensitivity = 0.82, 1-specificity = 0.14
+]
+
+.column[
+&lt;img src="images/lecture-09a/unnamed-chunk-9-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+Your turn: Set the threshold to be 0.75, re-compute the confusion matrix, and sensitivity, specificity.
+]
+
+---
+
+class: split-50
+layout: false
+
+.column[.pad10px[
+# ROC
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.8.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-09a/4.8.png" style="width: 90%; align: center"/&gt; &lt;/a&gt;
+
+.font-smaller2[Credit example in textbook figure 4.8]
+]]
+.column[.top50px[
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+The .monash-orange2[true positive rate] is the .monash-orange2[sensitivity]: the fraction of defaulters that are correctly identified, using a given threshold value. 
+
+The .monash-blue2[false positive rate] is .monash-blue2[1-specificity]: the fraction of non-defaulters that we classify incorrectly as defaulters, using that same threshold value.
+
+**The dotted line is "no information" classifier; class and predictor are not associated.**
+
+The .monash-orange2[ideal ROC curve hugs the top left corner], indicating a high true positive rate and a low false positive rate.
+
+]]
+
+
+
+---
+class: split-50
+layout: false
+
+.column[.pad10px[
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.8.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-09a/4.8.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+]]
+.column[.pad10px[
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+If the classifier returns a prediction between 0 and 1, interpret as the probability of a positive, then threshold (split the data) at different values, e.g. 0.1, 0.2, 0.3, 0.4, 0.5, ... 
+
+Compute the confusion table for each split, record the sensitivity and specificity and plot the resulting numbers. 
+
+]]
+
+---
+
+Really nice explanation by Parul Pandey [here](https://towardsdatascience.com/understanding-the-roc-and-auc-curves-a05b68550b69) and video by Josh Starmer [here](https://www.youtube.com/watch?v=xugjARegisk). 
+
+&lt;center&gt;
+&lt;img src="images/lecture-09a/ROC.png" width="50%"&gt;
+&lt;/center&gt;
+
+---
+
+# ROC for classification
+
+&lt;center&gt;
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter9/9.10.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-09a/9.10.png" style="width: 70%"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+- LDA and SVM similar (example on left).       
+- SVM radial basis with `\(\gamma=10^{-1}\)` is the best (example on the right).
+
+.font_smaller2[Fig 9.10]
+
+
+
+---
+class: transition middle
+
+# Quantifying uncertainty
+
+---
+
+# Utilising bagging
+
+Remember the vote matrix available from random forests:
+
+`$$V = (V_1  V_2 ... V_K) \\
+  = \left[ \begin{eqnarray*}
+                          p_{11} &amp; p_{12} &amp; ... &amp; p_{1K}\\
+                          p_{21} &amp; p_{22} &amp; ... &amp; p_{2K}\\
+                          ...   &amp;  ...    &amp;     &amp; ...\\
+                          p_{n1} &amp; p_{n2} &amp; ... &amp; p_{nK}
+                          \end{eqnarray*} \right]$$`
+
+With bagging, multiple out of bag predictions produces uncertainty measure for each observation. It's possible that observations with .monash-orange2[higher uncertainty are outliers].
+
+---
+
+# Variable importance
+
+&lt;br&gt;
+
+- Working with .monash-orange2[standardised variables] helps, because magnitude of coefficients is then directly interpreted as importance
+- .monash-orange2[Permutation] approach in random forests is useful more broadly. Compare magnitude of coefficients between models built on original and permuted variable.
+- .monash-orange2[Effect of one predictor with the response] can depend on their relationship with one another. Called multicollinearity in regression. 
+
+---
+class: transition middle
+
+# Beyond the optimal
+
+---
+layout: false
+# Bigger picture
+
+.monash-orange2[All possible model fits] to housing data with 7 variables, from [Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)
+
+&lt;img src="images/lecture-09a/houses1.png" style="width:70%" /&gt;
+---
+class: split-70
+layout: false
+
+.column[.pad10px[
+&lt;img src="images/lecture-09a/houses2.png" style="width:100%" /&gt;
+]]
+.column[.pad10px[
+.font_small[Three typical estimates for bedrooms: big positive, close to 0, big negative.] 
+
+.font_small[Models with big .monash-orange2[positive coefficients] for bedrooms tend to have .monash-orange2[weaker fits]. They tend to occur with models that have no livingArea contribution, and more negative coefficients for zoneRM, and no air con.]
+
+.font_small[Models with big .monash-orange2[negative coefficients] on bedrooms tend to have .monash-orange2[stronger fits]. All contrast with livingArea (high positive coefficients).]
+
+.font_small[If bedrooms contribute to the model, bathrooms do not.]
+
+]]
+
+---
+
+# Model choice - robustness of conclusions
+
+Whatever way you model the data, the .monash-orange2[interpretations should be consistent]. 
+
+- Bias can explain difference in predictions between models, flexible vs inflexible can provide a spectrum on what the data predicts.
+- Broad changes in a model when some cases or some variables are not used, should evoke suspicions (your "spidey sense"). 
+- Model fit statistics are a measure of predictive power. A weak model can still be useful if there is a large cost involved.  
+
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 9a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
