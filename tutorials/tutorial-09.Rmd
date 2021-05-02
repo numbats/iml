@@ -1,0 +1,92 @@
+---
+title: "ETC3250/5250 Tutorial 9 Instructions"
+subtitle: "Neural networks"
+author: "prepared by Professor Di Cook"
+date: "Week 9"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  eval = FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- Learn about fitting a neural network model 
+- Break down the black box of a single hidden layer model
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "nnet"))
+```
+
+### `r emo::ji("book")` Reading 
+
+In this problem we will replicate what was done in Section 6, of https://vita.had.co.nz/papers/model-vis.pdf. Please read this first! It documents a struggle with getting the neural network to fit to a reasonably simple problem. 
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+## `r emo::ji("gear")` Exercises 
+
+This exercise is investigating neural network model fitting. A neural network model was fitted to the `wiggle.csv` using the `nnet` package in R, from many random starts, and using 2-4 nodes in the hidden layer. The best model is in the data object `nnet_best.rda`, and the full set of model fits are stored in `nnet_many.rda`. We are going investigate the best fit, and the complete set of fits. The data set is actually a test set, it was not used to fit the model, but it was simulated from the same process as the training set, which we don't have.
+
+### 1. 
+
+Read in the data, and make an appropriate plot, that communicates the relationship between the two variables and the two groups.
+
+### 2. 
+
+Read in the best model. Take a look at the object. There are three components: `hidden`, `output` and `nnet`. The best model uses $s=4$. The `nnet` component has the estimated model coefficients, fitted values and residuals. The `hidden` component has information related to the models used in the 4 nodes of the hidden layer, and the `output` has the same information for the second layer. These latter two contain a grid of values for the predictors, $x$, $y$ and the predicted values for each grid point. 
+
+#### a. 
+Plot the grid of predicted values for the second layer, using node 1. Overlay the data. How well has the model captured the class structure?
+
+#### b. 
+Plot the grid of predicted values for each node in the hidden layer, with the data overlaid. Explain how the models at each node would combine to make the final model predictions, which we have already seen are extremely good.
+
+#### c. 
+How many parameters are there in this model? Check that your answer matches the number of values in the `wgts` element of the `nnet` component.
+
+#### d. 
+Write down the equation corresponding to the model at first node of the hidden layer. You need to look at the `wgts` element of the `nnet` component. There are 6 sets of linear model coefficients. 
+
+#### e. 
+ADVANCED: See if you can compute the combination of the prediction on each hidden node, to get final prediction.
+
+### 3. 
+Read in the complete set of models fitted. There were 600 models fitted, 200 random starts for each $s = 2, 3, 4$. The `nnet` function has its own measure of the goodness of fit, which is used to determine when to stop minimising RSS, which is called `value` in this data. (You can think of this like it is training error.) Plot the predictive accuracy against function's returned value of model fit. Explain how the change in $s$ affects the predictive accuracy. 
+
+### 4.
+
+Your turn, use the `nnet` function to fit the wiggly data yourself. Split the wiggly data into training and test sets.
+
+Set a seed, and choose $s=4$. Record the RSS (`value`), and the accuracy for the test set.
+
+Where does your fit lie in terms of all the models Hadley fitted to the data? 
+
+Run it again (without re-setting the seed). Is it a different model?
+
+##### © Copyright 2021 Monash University
