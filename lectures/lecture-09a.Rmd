@@ -268,8 +268,8 @@ anova(lm_fit1$fit, lm_fit2$fit, lm_fit3$fit, lm_fit4$fit, lm_fit5$fit)
 
 - Sensitivity: *a/(a+c)*  (true positive, recall)
 - Specificity: *d/(b+d)* (true negative)
-- False positive: *c/(a+c)* 
-- False negative: *b/(b+d)* (1-specificity)
+- False negative: *c/(a+c)* 
+- False positive: *b/(b+d)* (1-specificity)
 
 <center>
 .info-box[From a quantitative prediction, a cutoff needs to be used to create a categorical prediction.]
