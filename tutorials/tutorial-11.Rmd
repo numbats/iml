@@ -1,0 +1,130 @@
+---
+title: "ETC3250/5250 Tutorial 11 Instructions"
+subtitle: "Cluster analysis"
+author: "prepared by Professor Di Cook"
+date: "Week 11"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives of this tutorial are to
+
+- learn about computing different distance metrics
+- learn how to conduct cluster analysis, and examine differences based on algorithm choices
+- make data-driven decisions on a useful final number of clusters
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse","tourr","ggdendro","fpc","lubridate"))
+```
+
+Reading textbook chapter 10.2-3
+
+### 1. Conduct cluster analysis on simple data
+
+Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
+
+a. Standardise the variables and compute a hierarchical clustering using (i) Wards, (ii) single linkage. Make a plot of the dendrogram of each, and comment on how many clusters might be suggested by each.
+
+b. Choose two cut the dendrograms at the 3 cluster solutions for each, creating new columns corresponding to the cluster label. Using a grand tour, examine the cluster solutions. Comment on which one best captures the cluster structure.
+
+c. Suppose the variables were not standardised. Would this have changed the cluster analysis? How? (Hint: compute the summary statistics for the variables.)
+
+<!-- 6D flea -->
+```{r}
+library(tidyverse)
+library(tourr)
+library(ggdendro)
+library(fpc)
+library(lubridate)
+data(flea)
+```
+
+
+### 2. Cluster statistics graduate programs 
+
+Remember the National Research Council ranking of Statistics graduate programs data. This data contained measurements recorded on departments including total faculty, average number of PhD students, average number of publications, median time to graduate, and whether a workspace is provided to students. These variables can be used to group departments based on similarity on these characteristics.
+
+a. Read the data, handle missing values, select the variables that can be used, and standardise these variables. b. Use Euclidean distance and Wards linkage to conduct a cluster analysis. Draw the dendrogram. How many clusters does it suggest?
+c. For 2 through 10 clusters compute the cluster statistics, "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2". What would be the conclusion on the number of clusters based on these metrics?
+
+```{r}
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+nrc_vars <- nrc %>%
+  dplyr::select(Institution.Name,
+                Average.Publications:Student.Activities) %>%
+  dplyr::select(-Academic.Plans.Pct) %>%
+  replace_na(list(Tenured.Faculty.Pct = 0, 
+                  Instruction.in.Writing = 0,
+                  Instruction.in.Statistics = 0,
+                  Training.Academic.Integrity = 0,
+                  Acad.Grievance.Proc = 0,
+                  Dispute.Resolution.Proc = 0))
+```
+
+### 3. Cluster currencies using correlation distance
+
+Here we will use cluster analysis on cross-rates date (previously examined with principal component analysis) to explore similar trending patterns. To examine trend a distance based on correlation will be used. Correlation between currencies is calculated and converted into a distance metric. 
+
+a. Read the data. Remove currencies whose cross-rate has not changed over the time period. 
+b. Standardise the rates for each currency, so all are on a scale of mean 0, sd 1. Why do you think this is necessary?
+c. Compute the correlation distance between each pair of currencies:
+$$d_{ij} = 1-r_{c_ic_j}$$ 
+What is the range of this distance metric? What pattern would correspond to the most similar currencies, and what would correspond to most different?
+
+d. Use hierarchical clustering using Wards linkage. Make a dendrogram. How many clusters does it suggest?
+e. Compute the cluster statistics. How many clusters would be suggested?
+f. Make a choice of final number of clusters, and plot the currencies over time, grouped by cluster. Comment on currencies that have similar patterns, in at least one cluster.
+
+```{r}
+# Read the data
+rates <- read_csv(here::here("data/rates_Nov19_Mar20.csv"))
+rates_sd <- rates %>% 
+  pivot_longer(AED:ZWL, names_to = "currency", values_to = "rate") %>%
+  group_by(currency) %>%
+  summarise(s = sd(rate, na.rm=TRUE))
+keep <- rates_sd %>%
+  filter(s > 0)
+```
+
+
+##### © Copyright 2021 Monash University

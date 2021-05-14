@@ -1,0 +1,258 @@
+---
+title: "ETC3250/5250 Tutorial 11 Solution"
+subtitle: "Cluster analysis"
+author: "prepared by Professor Di Cook"
+date: "Week 11"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+
+### 1. Conduct cluster analysis on simple data
+
+Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
+
+a. Standardise the variables and compute a hierarchical clustering using (i) Wards, (ii) single linkage. Make a plot of the dendrogram of each, and comment on how many clusters might be suggested by each.
+
+<!-- 6D flea -->
+```{r}
+library(tidyverse)
+library(tourr)
+library(ggdendro)
+library(fpc)
+library(lubridate)
+data(flea)
+
+std <- function(x) (x-mean(x, na.rm=TRUE))/sd(x, na.rm=TRUE)
+flea_std <- flea %>%
+  mutate_if(is.numeric, std)
+
+flea_hc_w <- hclust(dist(flea_std[,1:6]), method = "ward.D2")
+flea_hc_s <- hclust(dist(flea_std[,1:6]), method = "single")
+
+ggdendrogram(flea_hc_w, rotate = TRUE, size = 4)
+ggdendrogram(flea_hc_s, rotate = TRUE, size = 4)
+```
+
+**Wards linkage suggests three clusters. Single linkage would suggest more than this. It has something of a waterfall pattern, which is common when single linkage is used. This suggests that the data has a number of outliers, that is affecting the clustering of the majority of cases.**
+
+b. Choose two cut the dendrograms at the 3 cluster solutions for each, creating new columns corresponding to the cluster label. Using a grand tour, examine the cluster solutions. Comment on which one best captures the cluster structure.
+
+```{r eval=FALSE}
+flea_std <- flea_std %>%
+  mutate(cl_w = cutree(flea_hc_w, 3),
+         cl_s = cutree(flea_hc_s, 3))
+
+animate_xy(flea_std[,1:6], col=flea_std$cl_w)
+animate_xy(flea_std[,1:6], col=flea_std$cl_s)
+```
+
+**The results from Wards linkage captures the three clusters that we see when we look at this 6D data in a tour. Its quite satisfying to see that it has discovered these clusters, based on interpoint distances.**
+
+**The three cluster solution from single linkage has left all observations except two in one cluster. The two single points put in separate clusters could be considered to be outlying, in some directions in the 6D space. From the tour, you can see several more observations that might be considered to be outliers. If the single linkage dendrogram is cut further down, at 5 or 6 cluster solutions, these observations may also be placed in separate clusters, thus identifying them as outliers also.**
+
+c. Suppose the variables were not standardised. Would this have changed the cluster analysis? How? (Hint: compute the summary statistics for the variables.)
+
+```{r}
+summary(flea[,1:6])
+```
+
+**The results would change a lot! The variables have very different scales, eg tars1 ranges from 122-242 but aede2 only 8-16. This will affect the distances between points, and magnitude of distances will primarily be due to the variables with larger scale.**
+
+### 2. Cluster statistics graduate programs 
+
+Remember the National Research Council ranking of Statistics graduate programs data. This data contained measurements recorded on departments including total faculty, average number of PhD students, average number of publications, median time to graduate, and whether a workspace is provided to students. These variables can be used to group departments based on similarity on these characteristics.
+
+a. Read the data, handle missing values, select the variables that can be used, and standardise these variables.
+
+```{r}
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+nrc_vars <- nrc %>%
+  dplyr::select(Institution.Name,
+                Average.Publications:Student.Activities) %>%
+  dplyr::select(-Academic.Plans.Pct) %>%
+  replace_na(list(Tenured.Faculty.Pct = 0, 
+                  Instruction.in.Writing = 0,
+                  Instruction.in.Statistics = 0,
+                  Training.Academic.Integrity = 0,
+                  Acad.Grievance.Proc = 0,
+                  Dispute.Resolution.Proc = 0))
+
+# summary(nrc_vars)
+# Iteratively examine summary statistics to assess missings
+# Academic.Plans.Pct has too many missings to use
+# Other variables have 1-2 missings for different institutions, 
+# can't just ignore them. Fill with 0 puts outside domain of
+# observed data, on the end of "not done/available this program"
+```
+
+**The missing values were handled as follows. One variable (`Academic.Plans.Pct`) was dropped because it was missing for 19 departments. A handful of other variables were missing on one or two departments, BUT these were different departments for different variables. Removing them would have meant too many departments being dropped. We opted to input, and used a value of 0 which is just outside the range for each of these variables, and on the end of the range which meant that the department did not have these services.**
+
+b. Use Euclidean distance and Wards linkage to conduct a cluster analysis. Draw the dendrogram. How many clusters does it suggest?
+
+```{r}
+nrc_vars <- nrc_vars %>%
+  mutate_if(is.numeric, std)
+
+nrc_hc_w <- hclust(dist(nrc_vars[,-1]), method = "ward.D2")
+nrc_hc_w$labels <- nrc_vars$Institution.Name
+ggdendrogram(nrc_hc_w, rotate=TRUE, size=2)
+```
+
+**The dendrogram suggests anything from 2 through possibly 20 clusters. Its not conclusive, which is quite common for any cluster analysis.**
+
+c. For 2 through 10 clusters compute the cluster statistics, "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2". What would be the conclusion on the number of clusters based on these metrics?
+
+```{r}
+nrc_hc_cl <- NULL; nrc_hc_cl_stats <- NULL
+for (i in 2:10) {
+  cl <- cutree(nrc_hc_w, i)
+  x <- cluster.stats(dist(dist(nrc_vars[,-1])), cl)
+  nrc_hc_cl <- cbind(nrc_hc_cl, cl)
+  nrc_hc_cl_stats <- rbind(nrc_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(nrc_hc_cl_stats) <- c("cl", "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+nrc_hc_cl_stats <- as_tibble(nrc_hc_cl_stats)
+nrc_hc_cl_stats_long <- nrc_hc_cl_stats %>% 
+  pivot_longer(-cl, names_to ="stat", values_to = "value")
+ggplot(data=nrc_hc_cl_stats_long) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + 
+  theme_bw()
+```
+
+**Interestingly, all of the cluster statistics suggest 6 clusters. Its not definitive, but each of the metrics has a hint that 6 is reasonable. ("ch", "pearsongamma", "dunn", "dunn2" all have a peak, and "within.cluster.ss","wb.ratio" flatten.)**
+
+**In general, this is just a guide, and 6 cluster might not be a useful solution. There are many variables used in the distance calculation. It would be good practice to choose a smaller set of variables, or primary interest, and examine the cluster solution. Then increase the number of variables and re-cluster and compare solutions.**
+
+### 3. Cluster currencies using correlation distance
+
+Here we will use cluster analysis on cross-rates date (previously examined with principal component analysis) to explore similar trending patterns. To examine trend a distance based on correlation will be used. Correlation between currencies is calculated and converted into a distance metric. 
+
+a. Read the data. Remove currencies whose cross-rate has not changed over the time period. 
+
+```{r}
+# Read the data
+rates <- read_csv(here::here("data/rates_Nov19_Mar20.csv"))
+rates_sd <- rates %>% 
+  pivot_longer(AED:ZWL, names_to = "currency", values_to = "rate") %>%
+  group_by(currency) %>%
+  summarise(s = sd(rate, na.rm=TRUE))
+keep <- rates_sd %>%
+  filter(s > 0)
+
+rates_sub <- rates %>%
+    mutate_if(is.numeric, std) %>%
+    pivot_longer(AED:ZWL, names_to = "currency", 
+                 values_to = "rate") %>%
+    dplyr::filter(currency %in% keep$currency) %>%
+    pivot_wider(names_from = "date", values_from = "rate") 
+```
+
+b. Standardise the rates for each currency, so all are on a scale of mean 0, sd 1. Why do you think this is necessary?
+
+**It's actually not necessary for the distance calculation here, because correlation distance will automatically standardise observations. It's used purely to plot the currencies on the same scale at the end of the analysis to examine clusters.**
+
+c. Compute the correlation distance between each pair of currencies:
+
+$$d_{ij} = 1-r_{c_ic_j}$$
+What is the range of this distance metric? What pattern would correspond to the most similar currencies, and what would correspond to most different?
+
+**The distances will range from 0 through to 2. A value of 0 corresponds to the most similar currencies and 2 is most different. Note that 2 would mean that the currencies are perfectly negatively correlated.**
+
+d. Use hierarchical clustering using Wards linkage. Make a dendrogram. How many clusters does it suggest?
+
+```{r}
+# Compute correlation distance
+rates_cor <- cor(t(rates_sub[,-1]), 
+                 use = "pairwise.complete.obs", 
+                 method = "pearson")
+rates_cor_dist <- as.dist(1-rates_cor)
+
+rates_hc_w <- hclust(rates_cor_dist, method = "ward.D2")
+rates_hc_w$labels <- rates_sub$currency
+
+ggdendrogram(rates_hc_w, rotate=TRUE, size=2)
+```
+
+**Anything from 2 through possibly 12 clusters. Two is strongly suggested but it wouldn't be a very useful clusters, because these would be two big heterogeneous groups.**
+
+e. Compute the cluster statistics. How many clusters would be suggested?
+
+```{r}
+rates_hc_cl <- NULL; rates_hc_cl_stats <- NULL
+for (i in 2:20) {
+  cl <- cutree(rates_hc_w, i)
+  x <- cluster.stats(rates_cor_dist, cl)
+  rates_hc_cl <- cbind(rates_hc_cl, cl)
+  rates_hc_cl_stats <- rbind(rates_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(rates_hc_cl_stats) <- c("cl", "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+rates_hc_cl_stats <- as_tibble(rates_hc_cl_stats)
+rates_hc_cl_stats_long <- rates_hc_cl_stats %>% 
+  pivot_longer(-cl, names_to ="stat", values_to = "value")
+ggplot(data=rates_hc_cl_stats_long) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + 
+  theme_bw()
+```
+
+**The cluster statistics pretty much all say two clusters. However, it wouldn't be a very useful clusters, because these would be two big heterogeneous groups.**
+
+f. Make a choice of final number of clusters, and plot the currencies over time, grouped by cluster. Comment on currencies that have similar patterns, in at least one cluster.
+
+```{r fig.height = 10, fig.width = 8, out.width="100%"}
+rates_sub_long <- rates_sub %>%
+  mutate(cl = rates_hc_cl[,6]) %>%
+  pivot_longer(`2019-11-01`:`2020-03-31`, 
+               names_to = "date", 
+               values_to = "rate") %>%
+  mutate(date = ymd(date))
+
+p <- ggplot(rates_sub_long, aes(x=date, y=rate, group = currency)) +
+  geom_line() + facet_wrap(~cl, ncol=1, scales="free")
+
+library(plotly)
+ggplotly(p)
+```
+
+**We think about 7 clusters makes a reasonable break on the dendrogram. This reveals some nicely similar groups of currencies. Particularly, cluster 3 shows a group of currencies that all decline relative to the USD as the pandemic broke, and then recovered towards the end of March. Cluster 1 contains currencies who basically stayed flat during the period, except for an occasional spurious jump. Cluster 4 contains currencies that were quite flat but increasing relative to the USD in the last part of the time period.**
+
+**The clustering has returned some convenient grouping of currencies based on the trends over the time period.**
+
+
+##### © Copyright 2021 Monash University
