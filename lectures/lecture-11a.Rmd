@@ -552,10 +552,10 @@ save_html(pg, file="cluster_average.html")
 ```
 
 .pull-left[
-  <iframe src="https://iml.numbat.space/lectures/lecture-11a/cluster_ward.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"> </iframe>
+  <iframe src="https://iml.numbat.space/lectures/cluster_ward.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"> </iframe>
 ]
 .pull-right[
-  <iframe src="https://iml.numbat.space/lectures/lecture-11a/cluster_average.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"> </iframe>
+  <iframe src="https://iml.numbat.space/lectures/cluster_average.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"> </iframe>
 ]
 
 ---
