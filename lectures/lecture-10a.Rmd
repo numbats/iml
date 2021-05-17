@@ -673,7 +673,7 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 \begin{align*}
 d_{EUC}(A, B) &= \sqrt{\sum_{j=1}^p (x_{aj}-x_{bj})^2} &\\
-&= ((X_A-X_B)^T (X_A-X_B))&
+&= \sqrt{((X_A-X_B)^T (X_A-X_B))}&
 \end{align*}
 
 
