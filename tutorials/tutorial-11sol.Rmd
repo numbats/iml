@@ -141,7 +141,7 @@ c. For 2 through 10 clusters compute the cluster statistics, "within.cluster.ss"
 nrc_hc_cl <- NULL; nrc_hc_cl_stats <- NULL
 for (i in 2:10) {
   cl <- cutree(nrc_hc_w, i)
-  x <- cluster.stats(dist(dist(nrc_vars[,-1])), cl)
+  x <- cluster.stats(dist(nrc_vars[,-1]), cl)
   nrc_hc_cl <- cbind(nrc_hc_cl, cl)
   nrc_hc_cl_stats <- rbind(nrc_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
 }
@@ -155,7 +155,7 @@ ggplot(data=nrc_hc_cl_stats_long) +
   theme_bw()
 ```
 
-**Interestingly, all of the cluster statistics suggest 6 clusters. Its not definitive, but each of the metrics has a hint that 6 is reasonable. ("ch", "pearsongamma", "dunn", "dunn2" all have a peak, and "within.cluster.ss","wb.ratio" flatten.)**
+**Its not definitive. Some of the metrics has a hint that 6 is reasonable. ("pearsongamma","wb.ratio" flatten.)**
 
 **In general, this is just a guide, and 6 cluster might not be a useful solution. There are many variables used in the distance calculation. It would be good practice to choose a smaller set of variables, or primary interest, and examine the cluster solution. Then increase the number of variables and re-cluster and compare solutions.**
 
