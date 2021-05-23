@@ -1,0 +1,93 @@
+---
+title: "ETC3250/5250 Tutorial 12 Instructions"
+subtitle: "Cluster summaries"
+author: "prepared by Professor Di Cook"
+date: "Week 12"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+## `r emo::ji("target")` Objective
+
+The objectives of this tutorial are to
+
+- summarise cluster analysis results
+- compare and contrast results from different clustering
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse","tourr","ggdendro","fpc"))
+```
+
+Refer to the results from tutorial 11. This tutorial builds on that work.
+
+### 1. Conduct cluster analysis on simple data
+
+Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
+
+a. Produce the clustering into three groups from (i) Wards, (ii) average linkage, and make a confusion table to compare the two results.
+
+b. Map the cluster labels from the two results, and calculate the agreement. 
+
+
+<!-- 6D flea -->
+```{r}
+library(tidyverse)
+library(tourr)
+library(ggdendro)
+library(fpc)
+library(lubridate)
+data(flea)
+```
+
+
+### 2. Cluster statistics graduate programs 
+
+Remember the National Research Council ranking of Statistics graduate programs data. This data contained measurements recorded on departments including total faculty, average number of PhD students, average number of publications, median time to graduate, and whether a workspace is provided to students. These variables can be used to group departments based on similarity on these characteristics.
+
+a. Read the data, handle missing values, select the variables that can be used, and standardise these variables. Use Euclidean distance and Wards linkage to conduct a cluster analysis, on the full set of variables, and on a reduced set of Average.Publications, Average.Citations, Faculty.with.Grants.Pct, Awards.per.Faculty, Median.Time.to.Degree, Ave.GRE.Scores. Make a confusion matrix to compare the six cluster results from the full set, and the five cluster result from the reduced set (Hubert and wb.ratio suggest 5 clusters). 
+
+b. Map the cluster labels from the two results, and calculate the agreement. 
+
+c. Draw a scatterplot matrix (or a parallel coordinate plot) of the results from the smaller subset of variables. Describe how the clusters differ from each other.
+
+d. Compute the means of the clusters. Describe how the clusters differ from each other, based on these values.
+
+```{r}
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+nrc_vars <- nrc %>%
+  dplyr::select(Institution.Name,
+                Average.Publications:Student.Activities) %>%
+  dplyr::select(-Academic.Plans.Pct) %>%
+  replace_na(list(Tenured.Faculty.Pct = 0, 
+                  Instruction.in.Writing = 0,
+                  Instruction.in.Statistics = 0,
+                  Training.Academic.Integrity = 0,
+                  Acad.Grievance.Proc = 0,
+                  Dispute.Resolution.Proc = 0))
+```
+
+
+##### © Copyright 2021 Monash University

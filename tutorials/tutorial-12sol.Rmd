@@ -1,0 +1,186 @@
+---
+title: "ETC3250/5250 Tutorial 12 Solution"
+subtitle: "Cluster analysis"
+author: "prepared by Professor Di Cook"
+date: "Week 12"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+### 1. Conduct cluster analysis on simple data
+
+Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
+
+a. Produce the clustering into three groups from (i) Wards, (ii) average linkage, and make a confusion table to compare the two results.
+
+<!-- 6D flea -->
+```{r}
+library(tidyverse)
+library(tourr)
+library(ggdendro)
+library(fpc)
+library(GGally)
+library(kableExtra)
+data(flea)
+
+std <- function(x) (x-mean(x, na.rm=TRUE))/sd(x, na.rm=TRUE)
+flea_std <- flea %>%
+  mutate_if(is.numeric, std)
+
+flea_hc_w <- hclust(dist(flea_std[,2:7]), method = "ward.D2")
+flea_km <- kmeans(flea_std[,2:7], 3)
+
+flea_std <- flea_std %>%
+  mutate(cl_w = cutree(flea_hc_w, 3),
+         cl_km = flea_km$cluster)
+
+flea_std %>% count(cl_w, cl_km) %>%
+  pivot_wider(names_from = cl_w, 
+              values_from = n, 
+              values_fill = 0)
+```
+
+b. Map the cluster labels from the two results, and calculate the agreement. 
+
+**Wards 1 = km 2, Wards 2 = km 3, Wards 3 = km 1. Agreement is (29+19+22)/74 = 0.94, which is very high.**
+
+### 2. Cluster statistics graduate programs 
+
+Remember the National Research Council ranking of Statistics graduate programs data. This data contained measurements recorded on departments including total faculty, average number of PhD students, average number of publications, median time to graduate, and whether a workspace is provided to students. These variables can be used to group departments based on similarity on these characteristics.
+
+a. Read the data, handle missing values, select the variables that can be used, and standardise these variables. Use Euclidean distance and Wards linkage to conduct a cluster analysis, on the full set of variables, and on a reduced set of Average.Publications, Average.Citations, Faculty.with.Grants.Pct, Awards.per.Faculty, Median.Time.to.Degree, Ave.GRE.Scores. Make a confusion matrix to compare the six cluster results from the full set, and the five cluster result from the reduced set (Hubert and wb.ratio suggest 5 clusters). 
+
+```{r}
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+nrc_vars <- nrc %>%
+  dplyr::select(Institution.Name,
+                Average.Publications:Student.Activities) %>%
+  dplyr::select(-Academic.Plans.Pct) %>%
+  replace_na(list(Tenured.Faculty.Pct = 0, 
+                  Instruction.in.Writing = 0,
+                  Instruction.in.Statistics = 0,
+                  Training.Academic.Integrity = 0,
+                  Acad.Grievance.Proc = 0,
+                  Dispute.Resolution.Proc = 0))
+
+nrc_vars_std <- nrc_vars %>%
+  mutate_if(is.numeric, std)
+
+nrc_hc_w1 <- hclust(dist(nrc_vars_std[,-1]), method = "ward.D2")
+nrc_hc_w2 <- hclust(dist(nrc_vars_std[,c(2,3,4,5,8,17)]), method = "ward.D2")
+nrc_hc_w1$labels <- nrc_vars$Institution.Name
+nrc_hc_w2$labels <- nrc_vars$Institution.Name
+
+nrc_vars <- nrc_vars %>%
+  mutate(cl_w1 = cutree(nrc_hc_w1, 6),
+         cl_w2 = cutree(nrc_hc_w2, 5))
+
+nrc_vars %>% count(cl_w1, cl_w2) %>%
+  pivot_wider(names_from = cl_w1, 
+              values_from = n, 
+              values_fill = 0)
+```
+
+```{r eval=FALSE, echo=FALSE}
+# This code is for checking that clustering on the reduced 
+# set of variables
+ggdendrogram(nrc_hc_w2, rotate=TRUE, size=2)
+
+nrc_hc_cl <- NULL; nrc_hc_cl_stats <- NULL
+for (i in 2:10) {
+  cl <- cutree(nrc_hc_w2, i)
+  x <- cluster.stats(dist(nrc_vars_std[,c(2,3,4,5,8,17)]), cl)
+  nrc_hc_cl <- cbind(nrc_hc_cl, cl)
+  nrc_hc_cl_stats <- rbind(nrc_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(nrc_hc_cl_stats) <- c("cl", "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+nrc_hc_cl_stats <- as_tibble(nrc_hc_cl_stats)
+nrc_hc_cl_stats_long <- nrc_hc_cl_stats %>% 
+  pivot_longer(-cl, names_to ="stat", values_to = "value")
+ggplot(data=nrc_hc_cl_stats_long) + 
+  geom_line(aes(x=cl, y=value)) + 
+  xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + 
+  theme_bw()
+```
+
+b. Map the cluster labels from the two results, and calculate the agreement. 
+
+**w2 cluster 2 most matches w1 cluster 3, w2 cluster 3 most matches w1 cluster 1 BUT beyond this it's not possible to map the two solutions. The two solutions REALLY don't agree.**
+
+c. Draw a scatterplot matrix (or a parallel coordinate plot) of the results from the smaller subset of variables. Describe how the clusters differ from each other.
+
+```{r fig.height=6, fig.width=6, out.width="80%"}
+nrc_vars <- nrc_vars %>% mutate(cl_w2 = factor(cl_w2))
+ggscatmat(nrc_vars, columns = c(2,3,4,5,8,17), color = "cl_w2")
+```
+
+```{r eval = FALSE, echo = FALSE}
+# Parallel coordinate plot maybe useful too
+ggparcoord(nrc_vars, columns = c(2,3,4,5,8,17), groupColumn = 51, 
+           order = "anyClass") + 
+  facet_wrap(~nrc_vars$cl_w2, ncol=1) +
+  theme(legend.position = "none")
+
+nrc_vars %>% filter(cl_w2 == 5) %>%
+  select(Institution.Name)
+```
+
+**This is a very difficult clustering problem because there are no naturally separated clusters in the data.**
+
+**Cluster 5, which has only one observation (Stanford University) which is an outlier relative to the other institutions. It has a large number of awards per faculty, and also a high publication and citation rate.**
+
+**Cluster 1 tends to have low average GRE scores (entrance exams for graduate students), but is otherwise mixed values on other variables.**
+
+**Cluster 2 tends to have higher publication and citation rates, and mode faculty with grants.**
+
+**Cluster 3 has relatively low time to degree, high GRE scores, and low average publications/ citation rates.**
+
+**Cluster 4 has relatively high median time to degree, but mixed on other variables.**
+
+d. Compute the means of the clusters. Describe how the clusters differ from each other, based on these values.
+
+```{r}
+nrc_means <- nrc_vars %>% 
+  select(Average.Publications, Average.Citations, Faculty.with.Grants.Pct, Awards.per.Faculty, Median.Time.to.Degree, Ave.GRE.Scores, cl_w2) %>%
+  group_by(cl_w2) %>%
+  dplyr::summarise_if(is.numeric, mean)
+
+nrc_means %>% kable(digits=2) %>% 
+  kable_styling(bootstrap_options = "basic", 
+                font_size = 16, 
+                stripe_color = "#FFFFFF") %>%
+  row_spec(0, color = "white", background = "#505050") 
+```
+
+**Similar summary to what is learned from the plots.**
+
+**Cluster 5 (just the one institution) is highly rated for faculty, and students.**
+
+**Cluster 2 has high scores for faculty, but less impressive (similar to other clusters) records for students.**
+
+**Cluster 4 has low scores for faculty, and although tends to recruit high-performing students, it takes them longer to graduate. These might not be the best institutions to attend as a graduate students.**
+
+**Clusters 1 and 3 score moderately on most of the metrics with cluster 3 generally slightly higher for both faculty and students.**
+
+##### © Copyright 2021 Monash University
