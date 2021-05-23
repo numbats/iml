@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.7/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    <script src="lib/kePrint-0.0.1/kePrint.js"></script>
+    <link href="lib/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-12a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;About the kaggle challenge&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 12a
+
+&lt;br&gt;
+
+]
+
+
+
+---
+# Patrick's honours thesis
+
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt; &lt;img src="images/lecture-12a/weihao.jpg" style="width: 200px; border-radius: 30%"&gt; &lt;/td&gt; 
+&lt;td width="100px"&gt; &lt;/td&gt;
+&lt;td&gt; &lt;img src="images/lecture-12a/emily.jpg" style="width: 180px; border-radius: 50%"&gt; &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt; Weihao Li  &lt;/td&gt; 
+&lt;td&gt; &lt;/td&gt;
+&lt;td&gt;
+Emily Dodwell  &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt; Monash EBS Honours  &lt;/td&gt; 
+&lt;td&gt; &lt;/td&gt;
+&lt;td&gt;
+AT&amp;T research  &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;br&gt;
+
+*Motivation*: Spatio-temporal visualisation and analysis of emergency call data. This is private so the bushfire data was collected because it has some similar form and structure.
+
+---
+# ⚡  Lightning or 🔥Arson?&lt;/h2&gt;
+
+&lt;img src="images/lecture-12a/1602783588.png" width = "50%" style = "float: left"/&gt;
+&lt;img src="images/lecture-12a/bushfire-inforgraphic-not-normal-768x768.jpg" width = "50%" style = "float: right"/&gt;
+
+
+---
+# Remote sensing data
+
+Japan Aerospace Exploration Agency  provides a hotspot product (reflected energy from the earth) taken from the **Himawari-8** satellite.
+
+.footnote[[Example code to access data provided in a G. Williamson gist post](https://gist.github.com/ozjimbob/80254988922140fec4c06e3a43d069a6)]
+
+
+&lt;img src="images/lecture-12a/hotspots_before.png" style="width: 70%; float:center"/&gt;
+
+# Data Sources
+
+.monash-red2[**🔥 Historical fire origins**]: 2000-2019 .font_my_2[[Department of Environment, Land, Water and Planning](https://discover.data.vic.gov.au/dataset/fire-origins-current-and-historical)]
+
+.monash-red2[**📡 Remote sensing data**]: .font_my_2[[Japan Aerospace Exploration Agency](https://www.eorc.jaxa.jp/ptree/userguide.html)]
+
+.font_my[
+**Wind speed data**: 1-day, 7-day, ..., 2-year averages from .font_my_2[[Commonwealth Scientific and Industrial Research Organisation and Automated Surface Observing System](https://doi.org/10.25919/5c5106acbcb02)]
+
+**Temperature, Rainfall and Solar exposure**: 1-day, 7-day , 14-day, 28-day, ..., 720-day averages computed from .font_my_2[[Bureau of Meteorology](https://CRAN.R-project.org/package=bomrang)]
+
+**Fuel layer**: Forest type, forest height class, forest crown cover from .font_my_2[[Australian Bureau of Agricultural and Resource Economics](https://www.agriculture.gov.au/abares/forestsaustralia/forest-data-maps-and-tools/spatial-data/forest-cover)]
+
+**Road map**: Proximity to the nearest road using .font_my_2[[OpenStreetMap](%20https://www.openstreetmap.org%20)]
+
+**Fire stations**: Proximity to the nearest CFA station  .font_my_2[[Department of Environment, Land, Water and Planning](https://discover.data.vic.gov.au/dataset/cfa-fire-station-vmfeat-geomark_point)]
+
+**Recreation sites**: Proximity to the nearest camping site .font_my_2[[Department of Environment, Land, Water and Planning](https://discover.data.vic.gov.au/dataset/recreation-sites)]
+]
+
+---
+
+# Data fusion
+
+&lt;img src="images/lecture-12a/data_fusion.png" style="width: 80%;"/&gt;
+
+---
+# Detect ignitions by clustering hotspot data
+
+&lt;img src="images/lecture-12a/clustering.png" style="width: 80%"/&gt;
+
+---
+# Estimated ignitions
+
+76,000 hotspots reduced to 1,000 ignition sites.
+
+&lt;img src="images/lecture-12a/hotspots_after.png" style="width: 80%; float:left"/&gt;
+
+---
+# Exploratory analysis of historical fire origins
+
+.font_my_2[
+Text processing of 26 causes, reduced to four major causes. Lightning and accident were the two main sources of historical bushfire ignitions, which took up 41% and 34% respectively. There were 17% bushfires caused by arson.
+]
+
+&lt;img src="images/lecture-12a/ignition_summary.png" style="width: 50%; float:left"/&gt;
+&lt;img src="images/lecture-12a/ignition_year.png" style="width: 50%; float:right"/&gt;
+
+---
+# Spatial distribution of historical fire origins
+
+.font_my_2[
+Roughly different spatial locations of ignition causes.  Lightning bushfires were concentrated in the east of Victoria. Bushfires caused by arson were near Bendigo!
+]
+
+&lt;img src="images/lecture-12a/density.png" style="width: 80%; float:left"/&gt;
+
+
+---
+# Proximity of historical fire origins
+
+.font_my_2[
+Lightning-caused bushfires were further away from the CFA stations and roads. In contrast, bushfires caused by arson were closer to CFA stations and roads.
+]
+
+&lt;img src="images/lecture-12a/density_cfa.png" style="width: 80%; float:left"/&gt;
+
+---
+# Modelling
+
+.monash-blue[A **random forest** model outperformed other model choices to classify different causes of bushfire ignition. ]
+
+
+.monash-blue[.font_my_2[80% of the data used as training set, 7497 observations, and the remaining 1872 observations was used as test set.]]
+
+&lt;br&gt;
+.font_my_2[
+Model performance was compared using multi-class AUC (Hand and Till, 2001).]
+
+&lt;table class=" lightable-classic table" style="font-family: Cambria; width: auto !important; margin-left: auto; margin-right: auto; font-size: 20px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Model &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Accuracy &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Muti-class AUC &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Multinomial logistic regression &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.74 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; GAM multinomial logistic regression &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.68 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Random forest &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.75 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.88 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; XGBoost &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.88 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Model performance
+
+.font_my[
+.monash-blue[The overall accuracy of our model was 74.95%.] 
+
+- High accuracy with lightning and accident ignitions.  
+- Less accurate predictions for arson and burning off. 
+]
+
+&lt;br&gt;
+
+&lt;table class=" lightable-classic table" style="font-family: Cambria; width: auto !important; margin-left: auto; margin-right: auto; font-size: 20px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Lightning &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Accident &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Arson &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Burning_off &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Prediction:Lightning &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 703 (0.9) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 77 (0.12) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 50 (0.15) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 44 (0.32) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 874 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Prediction:Accident &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 51 (0.07) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 494 (0.78) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 89 (0.27) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 38 (0.28) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 672 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Prediction:Arson &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 18 (0.02) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 55 (0.09) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 175 (0.54) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 22 (0.16) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 270 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Prediction:Burning_off &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 5 (0.01) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8 (0.01) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 11 (0.03) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 32 (0.24) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 777 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 634 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 325 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 136 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1872 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Model interpretation
+
+.font_my_2[
+Variable importance assessed using [Local Interpretable Model-agnostic Explanations (lime)](https://lime.data-imaginist.com). Proximity to the nearest road, proximity to the nearest road and average wind speed had largest influence on the prediction.
+]
+
+
+&lt;img src="images/lecture-12a/varimp.png" style="width: 80%; float:left"/&gt;
+
+---
+
+# **Prediction for 2019-2020 Australia bushfires**
+
+&lt;img src="images/lecture-12a/unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# Summary of findings
+
+.font_my_2[
+.monash-blue[- Majority of the bushfires in 2019-2020 season were caused by **lightning**.]
+- 138 bushfires caused by accidents which took up 14% of the total fires. Most of them were ignited in March. 
+- 37 bushfires were caused by arsonists, and over half of them were in March.
+- Very few planned burns were predicted after October 2019 which suggests the correctness of our model.
+]
+
+&lt;br&gt;
+
+&lt;table class=" lightable-classic table" style="font-family: Cambria; width: auto !important; margin-left: auto; margin-right: auto; font-size: 20px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Cause &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Oct &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Nov &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Dec &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Jan &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Feb &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Mar &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Lightning &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 57 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 315 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 266 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 149 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 838 (0.82) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Accident &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 138 (0.14) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Arson &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 37 (0.04) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Burning_off &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 9 (0.01) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Shiny app: https://ebsmonash.shinyapps.io/VICfire/
+
+&lt;iframe src="https://ebsmonash.shinyapps.io/VICfire/?showcase=0" width="110%" height="550px"&gt;&lt;/iframe&gt;
+
+---
+class: transition middle
+
+# Your kaggle experience
+
+In theory it should have been possible to perfectly predict the causes in the prediction set.
+
+---
+# Baseline
+
+```
+set.seed(2021)
+fires_rf &lt;- rand_forest() %&gt;%
+  set_engine("randomForest",
+             importance=TRUE) %&gt;%
+  set_mode("classification") %&gt;%
+  fit(cause~lon+lat+arf720+
+        ase720+amaxt720+amint720+dist_cfa+
+        dist_camp+dist_road+month+day, data=fires_tr_full)
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true)$.pred_class)
+
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.702
+```
+---
+# Patrick's variables from actual predictions
+
+```
+set.seed(2021)
+fires_rf &lt;- rand_forest() %&gt;%
+  set_engine("randomForest",
+             importance=TRUE,
+             na.action=na.omit) %&gt;%
+  set_mode("classification") %&gt;%
+  fit(cause~log_dist_camp+log_dist_road+log_dist_cfa+lon+
+        ase180+lat+aws_m24+aws_m12+arf360+ase90,
+      data=fires_tr_full)
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true)$.pred_class)
+
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.798
+```
+
+---
+# Modify forest parameters
+
+```
+set.seed(2021)
+fires_rf &lt;- rand_forest(mtry=1, trees=1000) %&gt;%
+  set_engine("randomForest",
+             importance=TRUE,
+             na.action=na.omit) %&gt;%
+  set_mode("classification") %&gt;%
+  fit(cause~log_dist_camp+log_dist_road+log_dist_cfa+lon+
+        ase180+lat+aws_m24+aws_m12+arf360+ase90,
+      data=fires_tr_full)
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true)$.pred_class)
+
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.859
+```
+
+---
+# Filter only summer months
+
+```
+set.seed(2021)
+fires_rf &lt;- rand_forest(mtry=1, trees=1000) %&gt;%
+  step_filter(month %in% c(1,2,3,10,11,12)) %&gt;%
+  set_engine("randomForest",
+             importance=TRUE,
+             na.action=na.omit) %&gt;%
+  set_mode("classification") %&gt;%
+  fit(cause~log_dist_camp+log_dist_road+log_dist_cfa+lon+
+        ase180+lat+aws_m24+aws_m12+arf360+ase90,
+      data=fires_tr_full)
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true)$.pred_class)
+
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.872
+```
+
+---
+# Use weights during model building
+
+```
+# Need to revert to old style code
+set.seed(2021)
+fires_tr_full_summer &lt;- fires_tr_full %&gt;%
+  filter(month %in% c(1,2,3,10,11,12)) %&gt;%
+  drop_na()
+fires_tr_full_summer %&gt;% group_by(cause) %&gt;% summarise(n=n()) %&gt;% mutate(n/sum(n))
+fires_rf &lt;- randomForest(cause~log_dist_camp+log_dist_road+
+                 log_dist_cfa+lon+ase180+lat+aws_m24+
+                 aws_m12+arf360+ase90,
+        data=fires_tr_full_summer,
+        mtry=1, trees=1000,
+        importance=TRUE,
+        classwt = c(0.414, 0.339, 0.174, 0.0730))
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true, type="class"))
+```
+
+---
+
+```
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.910
+
+&gt; conf_mat(fires_ts_true, cause, cause_p)
+             Truth
+Prediction    lightning accident arson burning_off
+  lightning         820       21     1           1
+  accident           17      112     3           1
+  arson               1        4    32           0
+  burning_off         0        1     1           7
+```
+
+---
+# Upsample
+
+```
+set.seed(2021)
+fires_rf &lt;- rand_forest(mtry=1, trees=1000) %&gt;%
+  step_filter(month %in% c(1,2,3,10,11,12)) %&gt;%
+  themis::step_upsample(cause) %&gt;%
+  set_engine("randomForest",
+             importance=TRUE,
+             na.action=na.omit) %&gt;%
+  set_mode("classification") %&gt;%
+  fit(cause~log_dist_camp+log_dist_road+log_dist_cfa+lon+
+        ase180+lat+aws_m24+aws_m12+arf360+ase90,
+      data=fires_tr_full)
+
+fires_ts_true &lt;- fires_ts_true %&gt;%
+  mutate(cause_p = predict(fires_rf,
+                           fires_ts_true)$.pred_class)
+
+bal_accuracy(fires_ts_true, cause, cause_p)
+# bal_accuracy macro          0.884
+```
+
+---
+# Weighted accuracy
+
+- lightning 0.02 (0.82)
+- accident 0.05 (0.14)
+- arson 0.18 (0.04)
+- burning_off 0.75 (0.01)
+
+```
+  cause           n       p    invp invp_sum1
+  &lt;fct&gt;       &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
+1 lightning     838 0.820   0.00119   0.00814
+2 accident      138 0.135   0.00725   0.0494 
+3 arson          37 0.0362  0.0270    0.184  
+4 burning_off     9 0.00881 0.111     0.758  
+```
+
+---
+background-image: \url(images/lecture-12a/final_leaderboard.png)
+background-size: cover
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+https://www.kaggle.com/c/spotoroo/host/all-submissions
+
+---
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 12a
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
