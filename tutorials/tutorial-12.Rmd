@@ -45,7 +45,7 @@ Refer to the results from tutorial 11. This tutorial builds on that work.
 
 Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
 
-a. Produce the clustering into three groups from (i) Wards, (ii) average linkage, and make a confusion table to compare the two results.
+a. Produce the clustering into three groups from (i) Wards, (ii) $k$-means, $k=3$, and make a confusion table to compare the two results.
 
 b. Map the cluster labels from the two results, and calculate the agreement. 
 

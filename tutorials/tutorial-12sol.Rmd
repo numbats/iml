@@ -29,7 +29,7 @@ library(emo)
 
 Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
 
-a. Produce the clustering into three groups from (i) Wards, (ii) average linkage, and make a confusion table to compare the two results.
+a. Produce the clustering into three groups from (i) Wards, (ii) $k$-means, $k=3$, and make a confusion table to compare the two results.
 
 <!-- 6D flea -->
 ```{r}
@@ -46,6 +46,7 @@ flea_std <- flea %>%
   mutate_if(is.numeric, std)
 
 flea_hc_w <- hclust(dist(flea_std[,2:7]), method = "ward.D2")
+set.seed(2021)
 flea_km <- kmeans(flea_std[,2:7], 3)
 
 flea_std <- flea_std %>%
@@ -60,7 +61,7 @@ flea_std %>% count(cl_w, cl_km) %>%
 
 b. Map the cluster labels from the two results, and calculate the agreement. 
 
-**Wards 1 = km 2, Wards 2 = km 3, Wards 3 = km 1. Agreement is (29+19+22)/74 = 0.94, which is very high.**
+**Wards 1 = km 1, Wards 2 = km 3, Wards 3 = km 2. Agreement is (29+19+22)/74 = 0.94, which is very high.**
 
 ### 2. Cluster statistics graduate programs 
 
