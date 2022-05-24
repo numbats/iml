@@ -1,0 +1,365 @@
+---
+title: "ETC3250/5250 Tutorial 3 Solution"
+subtitle: "Categorical response, and resampling"
+author: "prepared by Professor Di Cook"
+date: "Week 3"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  eval = TRUE,
+  echo = TRUE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+
+## 💬 Class discussion exercises
+
+Textbook question, chapter 4 Q8
+
+> "Suppose that we take a data set, divide it into equally-sized training and test sets, and then try out two different classification procedures. First we use logistic regression and get an error rate of 20 % on the training data and 30 % on the test data. Next we use 1-nearest neighbors (i.e. K = 1) and get an average error rate (averaged over both test and training data sets) of 18%. Based on these results, which method should we prefer to use for classification of new observations? Why?"
+
+**For KNN with K=1, the training error rate is 0% because for any training observation, its nearest neighbor will be the response itself. So, KNN has a test error rate of 36%. I would choose logistic regression because of its lower test error rate of 30%.**
+
+## `r emo::ji("gear")` Exercise 
+
+```{r load_libraries}
+library(tidyverse)
+library(tidymodels)
+library(discrim)
+library(mgcv)
+library(patchwork)
+library(kableExtra)
+```
+
+### 1. Fitting a logistic regression model to produce a spam filter
+
+a. Read about the `spam` data in [here](http://ggobi.org/book/chap-data.pdf). Read the data into R. Subset the data to contains these variables: `day of week`, `time of day`, `size.kb`, `domain`, `cappct`.  Set the levels of day of the week to match our regular week day order. Filter the data to contain only these domains "com", "edu", "net", "org", "gov".
+
+```{r}
+spam <- read_csv("http://ggobi.org/book/data/spam.csv") %>%
+  mutate(`day of week` = factor(`day of week`, 
+              levels=c("Mon", "Tue", "Wed", "Thu", 
+                       "Fri", "Sat", "Sun"))) %>%
+  filter(domain %in% c("com", "edu", "net", "org", "gov")) %>%
+  select(spam, `day of week`, `time of day`,
+         size.kb, domain, cappct)
+```
+
+b. Make some summary plots of these variables. 
+
+```{r}
+p1 <- ggplot(spam, aes(x=spam)) + geom_bar()
+p2 <- ggplot(spam, aes(x=domain, fill=spam)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Dark2")
+p3 <- ggplot(spam, aes(x=size.kb, colour=spam)) + 
+  geom_density() +
+  scale_x_log10() + 
+  scale_colour_brewer(palette = "Dark2")
+p4 <- ggplot(spam, aes(x=`day of week`, fill=spam)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Dark2")
+p5 <- ggplot(spam, aes(x=`time of day`, fill=spam)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Dark2")
+p6 <- ggplot(spam, aes(x=cappct, colour=spam)) + 
+  geom_density() +
+  scale_x_log10() + 
+  scale_colour_brewer(palette = "Dark2")
+(p1 + p2 + p3)/(p4 + p5 + p6)
+```
+
+**Some notes on the choice of plots to make.** 
+
+- **For the categorical predictors, we need to examine the relative proportion of ham and span in each level of the variable. If the proportions are different, it suggests that the variable is important for predicting spam. Thus a bar chart, with the bars filled by the spam variable, and converted to 100% bars, are a good choice for assessing proportion differences.** 
+- **For quantitative predictors, we need determine if the distribution of the variable is different for ham and spam. Thus facetted density plots, or histograms or side-by-side boxplots are all reasonable choices.**
+
+**Some notes on what we learn from the plots.**
+
+- **There is more ham than spam.**
+- **Domain, day of the week and time of day all have some difference in the proportions of spam to ham at some levels.**
+- **Spam appears to have slightly higher, on average size (size.kb) than ham.**
+- **There is little difference between spam and ham on cappct.**
+
+c. Fit a logistic regression model for spam to remaining variables.
+
+```{r}
+logistic_mod <- logistic_reg() %>% 
+  set_engine("glm") %>% #<<
+  set_mode("classification") %>% #<<
+  translate()
+
+spam <- spam %>%
+  mutate(spam = factor(spam))
+
+spam_fit <- 
+  logistic_mod %>% 
+  fit(spam ~ ., 
+      data = spam)
+
+tidy(spam_fit) %>% kable() %>% kable_styling(full_width = FALSE)
+glance(spam_fit) %>% kable() %>% kable_styling(full_width = FALSE)
+```
+
+**The model explains about 50% of the variation in spam. Day of the week, time of day and domain are important variables, but size.kb and cappct are not. .net is the same fraction of spam as .com, and when email comes from these domains the chance that it is spam is higher. There is a higher chance that the email is spam if it arrives on Saturday, and less chance if it arrives on Thursday. There is a higher probability of spam in the early morning hours, and this decreases slightly as the day progresses. However, going back to the plot of time of day, it may be better to include this in the model as a categorical variable, in order to account for the nonlinear relationship. The relationship looks like it is high proportion in the early hours, low proportion in the working hours and then a gradual increase in proportion through the evening.**
+
+d. By computing the model "deviance" for various choices of predictors, decide on an optimal number of these variables for predicting whether an email is spam. You could plot the model deviance against the different number of predictors. Explain why `null.deviance` is the same across all the models.
+
+```{r}
+spam_fit1 <- 
+  logistic_mod %>% 
+  fit(spam ~ `day of week` + `time of day` + 
+        domain, 
+      data = spam)
+spam_fit2 <- 
+  logistic_mod %>% 
+  fit(spam ~ `day of week` + `time of day` + 
+        domain + cappct, 
+      data = spam)
+spam_fit3 <- 
+  logistic_mod %>% 
+  fit(spam ~ `day of week` + `time of day` + 
+        size.kb + domain + cappct, 
+      data = spam)
+
+spam_dev <- tibble(vars=3:5, 
+                   deviance = c(glance(spam_fit1)$deviance,
+                                glance(spam_fit2)$deviance,
+                                glance(spam_fit3)$deviance),
+                   prop = c(glance(spam_fit1)$deviance/
+                              glance(spam_fit1)$null.deviance,
+                                glance(spam_fit2)$deviance/
+                              glance(spam_fit1)$null.deviance,
+                                glance(spam_fit3)$deviance/
+                              glance(spam_fit1)$null.deviance))
+p7 <- ggplot(spam_dev, aes(x=vars, y=deviance)) +
+  geom_line() 
+p8 <- ggplot(spam_dev, aes(x=vars, y=prop)) + 
+  geom_bar(stat = "identity") + 
+  ylab("Proportion of null deviance")
+p7 + p8
+```
+
+**The null deviance is the variance of the model where spam proportion is the same across all levels/values of the variables. This is the same calculation for any model that we fit.** 
+
+**The model with domain, day of the week and time of day is as effective as the model with all variables.**
+
+e. Compute the confusion table and report the classification error for your model. What proportion of ham (good emails) would end up in the spam folder?
+
+```{r}
+spam_pred <- augment(spam_fit1, spam)
+spam_pred %>% 
+  count(spam, .pred_class) %>%
+  pivot_wider(names_from = spam, values_from = n) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+metrics(spam_pred, truth = spam, 
+        estimate = .pred_class) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+```
+
+**The overall accuracy of the model is 85%, which sounds extremely good. But when you examine the error for ham, approximately 20% are thrown into the bin, spam folder. This means 1 out of 5 emails, that could be important are discarded before the user can read them. This is a problem and would mean that this model cannot be an effective spam filter. If we used a lot more variables, it would be possible to build a better functioning spam filter. An alternative, even with more variables is to set the cutoff lower, instead of using 50% (rounding the predicted proportion) we could use a higher percentage, say 80%. This would practically mean that we need to be more confident the email is spam before putting it in the spam folder.**
+
+f. Conduct 10-fold cross-validation on the model fitting and estimate the test classification error. 
+
+```{r}
+set.seed(2021)
+spam_folds <- vfold_cv(data = spam, strata = spam) #<<
+compute_fold_error <- function(split) {
+  train <- analysis(split)
+  test <- assessment(split)
+  
+  fit <-
+    logistic_mod %>% 
+    fit(spam ~ `day of week` + `time of day` + domain, 
+      data = train)
+  test_pred <- augment(fit, test)
+  error <- tibble(error = 1 - metrics(test_pred, truth = spam, 
+        estimate = .pred_class)$.estimate[1]) %>%
+  rsample::add_resample_id(split = split)
+
+  return(error)
+}
+
+kfold_results <- 
+  map_df(
+    spam_folds$splits, 
+    ~compute_fold_error(.x))
+kfold_results %>% summarise(mean(error))
+
+```
+
+**The estimated error is about 15%, which is the same as when the full data is used (accuracy was 85%). With logistic regression, it is expected that the error on the full model should still be reasonably accurate for new data, because it is a relatively inflexible model.**
+
+g. Explain why linear discriminant analysis would not be suitable for modeling spam.
+
+*Linear discriminant analysis makes an assumption that the predictors have a normal distributions. It really can't be used with categorical predictors.*
+
+### 2. Fitting various categorical response models to food quality data
+
+a. Read about the `olive` data in [here](http://ggobi.org/book/chap-data.pdf). Download the data, filter the data to remove Southern oils, and select just the variables, region, oleic and linoleic. Make a plot of oleic vs linoleic, coloured by region. (You will need to set region to be a factor variable.) Split the data into 2/3 training and 1/3 test sets. When you make the split for a classification data set, why should you ensure that each level of your response variable is sampled in the same training/test proportion?
+
+```{r}
+olive <- read_csv("http://ggobi.org/book/data/olive.csv") %>%
+  filter(region != 1) %>%
+  select(region, oleic, linoleic) %>%
+  mutate(region = factor(region))
+ggplot(olive, aes(x=oleic, y=linoleic, colour=region)) +
+  geom_point() + 
+  scale_colour_brewer(palette="Dark2") +
+  theme(aspect.ratio=1)
+
+set.seed(775)
+olive_split <- initial_split(olive, 2/3, strata = region)
+olive_train <- analysis(olive_split)
+olive_test <- assessment(olive_split)
+```
+
+**If you have imbalanced classes, taking a simple random sample may result in different proportions of the response in the training and test samples. In the extreme case where one class is really small, the training sample might contain only one class. Thus you need to do stratified sampling to ensure that each class is represented in both training and test sets in the desired proportion.**
+
+b. Fit a logistic regression. Compute the training and test error. 
+
+```{r warning = TRUE}
+olive_log_fit <- 
+  logistic_mod %>% 
+  fit(region ~ ., 
+      data = olive_train)
+tidy(olive_log_fit) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+glance(olive_log_fit) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+
+# Training error
+olive_log_tr_pred <- olive_train %>%
+  mutate(.pred_class = 
+           predict(olive_log_fit, olive_train)$.pred_class)
+olive_log_tr_pred %>% 
+  count(region, .pred_class) %>%
+  pivot_wider(names_from = region, 
+              values_from = n, values_fill=0) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+
+# Test error
+olive_log_pred <- augment(olive_log_fit, olive_test)
+olive_log_pred %>% 
+  count(region, .pred_class) %>%
+  pivot_wider(names_from = region, 
+              values_from = n, values_fill=0) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+metrics(olive_log_pred, truth = region, 
+        estimate = .pred_class) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+
+```
+
+**Note the warning on the model fitting! Nevertheless, even though the significance tests appear problematic, the fitted model appears to be ok, because it correctly predicts all but one observation in the test set. The training error is 0, and the test error is 1%. Both oleic and linoleic are important for predicting the growing region.**
+
+c. Fit a linear discriminant classifier. Compute the training and test error. 
+
+```{r}
+lda_mod <- discrim_linear() %>% 
+  set_engine("MASS") %>% 
+  translate()
+
+olive_lda_fit <- 
+  lda_mod %>% 
+  fit(region ~ ., 
+      data = olive_train)
+olive_lda_fit
+
+# Training error
+olive_lda_tr_pred <- olive_train %>%
+  mutate(.pred_class = 
+           predict(olive_lda_fit, olive_train)$.pred_class)
+olive_lda_tr_pred %>% 
+  count(region, .pred_class) %>%
+  pivot_wider(names_from = region, 
+              values_from = n, values_fill=0) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+
+# Testing error
+olive_lda_pred <- olive_test %>%
+  mutate(.pred_class = 
+           predict(olive_lda_fit, olive_test)$.pred_class)
+olive_lda_pred %>% 
+  count(region, .pred_class) %>%
+  pivot_wider(names_from = region, 
+              values_from = n, values_fill=0) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+metrics(olive_lda_pred, truth = region, 
+        estimate = .pred_class) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+```
+
+**The results for the test data are identical to that of the logistic regression model. Training error is higher, though.**
+
+d. Examine the boundaries between groups. Generate a grid of points between the minimum and maximum values for the two predictors. Predict the region at these locations. Make a plot of the this data, coloured by predicted region. Compare the two boundaries. 
+
+```{r fig.height = 3}
+grid <- expand_grid(oleic = seq(6800, 8500, 25),
+                    linoleic = seq(500, 1500, 25))
+olive_grid <- augment(olive_log_fit, grid)
+olive_grid <- olive_grid %>% 
+  mutate(.pred_class_lda = 
+           predict(olive_lda_fit, olive_grid)$.pred_class)
+
+p9 <- ggplot(olive_grid) +
+  geom_point(aes(x=oleic, y=linoleic, 
+                       colour=.pred_class)) + 
+  geom_point(data = olive_test, 
+             aes(x=oleic, y=linoleic, shape = region)) +
+  scale_colour_brewer(palette="Dark2") +
+  theme_bw() + ggtitle("Logistic")
+p10 <- ggplot(olive_grid) +
+  geom_point(aes(x=oleic, y=linoleic, 
+                       colour=.pred_class_lda)) + 
+  geom_point(data = olive_test, 
+             aes(x=oleic, y=linoleic, shape = region)) +
+  scale_colour_brewer(palette="Dark2") +
+  theme_bw() + ggtitle("LDA")
+p9 + p10
+```
+
+**Both models create a linear boundary between the two classes. They differ a little. The boundary for logistic is closer to region 2, whereas for LDA it is closer to region 3. The slope of the boundary line is flatter for the LDA model, which means that oleic plays a larger role in generating this boundary.**
+
+##### © Copyright 2022 Monash University
+

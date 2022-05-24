@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.11/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-03b.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Resampling for model development and choice&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 3b
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+# Model development and choice 
+
+&lt;br&gt;
+
+&lt;center&gt;
+&lt;img src="images/lecture-03b/newdata.jpg" style="width: 60%; align: center"/&gt; &lt;/a&gt;
+&lt;/center&gt;
+
+---
+class: transition middle center
+
+# How do you get new data?
+
+---
+# Resampling
+
+- .monash-blue2[Training/test split]: make one split of your data, keeping one purely for assessing future performance.
+- .monash-blue2[Leave-one-out]: make `\(n\)` splits, fitting multiple models and using left-out observation for assessing variability.
+- `\(k\)`-.monash-blue2[fold]: break data into `\(k\)` subsets, fitting multiple models with one group left out each time.
+- .monash-blue2[Bootstrap]: make many samples, with replacement, using out-of-bag observations for testing.
+
+---
+
+
+# Training and test sets
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.1.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.1.png" style="width: 100%; align: center"/&gt; &lt;/a&gt;
+
+A set of `\(n\)` observations are randomly split into a training set (blue, containing observations 7, 22, 13, ...) and a test set (yellow, all other observations not in training set).
+
+.monash-orange2[Drawback]: Only one split of data made, may have a lucky or unlucky split, accurately estimating test error relies on the one sample. 
+
+&lt;br&gt;&lt;br&gt;
+.font_smaller2[(Chapter5/5.1.pdf)]
+
+
+
+
+
+---
+# Training/test set split and choosing polynomial degree (1/4)
+
+
+.flex[
+.w-45[
+
+
+
+&lt;br&gt;
+
+`$$\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon$$`
+Split into 2/3 training and 1/3 test sets. 
+
+
+&lt;img src="images/lecture-03b/unnamed-chunk-5-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.w-45[
+
+&lt;img src="images/lecture-03b/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+]]
+
+
+---
+
+# Training/test set split and choosing polynomial degree (2/4)
+
+
+
+.flex[
+.w-45[
+
+
+
+&lt;br&gt;
+
+`$$\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon$$`
+Split into 2/3 training and 1/3 test sets. 
+
+
+&lt;img src="images/lecture-03b/unnamed-chunk-7-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.w-45[
+
+&lt;img src="images/lecture-03b/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+# Training/test set split and choosing polynomial degree (3/4)
+
+
+
+.flex[
+.w-45[
+
+
+
+&lt;br&gt;
+
+`$$\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon$$`
+Split into 2/3 training and 1/3 test sets. 
+
+
+&lt;img src="images/lecture-03b/unnamed-chunk-9-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.w-45[
+
+&lt;img src="images/lecture-03b/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+# Training/test set split and choosing polynomial degree (4/4)
+
+
+
+.flex[
+.w-45[
+
+
+
+&lt;br&gt;
+
+`$$\mbox{mpg}=\beta_0+\beta_1f(\mbox{horsepower})+\varepsilon$$`
+Split into 2/3 training and 1/3 test sets. 
+
+
+&lt;img src="images/lecture-03b/unnamed-chunk-11-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.w-45[
+
+&lt;img src="images/lecture-03b/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+]]
+
+---
+class: middle
+
+# One split may not be enough &lt;i class="fas fa-dice" style="color: #D93F00"&gt;&lt;/i&gt;
+
+Test MSE changes if a different split is made. For this example, the choice would be degree = 2, though, regardless of the split.
+
+&lt;br&gt;&lt;br&gt;
+.info-box.w-50[If the .monash-orange2[variability] between different draws of test sets is .monash-orange2[large], it indicates a model with high variance. This would be a poor choice of model, or provide a poor error estimate.]
+
+---
+# LOOCV
+
+Leave-one-out (LOOCV) cross-validation: `\(n\)` test sets, each with .monash-orange2[ONE] observation left out.
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.3.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.3.png" style="width: 90%; align: center"/&gt; &lt;/a&gt;
+
+
+
+---
+# LOOCV
+
+.flex[
+.w-45[
+Leave-one-out (LOOCV) cross-validation: `\(n\)` test sets, each with .monash-orange2[ONE] observation left out. For each set, `\(i=1, ..., n\)`, compute the `\(MSE_{i}\)`.
+
+The LOOCV estimate for the test MSE is the average of these `\(n\)` test error estimates:
+
+`$$CV_{(n)} = \frac{1}{n}\sum_{i=1}^n MSE_{i}$$`
+]
+.w-45[
+]
+]
+
+---
+count: false
+# LOOCV
+
+.flex[
+.w-45[
+Leave-one-out (LOOCV) cross-validation: `\(n\)` test sets, each with .monash-orange2[ONE] observation left out. For each set, `\(i=1, ..., n\)`, compute the `\(MSE_{i}\)`.
+
+The LOOCV estimate for the test MSE is the average of these `\(n\)` test error estimates:
+
+`$$CV_{(n)} = \frac{1}{n}\sum_{i=1}^n MSE_{i}$$`
+]
+.w-45[
+
+There is a computational shortcut, for linear or polynomial models, where not all `\(n\)` models need to be fitted. 
+
+`$$CV_{(n)} = \frac{1}{n}\sum_{i=1}^n \frac{(y_i-\hat{y})^2}{1-h_i}$$`
+
+where `\(h_i=\frac{1}{n}+\frac{(x_i-\bar{x})^2}{\sum_{i'}^n(x_{i'}-\bar{x})^2}\)` (known as *leverage* from regression diagnostics).
+]
+]
+
+---
+class: transition
+
+## LOOCV is a special case of k-fold cross-validation
+
+&lt;!--
+Code to check that this is indeed the case
+
+
+```r
+# This has the cv.glm function
+library(boot) 
+glm.fit &lt;- glm(mpg ~ horsepower, 
+               data=Auto)
+# MSE on all observations
+modelr::mse(glm.fit, Auto) 
+```
+
+```
+## [1] 23.94366
+```
+
+```r
+# LOOCV by default
+cv.glm(Auto, glm.fit)$delta[1] 
+```
+
+```
+## [1] 24.23151
+```
+
+Compare with manual calculation
+
+
+```r
+# Drop one observation our for fitting
+m &lt;- NULL
+for (i in 1:nrow(Auto)) {
+  fit &lt;- glm(mpg ~ horsepower, 
+             data=Auto[-i,])
+  m &lt;- c(m, 
+         (Auto[i,]$mpg - 
+            predict(fit, Auto[i,]))^2) 
+}
+head(m, 3)
+```
+
+```
+##        1        2        3 
+## 2.020010 1.250924 3.068052
+```
+
+```r
+mean(m)
+```
+
+```
+## [1] 24.23151
+```
+
+--&gt;
+
+
+---
+# k-fold cross validation
+
+
+1. Divide the data set into `\(k\)` different parts.
+2. Remove one part, fit the model on the remaining `\(k − 1\)` parts, and compute the MSE on the omitted part.
+3. Repeat `\(k\)` times taking out a different part each time
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.5.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.5.png" style="width: 70%; align: center"/&gt; &lt;/a&gt;
+
+.font_smaller2[(Chapter 5/ 5.5)]
+
+
+---
+# k-fold cross validation
+
+1. Divide the data set into k different parts.
+2. Remove one part, fit the model on the remaining `\(k − 1\)` parts, and compute the MSE on the omitted part.
+3. Repeat `\(k\)` times taking out a different part each time
+
+Cross-validation MSE is:
+
+`$$CV_{(k)} = \frac{1}{k}\sum_{i=1}^n MSE_k$$`
+
+No shortcut for calculation.
+
+&lt;center&gt;
+.info-box[Choice of k=5-10 is typically reasonable]
+&lt;/center&gt;
+
+---
+# Try it
+
+.flex[
+.w-50[
+
+```r
+set.seed(2021)
+*auto_folds &lt;- vfold_cv(data = Auto)
+auto_folds
+```
+
+```
+## #  10-fold cross-validation 
+## # A tibble: 10 × 2
+##    splits           id    
+##    &lt;list&gt;           &lt;chr&gt; 
+##  1 &lt;split [352/40]&gt; Fold01
+##  2 &lt;split [352/40]&gt; Fold02
+##  3 &lt;split [353/39]&gt; Fold03
+##  4 &lt;split [353/39]&gt; Fold04
+##  5 &lt;split [353/39]&gt; Fold05
+##  6 &lt;split [353/39]&gt; Fold06
+##  7 &lt;split [353/39]&gt; Fold07
+##  8 &lt;split [353/39]&gt; Fold08
+##  9 &lt;split [353/39]&gt; Fold09
+## 10 &lt;split [353/39]&gt; Fold10
+```
+]
+.w-5.white[
+This is white space
+]
+.w-40[
+
+Data is split into 10 subsets
+
+Next, write a function for the four polynomial models:
+1. Fit the model to `training(split) -&gt; analysis(split)`
+2. Assess the model fit with `testing(split) -&gt; assessment(split)`
+3. Report the MSE
+
+&lt;br&gt;&lt;br&gt;
+Recommended reading: Alison Hill's [Take a Sad Script &amp; Make it Better: Tidymodels Edition](https://alison.rbind.io/blog/2020-02-take-a-sad-script-make-it-better-tidymodels-edition/)
+]
+]
+
+---
+
+.scroll-800[
+
+```r
+# Model specification
+lm_mod &lt;- 
+  linear_reg() %&gt;% 
+  set_engine("lm")
+
+
+# We want to fit the four polynomial models
+compute_fold_mse &lt;- function(split){
+  auto_train &lt;- analysis(split)
+  auto_test &lt;- assessment(split)
+  
+  # Set up polynomials
+  auto_rec1 &lt;-    
+    recipe(mpg ~ horsepower, 
+         data = auto_train) %&gt;% 
+    step_poly(horsepower, degree = 1) 
+  auto_rec2 &lt;-    
+    recipe(mpg ~ horsepower, 
+         data = auto_train) %&gt;% 
+    step_poly(horsepower, degree = 2) 
+  auto_rec3 &lt;-    
+    recipe(mpg ~ horsepower, 
+         data = auto_train) %&gt;% 
+    step_poly(horsepower, degree = 3) 
+  auto_rec4 &lt;-    
+    recipe(mpg ~ horsepower, 
+         data = auto_train) %&gt;% 
+    step_poly(horsepower, degree = 4) 
+
+  # Setup workflows
+  auto_wf1 &lt;- workflow() %&gt;%
+    add_model(lm_mod) %&gt;% 
+    add_recipe(auto_rec1)
+  auto_wf2 &lt;- workflow() %&gt;%
+    add_model(lm_mod) %&gt;% 
+    add_recipe(auto_rec2)
+  auto_wf3 &lt;- workflow() %&gt;%
+    add_model(lm_mod) %&gt;% 
+    add_recipe(auto_rec3)
+  auto_wf4 &lt;- workflow() %&gt;%
+    add_model(lm_mod) %&gt;% 
+    add_recipe(auto_rec4)
+    
+  # Fit four models 
+  fit1 &lt;- fit(auto_wf1, data=auto_train)
+  fit2 &lt;- fit(auto_wf2, data=auto_train)
+  fit3 &lt;- fit(auto_wf3, data=auto_train)
+  fit4 &lt;- fit(auto_wf4, data=auto_train)
+
+  # Predict test 
+  auto_test_pred1 &lt;- augment(fit1,
+                             auto_test)
+  auto_test_pred2 &lt;- augment(fit2,
+                             auto_test)
+  auto_test_pred3 &lt;- augment(fit3,
+                             auto_test)
+  auto_test_pred4 &lt;- augment(fit4,
+                             auto_test)
+
+  # Collect the mse for four models  
+  auto_mse &lt;- tibble(poly = c(1,2,3,4)) %&gt;%
+    mutate(mse = c(
+        rmse(auto_test_pred1, truth = mpg, 
+        estimate = .pred)$.estimate^2, 
+        rmse(auto_test_pred2, truth = mpg, 
+        estimate = .pred)$.estimate^2,
+        rmse(auto_test_pred3, truth = mpg, 
+        estimate = .pred)$.estimate^2,
+        rmse(auto_test_pred4, truth = mpg, 
+        estimate = .pred)$.estimate^2)) %&gt;%
+    rsample::add_resample_id(split = split)
+  
+  return(auto_mse)
+}
+```
+]
+
+---
+# Check the calculation for one fold
+
+
+```r
+compute_fold_mse(auto_folds$splits[[1]])
+```
+
+```
+##   poly      mse     id
+## 1    1 28.21266 Fold01
+## 2    2 27.51733 Fold01
+## 3    3 27.47538 Fold01
+## 4    4 27.33215 Fold01
+```
+
+&lt;br&gt;&lt;br&gt;
+# 🤸 🤸 🤸
+
+---
+# Compute across all folds
+
+.flex[
+.w-45[
+
+```r
+kfold_results &lt;- 
+  map_df(
+    auto_folds$splits, 
+    ~compute_fold_mse(.x))
+kfold_results
+```
+
+```
+##    poly      mse     id
+## 1     1 28.21266 Fold01
+## 2     2 27.51733 Fold01
+## 3     3 27.47538 Fold01
+## 4     4 27.33215 Fold01
+## 5     1 15.19469 Fold02
+## 6     2 10.65360 Fold02
+## 7     3 10.53691 Fold02
+## 8     4 10.53989 Fold02
+## 9     1 14.84492 Fold03
+## 10    2 12.15279 Fold03
+## 11    3 11.99626 Fold03
+## 12    4 12.72732 Fold03
+## 13    1 22.38819 Fold04
+## 14    2 17.33363 Fold04
+## 15    3 17.17014 Fold04
+## 16    4 17.68644 Fold04
+## 17    1 31.68339 Fold05
+## 18    2 18.67603 Fold05
+## 19    3 18.56564 Fold05
+## 20    4 19.04246 Fold05
+## 21    1 31.67788 Fold06
+## 22    2 28.47581 Fold06
+## 23    3 29.02223 Fold06
+## 24    4 28.65733 Fold06
+## 25    1 32.29558 Fold07
+## 26    2 25.73788 Fold07
+## 27    3 25.90146 Fold07
+## 28    4 25.54763 Fold07
+## 29    1 19.16745 Fold08
+## 30    2 12.62085 Fold08
+## 31    3 12.44819 Fold08
+## 32    4 12.65051 Fold08
+## 33    1 19.46002 Fold09
+## 34    2 14.73722 Fold09
+## 35    3 14.97740 Fold09
+## 36    4 14.73905 Fold09
+## 37    1 27.33363 Fold10
+## 38    2 24.02331 Fold10
+## 39    3 24.01278 Fold10
+## 40    4 24.21568 Fold10
+```
+]
+.w-45[
+&lt;img src="images/lecture-03b/unnamed-chunk-19-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+&lt;center&gt;
+Black is the average MSE across folds.
+&lt;/center&gt;
+]
+]
+
+---
+# Classification
+
+.flex[
+.w-45[
+
+**Polynomial**
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.7.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.7.png" style="width: 80%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+
+.font_smaller2[(Chapter 5/ 5.7)]
+]
+.w-45[
+
+**kNN**
+
+&lt;center&gt;
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter2/2.16.pdf" target="_BLANK"&gt; &lt;img src="images/2.16.png" style="width: 90%; align: center"/&gt; &lt;/a&gt;
+
+&lt;/center&gt;
+
+.font_smaller2[(Chapter2/2.16.pdf)]
+
+]
+]
+---
+# Classification
+
+
+&lt;a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.8.pdf" target="_BLANK"&gt; &lt;img src="images/lecture-03b/5.8.png" style="width: 90%; align: center"/&gt; &lt;/a&gt;
+
+Black line is .black[10-fold CV]; .blue[training] and  .orange[test] error (based on knowing the true boundary) for different choices of polynomial (left) and KNN classifier (right). 
+
+
+.font_smaller2[(Chapter 5/ 5.8)]
+---
+
+# Bootstrap samples
+
+&lt;img src="images/lecture-03b/unnamed-chunk-20-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+&lt;center&gt;
+.question-box[Can you see the differences between the data in each plot?]
+&lt;/center&gt;
+
+---
+
+# Bootstrap MSE
+
+- Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result some observations may appear more than once in a given bootstrap data set and .monash-orange2[some not at all]. 
+- Fit the model on each set of bootstrap samples, and calculate MSE for the observations left out of each sample (out-of-bag), call this `\(MSE_{(b)}\)`
+
+`$$MSE_{boot} = \frac1B \sum_{b = 1}^B MSE_{(b)}$$` 
+
+
+---
+
+
+.flex[
+.w-45[
+
+
+```r
+*auto_boots &lt;- bootstraps(Auto)
+boot_results &lt;- 
+  map_df(
+    auto_boots$splits, 
+*   ~compute_fold_mse(.x))
+boot_results
+```
+
+```
+##     poly      mse          id
+## 1      1 24.39040 Bootstrap01
+## 2      2 17.66788 Bootstrap01
+## 3      3 17.86563 Bootstrap01
+## 4      4 18.47839 Bootstrap01
+## 5      1 23.54878 Bootstrap02
+## 6      2 18.76633 Bootstrap02
+## 7      3 18.90653 Bootstrap02
+## 8      4 18.89178 Bootstrap02
+## 9      1 24.05195 Bootstrap03
+## 10     2 18.87384 Bootstrap03
+## 11     3 18.87026 Bootstrap03
+## 12     4 19.05270 Bootstrap03
+## 13     1 24.30959 Bootstrap04
+## 14     2 18.28745 Bootstrap04
+## 15     3 18.19236 Bootstrap04
+## 16     4 18.19210 Bootstrap04
+## 17     1 24.15216 Bootstrap05
+## 18     2 20.06297 Bootstrap05
+## 19     3 20.08127 Bootstrap05
+## 20     4 20.00914 Bootstrap05
+## 21     1 21.73779 Bootstrap06
+## 22     2 16.87488 Bootstrap06
+## 23     3 16.95675 Bootstrap06
+## 24     4 16.95388 Bootstrap06
+## 25     1 25.47770 Bootstrap07
+## 26     2 18.67917 Bootstrap07
+## 27     3 18.67984 Bootstrap07
+## 28     4 18.71383 Bootstrap07
+## 29     1 20.52345 Bootstrap08
+## 30     2 19.80801 Bootstrap08
+## 31     3 21.58916 Bootstrap08
+## 32     4 21.68066 Bootstrap08
+## 33     1 21.25036 Bootstrap09
+## 34     2 17.58441 Bootstrap09
+## 35     3 17.58270 Bootstrap09
+## 36     4 17.87948 Bootstrap09
+## 37     1 26.19675 Bootstrap10
+## 38     2 21.81687 Bootstrap10
+## 39     3 21.74910 Bootstrap10
+## 40     4 21.95004 Bootstrap10
+## 41     1 22.78408 Bootstrap11
+## 42     2 14.13701 Bootstrap11
+## 43     3 14.13397 Bootstrap11
+## 44     4 14.97556 Bootstrap11
+## 45     1 21.93716 Bootstrap12
+## 46     2 15.62879 Bootstrap12
+## 47     3 15.71269 Bootstrap12
+## 48     4 16.16909 Bootstrap12
+## 49     1 20.46639 Bootstrap13
+## 50     2 15.41916 Bootstrap13
+## 51     3 15.64448 Bootstrap13
+## 52     4 15.43021 Bootstrap13
+## 53     1 22.96379 Bootstrap14
+## 54     2 17.40498 Bootstrap14
+## 55     3 17.34599 Bootstrap14
+## 56     4 17.78603 Bootstrap14
+## 57     1 24.56056 Bootstrap15
+## 58     2 20.35007 Bootstrap15
+## 59     3 20.34259 Bootstrap15
+## 60     4 20.38111 Bootstrap15
+## 61     1 22.84032 Bootstrap16
+## 62     2 17.80506 Bootstrap16
+## 63     3 17.71638 Bootstrap16
+## 64     4 17.88362 Bootstrap16
+## 65     1 25.47544 Bootstrap17
+## 66     2 19.45009 Bootstrap17
+## 67     3 20.13744 Bootstrap17
+## 68     4 20.55162 Bootstrap17
+## 69     1 25.32904 Bootstrap18
+## 70     2 18.54040 Bootstrap18
+## 71     3 18.64339 Bootstrap18
+## 72     4 20.06546 Bootstrap18
+## 73     1 23.68924 Bootstrap19
+## 74     2 18.43356 Bootstrap19
+## 75     3 18.44168 Bootstrap19
+## 76     4 18.90815 Bootstrap19
+## 77     1 31.38376 Bootstrap20
+## 78     2 25.63218 Bootstrap20
+## 79     3 25.65846 Bootstrap20
+## 80     4 25.60793 Bootstrap20
+## 81     1 23.70759 Bootstrap21
+## 82     2 19.85431 Bootstrap21
+## 83     3 20.31700 Bootstrap21
+## 84     4 20.30970 Bootstrap21
+## 85     1 24.99647 Bootstrap22
+## 86     2 17.39588 Bootstrap22
+## 87     3 17.56182 Bootstrap22
+## 88     4 18.48041 Bootstrap22
+## 89     1 27.10889 Bootstrap23
+## 90     2 21.67508 Bootstrap23
+## 91     3 22.73595 Bootstrap23
+## 92     4 22.87798 Bootstrap23
+## 93     1 26.04882 Bootstrap24
+## 94     2 19.70487 Bootstrap24
+## 95     3 19.66127 Bootstrap24
+## 96     4 19.81787 Bootstrap24
+## 97     1 20.79453 Bootstrap25
+## 98     2 16.24930 Bootstrap25
+## 99     3 16.60822 Bootstrap25
+## 100    4 17.49974 Bootstrap25
+```
+
+]
+
+.w-45[
+
+&lt;img src="images/lecture-03b/unnamed-chunk-22-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+class: transition middle center
+
+# Best model is quadratic polynomial
+
+All the resampling suggest the same decision
+
+---
+class: informative middle center
+
+# Summary
+
+Re-sampling provides robust estimate of future error, and the variation you are likely to see, in the statistic being calculated, in future samples. 
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 3b
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

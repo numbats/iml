@@ -1,0 +1,224 @@
+---
+title: "ETC3250/5250 Tutorial 10 Instructions"
+subtitle: "Cluster analysis"
+author: "prepared by Professor Di Cook"
+date: "Week 10"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  eval = FALSE,
+  echo = FALSE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+
+## `r emo::ji("target")` Objective
+
+The objectives of this tutorial are to
+
+- learn about computing different distance metrics
+- learn how to conduct cluster analysis, and examine differences based on algorithm choices
+- make data-driven decisions on a useful final number of clusters
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse","tourr","ggdendro","fpc","lubridate"))
+```
+
+Reading textbook chapter 12.4.1-2
+
+### 1. Conduct cluster analysis on simple data
+
+Use the flea data that comes in the `tourr` package, and where we know the true classes. This is the data also used in class examples.
+
+a. Standardise the variables and compute a hierarchical clustering using (i) Wards, (ii) single linkage. Make a plot of the dendrogram of each, and comment on how many clusters might be suggested by each.
+
+b. Choose two cut the dendrograms at the 3 cluster solutions for each, creating new columns corresponding to the cluster label. Using a grand tour, examine the cluster solutions. Comment on which one best captures the cluster structure.
+
+c. Suppose the variables were not standardised. Would this have changed the cluster analysis? How? (Hint: compute the summary statistics for the variables.)
+
+<!-- 6D flea -->
+```{r}
+library(tidyverse)
+library(tourr)
+library(ggdendro)
+library(fpc)
+library(lubridate)
+data(flea)
+
+std <- function(x) (x-mean(x, na.rm=TRUE))/sd(x, na.rm=TRUE)
+flea_std <- flea %>%
+  mutate_if(is.numeric, std)
+
+flea_hc_w <- hclust(dist(flea_std[,1:6]), method = "ward.D2")
+flea_hc_s <- hclust(dist(flea_std[,1:6]), method = "single")
+
+ggdendrogram(flea_hc_w, rotate = TRUE, size = 4)
+ggdendrogram(flea_hc_s, rotate = TRUE, size = 4)
+```
+
+```{r}
+flea_std <- flea_std %>%
+  mutate(cl_w = cutree(flea_hc_w, 3),
+         cl_s = cutree(flea_hc_s, 3))
+
+animate_xy(flea_std[,1:6], col=flea_std$cl_w)
+animate_xy(flea_std[,1:6], col=flea_std$cl_s)
+```
+
+### 2. Cluster statistics graduate programs 
+
+Remember the National Research Council ranking of Statistics graduate programs data. This data contained measurements recorded on departments including total faculty, average number of PhD students, average number of publications, median time to graduate, and whether a workspace is provided to students. These variables can be used to group departments based on similarity on these characteristics.
+
+a. Read the data, handle missing values, select the variables that can be used, and standardise these variables. b. Use Euclidean distance and Wards linkage to conduct a cluster analysis. Draw the dendrogram. How many clusters does it suggest?
+c. For 2 through 10 clusters compute the cluster statistics, "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2". What would be the conclusion on the number of clusters based on these metrics?
+
+```{r}
+# Read the data
+nrc <- read_csv(here::here("data/nrc.csv"))
+
+nrc_vars <- nrc %>%
+  dplyr::select(Institution.Name,
+                Average.Publications:Student.Activities) %>%
+  dplyr::select(-Academic.Plans.Pct) %>%
+  replace_na(list(Tenured.Faculty.Pct = 0, 
+                  Instruction.in.Writing = 0,
+                  Instruction.in.Statistics = 0,
+                  Training.Academic.Integrity = 0,
+                  Acad.Grievance.Proc = 0,
+                  Dispute.Resolution.Proc = 0))
+
+# summary(nrc_vars)
+# Iteratively examine summary statistics to assess missings
+# Academic.Plans.Pct has too many missings to use
+# Other variables have 1-2 missings for different institutions, 
+# can't just ignore them. Fill with 0 puts outside domain of
+# observed data, on the end of "not done/available this program"
+```
+
+```{r}
+nrc_vars <- nrc_vars %>%
+  mutate_if(is.numeric, std)
+
+nrc_hc_w <- hclust(dist(nrc_vars[,-1]), method = "ward.D2")
+nrc_hc_w$labels <- nrc_vars$Institution.Name
+ggdendrogram(nrc_hc_w, rotate=TRUE, size=2)
+```
+
+```{r}
+nrc_hc_cl <- NULL; nrc_hc_cl_stats <- NULL
+for (i in 2:10) {
+  cl <- cutree(nrc_hc_w, i)
+  x <- cluster.stats(dist(nrc_vars[,-1]), cl)
+  nrc_hc_cl <- cbind(nrc_hc_cl, cl)
+  nrc_hc_cl_stats <- rbind(nrc_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(nrc_hc_cl_stats) <- c("cl", "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+nrc_hc_cl_stats <- as_tibble(nrc_hc_cl_stats)
+nrc_hc_cl_stats_long <- nrc_hc_cl_stats %>% 
+  pivot_longer(-cl, names_to ="stat", values_to = "value")
+ggplot(data=nrc_hc_cl_stats_long) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + 
+  theme_bw()
+```
+
+### 3. Cluster currencies using correlation distance
+
+Here we will use cluster analysis on cross-rates date (previously examined with principal component analysis) to explore similar trending patterns. To examine trend a distance based on correlation will be used. Correlation between currencies is calculated and converted into a distance metric. 
+
+a. Read the data. Remove currencies whose cross-rate has not changed over the time period. 
+b. Standardise the rates for each currency, so all are on a scale of mean 0, sd 1. Why do you think this is necessary?
+c. Compute the correlation distance between each pair of currencies:
+$$d_{ij} = 1-r_{c_ic_j}$$ 
+What is the range of this distance metric? What pattern would correspond to the most similar currencies, and what would correspond to most different?
+
+d. Use hierarchical clustering using Wards linkage. Make a dendrogram. How many clusters does it suggest?
+e. Compute the cluster statistics. How many clusters would be suggested?
+f. Make a choice of final number of clusters, and plot the currencies over time, grouped by cluster. Comment on currencies that have similar patterns, in at least one cluster.
+
+```{r}
+# Read the data
+rates <- read_csv(here::here("data/rates_Nov19_Mar20.csv"))
+rates_sd <- rates %>% 
+  pivot_longer(AED:ZWL, names_to = "currency", values_to = "rate") %>%
+  group_by(currency) %>%
+  summarise(s = sd(rate, na.rm=TRUE))
+keep <- rates_sd %>%
+  filter(s > 0)
+
+rates_sub <- rates %>%
+    mutate_if(is.numeric, std) %>%
+    pivot_longer(AED:ZWL, names_to = "currency", 
+                 values_to = "rate") %>%
+    dplyr::filter(currency %in% keep$currency) %>%
+    pivot_wider(names_from = "date", values_from = "rate") 
+```
+
+```{r}
+# Compute correlation distance
+rates_cor <- cor(t(rates_sub[,-1]), 
+                 use = "pairwise.complete.obs", 
+                 method = "pearson")
+rates_cor_dist <- as.dist(1-rates_cor)
+
+rates_hc_w <- hclust(rates_cor_dist, method = "ward.D2")
+rates_hc_w$labels <- rates_sub$currency
+
+ggdendrogram(rates_hc_w, rotate=TRUE, size=2)
+```
+
+```{r}
+rates_hc_cl <- NULL; rates_hc_cl_stats <- NULL
+for (i in 2:20) {
+  cl <- cutree(rates_hc_w, i)
+  x <- cluster.stats(rates_cor_dist, cl)
+  rates_hc_cl <- cbind(rates_hc_cl, cl)
+  rates_hc_cl_stats <- rbind(rates_hc_cl_stats, c(i, x$within.cluster.ss, x$wb.ratio, x$ch, x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(rates_hc_cl_stats) <- c("cl", "within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+rates_hc_cl_stats <- as_tibble(rates_hc_cl_stats)
+rates_hc_cl_stats_long <- rates_hc_cl_stats %>% 
+  pivot_longer(-cl, names_to ="stat", values_to = "value")
+ggplot(data=rates_hc_cl_stats_long) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + 
+  theme_bw()
+```
+
+```{r fig.height = 10, fig.width = 8, out.width="100%"}
+rates_sub_long <- rates_sub %>%
+  mutate(cl = rates_hc_cl[,6]) %>%
+  pivot_longer(`2019-11-01`:`2020-03-31`, 
+               names_to = "date", 
+               values_to = "rate") %>%
+  mutate(date = ymd(date))
+
+p <- ggplot(rates_sub_long, aes(x=date, y=rate, group = currency)) +
+  geom_line() + facet_wrap(~cl, ncol=1, scales="free")
+
+library(plotly)
+ggplotly(p)
+```
+
+
+##### © Copyright 2022 Monash University

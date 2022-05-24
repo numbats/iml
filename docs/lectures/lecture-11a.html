@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.14/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-11a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Model-based clustering&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 11a
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+# Overview
+
+Model-based clustering makes an assumption about the distribution of the data, primarily
+
+- Assumes the data is a sample from a Gaussian mixture model
+- Requires the assumption that clusters have an elliptical shape
+- .monash-orange2[The shape is determined by the variance-covariance of the clusters]
+- .monash-orange2[A variety of models is available by using different constraints on the variance-covariance]
+
+Model is
+
+`$$f(x_i) = \sum_{k=1}^G\pi_kf_k(x_i; \mu_k, \Sigma_k)$$`
+
+where `\(f_k\)` is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC. 
+
+---
+
+&lt;img src="https://bradleyboehmke.github.io/HOML/20-model-clustering_files/figure-html/visualize-different-covariance-models-1.png" width="100%"&gt;
+
+&lt;br&gt;
+&lt;br&gt;
+Source: [Boehmke (2020) Hands-on machine learning](https://bradleyboehmke.github.io/HOML/model-clustering.html)
+
+---
+# Variance-covariance specification
+
+Constraints applied on cluster variance-covariance:
+
+1. .monash-blue2[volume]: each cluster has approximately the same size
+2. .monash-blue2[shape]: each cluster has approximately the same variance so that the distribution is spherical
+3. .monash-blue2[orientation]: each cluster is forced to be axis-aligned
+
+---
+# Variance-covariance contraints
+
+|Model|Family|Volume|Shape|Orientation|Identifier|
+|---|---|---|---|---|---|
+|1|Spherical|Equal|Equal|NA|EII|
+|2|Spherical|Variable|Equal|NA|VII|
+|3|Diagonal|Equal|Equal|Axes|EEI|
+|6|Diagonal|Variable|Variable|Axes|VVI|
+|7|General|Equal|Equal|Equal|EEE|
+|8|General|Equal|Variable|Equal|EVE|
+|10|General|Variable|Variable|Equal|VVE|
+|11|General|Equal|Equal|Variable|EEV|
+|12|General|Variable|Equal|Variable|VEV|
+|14|General|Variable|Variable|Variable|VVV|
+
+---
+class: split-33
+
+.column[.pad50px[
+
+# Example: nuisance variable
+
+&lt;img src="images/lecture-11a/unnamed-chunk-3-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]]
+
+.column[.content.vmiddle[
+
+
+```r
+df_mc &lt;- Mclust(df, G = 2)
+summary(df_mc)
+```
+
+```
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust EEI (diagonal, equal volume and shape) model with 2 components: 
+## 
+##  log-likelihood   n df      BIC      ICL
+##       -204.1509 100  7 -440.538 -440.538
+## 
+## Clustering table:
+##  1  2 
+## 50 50
+```
+
+]]
+---
+class: split-two
+
+.column[.pad50px[
+
+
+```r
+plot(df_mc, what = "density")
+```
+
+&lt;img src="images/lecture-11a/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+.column[.pad50px[
+
+
+```r
+plot(df_mc, what = "uncertainty")
+```
+
+&lt;img src="images/lecture-11a/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+---
+class: split-two
+# Parameter estimates
+
+.column[.pad50px[
+
+&lt;br&gt;
+&lt;br&gt;
+
+Cluster means
+
+
+```r
+options(digits=2)
+df_mc$parameters$mean
+```
+
+```
+##     [,1]  [,2]
+## x1 -0.97  0.97
+## x2  0.11 -0.11
+```
+]]
+
+.column[.pad50px[
+
+Cluster variances
+
+
+```r
+df_mc$parameters$variance$sigma
+```
+
+```
+## , , 1
+## 
+##       x1   x2
+## x1 0.052 0.00
+## x2 0.000 0.98
+## 
+## , , 2
+## 
+##       x1   x2
+## x1 0.052 0.00
+## x2 0.000 0.98
+```
+
+]]
+
+---
+class: split-33
+
+.column[.pad50px[
+# Example: nuisance observations
+
+&lt;img src="images/lecture-11a/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]]
+
+.column[.content.vmiddle[
+
+```r
+df_mc &lt;- Mclust(df, G = 2)
+summary(df_mc)
+```
+
+```
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust EEE (ellipsoidal, equal volume, shape and orientation) model with 2
+## components: 
+## 
+##  log-likelihood   n df  BIC  ICL
+##            -205 120  8 -447 -452
+## 
+## Clustering table:
+##  1  2 
+## 61 59
+```
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+
+```r
+plot(df_mc, what = "density")
+```
+
+&lt;img src="images/lecture-11a/unnamed-chunk-11-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+.column[.pad50px[
+
+
+```r
+plot(df_mc, what = "uncertainty")
+```
+
+&lt;img src="images/lecture-11a/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+class: split-two
+# Parameter estimates
+
+.column[.pad50px[
+
+&lt;br&gt;
+&lt;br&gt;
+
+Cluster means
+
+
+```r
+df_mc$parameters$mean
+```
+
+```
+##     [,1] [,2]
+## x1 -0.88 0.92
+## x2 -0.88 0.92
+```
+]]
+
+.column[.pad50px[
+
+Cluster variances
+
+
+```r
+df_mc$parameters$variance$sigma
+```
+
+```
+## , , 1
+## 
+##       x1    x2
+## x1 0.186 0.081
+## x2 0.081 0.185
+## 
+## , , 2
+## 
+##       x1    x2
+## x1 0.186 0.081
+## x2 0.081 0.185
+```
+
+]]
+---
+class: split-66
+
+.column[.pad50px[
+
+
+```r
+set.seed(6)
+data(flea)
+flea_mc &lt;- Mclust(flea[,2:7])
+summary(flea_mc)
+```
+
+```
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust EEE (ellipsoidal, equal volume, shape and orientation) model with 3
+## components: 
+## 
+##  log-likelihood  n df   BIC   ICL
+##           -1305 74 41 -2786 -2786
+## 
+## Clustering table:
+##  1  2  3 
+## 21 31 22
+```
+]]
+
+.column[.content.vmiddle[
+# Example: flea with nuisance variables and observations
+
+Let model-based decide number of clusters, and variance-covariance parametrization.
+
+&lt;img src="images/lecture-11a/unnamed-chunk-16-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+&lt;img src="images/lecture-11a/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+- The spherical models are clearly inferior.
+- Across many models, three clusters is where ther is a peak in BIC
+- A few parametrisations are nearly equally as good, pick the simplest.
+]]
+
+.column[.pad50px[
+
+&lt;img src="images/lecture-11a/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]]
+
+---
+class: split-two
+# Parameter estimates
+
+.column[.pad50px[
+&lt;br&gt;
+
+Cluster means
+
+
+```r
+flea_mc$parameters$mean
+```
+
+```
+##       [,1] [,2] [,3]
+## tars1  183  201  138
+## tars2  130  119  125
+## head    51   49   52
+## aede1  146  125  138
+## aede2   14   14   10
+## aede3  105   81  107
+```
+]]
+
+.column[.pad50px[
+
+Cluster variances
+
+.scroll-800[
+
+```r
+flea_mc$parameters$variance$sigma[,,1]
+```
+
+```
+##        tars1 tars2  head aede1  aede2  aede3
+## tars1 154.70 56.36 19.99 21.83  0.153 20.125
+## tars2  56.36 52.48 10.78  9.44 -0.464 11.510
+## head   19.99 10.78  5.87  6.22 -0.223  4.609
+## aede1  21.83  9.44  6.22 22.09 -0.537 11.220
+## aede2   0.15 -0.46 -0.22 -0.54  0.973  0.056
+## aede3  20.13 11.51  4.61 11.22  0.056 52.380
+```
+]
+
+]]
+
+---
+# Summary
+
+- Model-based clustering provides a nice automated clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.
+- Non-elliptical clusters could be modeled by combining multiple ellipses.
+- It is affected by nuisance observations, and has a parameter `noise` to attempt to filter these.
+- It may not function so well if the data hasn't got separated clusters.
+- k-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).
+- Having a functional model for the clusters is useful.
+
+---
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 11a
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

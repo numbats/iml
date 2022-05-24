@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.13/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    <script src="lib/kePrint-0.0.1/kePrint.js"></script>
+    <link href="lib/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-05a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Visualisation of multivariate data&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 5a
+
+&lt;br&gt;
+
+]
+
+
+
+---
+
+
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Why is visualisation important?
+
+&lt;br&gt;
+
+Consider the following datasets, known as .green[Anscombe's quartet], which all have the same numerical statistical summaries.
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;font-family: monospace;background-color: #daf2e9 !important;"&gt; set &lt;/th&gt;
+   &lt;th style="text-align:right;font-family: monospace;background-color: #daf2e9 !important;"&gt; mx &lt;/th&gt;
+   &lt;th style="text-align:right;font-family: monospace;background-color: #daf2e9 !important;"&gt; my &lt;/th&gt;
+   &lt;th style="text-align:right;font-family: monospace;background-color: #daf2e9 !important;"&gt; sx &lt;/th&gt;
+   &lt;th style="text-align:right;font-family: monospace;background-color: #daf2e9 !important;"&gt; sy &lt;/th&gt;
+   &lt;th style="text-align:right;font-family: monospace;background-color: #daf2e9 !important;"&gt; r &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;border-right:1px solid;border-left:1px solid;font-family: monospace;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 7.5 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 3.32 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 2.03 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;border-right:1px solid;border-left:1px solid;font-family: monospace;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 7.5 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 3.32 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 2.03 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;border-right:1px solid;border-left:1px solid;font-family: monospace;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 7.5 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 3.32 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 2.03 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;border-right:1px solid;border-left:1px solid;font-family: monospace;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 7.5 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 3.32 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 2.03 &lt;/td&gt;
+   &lt;td style="text-align:right;border-right:1px solid;font-family: monospace;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+]]
+
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Why is visualisation important?
+
+&lt;br&gt;
+
+
+Consider the following datasets, known as .green[Anscombe's quartet], which all have the same numerical statistical summaries.
+
+&lt;br&gt;
+
+.monash-orange2[Plots provide a more detailed statistical summary.]
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/lecture-05a/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Why is visualisation important?
+
+&lt;br&gt;
+
+
+.tip[Very .monash-orange2[different data] can have the .monash-orange2[same numerical summaries].]
+
+[Datasaurus dozen](https://www.autodeskresearch.com/publications/samestats): all have the same means, standard deviations and correlation, also.
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/lecture-05a/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+---
+## Why is visualisation important?
+
+&lt;br&gt;
+
+In machine learning visualisation is used for:
+
+- .monash-orange2[Initial data analysis]: to examine whether the data 
+    - satisfies assumptions required for the method
+    - has unexpected complications like outliers or nonlinearity
+- .monash-orange2[Assess the model fit]:    
+    - predicted vs observed
+    - residuals
+    - boundaries between classes
+
+    
+---
+## High dimensional visualisation
+
+Common methods for visualising high-dimensions
+
+- Tour
+- Parallel coordinate plot
+- Scatterplot matrix
+- Mosaic plot
+
+Most of what you find when you google "visualising high-dimensions" is awful, e.g. use colour and symbol after 3D to show 5D; PCA, MDS, tSNE, are visualisation methods; "you can't see beyond 3D".... Rubbish!
+
+
+---
+## Dimensionality
+
+&lt;br&gt;
+
+&lt;center&gt;
+&lt;img src="images/lecture-05a/cubes.png" style="width: 90%; align: center" /&gt;
+&lt;/center&gt;
+
+- When you add another variable, you implicitly add another orthogonal axis. 
+- The space is effectively a `\(p\)`-dimensional cube
+- The data might not fill the cube, and then dimension reduction might make it a `\(k(&lt;p)\)`-dimensional cube
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Grand tours
+
+&lt;br&gt;
+
+A .monash-orange2[grand tour] is by definition a movie of low-dimensional projections constructed in such a way that it comes arbitrarily close to showing all possible low-dimensional projections; in other words, a grand tour is a space-filling curve in the manifold of low-dimensional projections of high-dimensional data spaces.
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/lecture-05a/hands.png" width="60%"&gt;
+
+]]
+
+
+---
+
+class: split-60
+
+.column[.pad50px[
+
+
+## Notation
+
+- `\({\mathbf x}_i \in \mathcal{R}^p\)`, `\(i^{th}\)` data vector
+- `\(d\)` projection dimension
+- `\(F\)` is a `\(p\times d\)` orthonormal basis, `\(F'F=I_d\)`
+- The projection of `\({\mathbf x}\)` onto `\(F\)` is `\({\mathbf y}_i=F'{\mathbf x}_i\)`.
+- Its a movie, so the tour is indexed by time, `\(F(t)\)`, where `\(t\in [a, z]\)`. Starting and target frame denoted as `\(F_a = F(a), F_z=F(t)\)`.
+- The animation of the projected data is given by a path `\({\mathbf y}_i(t)=F'(t){\mathbf x}_i\)`.
+
+]]
+
+.column[.content.vmiddle.center[
+
+&lt;img src="images/lecture-05a/tour_path.png" style="width: 90%; align: center" /a&gt;
+
+]]
+
+---
+## Examples
+
+
+
+`\(p=3, d=2\)`
+
+&lt;iframe src="images/lecture-05a/flea3d.html" width="800" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+
+
+
+---
+## Examples
+
+
+
+`\(p=6, d=2\)`
+
+&lt;iframe src="images/lecture-05a/flea6d.html" width="800" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+
+
+
+
+---
+## Examples
+
+
+
+
+`\(p=7, d=2\)`
+
+&lt;iframe src="images/lecture-05a/track.html" width="800" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+
+
+
+---
+## Examples
+
+&lt;br&gt;
+
+With the grand tour, you can get a good overall sense of the distribution (shape) of the data in its `\(p\)`-dimensional space:
+
+- In the first data set, the primary shape are .monash-orange2[three well separated clusters]
+- In the track data, the primary shape is that it lives in essentially a .monash-orange2[1-D] subspace, with a small amount of variation in other directions. It is also possible to see several .monash-orange2[outliers].
+
+---
+## Guided tours
+
+
+.tip[.font_small[.content[
+Remember: projection pursuit
+
+`$$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} f\left(\sum_{j=1}^p \phi_{j1}x_{ij}\right) \text{ subject to }
+\sum_{j=1}^p \phi^2_{j1} = 1$$`
+]]]
+
+The guided tour chooses new target projections by optimising a function of interest:
+.font_small[
+- `holes`: This is an inverse Gaussian filter, which is optimised wheren there is not much data in the center of the projection, i.e. a "hole" or donut shape in 2D.
+- `central mass`: The opposite of holes, high density in the centre of the projection, and often "outliers" on the edges. 
+- `LDA`: An index based on the linear discrimination dimension reduction, optimised by projections where the named classes are most separated.
+]
+
+
+---
+## Guided tours
+
+
+
+`\(p=6, d=2,\)` guidance using the LDA index
+
+&lt;iframe src="images/lecture-05a/flea6d_lda.html" width="800" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+
+
+
+---
+## Usage - in R
+
+To run a tour live:
+
+
+```r
+library(tourr)
+animate_xy(flea[, 1:6])
+animate(flea[, 1:6], tour_path=grand_tour(),
+  display=display_xy(axes = "bottomleft"))
+animate_xy(flea[,-7], col=flea$species)
+```
+
+
+
+
+---
+## Others
+
+&lt;br&gt;
+
+- .monash-orange2[Little]: Interpolates between all possible pairs of variables. Like the scatterplot matrix, but animated between them.
+- .monash-orange2[Local]: Rocks back and forth from a given projection, so shows all possible projections within a radius.
+- .monash-orange2[Frozen]: Fixes some of the values of the orthonormal projection matrix and allows the others to vary freely according to any of the other tour methods. 
+- .monash-orange2[Manual]: Control the contribution of a single variable, and move along this axis. This is really useful to examine the sensitivity of structure (e.g. clustering) to the contribution of a variable. Maybe the variable can be "zero'd out" and the structure would not be affected, thus simplifying the "model". This is available in the .monash-orange2[spinifex] package.
+
+
+---
+## Rendering
+
+&lt;br&gt;
+
+.tip[The projection dimension `\\(d\\)` can be 1, 2, 3, ... It is just a projection of the data, and then you need to decide how to *render* the data.]
+
+&lt;br&gt;
+
+- *d=1* : The projected data can be displayed as a dotplot, density, histogram, boxplot, ...
+- *d&gt;2* : Use stereo (for *d=3* ) or a scatterplot matrix (or parallel coordinate plot)
+
+
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 5a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

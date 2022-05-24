@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.13/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-07a.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Random forests&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 7a
+
+&lt;br&gt;
+
+]
+
+
+
+
+---
+# What's wrong with a single tree?
+&lt;br&gt;
+&lt;center&gt;
+&lt;img src="images/lecture-07a/overfitting.jpg" style="width: 70%"/&gt;
+&lt;/center&gt;
+
+.font_tiny[Source: Hugh MacLeod / Statistical Statistics Memes]
+---
+# Solution? Ensemble methods
+
+Ensemble methods use multiple learning algorithms to obtain better predictive performance than any of the single constituents.
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/seagulls.jpg" style="width: 70%"/&gt;
+&lt;/center&gt;
+
+
+---
+
+# Roadmap
+
+We will learn about different ensembles, increasing in complexity (but also potentially in predictive performance) as we go. These methods are
+
+- .monash-blue2[Bagging]: combine the predictions of multiple trees, fitted on bootstrap samples.
+- .monash-blue2[Random forests]: combine predictions from bagged trees, plus random samples of predictors.
+- .monash-blue2[Boosted trees]: combine predictions from trees sequentially fit to residuals from previous fit.
+
+
+---
+# Bootstrap aggregation
+
+- Take `\(B\)` different *bootstrapped* training sets:
+`$$D_1, D_2, \dots, D_B$$`
+- Build a separate prediction model using each `\(D_{(\cdot)}\)`:
+`$$\hat{f}_1(x), \hat{f}_2(x), \dots, \hat{f}_B(x)$$`
+- Combine resulting predictions, e.g. average
+`$$\hat{f}_{\text{avg}}(x) = \frac1B \sum_{b = 1}^{B} \hat{f}_b(x)$$`
+
+
+
+---
+# Bagging trees
+
+.monash-orange2[Bagged trees]
+
+- Construct `\(B\)` regression trees using `\(B\)` bootstrapped training sets, and average the resulting predictions. 
+- Each individual tree has .monash-orange2[high variance, but low bias]. 
+- Averaging these `\(B\)` trees .monash-orange2[reduces the variance]. 
+- For classification trees, there are several possible aggregation methods, but the simplest is the **majority vote**. 
+	
+---
+
+# Bagged trees - construction
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/bagging-1.png" style="width: 100%"/&gt;
+&lt;/center&gt;
+
+
+---
+# Bagged trees - construction
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/bagging-2.png" style="width: 100%"/&gt;
+&lt;/center&gt;
+
+---
+# Bagged trees - construction
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/bagging-3.png" style="width: 100%"/&gt;
+&lt;/center&gt;
+
+---
+# Bagged trees - construction
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/bagging-4.png" style="width: 100%"/&gt;
+&lt;/center&gt;
+
+---
+# Bagged trees - construction
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/bagging-5.png" style="width: 100%"/&gt;
+&lt;/center&gt;
+---
+# Out of bag error
+
+- .monash-orange2[No need to use (cross-)validation] to **estimate the test error** of a bagged model (**debatable by some**).
+- On average, each bagged tree makes use of around .monash-orange2[two-thirds of the observations]. (Check the textbook exercise.)
+- The remaining observations not used to fit a given bagged tree are referred to as the .monash-orange2[out-of-bag (OOB)] observations.
+- We can predict the response for the `\(i^{th}\)` observation using each of the trees in which that observation was OOB. This will yield around .monash-orange2[B/3 predictions] for the `\(i^{th}\)` observation.
+- To obtain a single prediction for the `\(i^{th}\)` observation, average these predicted responses (regression) or can take a majority vote (classification).
+	
+
+---
+
+# From bagging to random forests
+
+However, when bagging trees, a problem still exists. Although the model building steps are independent, the trees in bagging are not completely independent of each other since all the original features are considered at every split of every tree. Rather, trees from different bootstrap samples typically have similar structure to each other (especially at the top of the tree) due to any underlying strong relationships.
+
+To deal with this, we can use .monash-orange2[random forests] to help over come this, by sampling the predictors as well as the samples!
+
+---
+# Random forests  - the algorithm 
+
+
+1. Input: `\(L = {(x_i, y_i), i=1, ..., n}, y_i \in \{1, ..., k\}, m &lt; p\)`, number of variables chosen for each tree, `\(B\)` is the number of bootstrap samples.
+2. For `\(b =1, 2, ..., B\)`:
+
+  i. Draw a bootstrap sample, `\(L^{*b}\)` of size `\(n^{*b}\)` from `\(L\)`.
+    
+  ii. Grow tree classifier, `\(T^{*b}\)`. .monash-blue2[At each node use a random selection of `\\(m\\)` variables, and grow to maximum depth without pruning.]
+    
+  iii. Predict the class of each case not drawn in `\(L^{*b}\)`.
+    
+3. Combine the predictions for each case, by majority vote, to give predicted class.
+	
+
+
+---
+# Random forest - diagnostics
+
+- Error is computed automatically on the out-of-bag cases.
+- .monash-orange2[Variable importance]: more complicated than one might think
+- .monash-orange2[Vote matrix], `\(n\times K\)`: Proportion of times a case is predicted to the class `\(k\)`.
+- .monash-orange2[Proximities], `\(n\times n\)`: Closeness of cases measured by how often they are in the same terminal node.
+
+
+---
+layout: true
+
+# Variable importance
+
+.row[.content[
+1.For every tree predict the oob cases and count the number of votes .monash-orange2[cast for the correct class]. 
+]]
+.row[.content[
+2..monash-orange2[Randomly permute] the values on a variable in the oob cases and predict the class for these cases. 
+]]
+.row[.content[
+3.Difference the votes for the correct class in the variable-permuted oob cases and the real oob cases. Average this number over all trees in the forest. If the .monash-orange2[value is large, then the variable is very important]. 
+]]
+.row[.content[
+Alternatively, .monash-orange2[Gini importance] adds up the difference in impurity value of the descendant nodes with the parent node. Quick to compute.
+]]
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+Read a fun explanation here by [Harriet Mason](https://numbat.space/post/permutation_variable_importance/permutationvariableimportance/)
+---
+class: fade-row2 fade-row3 fade-row4
+count: false
+---
+class: fade-row3 fade-row4
+count: false
+---
+class: fade-row4
+count: false
+---
+count: false
+
+---
+layout: false
+
+# Vote Matrix
+
+- .monash-orange2[Proportion of trees] the case is predicted to be each class, ranges between 0-1
+- Can be used to .monash-orange2[identify troublesome] cases.
+- Used with plots of the actual data can help determine if it is the record itself that is the problem, or if method is biased.
+- Understand the difference in accuracy of prediction for different classes.
+
+---
+layout: false
+
+# Proximities
+
+- Measure how each pair of observations land in the forest
+- Run both in- and out-of-bag cases down the tree, and increase proximity value of cases `\(i, j\)` by 1 each time they are in the same terminal node. 
+- Normalize by dividing by `\(B\)`.
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Example - Olive oil data
+
+Distinguish the region where oils were produced by their fatty acid signature. 
+Important in quality control and in determining fraudulent marketing. 
+
+**Areas in the south:**
+
+1. North-Apulia &lt;br&gt;
+2. Calabria &lt;br&gt;
+3. South-Apulia &lt;br&gt;
+4. Sicily
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+&lt;img src="images/lecture-07a/Italian-olive-oils-map.png" style="width: 60%"/&gt;
+
+
+]]
+
+
+---
+
+# Example - Olive oil data
+
+Classifying the olive oils in the south of Italy - difficult classification task.
+
+
+
+
+
+
+
+&lt;center&gt;
+&lt;iframe src="olive1.html" width="800" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+&lt;/center&gt;
+
+
+---
+# Example - random forest fit
+
+
+```r
+set.seed(2021)
+olive &lt;- olive %&gt;%
+  mutate(area = factor(area)) %&gt;% 
+  dplyr::select(area:arachidic) 
+olive_split &lt;- initial_split(olive, 2/3, 
+                             strata = area)
+olive_tr &lt;- training(olive_split) 
+olive_ts &lt;- testing(olive_split) 
+
+*olive_rf &lt;- rand_forest() %&gt;%
+* set_engine("randomForest",
+*            importance=TRUE, proximity=TRUE) %&gt;%
+* set_mode("classification") %&gt;%
+* fit(area~., data=olive_tr)
+```
+
+---
+
+
+```
+## parsnip model object
+## 
+## 
+## Call:
+##  randomForest(x = maybe_data_frame(x), y = y, importance = ~TRUE,      proximity = ~TRUE) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 7.94%
+## Confusion matrix:
+##   1  2   3  4 class.error
+## 1 9  1   0  2 0.250000000
+## 2 1 33   2  1 0.108108108
+## 3 0  0 141  1 0.007042254
+## 4 0  4   5 14 0.391304348
+```
+
+---
+
+# Test set confusion and accuracy
+
+
+```r
+olive_ts_pred &lt;- olive_ts %&gt;%
+  mutate(.pred = predict(olive_rf, olive_ts)$.pred_class)
+conf_mat(olive_ts_pred, area, .pred)$table %&gt;% addmargins()
+```
+
+```
+##           Truth
+## Prediction   1   2   3   4 Sum
+##        1    11   0   0   0  11
+##        2     0  19   0   1  20
+##        3     0   0  64   3  67
+##        4     2   0   0   9  11
+##        Sum  13  19  64  13 109
+```
+
+```r
+bal_accuracy(olive_ts_pred, area, .pred)$.estimate
+```
+
+```
+## [1] 0.9299813
+```
+
+---
+
+# Diagnostics - variable importance
+
+
+```
+##                  1     2      3     4
+## palmitic     0.237 0.025 0.0097 0.052
+## palmitoleic  0.228 0.121 0.1194 0.158
+## stearic      0.010 0.093 0.0256 0.117
+## oleic        0.232 0.089 0.0574 0.060
+## linoleic     0.168 0.226 0.1237 0.065
+## linolenic   -0.017 0.152 0.0112 0.062
+## arachidic    0.076 0.015 0.0063 0.089
+```
+
+```
+##             MeanDecreaseAccuracy MeanDecreaseGini
+## palmitic                   0.029             10.4
+## palmitoleic                0.129             25.1
+## stearic                    0.045             10.6
+## oleic                      0.071             20.9
+## linoleic                   0.136             24.5
+## linolenic                  0.039              9.9
+## arachidic                  0.020              8.5
+```
+
+
+---
+# Important variables
+
+&lt;center&gt;
+&lt;img src="images/lecture-07a/unnamed-chunk-10-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;/center&gt;
+
+---
+class: split-40
+
+
+.column[.pad50px[
+# Diagnostics - vote matrix 
+
+
+&lt;br&gt;
+
+Examining the vote matrix allows us to see which samples the algorithm had trouble classifying.
+
+.monash-orange2[Look rows 3 and 5. How confident would you be in the classifications of these two observations?]
+]]
+.column[.content.vmiddle[
+
+
+
+
+```
+## # A tibble: 10 × 4
+##    `1`      `2`      `3`      `4`     
+##    &lt;matrix&gt; &lt;matrix&gt; &lt;matrix&gt; &lt;matrix&gt;
+##  1 0.704433 0.01970  0.00000  0.27586 
+##  2 0.761628 0.03488  0.00000  0.20349 
+##  3 0.615789 0.01579  0.00000  0.36842 
+##  4 0.010638 0.73404  0.18617  0.06915 
+##  5 0.059140 0.48387  0.34409  0.11290 
+##  6 0.000000 0.77540  0.10160  0.12299 
+##  7 0.011364 0.92614  0.02273  0.03977 
+##  8 0.005556 0.69444  0.08889  0.21111 
+##  9 0.033708 0.56180  0.02247  0.38202 
+## 10 0.039106 0.33520  0.00000  0.62570
+```
+
+]]
+
+---
+class: split-50
+layout: false
+
+.column[.pad10px[
+
+&lt;img src="images/lecture-07a/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+]]
+.column[.top50px[
+
+&lt;img src="images/lecture-07a/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+
+
+
+]]
+
+---
+
+# From Random Forests to Boosting
+
+Whereas random forests build an ensemble of .monash-blue2[deep independent trees], .monash-orange2[boosted trees] build an ensemble of .monash-orange2[shallow trees in sequence] with each tree learning and improving on the previous one.
+
+&lt;center&gt;
+&lt;img src="https://bradleyboehmke.github.io/HOML/images/boosted-trees-process.png" style="width: 90%"/&gt;
+&lt;/center&gt;
+
+.font_tiny[Source: [Boehmke (2020) Hands on Machine Learning with R](https://bradleyboehmke.github.io/HOML/)]
+
+---
+# Boosted trees - the algorithm
+
+Boosting iteratively fits multiple trees, sequentially putting .monash-orange2[more weight] on observations that have predicted inaccurately. 
+
+1. Set `\(\hat{f}(x)=0\)` and `\(r_i=y_i \forall i\)` in training set
+2. For b=1, 2, ..., B, repeat:&lt;br&gt;
+    a. Fit a tree `\(\hat{f}^b\)` with `\(d\)` splits ( `\(d+1\)` terminal nodes)&lt;br&gt;
+    b. Update `\(\hat{f}\)` by adding a weighted new tree `\(\hat{f}(x) = \hat{f}(x)+\lambda\hat{f}^b(x)\)`. &lt;br&gt;
+    c. Update the residuals `\(r_i = r_i - \lambda\hat{f}^b(x_i)\)` &lt;br&gt;
+3. Output boosted model, `\(\hat{f}(x) = \sum_{b=1}^B\lambda\hat{f}^b(x)\)`
+
+&lt;br&gt;&lt;br&gt;
+Read a fun explanation of boosting here by [Harriet Mason](https://numbat.space/post/boosting/).
+---
+
+# Boosting a regression tree - watch this!
+
+StatQuest by Josh Starmer
+
+&lt;br&gt;
+&lt;p align="center"&gt;
+&lt;iframe width="750" height="421" src="https://www.youtube.com/embed/3CC4N4z3GJc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;/p&gt;
+
+---
+# Boosting a classification tree - watch this!
+
+StatQuest by Josh Starmer
+
+&lt;p align="center"&gt;
+&lt;iframe width="708" height="398" src="https://www.youtube.com/embed/jxuNLH5dXCs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;/p&gt;
+
+---
+# More resources
+
+Cook &amp; Swayne (2007) "Interactive and Dynamic Graphics for Data Analysis: With Examples Using R and GGobi" have several videos illustrating techniques for exploring high-dimensional data in association with trees and forest classifiers:
+
+- [Trees video](http://www.ggobi.org/book/chap-class/Trees.mov)
+- [Forests video](http://www.ggobi.org/book/chap-class/Forests.mov)
+
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 7a
+
+&lt;br&gt;
+
+]
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

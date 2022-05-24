@@ -1,0 +1,646 @@
+---
+title: "ETC3250/5250: Introduction to Machine Learning"
+subtitle: "Classification Trees"
+author: "Professor Di Cook"
+email: "ETC3250.Clayton-x@monash.edu"
+date: "Week 6a"
+length: "50 minutes"
+department: "Department of Econometrics and Business Statistics"
+titlebgimg: "images/bg-02.png"
+output:
+  xaringan::moon_reader:
+    css:
+      - ninjutsu 
+      - "assets/font-awesome-all.css"
+      - "assets/tachyons-addon.css"
+      - "assets/animate.css"
+      - "assets/fira-code.css"
+      - "assets/boxes.css"
+      - "assets/table.css"
+      - "assets/styles.css"
+      - "assets/monash-brand.css"
+      - "assets/monash-fonts.css"
+      - "assets/slide-types.css"
+      - "assets/custom.css"
+      - "assets/panelset.css"
+    self_contained: false 
+    seal: false 
+    chakra: 'lib/remark-latest.min.js'
+    includes:
+      in_header: "assets/head.html"
+    lib_dir: lib
+    #includes:
+    #  in_header: "assets/custom.html"
+    mathjax: "lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    nature:
+      highlightStyle: magula
+      highlightLanguage: r 
+      highlightLines: true
+      highlightSpans: false 
+      countIncrementalSlides: false
+      slideNumberFormat: '%current%/%total%'
+      navigation:
+        scroll: false 
+        touch: true
+        click: false
+      ratio: '16:9'
+---
+
+```{r, include = FALSE}
+current_file <- knitr::current_input()
+basename <- gsub(".Rmd$", "", current_file)
+
+knitr::opts_chunk$set(
+  fig.path = sprintf("images/%s/", basename),
+  fig.width = 6,
+  fig.height = 4,
+  out.width = "100%",
+  fig.align = "center",
+  fig.retina = 4,
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  cache = FALSE,
+  cache.path = "cache/"
+)
+```
+
+```{r titleslide, child="assets/titleslide.Rmd"}
+```
+
+```{r}
+library(ISLR)
+library(tidyverse)
+library(broom)
+library(tidymodels) 
+library(workflows)
+library(purrr)
+library(patchwork)
+library(MASS)
+library(kableExtra)
+library(ggpubr)
+library(mvtnorm)
+library(rpart.plot)
+```
+---
+class: split-two
+
+.column[.pad50px[
+
+# What is a decision tree?
+
+<br>
+
+Tree based models consist of one or more of nested `if-then` statements for the predictors that partition the data. Within these partitions, a model is used to predict the outcome.
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+<img src="images/lecture-06a/tree.jpg" style="width: 70%"/>
+
+ .font_tiny[Source: [Egor Dezhic](becominghuman.ai)]
+
+
+]]
+
+
+---
+# Classification trees
+
+- A classification tree is used to predict a .monash-orange2[categorical response] and regression tree is used to predict a quantitative response
+- Use a recursive binary splitting to grow a classification tree. That is, sequentially break the data into two subsets, typically using a single variable each time.
+- The predicted value for a new observation, $x_0$, will be the .monash-orange2[most commonly occurring class] of training observations in the sub-region in which $x_0$ falls
+
+---
+# Algorithm: growing a tree
+
+1. All observations in a single set
+2. Sort values on first variable
+3. Compute split criteria for all possible splits into two sets
+4. Choose the best split on this variable
+5. Repeat 2-4 for all other variables
+6. Choose the best split among all variables. Your data is now in two sets. 
+7. Repeat 1-6 on each subset.
+8. Stop when stopping rule is achieved. 
+---
+class: split-two
+
+.column[.pad50px[
+
+# Split criteria - purity/impurity metrics
+
+For $K$ classes, and subset $m$
+
+- The .monash-orange2[Gini index] measures is defined as:
+	$$G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})$$
+- .monash-orange2[Entropy] is defined as
+	$$D = - \sum_{k =1}^K \hat{p}_{mk} log(\hat{p}_{mk})$$ 
+- If all $\hat{p}_{mk}$’s close to zero or one, $G$ and $D$ are small. .monash-orange2[Lower is better!]
+]]
+.column[.pad50px[
+# Stopping rules
+
+- .monash-orange2[Minimum split]: number of observations in a node, in order for a split to be made
+- .monash-orange2[Minimum bucket]: Minimum number of observations allowed in a terminal node
+- .monash-orange2[Complexity parameter]: minimum difference between impurity values required to continue splitting
+]
+]
+
+---
+class: split-two
+
+
+.column[.pad50px[
+# Illustration for one variable
+
+```{r}
+set.seed(65)
+df <- tibble(x = sort(sample(10:90, 7)), y = c("A", "A", "B", "A", "A", "B", "B"))
+df %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+.monash-orange2[Note that x is sorted from lowest to highest!]
+
+]]
+.column[.pad50px[
+
+<br> <br>
+
+```{r fig.width=5, fig.height=3, out.width="100%"}
+possible_splits <- df$x[-7] + 
+  diff(df$x, lag = 1, differences = 1)/2
+ggplot(df, aes(x=x, y=y)) + geom_point() +
+  geom_vline(xintercept = possible_splits, colour = "#D93F00") +
+  annotate("text", x = possible_splits, y=2.25, 
+           label = 1:6, colour = "#D93F00")
+```
+
+What do you think is the best split? 2, 3 or 5??
+
+]]
+
+---
+
+class: split-two
+
+
+.column[.pad50px[
+# Calculate the impurity for a split
+
+.monash-orange2[Look at split 5.] 
+
+The .monash-orange2[left] bucket is
+
+```{r}
+df %>%
+  slice(1:5) %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+
+and the .monash-orange2[right] bucket is
+
+```{r}
+df %>%
+  slice(6:7) %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+
+]]
+.column[.pad50px[
+
+Using Gini $G = \sum_{k =1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})$
+
+.monash-orange2[Left] bucket: 
+
+$$\hat{p}_{LA} = 4/5, \hat{p}_{LB} = 1/5, ~~ p_L = 5/7$$
+
+$$G_L=0.8(1-0.8)+0.2(1-0.2) = 0.32$$
+
+.monash-orange2[Right] bucket: 
+
+$$\hat{p}_{RA} = 0/2, \hat{p}_{RB} = 2/2, ~~ p_R = 2/7$$
+
+$$G_R=0(1-0)+1(1-1) = 0$$
+Combine with weighted sum to get .monash-orange2[impurity for the split]:
+
+$$5/7G_L + 2/7G_R=0.32$$
+.monash-blue2[Your turn: compute the impurity for split 2.]
+]]
+
+---
+
+class: split-two
+
+
+.column[.pad50px[
+# Splits on categorical variables
+
+```{r fig.width=5, fig.height=3, out.width="100%"}
+df_c <- tibble(x=c("emu", "emu", "roo", "roo", "koala", "koala"),
+               y=c("A", "B", "A", "B", "A", "B"),
+               count=c(5,3,7,1,2,6))
+ggplot(df_c, aes(x=x, y=count, fill=y)) + 
+  geom_col() +
+  scale_fill_brewer("", palette = "Dark2")
+```
+
+
+Split would be "if koala then assign to B else assign to A"
+]]
+
+.column[.pad50px[
+# Handling missing values
+
+```{r}
+set.seed(87)
+df_m <- tibble(x1 = sample(10:20, 8), 
+               x2 = sample(-10:0, 8),
+               x3 = sample(21:37, 8),
+               x4 = sample(-35:(-23), 8),
+               y=c("A", "A", "B", "A", "A", "B", "B", "B")) 
+df_m$x1[2] <- NA
+df_m$x2[3] <- NA
+df_m$x3[5] <- NA
+df_m$x4[6] <- NA
+df_m %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+50% of cases have missing values, which causes most methods to falter. For trees missings only on a single variable are ignored. 
+
+]]
+
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Example - predicting heart disease
+
+<br>
+
+$Y$: AHD, presence of heart disease (Yes/No)
+
+$X$: heart and lung function measurements
+
+<br>
+
+```{r results='markup'}
+library(tidyverse)
+library(ISLR)
+library(rpart)
+library(rpart.plot)
+library(caret)
+heart <- read_csv(here::here("data/Heart.csv")) %>%
+  dplyr::select(-`...1`) %>% mutate(AHD=factor(AHD))
+heart <- heart %>% filter(!is.na(Ca)) %>% filter(!is.na(Thal))
+options(width=30)
+colnames(heart)
+```
+
+
+]]
+
+.column[.content.center[
+
+```{r}
+heart <- heart %>% 
+  dplyr::select(Age:AHD)
+set.seed(2019)
+heart_split <- initial_split(heart, prop = 2/3)
+heart_tr <- training(heart_split)
+heart_ts <- testing(heart_split)
+
+rpart_mod <- decision_tree(cost_complexity=0.01) %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification") %>% 
+  translate()
+
+heart_fit <- 
+  rpart_mod %>% 
+  fit(AHD ~ ., 
+      data = heart_tr)
+# heart_fit
+prp(heart_fit$fit, type = 3, ni = TRUE, 
+    nn = TRUE, extra = 2, box.palette = "RdBu")
+```
+
+
+
+]]
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Deeper trees
+
+<br>
+
+Trees can be built deeper by:
+
+- decreasing the value of the complexity parameter `cp`, which sets the difference between impurity values required to continue splitting.
+- reducing  the `minsplit` and `minbucket` parameters,  which control the number of  observations  below splits are forbidden.
+
+]]
+.column[.content.vmiddle[
+
+Larger complexity, simpler tree
+
+```{r out.width="100%"}
+rpart_mod2 <- decision_tree(cost_complexity=0.05) %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification") %>% 
+  translate()
+heart_fit2 <- 
+  rpart_mod2 %>% 
+  fit(AHD ~ ., 
+      data = heart_tr)
+
+#update(heart_fit, cost_complexity = 0.001)
+prp(heart_fit2$fit, type = 3, ni = TRUE, 
+    nn = TRUE, extra = 2, box.palette = "RdBu")
+```
+]]
+---
+
+Tabulate true vs predicted to make a .monash-orange2[confusion table]. 
+
+<center>
+<table>
+<tr>  <td> </td><td> </td> <td colspan="2" align="center" > true </td> </tr>
+<tr>  <td> </td><td> </td> <td align="center" bgcolor="#daf2e9" width="80px"> C1 (positive) </td> <td align="center" bgcolor="#daf2e9" width="80px"> C2 (negative) </td> </tr>
+<tr height="50px">  <td> pred- </td><td bgcolor="#daf2e9"> C1 </td> <td align="center" bgcolor="#D3D3D3"> <em>a</em> </td> <td align="center" bgcolor="#D3D3D3"> <em>b</em> </td> </tr>
+<tr height="50px">  <td>icted </td><td bgcolor="#daf2e9"> C2</td> <td align="center" bgcolor="#D3D3D3"> <em>c</em> </td> <td align="center" bgcolor="#D3D3D3"> <em>d</em> </td> </tr>
+</table>
+</center>
+
+- .monash-orange2[Accuracy: *(a+d)/(a+b+c+d)*]
+- .monash-orange2[Error: *(b+c)/(a+b+c+d)*]
+- Sensitivity: *a/(a+c)*  (true positive, recall)
+- Specificity: *d/(b+d)* (true negative)
+- .monash-orange2[Balanced accuracy: *(sensitivity+specificity)/2*]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+<center>
+    Training confusion and error
+</center>
+
+```{r}
+heart_tr_pred <- heart_tr %>%
+  mutate(.pred = predict(heart_fit, heart_tr)$.pred_class)
+conf_mat(heart_tr_pred, AHD, .pred)
+```
+
+]]
+
+.column[.pad50px[
+<center>
+    Test confusion and error
+</center>
+```{r}
+heart_ts_pred <- heart_ts %>%
+  mutate(.pred = predict(heart_fit, heart_ts)$.pred_class)
+conf_mat(heart_ts_pred, AHD, .pred)
+
+```
+]]
+
+---
+
+class: split-two
+
+.column[.pad50px[
+# Training vs testing performance
+
+- Cross-validation, 5-fold
+- Grid of values in complexity, and min split
+
+```{r out.width="80%", fig.width=6, fig.height=4}
+
+tune_spec <- 
+  decision_tree(
+    cost_complexity = tune(),
+    min_n = tune()
+  ) %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification")
+
+tree_grid <- grid_regular(cost_complexity(),
+                          min_n(),
+                          levels = 5)
+
+set.seed(234)
+heart_folds <- vfold_cv(heart_tr, 5)
+
+set.seed(345)
+tree_wf <- workflow() %>%
+  add_model(tune_spec) %>%
+  add_formula(AHD ~ .)
+
+tree_res <- 
+  tree_wf %>% 
+  tune_grid(
+    resamples = heart_folds,
+    grid = tree_grid
+    )
+
+tree_res %>%
+  collect_metrics() %>%
+  mutate(min_n = factor(min_n)) %>%
+  filter(.metric == "accuracy") %>%
+  ggplot(aes(cost_complexity, mean, color = min_n)) +
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  scale_x_log10(labels = scales::label_number()) +
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0)
+
+best_tree <- tree_res %>%
+  select_best("accuracy")
+
+best_tree
+
+```
+]]
+
+.column[.pad50px[
+
+```{r out.width="80%", fig.width=6, fig.height=4}
+final_wf <- 
+  tree_wf %>% 
+  finalize_workflow(best_tree)
+
+final_tree <- 
+  final_wf %>%
+  fit(data = heart_tr) %>%
+  pull_workflow_fit()
+
+prp(final_tree$fit, type = 3, ni = TRUE, 
+    nn = TRUE, extra = 2, box.palette = "RdBu")
+
+```
+
+### Test confusion matrix
+
+```{r}
+heart_ts_pred <- heart_ts %>%
+  mutate(.pred = predict(final_tree, heart_ts)$.pred_class)
+conf_mat(heart_ts_pred, AHD, .pred)
+```
+
+]]
+
+---
+class: split-two
+
+.column[.pad50px[
+
+# Comparison with LDA
+
+<br>
+
+Look at the following classification problems and resultant decision boundaries for LDA (left) and CART (right). 
+
+<br>
+
+.green[What characteristics determine which method is more appropriate?]
+
+
+]]
+
+.column[.content.vmiddle.center[
+
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter8/8.7.pdf" target="_BLANK"> <img src="images/lecture-06a/8.7.png" style="width: 70%; align: center"/>  </a>
+
+
+]]
+
+
+
+
+---
+
+class: split-two
+
+.column[.pad50px[
+
+# Example - Crabs
+
+<br>
+
+Physical measurements on WA crabs, males and females.
+
+<br>
+
+.font_small[*Data source*: Campbell, N. A. & Mahon, R. J. (1974)]
+
+Decision tree parameters: minsplit=9. It's been forced to fit small subsets. 
+
+]]
+
+.column[.content.vmiddle.center[
+
+
+
+```{r out.width="100%", fig.width=5, fig.height=5}
+crab <- read_csv("http://www.ggobi.org/book/data/australian-crabs.csv")
+crab <- subset(crab, species=="Blue", 
+               select=c("sex", "FL", "RW"))
+crab_rp <- rpart(sex~FL+RW, data=crab, 
+                 parms = list(split = "information"), 
+                 control = rpart.control(minsplit=9))
+prp(crab_rp, type = 3, ni = TRUE, 
+    nn = TRUE, extra = 2, box.palette = "RdBu")
+```
+
+]]
+
+
+
+---
+# Example - Crabs
+
+```{r out.width="70%", fig.width=6, fig.height=4}
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + 
+  geom_point(alpha=0.7, size=3) + 
+  scale_colour_brewer(palette="Dark2") +
+  theme(aspect.ratio=1) + 
+  geom_vline(xintercept=15.85, linetype=2) + # 2
+  geom_segment(aes(x=15.85, xend=21.3, y=15.95, yend=15.95), color="black", linetype=2) + # 3-6,7
+  geom_segment(aes(x=7, xend=15.85, y=12.15, yend=12.15), color="black", linetype=2) + # 4,5
+  geom_segment(aes(x=12.1, xend=12.1, y=6, yend=12), color="black", linetype=2) + # 10
+  geom_segment(aes(x=7, xend=12.1, y=8.05, yend=8.05), color="black", linetype=2) + # 20
+  geom_segment(aes(x=10.6, xend=10.6, y=8.05, yend=12.1), color="black", linetype=2) + # 40
+  geom_segment(aes(x=10.6, xend=12.1, y=10.55, yend=10.55), color="black", linetype=2) + # 41 - 82,83
+  geom_segment(aes(x=12.1, xend=15.85, y=11.35, yend=11.35), color="black", linetype=2) + # 11 - 22, 23
+  geom_segment(aes(x=13.85, xend=13.85, y=11.35, yend=12.1), color="black", linetype=2)  # 22-44,45
+```
+
+---
+class: split-50
+# Boundaries induced by different models
+
+layout: false
+
+.column[.content.vmiddle.center[
+
+Classification tree
+
+```{r out.width="80%", fig.height=4, fig.width=4}
+crab_grid <- expand.grid(FL=seq(7,22,0.25), RW=seq(6,17,0.25))
+crab_grid$sex <- predict(crab_rp, newdata=crab_grid, type="class")
+ggplot(data=crab_grid, aes(x=FL, y=RW, color=sex)) + 
+  geom_point(alpha=0.3, size=3) + 
+  geom_point(data=crab, aes(x=FL, y=RW, color=sex), shape=2, size=3) + 
+  scale_colour_brewer(palette="Dark2") +
+  theme_bw() + 
+  theme(aspect.ratio=1, legend.position="none") 
+
+```
+]]
+.column[.content.vmiddle.center[
+
+Linear discriminant classifier
+
+```{r out.width="80%", fig.height=4, fig.width=4}
+library(MASS)
+crab_lda <- lda(sex~FL+RW, data=crab, prior=c(0.5,0.5))
+crab_grid$sex <- predict(crab_lda, newdata=crab_grid)$class
+ggplot(data=crab_grid, aes(x=FL, y=RW, color=sex)) + 
+  geom_point(alpha=0.3, size=3) + 
+  geom_point(data=crab, aes(x=FL, y=RW, color=sex), shape=2, size=3) + 
+  scale_colour_brewer(palette="Dark2") +
+  theme_bw() + 
+  theme(aspect.ratio=1, legend.position="none") 
+```
+
+]]
+
+---
+# Pros and cons
+
+
+- The decision rules provided by trees are very easy to explain, and follow. A simple classification model.
+- Trees can handle a mix of predictor types, categorical and quantitative.
+- Trees efficiently operate when there are missing values in the predictors.
+- Algorithm is greedy, a better final solution might be obtained by taking a second best split earlier.
+- When separation is in linear combinations of variables trees struggle to provide a good classification
+
+---
+
+```{r endslide, child="assets/endslide.Rmd"}
+```

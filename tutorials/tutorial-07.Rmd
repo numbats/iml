@@ -1,0 +1,304 @@
+---
+title: "ETC3250/5250 Tutorial 7 Instructions"
+subtitle: "Forests and hyperplanes"
+author: "prepared by Professor Di Cook"
+date: "Week 7"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  echo = FALSE,
+  eval = FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(emo)
+```
+
+
+## `r emo::ji("target")` Objective
+
+The objectives for this week are to 
+
+- Learn about fitting a forest model and use the diagnostics 
+- Compare the classification tree with a forest
+- Understand the the idea of bagging to refine model fitting
+- Learn about fitting a support vector machine model 
+- Examine the differences between results from different models
+
+## `r emo::ji("wrench")` Preparation 
+
+Make sure you have these packages installed:
+
+```
+install.packages(c("tidyverse", "tidymodels", "tourr", "rpart.plot", "discrim"))
+```
+
+### `r emo::ji("book")` Reading 
+
+- Textbook sections 8.2, 9.1-3
+
+### Group discussion 
+
+Estimating the maximal margin hyperplane corresponds to maximising (believe me, or work your way through [Sidharth's page](https://medium.com/analytics-vidhya/math-behind-support-vector-machines-642421e45b08))
+
+$$\sum_i{\alpha_i} - \frac12 \sum_i\sum_k\alpha_i\alpha_ky_iy_k\mathbf{x}_i^T\mathbf{x}_k$$
+where $\mathbf{x}_i, \mathbf{x}_k$ are two $p$-dimensional data vectors (observations), and the coefficients of the separating hyperplane
+
+$$\beta_0 + \beta_1 x_1 + \dots + \beta_p x_p = 0$$
+
+are computed from the support vectors and weights $\alpha$'s from the optimisation as follows:
+
+$$\mathbf{\beta}_j=\sum_{i=1}^s (\alpha_iy_i)\mathbf{x}_{ij}$$
+
+Now, $i, k = 1, ..., n$ but because only some observations are used to compute $\beta$ most are 0, and we can sum only over $1, ..., s$, where $s$ is the number of support vectors. 
+
+With the kernel trick, 
+
+$$\sum_i{\alpha_i} - \frac12\sum_i\sum_k\alpha_i\alpha_ky_iy_kK(\mathbf{x}_i^T\mathbf{x}_k)$$
+
+Try one kernel function transformation to show that $K(\mathbf{x}_i^T\mathbf{x}_k) = \psi(\mathbf{x}_i)^T\psi(\mathbf{x}_k)$. You can think of $\psi()$ as transformations of the predictors, $\mathbf{x}$.
+
+Fill in the steps to go from the first line to the last. Note that $p=2$. (You can find all the steps in the lecture notes.)
+
+$$
+\begin{align*}
+\mathcal{K}(\mathbf{x_i}, \mathbf{x_k}) & =  (1 + \langle \mathbf{x_i}, \mathbf{x_k}\rangle) ^2 \\
+                                    & = ??? \\
+                                    & =  ???\\
+                                    & =  ???\\
+                                    & =  (1, x_{i1}^2, x_{i2}^2, \sqrt2x_{i1}, \sqrt2x_{i2}, \sqrt2x_{i1}x_{i2})^T(???) \\
+                                    & = \langle \psi(\mathbf{x_i}), \psi(\mathbf{x_k}) \rangle
+\end{align*}
+$$
+
+Have a chat about why this algebraic "trick" is neat.
+
+## `r emo::ji("waving_hand")` Getting started
+
+If you are in a zoom tutorial, say hello in the chat. If in person, do say hello to your tutor and to your neighbours. 
+
+## `r emo::ji("gear")` Exercises 
+
+### 1. Effect of different subsets of variables, and feature engineering
+
+a. Fit the tree to olive oils, using a training split of 2/3, using only regions 2, 3,  and  the predictors linoleic and arachidic. Report the balanced accuracy of the test set, and make a plot of the boundary.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(rpart.plot)
+library(patchwork)
+olive <- read_csv("http://www.ggobi.org/book/data/olive.csv") %>%
+  rename(name=`...1`) 
+notsouth <- olive %>%
+  filter(region != 1) %>%
+  select(region, linoleic, arachidic) %>%
+  mutate(region = factor(region))
+
+set.seed(2021)
+notsouth_split <- initial_split(notsouth, prop = 2/3, strata = region)
+notsouth_tr <- training(notsouth_split)
+notsouth_ts <- testing(notsouth_split)
+
+notsouth_tree <- decision_tree() %>%
+  set_engine("rpart") %>% 
+  set_mode("classification") %>%
+  fit(region~., notsouth_tr)
+
+#prp(notsouth_tree$fit, type = 2, extra = 2)
+
+notsouth_p <- as_tibble(expand.grid(linoleic = seq(440, 1500, 10), arachidic = seq(0, 105, 2))) 
+notsouth_p  <- notsouth_p  %>%
+  mutate(region_tree = 
+           predict(notsouth_tree, notsouth_p )$.pred_class)
+
+ggplot() +
+  geom_point(data=notsouth_p, 
+             aes(x=linoleic, y=arachidic,
+                 color=region_tree), alpha=0.1) +
+  geom_point(data=notsouth, 
+             aes(x=linoleic, y=arachidic,
+                 color=region, shape=region)) +
+  scale_color_brewer("", palette="Dark2") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("tree")
+
+notsouth_ts_pred <- notsouth_ts %>%
+  mutate(pred_tree = predict(notsouth_tree, notsouth_ts)$.pred_class)
+```
+
+b. Fit a random forest to the full data, using only linoleic and arachidic as predictors, report the  balanced accuracy for the test set, and make a plot of the boundary.
+
+c. Explain the difference between the single tree and random forest boundaries.
+
+d. Fit the random forest again to the full set of variables, and  compute the variable importance. Describe the order of importance of variables.
+
+```{r}
+notsouth_all <- olive %>%
+  filter(region != 1) %>%
+  select(region, palmitic:arachidic) %>%
+  mutate(region = factor(region))
+
+notsouth_all_split <- initial_split(notsouth, prop = 2/3, strata = region)
+notsouth_all_tr <- training(notsouth_all_split)
+notsouth_all_ts <- testing(notsouth_all_split)
+
+notsouth_all_rf <- rand_forest() %>% 
+  set_engine("randomForest", 
+             importance=TRUE, proximity=TRUE) %>% 
+  set_mode("classification") %>% 
+  fit(region~., data=notsouth_all_tr) 
+
+options(digits=2)
+notsouth_all_rf$fit$importance
+```
+
+e. Create a new variable called `linoarch` that is $0.377 \times linoleic + 0.926\times arachidic$. Make a plot of this variable against arachidic. Fit the tree model to the same training data using this variable in addition to linoleic and arachidic. Why doesn't the tree use this new variable? It has a bigger difference between the two groups than linoleic? Change the order of the variables, so that linoarch is before linoleic and re-fit the tree. Does it use this variable now? Why do you think this is?
+
+```{r}
+notsouth_tr <- notsouth_tr %>%
+  mutate(linoarch = 0.377*linoleic + 0.926*arachidic)
+
+p1 <- ggplot() +
+  geom_point(data=notsouth_tr, 
+             aes(x=linoleic, y=arachidic,
+                 color=region, shape=region)) +
+  scale_color_brewer("", palette="Dark2") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("tree")
+p2 <- ggplot() +
+  geom_point(data=notsouth_tr, 
+             aes(x=linoarch, y=arachidic,
+                 color=region, shape=region)) +
+  scale_color_brewer("", palette="Dark2") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("tree")
+p1 + p2
+
+notsouth_tree <- decision_tree() %>%
+  set_engine("rpart") %>% 
+  set_mode("classification") %>%
+  fit(region~., notsouth_tr)
+
+prp(notsouth_tree$fit, type = 2, extra = 2)
+
+notsouth_tree <- decision_tree() %>%
+  set_engine("rpart") %>% 
+  set_mode("classification") %>%
+  fit(region~linoarch+linoleic+arachidic, notsouth_tr)
+
+prp(notsouth_tree$fit, type = 2, extra = 2)
+
+```
+
+f. Fit the random forest again to the full set of variables, including linoarch and  compute the variable importance. Describe the order of importance of variables. Does the forest see the new variable?
+
+```{r}
+notsouth_rf <- rand_forest() %>% 
+  set_engine("randomForest", 
+             importance=TRUE, proximity=TRUE) %>% 
+  set_mode("classification") %>% 
+  fit(region~., data=notsouth_tr) 
+
+notsouth_rf$fit$importance
+```
+
+### 2. Support vector machine model fitting
+
+a. Fit the linear SVM to olive oils, using a training split of 2/3, using only regions 2, 3,  and  the predictors linoleic and arachidic. Report the training and test error, list the support vectors, the coefficients for the support vectors and the equation for the separating hyperplane, and
+$$???\times\text{linoleic}+???\times\text{arachidic}+??? > 0$$ and make a plot of the boundary.
+
+```{r}
+std <- function(x) {(x-mean(x))/sd(x)}
+notsouth <- olive %>%
+  filter(region != 1) %>%
+  select(region, linoleic, arachidic) %>%
+  mutate(region = factor(region)) %>%
+  mutate_if(is.numeric, std)
+
+set.seed(2021)
+notsouth_split <- initial_split(notsouth, prop = 2/3, strata = region)
+notsouth_tr <- training(notsouth_split)
+notsouth_ts <- testing(notsouth_split)
+
+svm_mod <-
+  svm_rbf(cost = 10) %>%
+  set_mode("classification") %>%
+  set_engine("kernlab", kernel="vanilladot", 
+             scaled = FALSE)
+
+notsouth_svm <- svm_mod %>%
+  fit(region~., data=notsouth_tr)
+
+notsouth_p <- as_tibble(expand.grid(linoleic = seq(-2.2, 2.2, 0.1), arachidic = seq(-2, 2, 0.1))) 
+notsouth_p  <- notsouth_p  %>%
+  mutate(region_svm = 
+           predict(notsouth_svm, 
+                   notsouth_p )$.pred_class)
+
+ggplot() +
+  geom_point(data=notsouth_p, 
+             aes(x=linoleic, y=arachidic,
+                 color=region_svm), alpha=0.1) +
+  geom_point(data=notsouth, 
+             aes(x=linoleic, y=arachidic,
+                 color=region, shape=region)) +
+  geom_point(data=notsouth_tr[notsouth_svm$fit@SVindex,], aes(x=linoleic, y=arachidic),
+            shape=1, size=3, colour="black") +
+  scale_color_brewer("", palette="Dark2") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("SVM") +
+  geom_abline(intercept = 1.530222, slope = -4.014792)
+```
+
+```{r}
+notsouth_svm$fit@coef
+notsouth_svm$fit@SVindex
+notsouth_svm$fit@b
+
+notsouth_tr[notsouth_svm$fit@SVindex,-1]
+notsouth_tr$region[notsouth_svm$fit@SVindex]
+```
+
+b. Fit a radial kernel SVM, with a variety of cost values, to examine the effect on the boundary. (Try changing the cost from 0.3 up to 10.)
+
+```{r}
+svm_mod2 <-
+  svm_rbf(cost = 1) %>%
+  set_mode("classification") %>%
+  set_engine("kernlab", kernel="rbfdot", 
+             scaled = FALSE)
+
+notsouth_svm2 <- svm_mod2 %>%
+  fit(region~., data=notsouth_tr)
+
+notsouth_p  <- notsouth_p  %>%
+  mutate(region_svm2 = 
+           predict(notsouth_svm2, 
+                   notsouth_p)$.pred_class)
+
+ggplot() +
+  geom_point(data=notsouth_p, 
+             aes(x=linoleic, y=arachidic,
+                 color=region_svm2), alpha=0.1) +
+  geom_point(data=notsouth, 
+             aes(x=linoleic, y=arachidic,
+                 color=region, shape=region)) +
+  scale_color_brewer("", palette="Dark2") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="none") +
+  ggtitle("SVM")
+```
+
+##### © Copyright 2022 Monash University

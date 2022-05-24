@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>ETC3250/5250: Introduction to Machine Learning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Professor Di Cook" />
+    <script src="lib/header-attrs-2.14/header-attrs.js"></script>
+    <link href="lib/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+    <script src="lib/kePrint-0.0.1/kePrint.js"></script>
+    <link href="lib/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    
+    <!--
+    <script defer src="assets/all.min.js"></script>
+
+    Need below to enable css contents
+
+    <script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+
+    -->
+    <link rel="stylesheet" href="assets/font-awesome-all.css" type="text/css" />
+    <link rel="stylesheet" href="assets/tachyons-addon.css" type="text/css" />
+    <link rel="stylesheet" href="assets/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/fira-code.css" type="text/css" />
+    <link rel="stylesheet" href="assets/boxes.css" type="text/css" />
+    <link rel="stylesheet" href="assets/table.css" type="text/css" />
+    <link rel="stylesheet" href="assets/styles.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-brand.css" type="text/css" />
+    <link rel="stylesheet" href="assets/monash-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/slide-types.css" type="text/css" />
+    <link rel="stylesheet" href="assets/custom.css" type="text/css" />
+    <link rel="stylesheet" href="assets/panelset.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+
+
+
+.info-box.w-50.bg-white[
+These slides are viewed best by Chrome or Firefox and occasionally need to be refreshed if elements did not load properly. See &lt;a href=lecture-10b.pdf&gt;here for the PDF &lt;i class="fas fa-file-pdf"&gt;&lt;/i&gt;&lt;/a&gt;. 
+]
+
+&lt;br&gt;
+
+.white[Press the **right arrow** to progress to the next slide!]
+
+
+
+---
+
+class: title-slide
+count: false
+background-image: url("images/bg-02.png")
+
+# .monash-blue[ETC3250/5250: Introduction to Machine Learning]
+
+&lt;h1 class="monash-blue" style="font-size: 30pt!important;"&gt;&lt;/h1&gt;
+
+&lt;br&gt;
+
+&lt;h2 style="font-weight:900!important;"&gt;Assessing clustering results&lt;/h2&gt;
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 10b
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+---
+class: transition
+
+# Where cluster algorithms can be tripped up
+
+---
+class: split-50
+layout: false
+
+
+.column[.pad10px[
+# Inlier-outlier observations
+
+&lt;img src="images/lecture-10b/unnamed-chunk-3-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+]]
+.column[.pad50px[
+
+&lt;br&gt;&lt;br&gt;
+.monash-orange2[Nuisance cases] "Hansel and Gretel data"
+
+Points that are between major clusters of data. This affects some linkage methods, eg single, which will tend to "chain" through the data grouping everything together.
+]]
+
+---
+
+&lt;img src="images/lecture-10b/unnamed-chunk-4-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="images/lecture-10b/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+class: split-50
+layout: false
+
+.column[.pad10px[
+# Nuisance variables
+
+&lt;img src="images/lecture-10b/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+]]
+.column[.pad50px[
+
+&lt;br&gt; &lt;br&gt; &lt;br&gt;
+  
+Variables that don't contribute to the clustering but are included in the distance calculations.
+
+`x2` is a nuisance variable.
+
+]]
+
+---
+
+&lt;img src="images/lecture-10b/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="images/lecture-10b/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+class: split-two
+
+.column[.pad50px[
+
+
+## Example - flea data
+
+6 variables, 74 cases. Three very clear clusters. 
+
+Data has a mix of nuisance variables and nuisance observations.
+
+
+
+
+
+&lt;img src="images/lecture-10b/unnamed-chunk-11-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Above is the 2D projection pursuit dimension reduction, using LDA index with true class.
+
+]]
+
+.column[.content.vmiddle[
+
+
+
+&lt;img src="images/lecture-10b/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]]
+
+
+---
+
+&lt;img src="images/lecture-10b/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+---
+
+Cluster solutions plotted in 2D projection pursuit dimension reduction, using LDA index with true class
+
+&lt;img src="images/lecture-10b/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle
+
+&lt;center&gt;
+.info-box[Note that, if clustering is conducted on the 2D projection, where clusters are well-separated, all linkage methods produce the three true clusters.
+
+If we could do dimension reduction to remove nuisance variables prior to clustering, all would be so much easier. But this is hard.]
+
+&lt;/center&gt;
+
+---
+
+## Dendrogram in p-space
+
+&lt;br&gt;
+
+Examining the dendrogram in the high-dimensional data space can be done using the tour. You need to
+
+1. Add points to the data to provide the places where the leaves join. These are the .monash-orange2[nodes] in the dendrogram.
+2. Create a data set of .monash-orange2[edges], indicating which points should be connected.
+
+
+---
+  Dendrogram in `\(p\)`-dimensions (Wards and average linkage)
+
+
+
+
+
+
+
+.pull-left[
+  &lt;iframe src="https://iml.numbat.space/lectures/cluster_ward.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+]
+.pull-right[
+  &lt;iframe src="https://iml.numbat.space/lectures/cluster_average.html" width="400" height="500" scrolling="yes" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+]
+
+---
+class: transition middle
+
+# Comparing cluster solutions
+
+---
+
+class: split-two
+
+.column[.pad50px[
+# Confusion table
+
+Ward's linkage solution in columns, and average linkage in rows.
+
+&lt;br&gt;
+
+&lt;table class="table table-striped" style="font-size: 24px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; cl_av &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 1 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 2 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 3 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;br&gt;
+Solutions agree on 31 observations. Named differently: Wards labels group "3", and average labels it "2".
+
+]]
+.column[
+
+&lt;br&gt;&lt;br&gt;
+
+Re-number the labels. Change average "2" to "3"
+
+&lt;br&gt;
+&lt;table class="table table-striped" style="font-size: 24px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; cl_av &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 1 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 2 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 3 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;br&gt;
+Now agreement can be viewed as numbers on main diagonal, as used in a labelled class confusion matrix.
+
+Methods agree on 19+3+31 out of 74 observations, 71.6%. 
+]
+
+---
+class: transition middle
+
+# Summarising a clustering
+
+
+
+---
+# Clustering summaries
+
+Once you have cluster labels, the data can be treated like data encountered in supervised classification
+
+- Report means and standard deviations, and sample size of clusters
+- Compute important variables, eg using random forests
+- Dimension reduction using LDA (or PCA), to examine clusters
+- Plot using colour for cluster label, using tour, parallel coordinates, scatterplot matrix
+
+---
+class: split-two
+
+.column[.pad50px[
+# Example
+
+Summary statistics by cluster, .monash-orange2[in original units].
+
+&lt;br&gt;
+&lt;table class="table" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #505050 !important;"&gt; cl5 &lt;/th&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #505050 !important;"&gt; stat &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; aede2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; tars1 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; aede3 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; aede1 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; tars2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #505050 !important;"&gt; head &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; m &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 14.10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 183.10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 104.86 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 146.19 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 129.62 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 51.24 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; s &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 0.89 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 12.14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 6.18 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 5.63 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 7.16 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 2.23 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; n &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 21.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; m &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 10.09 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 138.23 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 106.59 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 138.27 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 125.09 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 51.59 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; s &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 0.97 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 9.34 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 5.85 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 4.14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 8.55 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 2.84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; n &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 22.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #F0F0F0 !important;"&gt; m &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 14.29 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 201.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 81.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 124.65 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 119.32 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #F0F0F0 !important;"&gt; 48.87 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; s &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 1.10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 14.90 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 8.93 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 4.62 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 6.65 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 2.35 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: #FFFFFF !important;"&gt; n &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: #FFFFFF !important;"&gt; 31.00 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]]
+.column[
+
+&lt;img src="images/lecture-10b/unnamed-chunk-21-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
+---
+
+
+
+
+background-size: cover
+class: title-slide
+background-image: url("images/bg-02.png")
+
+&lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;&lt;img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /&gt;&lt;/a&gt;&lt;br /&gt;This work is licensed under a &lt;a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.
+
+
+.bottom_abs.width100[
+
+Lecturer: *Professor Di Cook*
+
+Department of Econometrics and Business Statistics
+
+&lt;i class="fas fa-envelope"&gt;&lt;/i&gt;  ETC3250.Clayton-x@monash.edu
+
+&lt;i class="fas fa-calendar-alt"&gt;&lt;/i&gt; Week 10b
+
+&lt;br&gt;
+
+]
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="lib/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLanguage": "r",
+"highlightLines": true,
+"highlightSpans": false,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%",
+"navigation": {
+"scroll": false,
+"touch": true,
+"click": false
+},
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

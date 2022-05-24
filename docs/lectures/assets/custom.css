@@ -1,0 +1,44 @@
+
+.display.dataTable {
+  font-size: 15pt;
+}
+
+.monash-bg-blue a {
+  color: white!important;
+}
+
+ul li {
+  list-style-type: none;
+}
+ul li:before {
+  content: "\29BF";
+  font-size: 28px;
+  font-family: "Font Awesome 5 Free";
+  margin-right: 10px;
+  color: #027EB6;
+}
+
+ul li li:before {
+  content: "-";
+  font-size: 20px;
+  font-family: "Font Awesome 5 Free";
+  margin-right: 5px;
+  color: #027EB6;
+}
+
+.font_small { font-size: 18pt;}
+.font_smaller { font-size: 16pt }
+.font_smaller2 { font-size: 13pt }
+
+.scroll-800 {
+  overflow-y: scroll;
+  height: 600px;
+}
+
+.pad50px{ padding: 50px; }
+
+.shuriken-full>.blade1 {height: 50%; width:50%; position: absolute; top: 0; left: 0;}
+.shuriken-full>.blade2 {height: 50%; width:50%; position: absolute; top: 0; right: 0;}
+.shuriken-full>.blade3 {height: 50%; width:50%; position: absolute; bottom: 0; right: 0;}
+.shuriken-full>.blade4 {height: 50%; width:50%; position: absolute; bottom: 0; left: 0;}
+.shuriken-full>.hole {height: 0%; width:0%; position: absolute; top: 300px; left: 300px;}

@@ -1,0 +1,65 @@
+---
+title: "ETC3250/5250 Tutorial 12 Instructions"
+subtitle: "Exam prep"
+author: "prepared by Professor Di Cook"
+date: "Week 12"
+output:
+  html_document:
+    after_body: tutorial-footer.html
+    css: tutorial.css
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 6,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+# Practice an e-Assessment
+
+[This link](https://student-eassessment.monash.edu/enrol/index.php?id=1948) will take you to a practice general knowledge quiz, so that you can experience the e-Assessment platform.
+
+More information about the Monash eExams can be found [here](https://www.monash.edu/students/admin/exams/electronic-exams).
+
+# Review
+
+## Make a game for each other
+
+- Pick an item from the index of the textbook. 
+- Write a (longish) sentence or definition that would include this word. BUT blank out the word. 
+- Test your friend or classmate or tutor to see if they can work out what word would complete the sentence.
+- Do as many of your classmates challenges as you can.
+
+For example, 
+
+> To reduce the number of variables entered into a model you can do ________ selection.
+
+The missing word is "subset". 
+
+
+## Textbook questions
+
+These are the questions from the textbook that I recommend you work through in preparation for the exam. All solutions are available at: [https://blog.princehonest.com/stat-learning/](https://blog.princehonest.com/stat-learning/).
+
+In addition, if you have questions about the practice exam, you can ask your tutor. Having a general question and answer session with your tutor would be a good way to use the time. 
+
+- Chapter 2: **7**
+- Chapter 3: **3**
+- Chapter 4: **9**
+- Chapter 5: **4** (add "using bootstrap" to the end of the question.)
+- Chapter 6: **4**
+- Chapter 7: **3**
+- Chapter 8: **5**
+- Chapter 9: **1**
+- Chapter 12 (old 10): **2**
+
+##### © Copyright 2022 Monash University
