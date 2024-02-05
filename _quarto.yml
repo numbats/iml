@@ -4,6 +4,7 @@ project:
   - "*.qmd"
   - "*.md"
   - "!/slides"
+  output-dir: docs
 
 website:
   title: "ETC3250/5250 Introduction to Machine Learning"
