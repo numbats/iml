@@ -19,6 +19,9 @@ schedule |>
 
 ## What you will learn this week
 
+* Confusion tables
+* Cluster metrics
+
 ```{r}
 #| output: asis
 show_assignments(week)

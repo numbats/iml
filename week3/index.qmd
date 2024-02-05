@@ -19,7 +19,10 @@ schedule |>
 
 ## What you will learn this week
 
-
+* Cross-validation for parameter tuning
+* Bootstrapping for understanding variance of parameter estimates
+* What can go wrong in high-d
+* Regularisation using ridge and lasso when there is insufficient observations relative to number of variables
 
 ```{r}
 #| output: asis

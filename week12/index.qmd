@@ -17,7 +17,7 @@ schedule |>
   pull(ref)
 ```
 
-## What you will learn this week
+## Presentations from Masters students
 
 
 ```{r}

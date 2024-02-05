@@ -19,6 +19,10 @@ schedule |>
 
 ## What you will learn this week
 
+* Defining distance measure
+* k-means algorithm
+* Hierarchical algorithms
+* Making and using dendrograms
 
 ```{r}
 #| output: asis

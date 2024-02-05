@@ -18,7 +18,7 @@
     "href": "week9/index.html#what-you-will-learn-this-week",
     "title": "Week 9: K-nearest neighbours and hierarchical clustering",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nDefining distance measure\nk-means algorithm\nHierarchical algorithms\nMaking and using dendrograms"
   },
   {
     "objectID": "week9/index.html#assignments",
@@ -46,7 +46,7 @@
     "href": "week7/index.html#what-you-will-learn-this-week",
     "title": "Week 7: Explainable artificial intelligence (XAI)",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nLocal explainability\nLIME\nShapley values"
   },
   {
     "objectID": "week7/index.html#assignments",
@@ -74,7 +74,7 @@
     "href": "week5/index.html#what-you-will-learn-this-week",
     "title": "Week 5: Trees and forests",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nClassification trees, algorithm, stopping rules\nDifference between algorithm and parametric methods, especially trees vs LDA\nForests: ensembles of bagged trees\nDiagnostics: vote matrix, variable importance, proximity\nBoosted trees"
   },
   {
     "objectID": "week5/index.html#assignments",
@@ -102,7 +102,7 @@
     "href": "week3/index.html#what-you-will-learn-this-week",
     "title": "Week 3: Re-sampling and regularisation",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nCross-validation for parameter tuning\nBootstrapping for understanding variance of parameter estimates\nWhat can go wrong in high-d\nRegularisation using ridge and lasso when there is insufficient observations relative to number of variables"
   },
   {
     "objectID": "week3/index.html#assignments",
@@ -112,11 +112,11 @@
     "text": "Assignments\n\nAssignment 1 is due on Friday 22 March."
   },
   {
-    "objectID": "week12/index.html#what-you-will-learn-this-week",
-    "href": "week12/index.html#what-you-will-learn-this-week",
+    "objectID": "week12/index.html#presentations-from-masters-students",
+    "href": "week12/index.html#presentations-from-masters-students",
     "title": "Week 12: Project presentations by Masters students",
-    "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "section": "Presentations from Masters students",
+    "text": "Presentations from Masters students"
   },
   {
     "objectID": "week10/index.html",
@@ -137,7 +137,7 @@
     "href": "week10/index.html#what-you-will-learn-this-week",
     "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
   },
   {
     "objectID": "week10/index.html#assignments",
@@ -214,7 +214,7 @@
     "href": "week1/index.html#what-you-will-learn-this-week",
     "title": "Week 1: Foundations of machine learning",
     "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models\nMeasuring fit\nDiagnostics"
+    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models: training/test splits, optimisation\nMeasuring fit: accuracy, loss\nDiagnostics: residuals\nFeature engineering: combining variables to better match purpose and help the model fitting"
   },
   {
     "objectID": "week1/index.html#lecture-slides",
@@ -256,7 +256,7 @@
     "href": "week11/index.html#what-you-will-learn-this-week",
     "title": "Week 11: Evaluating your clustering model",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nConfusion tables\nCluster metrics"
   },
   {
     "objectID": "week11/index.html#assignments",
@@ -284,7 +284,7 @@
     "href": "week2/index.html#what-you-will-learn-this-week",
     "title": "Week 2: Visualising your data and models",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nDimension reduction methods: linear and non-linear\nVisualising high-dimensions using animations of linear projections\nScatterplot matrices\nParallel coordinate plots\nConcept of model-in-the-data-space, relative to data-in-the-moel-space"
   },
   {
     "objectID": "week2/index.html#assignments",
@@ -312,7 +312,7 @@
     "href": "week4/index.html#what-you-will-learn-this-week",
     "title": "Week 4: Logistic regression and discriminant analysis",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nFitting a categorical response using logistic curves\nMultivariate summary statistics\nLinear discriminant analysis, assuming samples are elliptically shaped and equal in size\nQuadratic discriminant analysis, assuming samples are elliptically shaped and different in size\nDiscriminant space: making a low-dimensional visual summary"
   },
   {
     "objectID": "week4/index.html#assignments",
@@ -340,7 +340,7 @@
     "href": "week6/index.html#what-you-will-learn-this-week",
     "title": "Week 6: Neural networks and deep learning",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nStructure of a neural network\nFitting neural networks\nDiagnosing the fit"
   },
   {
     "objectID": "week6/index.html#assignments",
@@ -368,7 +368,7 @@
     "href": "week8/index.html#what-you-will-learn-this-week",
     "title": "Week 8: Support vector machines and nearest neighbours",
     "section": "What you will learn this week",
-    "text": "What you will learn this week"
+    "text": "What you will learn this week\n\nSeparating hyperplanes\nNon-linear kernels\nNaive models using nearest neighbours"
   },
   {
     "objectID": "week8/index.html#assignments",

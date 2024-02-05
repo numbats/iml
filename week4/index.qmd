@@ -19,6 +19,11 @@ schedule |>
 
 ## What you will learn this week
 
+* Fitting a categorical response using logistic curves
+* Multivariate summary statistics
+* Linear discriminant analysis, assuming samples are elliptically shaped and equal in size
+* Quadratic discriminant analysis, assuming samples are elliptically shaped and different in size
+* Discriminant space: making a low-dimensional visual summary
 
 ```{r}
 #| output: asis

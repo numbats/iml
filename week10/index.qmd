@@ -19,6 +19,11 @@ schedule |>
 
 ## What you will learn this week
 
+* Models of multimodality using Gaussian mixtures
+* Fitting model-based clustering
+* Diagnostics for the model fit
+* Self-organising maps and dimension reduction
+
 
 ```{r}
 #| output: asis

@@ -19,7 +19,11 @@ schedule |>
 
 ## What you will learn this week
 
-
+* Dimension reduction methods: linear and non-linear
+* Visualising high-dimensions using animations of linear projections
+* Scatterplot matrices
+* Parallel coordinate plots
+* Concept of model-in-the-data-space, relative to data-in-the-moel-space
 
 ```{r}
 #| output: asis

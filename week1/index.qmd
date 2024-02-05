@@ -22,9 +22,10 @@ schedule |>
 * Framing the problems
 * Notation and math
 * Bias variance-tradeoff
-* Fitting your models
-* Measuring fit
-* Diagnostics
+* Fitting your models: training/test splits, optimisation
+* Measuring fit: accuracy, loss
+* Diagnostics: residuals
+* Feature engineering: combining variables to better match purpose and help the model fitting
 
 ## Lecture slides
 

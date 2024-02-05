@@ -19,7 +19,9 @@ schedule |>
 
 ## What you will learn this week
 
-
+* Structure of a neural network
+* Fitting neural networks
+* Diagnosing the fit
 
 ```{r}
 #| output: asis

@@ -19,6 +19,9 @@ schedule |>
 
 ## What you will learn this week
 
+* Local explainability
+* LIME
+* Shapley values
 
 ```{r}
 #| output: asis

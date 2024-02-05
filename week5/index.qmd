@@ -19,6 +19,11 @@ schedule |>
 
 ## What you will learn this week
 
+* Classification trees, algorithm, stopping rules
+* Difference between algorithm and parametric methods, especially trees vs LDA
+* Forests: ensembles of bagged trees
+* Diagnostics: vote matrix, variable importance, proximity
+* Boosted trees
 
 ```{r}
 #| output: asis
