@@ -1,0 +1,37 @@
+---
+title: "ETC3250/5250 Resources"
+---
+
+# Books
+
+- [An Introduction to Statistical Learning (ISLR)](https://www.statlearning.com)
+
+This book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.
+
+- [Hands-On Machine Learning with R](https://bradleyboehmke.github.io/HOML/)
+
+This book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It's coverage of unsupervised classification is very good.
+
+- [Tidy Modeling with R](https://www.tmwr.org) 
+
+Machine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn't interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software [tidymodels](https://www.tidymodels.org/start/).
+
+- [ISLR tidymodels labs](https://emilhvitfeldt.github.io/ISLR-tidymodels-labs/)
+
+This book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.
+
+- [Interactively exploring high-dimensional data and models in R](https://dicook.github.io/mulgar_book/)
+
+This book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models. 
+
+- [Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/)
+
+This book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them
+
+# Useful links
+
+- [TensorFlow for R](https://tensorflow.rstudio.com/install/)
+
+- [A gentle introduction to deep learning in R using Keras](https://lnalborczyk.github.io/slides/vendredi_quanti_2021/vendredi_quantis#1)
+
+- [(M+C)² Blog](https://lorentzen.ch/index.php/blog/)

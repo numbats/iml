@@ -1,0 +1,26 @@
+---
+title: "Week 5: Trees and forests"
+---
+
+```{r}
+week <- 5
+source(here::here("course_info.R"))
+```
+
+## Main reference
+
+```{r}
+#| output: asis
+schedule |>
+  filter(Week == week) |>
+  mutate(ref = glue::glue("[{Reference}]({Reference_URL})")) |>
+  pull(ref)
+```
+
+## What you will learn this week
+
+
+```{r}
+#| output: asis
+show_assignments(week)
+```

@@ -1,0 +1,81 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+---
+
+```{r}
+#| label: load_packages
+#| include: false
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+library(tidyverse)
+options(knitr.kable.NA = '')
+source(here::here("course_info.R"))
+week <- as.integer(1 + ((Sys.Date() - as_date(start_semester))/7))
+```
+
+## Lecturer/Chief Examiner
+
+* **Professor Di Cook**
+    - Email: [etc3250.clayton-x@monash.edu](mailto:etc3250.clayton-x@monash.edu) 
+    - Consultation: 
+
+## Tutors
+
+* Patrick Li
+    - Tutorials: 
+    - Consultation:
+* Harriet Mason
+    - Tutorials: 
+    - Consultation:
+* Jayani Lakshika
+    - Tutorials: 
+    - Consultation:
+* Krisanat Anukarnsakulchularp
+    - Tutorials: 
+    - Consultation:
+
+## Weekly schedule
+
+* Lecture: Wed 1:05-2:45pm
+* Tutorial: 1.5 hours
+* Weekly learning quizzes due Mondays 9am
+
+```{r}
+#| label: schedule2
+#| message: false
+#| warning: false
+#| echo: false
+#| output: asis
+schedule |>
+  transmute(
+    Show = !is.na(Week), #& (Week <= week | Week <= 1),
+    Topic = if_else(!Show, Topic, glue::glue("[{Topic}](./week{Week}/index.html)")),
+    Reference = if_else(is.na(Week), Reference, glue::glue("[{Reference}]({Reference_URL})")),
+    Assessments = if_else(is.na(Assignment), Assignment, glue::glue("[{Assignment}]({File})")),
+    Week = format(Date, "%d %b")
+  ) |>
+  select(-Show) |>
+  select(Week, everything()) |>
+  knitr::kable(format = "markdown")
+```
+
+## Assessments
+
+* [Weekly learning quizzes](https://learning.monash.edu/course/view.php?id=9453&section=20): 5%
+* [Assignment 1](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+* [Assignment 2](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+* [Assignment 3](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+* [Project](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+* Final exam: 55%
+
+## R package installation
+
+Here is the code to install (most of) the R packages we will be using in this unit.
+
+```r
+install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpcp", "plotly", "detourr", "langevitour", "ggbeeswarm", "MASS", "GGally", "ISLR", "rpart", "rpart.plot", "randomForest", "e1071", "Rtsne", "classifly", "penalizedLDA", "nnet", "kernelshap", "shapviz", "iml", DALEX", "cxhull", "fpc", "mclust", "ggdendro", "kohonen", "aweSOM", "patchwork", "ggthemes", "colorspace", "palmerpenguins"), dependencies = TRUE)
+```
+
+In addition, follow [these instructions](https://tensorflow.rstudio.com/install/) to set up tensorflow and keras, which requires having python installed. 
