@@ -63,19 +63,25 @@ schedule |>
 
 ## Assessments
 
-* [Weekly learning quizzes](https://learning.monash.edu/course/view.php?id=9453&section=20): 5%
-* [Assignment 1](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
-* [Assignment 2](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
-* [Assignment 3](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+* [Weekly learning quizzes](https://learning.monash.edu/course/view.php?id=9453&section=20): 3%
+* [Assignment 1](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
+* [Assignment 2](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
+* [Assignment 3](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
 * [Project](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
-* Final exam: 55%
+* Final exam: 60%
 
-## R package installation
+## Software
 
 Here is the code to install (most of) the R packages we will be using in this unit.
 
 ```r
-install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpcp", "plotly", "detourr", "langevitour", "ggbeeswarm", "MASS", "GGally", "ISLR", "rpart", "rpart.plot", "randomForest", "e1071", "Rtsne", "classifly", "penalizedLDA", "nnet", "kernelshap", "shapviz", "iml", DALEX", "cxhull", "fpc", "mclust", "ggdendro", "kohonen", "aweSOM", "patchwork", "ggthemes", "colorspace", "palmerpenguins"), dependencies = TRUE)
+install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpcp", "plotly", "detourr", "langevitour", "ggbeeswarm", "MASS", "GGally", "ISLR", "rpart", "rpart.plot", "randomForest", "e1071", "xgboost", "Rtsne", "classifly", "penalizedLDA", "nnet", "kernelshap", "shapviz", "iml", "DALEX", "cxhull", "fpc", "mclust", "ggdendro", "kohonen", "aweSOM", "patchwork", "ggthemes", "colorspace", "palmerpenguins"), dependencies = TRUE)
 ```
 
+If you run into problems completing the full install, the likely culprits are [tidyverse](https://www.tidyverse.org) and [tidymodels](https://www.tidymodels.org). These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don't install any that fail on your system. 
+
 In addition, follow [these instructions](https://tensorflow.rstudio.com/install/) to set up tensorflow and keras, which requires having python installed. 
+
+If you are relatively new to R, working through the materials at [https://learnr.numbat.space](https://learnr.numbat.space) is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you. 
+
+The [ISLR](https://www.statlearning.com) book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R.

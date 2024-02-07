@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#tutors" id="toc-tutors" class="nav-link" data-scroll-target="#tutors">Tutors</a></li>
   <li><a href="#weekly-schedule" id="toc-weekly-schedule" class="nav-link" data-scroll-target="#weekly-schedule">Weekly schedule</a></li>
   <li><a href="#assessments" id="toc-assessments" class="nav-link" data-scroll-target="#assessments">Assessments</a></li>
-  <li><a href="#r-package-installation" id="toc-r-package-installation" class="nav-link" data-scroll-target="#r-package-installation">R package installation</a></li>
+  <li><a href="#software" id="toc-software" class="nav-link" data-scroll-target="#software">Software</a></li>
   </ul>
 </nav>
     </div>
@@ -389,19 +389,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="assessments" class="level2">
 <h2 class="anchored" data-anchor-id="assessments">Assessments</h2>
 <ul>
-<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Weekly learning quizzes</a>: 5%</li>
-<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 1</a>: 10%</li>
-<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 2</a>: 10%</li>
-<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 3</a>: 10%</li>
+<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Weekly learning quizzes</a>: 3%</li>
+<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 1</a>: 9%</li>
+<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 2</a>: 9%</li>
+<li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Assignment 3</a>: 9%</li>
 <li><a href="https://learning.monash.edu/course/view.php?id=9453&amp;section=20">Project</a>: 10%</li>
-<li>Final exam: 55%</li>
+<li>Final exam: 60%</li>
 </ul>
 </section>
-<section id="r-package-installation" class="level2">
-<h2 class="anchored" data-anchor-id="r-package-installation">R package installation</h2>
+<section id="software" class="level2">
+<h2 class="anchored" data-anchor-id="software">Software</h2>
 <p>Here is the code to install (most of) the R packages we will be using in this unit.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"tidymodels"</span>, <span class="st">"tourr"</span>, <span class="st">"geozoo"</span>, <span class="st">"mulgar"</span>, <span class="st">"ggpcp"</span>, <span class="st">"plotly"</span>, <span class="st">"detourr"</span>, <span class="st">"langevitour"</span>, <span class="st">"ggbeeswarm"</span>, <span class="st">"MASS"</span>, <span class="st">"GGally"</span>, <span class="st">"ISLR"</span>, <span class="st">"rpart"</span>, <span class="st">"rpart.plot"</span>, <span class="st">"randomForest"</span>, <span class="st">"e1071"</span>, <span class="st">"Rtsne"</span>, <span class="st">"classifly"</span>, <span class="st">"penalizedLDA"</span>, <span class="st">"nnet"</span>, <span class="st">"kernelshap"</span>, <span class="st">"shapviz"</span>, <span class="st">"iml"</span>, DALEX<span class="st">", "</span>cxhull<span class="st">", "</span>fpc<span class="st">", "</span>mclust<span class="st">", "</span>ggdendro<span class="st">", "</span>kohonen<span class="st">", "</span>aweSOM<span class="st">", "</span>patchwork<span class="st">", "</span>ggthemes<span class="st">", "</span>colorspace<span class="st">", "</span>palmerpenguins<span class="st">"), dependencies = TRUE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"tidymodels"</span>, <span class="st">"tourr"</span>, <span class="st">"geozoo"</span>, <span class="st">"mulgar"</span>, <span class="st">"ggpcp"</span>, <span class="st">"plotly"</span>, <span class="st">"detourr"</span>, <span class="st">"langevitour"</span>, <span class="st">"ggbeeswarm"</span>, <span class="st">"MASS"</span>, <span class="st">"GGally"</span>, <span class="st">"ISLR"</span>, <span class="st">"rpart"</span>, <span class="st">"rpart.plot"</span>, <span class="st">"randomForest"</span>, <span class="st">"e1071"</span>, <span class="st">"xgboost"</span>, <span class="st">"Rtsne"</span>, <span class="st">"classifly"</span>, <span class="st">"penalizedLDA"</span>, <span class="st">"nnet"</span>, <span class="st">"kernelshap"</span>, <span class="st">"shapviz"</span>, <span class="st">"iml"</span>, <span class="st">"DALEX"</span>, <span class="st">"cxhull"</span>, <span class="st">"fpc"</span>, <span class="st">"mclust"</span>, <span class="st">"ggdendro"</span>, <span class="st">"kohonen"</span>, <span class="st">"aweSOM"</span>, <span class="st">"patchwork"</span>, <span class="st">"ggthemes"</span>, <span class="st">"colorspace"</span>, <span class="st">"palmerpenguins"</span>), <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you run into problems completing the full install, the likely culprits are <a href="https://www.tidyverse.org">tidyverse</a> and <a href="https://www.tidymodels.org">tidymodels</a>. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.</p>
 <p>In addition, follow <a href="https://tensorflow.rstudio.com/install/">these instructions</a> to set up tensorflow and keras, which requires having python installed.</p>
+<p>If you are relatively new to R, working through the materials at <a href="https://learnr.numbat.space">https://learnr.numbat.space</a> is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.</p>
+<p>The <a href="https://www.statlearning.com">ISLR</a> book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R.</p>
 
 
 </section>

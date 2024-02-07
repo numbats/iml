@@ -221,14 +221,14 @@
     "href": "index.html#assessments",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Assessments",
-    "text": "Assessments\n\nWeekly learning quizzes: 5%\nAssignment 1: 10%\nAssignment 2: 10%\nAssignment 3: 10%\nProject: 10%\nFinal exam: 55%"
+    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: 9%\nAssignment 2: 9%\nAssignment 3: 9%\nProject: 10%\nFinal exam: 60%"
   },
   {
-    "objectID": "index.html#r-package-installation",
-    "href": "index.html#r-package-installation",
+    "objectID": "index.html#software",
+    "href": "index.html#software",
     "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "R package installation",
-    "text": "R package installation\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed."
+    "section": "Software",
+    "text": "Software\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
   },
   {
     "objectID": "resources.html",
