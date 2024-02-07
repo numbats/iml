@@ -3,7 +3,6 @@ project:
   render:
   - "*.qmd"
   - "*.md"
-  - "!/slides"
   output-dir: docs
 
 website:

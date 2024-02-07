@@ -147,55 +147,6 @@
     "text": "Assignments\n\nProject is due on Friday 17 May."
   },
   {
-    "objectID": "resources.html",
-    "href": "resources.html",
-    "title": "ETC3250/5250 Resources",
-    "section": "",
-    "text": "Books\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation:"
-  },
-  {
-    "objectID": "index.html#lecturerchief-examiner",
-    "href": "index.html#lecturerchief-examiner",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation:"
-  },
-  {
-    "objectID": "index.html#tutors",
-    "href": "index.html#tutors",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Tutors",
-    "text": "Tutors\n\nPatrick Li\n\nTutorials:\nConsultation:\n\nHarriet Mason\n\nTutorials:\nConsultation:\n\nJayani Lakshika\n\nTutorials:\nConsultation:\n\nKrisanat Anukarnsakulchularp\n\nTutorials:\nConsultation:"
-  },
-  {
-    "objectID": "index.html#weekly-schedule",
-    "href": "index.html#weekly-schedule",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Weekly schedule",
-    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
-  },
-  {
-    "objectID": "index.html#assessments",
-    "href": "index.html#assessments",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Assessments",
-    "text": "Assessments\n\nWeekly learning quizzes: 5%\nAssignment 1: 10%\nAssignment 2: 10%\nAssignment 3: 10%\nProject: 10%\nFinal exam: 55%"
-  },
-  {
-    "objectID": "index.html#r-package-installation",
-    "href": "index.html#r-package-installation",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "R package installation",
-    "text": "R package installation\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed."
-  },
-  {
     "objectID": "week1/index.html",
     "href": "week1/index.html",
     "title": "Week 1: Foundations of machine learning",
@@ -236,6 +187,55 @@
     "title": "Week 1: Foundations of machine learning",
     "section": "Assignments",
     "text": "Assignments"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation:"
+  },
+  {
+    "objectID": "index.html#lecturerchief-examiner",
+    "href": "index.html#lecturerchief-examiner",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation:"
+  },
+  {
+    "objectID": "index.html#tutors",
+    "href": "index.html#tutors",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Tutors",
+    "text": "Tutors\n\nPatrick Li\n\nTutorials:\nConsultation:\n\nHarriet Mason\n\nTutorials:\nConsultation:\n\nJayani Lakshika\n\nTutorials:\nConsultation:\n\nKrisanat Anukarnsakulchularp\n\nTutorials:\nConsultation:"
+  },
+  {
+    "objectID": "index.html#weekly-schedule",
+    "href": "index.html#weekly-schedule",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Weekly schedule",
+    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
+  },
+  {
+    "objectID": "index.html#assessments",
+    "href": "index.html#assessments",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Assessments",
+    "text": "Assessments\n\nWeekly learning quizzes: 5%\nAssignment 1: 10%\nAssignment 2: 10%\nAssignment 3: 10%\nProject: 10%\nFinal exam: 55%"
+  },
+  {
+    "objectID": "index.html#r-package-installation",
+    "href": "index.html#r-package-installation",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "R package installation",
+    "text": "R package installation\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed."
+  },
+  {
+    "objectID": "resources.html",
+    "href": "resources.html",
+    "title": "ETC3250/5250 Resources",
+    "section": "",
+    "text": "Books\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog"
   },
   {
     "objectID": "week11/index.html",
