@@ -75,7 +75,7 @@ schedule |>
 Here is the code to install (most of) the R packages we will be using in this unit.
 
 ```r
-install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpcp", "plotly", "detourr", "langevitour", "ggbeeswarm", "MASS", "GGally", "ISLR", "rpart", "rpart.plot", "randomForest", "e1071", "xgboost", "Rtsne", "classifly", "penalizedLDA", "nnet", "kernelshap", "shapviz", "iml", "DALEX", "cxhull", "fpc", "mclust", "ggdendro", "kohonen", "aweSOM", "patchwork", "ggthemes", "colorspace", "palmerpenguins"), dependencies = TRUE)
+install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpcp", "plotly", "detourr", "langevitour", "ggbeeswarm", "MASS", "GGally", "ISLR", "mvtnorm", "rpart", "rpart.plot", "randomForest", "e1071", "xgboost", "Rtsne", "classifly", "penalizedLDA", "nnet", "kernelshap", "shapviz", "iml", "DALEX", "cxhull", "fpc", "mclust", "ggdendro", "kohonen", "aweSOM", "patchwork", "ggthemes", "colorspace", "palmerpenguins"), dependencies = TRUE)
 ```
 
 If you run into problems completing the full install, the likely culprits are [tidyverse](https://www.tidyverse.org) and [tidymodels](https://www.tidymodels.org). These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don't install any that fail on your system. 

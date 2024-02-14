@@ -228,14 +228,287 @@
     "href": "index.html#software",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Software",
-    "text": "Software\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
+    "text": "Software\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
   },
   {
     "objectID": "resources.html",
     "href": "resources.html",
     "title": "ETC3250/5250 Resources",
     "section": "",
-    "text": "Books\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog"
+    "text": "Books and articles\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog"
+  },
+  {
+    "objectID": "week1/slides.html#welcome-meet-the-teaching-team",
+    "href": "week1/slides.html#welcome-meet-the-teaching-team",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Welcome! Meet the teaching team",
+    "text": "Welcome! Meet the teaching team\n\nChief examiner: Professor Dianne Cook\nContact: etc3250.clayton-x@monash.edu\n Tutors:\n\nPatrick: 3rd year PhD student working on computer vision for reading residual plots\nHarriet: 2nd year PhD student working on visualisation of uncertainty\nJayani: 2nd year PhD student working on methods for understanding how non-linear dimension reduction warps your data\nKrisanat: MBAt graduate, aspiring to be PhD student in 2025"
+  },
+  {
+    "objectID": "week1/slides.html#what-this-course-is-about",
+    "href": "week1/slides.html#what-this-course-is-about",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "What this course is about",
+    "text": "What this course is about\n\nselect and develop appropriate models for clustering, prediction or classification.\nestimate and simulate from a variety of statistical models.\nmeasure the uncertainty of a prediction or classification using resampling methods.\napply business analytic tools to produce innovative solutions in finance, marketing, economics and related areas.\nmanage very large data sets in a modern software environment.\nexplain and interpret the analyses undertaken clearly and effectively."
+  },
+  {
+    "objectID": "week1/slides.html#assessment",
+    "href": "week1/slides.html#assessment",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Assessment",
+    "text": "Assessment\n\nWeekly learning quizzes: 3% DUE: Mondays 9am\nAssignment 1: 9%\nAssignment 2: 9%\nAssignment 3: 9%\nProject: 10%\nFinal exam: 60%"
+  },
+  {
+    "objectID": "week1/slides.html#how-to-do-well",
+    "href": "week1/slides.html#how-to-do-well",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "How to do well",
+    "text": "How to do well\n\nKeep up to date with content:\n\nparticipate in the lecture each week\nattend tutorials\ncomplete weekly learning quiz to check your understanding\nread the relevant sections of the resource material\nrun the code from lectures in the qmd files\n\nBegin assessments when posted, map out a plan to complete it on time\nAsk questions"
+  },
+  {
+    "objectID": "week1/slides.html#framing-the-problem",
+    "href": "week1/slides.html#framing-the-problem",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Framing the problem",
+    "text": "Framing the problem\n\nSupervised classification: categorical \\(y_i\\) is available for all \\(x_i\\)\nUnsupervised learning: \\(y_i\\) unavailable for all \\(x_i\\)"
+  },
+  {
+    "objectID": "week1/slides.html#what-type-of-problem-is-this-13",
+    "href": "week1/slides.html#what-type-of-problem-is-this-13",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "What type of problem is this? (1/3)",
+    "text": "What type of problem is this? (1/3)\nFood servers’ tips in restaurants may be influenced by many factors, including the nature of the restaurant, size of the party, and table locations in the restaurant. Restaurant managers need to know which factors matter when they assign tables to food servers. For the sake of staff morale, they usually want to avoid either the substance or the appearance of unfair treatment of the servers, for whom tips (at least in restaurants in the United States) are a major component of pay.\nIn one restaurant, a food server recorded the following data on all customers they served during an interval of two and a half months in early 1990. The restaurant, located in a suburban shopping mall, was part of a national chain and served a varied menu. In observance of local law the restaurant offered seating in a non-smoking section to patrons who requested it. Each record includes a day and time, and taken together, they show the server’s work schedule.\nWhat is \\(y\\)? What is \\(x\\)?"
+  },
+  {
+    "objectID": "week1/slides.html#what-type-of-problem-is-this-23",
+    "href": "week1/slides.html#what-type-of-problem-is-this-23",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "What type of problem is this? (2/3)",
+    "text": "What type of problem is this? (2/3)\nEvery person monitored their email for a week and recorded information about each email message; for example, whether it was spam, and what day of the week and time of day the email arrived. We want to use this information to build a spam filter, a classifier that will catch spam with high probability but will never classify good email as spam.\nWhat is \\(y\\)? What is \\(x\\)?"
+  },
+  {
+    "objectID": "week1/slides.html#what-type-of-problem-is-this-33",
+    "href": "week1/slides.html#what-type-of-problem-is-this-33",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "What type of problem is this? (3/3)",
+    "text": "What type of problem is this? (3/3)\nA health insurance company collected the following information about households:\n\nTotal number of doctor visits per year\nTotal household size\nTotal number of hospital visits per year\nAverage age of household members\nTotal number of gym memberships\nUse of physiotherapy and chiropractic services\nTotal number of optometrist visits\n\nThe health insurance company wants to provide a small range of products, containing different bundles of services and for different levels of cover, to market to customers.\nWhat is \\(y\\)? What is \\(x\\)?"
+  },
+  {
+    "objectID": "week1/slides.html#math-and-computing",
+    "href": "week1/slides.html#math-and-computing",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Math and computing",
+    "text": "Math and computing"
+  },
+  {
+    "objectID": "week1/slides.html#data-math",
+    "href": "week1/slides.html#data-math",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Data: math",
+    "text": "Data: math\n\\(n\\) number of observations or sample points\n\\(p\\) number of variables or the dimension of the data\nA data matrix is denoted as:\n\\[\\begin{align*}\n{\\mathbf X}_{n\\times p}= ({\\mathbf x}_1 ~ {\\mathbf x}_2 ~ \\dots  ~ {\\mathbf x}_p) = \\left(\\begin{array}{cccc}\nx_{11} & x_{12} & \\dots & x_{1p} \\\\\nx_{21} & x_{22} & \\dots & x_{2p} \\\\\n\\vdots & \\vdots & \\ddots & \\vdots \\\\\nx_{n1} & x_{n2} & \\dots & x_{np} \\end{array} \\right)\n\\end{align*}\\]\nThis is also considered the matrix of predictors, or explanatory or independent variables, features, attributes, or input."
+  },
+  {
+    "objectID": "week1/slides.html#data-computing",
+    "href": "week1/slides.html#data-computing",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Data: computing",
+    "text": "Data: computing\n\n\n\nlibrary(mvtnorm)\nvc &lt;- matrix(c(1, 0.5, 0.2, \n               0.5, 1, -0.3, \n               0.2, -0.3, 1), \n             ncol=3, byrow=TRUE)\nset.seed(449)\nx &lt;- rmvnorm(5, \n             mean = c(-0.2, 0, 0.3), \n             sigma = vc)\nx\n\n       [,1]   [,2]   [,3]\n[1,] -0.423  1.011 -0.645\n[2,] -0.829 -0.988 -0.370\n[3,] -0.981  0.660 -0.133\n[4,] -0.129 -0.252  0.567\n[5,] -0.366  0.554  1.370\n\n\nWhat’s the dimension of the data?\n\n\nlibrary(palmerpenguins)\np_tidy &lt;- penguins |&gt;\n  select(species, bill_length_mm:body_mass_g) |&gt;\n  rename(bl=bill_length_mm,\n         bd=bill_depth_mm,\n         fl=flipper_length_mm,\n         bm=body_mass_g) \np_tidy |&gt; slice_head(n=10)\n\n# A tibble: 10 × 5\n   species    bl    bd    fl    bm\n   &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;\n 1 Adelie   39.1  18.7   181  3750\n 2 Adelie   39.5  17.4   186  3800\n 3 Adelie   40.3  18     195  3250\n 4 Adelie   NA    NA      NA    NA\n 5 Adelie   36.7  19.3   193  3450\n 6 Adelie   39.3  20.6   190  3650\n 7 Adelie   38.9  17.8   181  3625\n 8 Adelie   39.2  19.6   195  4675\n 9 Adelie   34.1  18.1   193  3475\n10 Adelie   42    20.2   190  4250\n\n\nWhat’s the dimension of the data?"
+  },
+  {
+    "objectID": "week1/slides.html#observations-and-variables-math",
+    "href": "week1/slides.html#observations-and-variables-math",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Observations and variables: math",
+    "text": "Observations and variables: math\n\n\nThe \\(i^{th}\\) observation is denoted as\n\\[\\begin{align*}\nx_i = \\left(\\begin{array}{cccc}\nx_{i1} & x_{i2} & \\dots & x_{ip} \\\\\n\\end{array} \\right)\n\\end{align*}\\]\n\nThe \\(j^{th}\\) variable is denoted as\n\\[\\begin{align*}\nx_j = \\left(\\begin{array}{c}\nx_{1j} \\\\ x_{2j} \\\\ \\vdots \\\\ x_{nj} \\\\\n\\end{array} \\right)\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "week1/slides.html#observations-and-variables-computing",
+    "href": "week1/slides.html#observations-and-variables-computing",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Observations and variables: computing",
+    "text": "Observations and variables: computing\n\n\nObservations - rows\n\nx[2,]\n\n[1] -0.829 -0.988 -0.370\n\n\n\n\np_tidy |&gt; slice_sample()\n\n# A tibble: 1 × 5\n  species      bl    bd    fl    bm\n  &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;\n1 Chinstrap  51.5  18.7   187  3250\n\n\n\nVariables - columns\n\nx[,1]\n\n[1] -0.423 -0.829 -0.981 -0.129 -0.366\n\n\n\n\np_tidy |&gt; pull(fl)\n\n  [1] 181 186 195  NA 193 190 181 195 193 190 186 180 182\n [14] 191 198 185 195 197 184 194 174 180 189 185 180 187\n [27] 183 187 172 180 178 178 188 184 195 196 190 180 181\n [40] 184 182 195 186 196 185 190 182 179 190 191 186 188\n [53] 190 200 187 191 186 193 181 194 185 195 185 192 184\n [66] 192 195 188 190 198 190 190 196 197 190 195 191 184\n [79] 187 195 189 196 187 193 191 194 190 189 189 190 202\n [92] 205 185 186 187 208 190 196 178 192 192 203 183 190\n[105] 193 184 199 190 181 197 198 191 193 197 191 196 188\n[118] 199 189 189 187 198 176 202 186 199 191 195 191 210\n[131] 190 197 193 199 187 190 191 200 185 193 193 187 188\n[144] 190 192 185 190 184 195 193 187 201 211 230 210 218\n[157] 215 210 211 219 209 215 214 216 214 213 210 217 210\n[170] 221 209 222 218 215 213 215 215 215 216 215 210 220\n[183] 222 209 207 230 220 220 213 219 208 208 208 225 210\n[196] 216 222 217 210 225 213 215 210 220 210 225 217 220\n[209] 208 220 208 224 208 221 214 231 219 230 214 229 220\n[222] 223 216 221 221 217 216 230 209 220 215 223 212 221\n[235] 212 224 212 228 218 218 212 230 218 228 212 224 214\n[248] 226 216 222 203 225 219 228 215 228 216 215 210 219\n[261] 208 209 216 229 213 230 217 230 217 222 214  NA 215\n[274] 222 212 213 192 196 193 188 197 198 178 197 195 198\n[287] 193 194 185 201 190 201 197 181 190 195 181 191 187\n[300] 193 195 197 200 200 191 205 187 201 187 203 195 199\n[313] 195 210 192 205 210 187 196 196 196 201 190 212 187\n[326] 198 199 201 193 203 187 197 191 203 202 194 206 189\n[339] 195 207 202 193 210 198"
+  },
+  {
+    "objectID": "week1/slides.html#matrix-multiplication-math",
+    "href": "week1/slides.html#matrix-multiplication-math",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Matrix multiplication: math",
+    "text": "Matrix multiplication: math\n\\[\\begin{align*}\n{\\mathbf A}_{2\\times 3} = \\left(\\begin{array}{ccc}\na_{11} & a_{12} & a_{13} \\\\\na_{21} & a_{22} & a_{23} \\\\ \\end{array} \\right)\n\\end{align*}\\]\n\\[\\begin{align*}\n{\\mathbf B}_{3\\times 4} = \\left(\\begin{array}{cccc}\nb_{11} & b_{12} & b_{13} & b_{14}\\\\\nb_{21} & b_{22} & b_{23} & b_{24}\\\\\nb_{31} & b_{32} & b_{33} & b_{34}\\\\ \\end{array} \\right)\n\\end{align*}\\]\nthen\n\\[\\begin{align*}\n{\\mathbf A}{\\mathbf B}_{2\\times 4} = \\left(\\begin{array}{cccc}\n\\sum_{j=1}^3 a_{1j}b_{j1} & \\sum_{j=1}^3 a_{1j}b_{j2} & \\sum_{j=1}^3 a_{1j}b_{j3} & \\sum_{j=1}^3 a_{1j}b_{j4}\\\\\n\\sum_{j=1}^3 a_{2j}b_{j1} & \\sum_{j=1}^3 a_{2j}b_{j2} & \\sum_{j=1}^3 a_{2j}b_{j3} & \\sum_{j=1}^3 a_{2j}b_{j4} \\end{array} \\right)\n\\end{align*}\\]\nPour the rows into the columns. Note: You can’t do \\({\\mathbf B}{\\mathbf A}\\)!"
+  },
+  {
+    "objectID": "week1/slides.html#matrix-multiplication-computing",
+    "href": "week1/slides.html#matrix-multiplication-computing",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Matrix multiplication: computing",
+    "text": "Matrix multiplication: computing\n\n\n\nx\n\n       [,1]   [,2]   [,3]\n[1,] -0.423  1.011 -0.645\n[2,] -0.829 -0.988 -0.370\n[3,] -0.981  0.660 -0.133\n[4,] -0.129 -0.252  0.567\n[5,] -0.366  0.554  1.370\n\nproj &lt;- matrix(c(1/sqrt(2), 1/sqrt(2), 0, \n                 0, 0, 1), ncol=2, byrow=FALSE)\nproj\n\n      [,1] [,2]\n[1,] 0.707    0\n[2,] 0.707    0\n[3,] 0.000    1\n\nx %*% proj\n\n       [,1]   [,2]\n[1,]  0.416 -0.645\n[2,] -1.285 -0.370\n[3,] -0.227 -0.133\n[4,] -0.269  0.567\n[5,]  0.133  1.370\n\n\n\nTry this:\n\nt(x) %*% proj\n\nIt produces an error because it can’t be done\nError in t(x) %*% proj : non-conformable arguments\n Notice: %*% uses a * so it is NOT the tidyverse pipe."
+  },
+  {
+    "objectID": "week1/slides.html#identity-matrix",
+    "href": "week1/slides.html#identity-matrix",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Identity matrix",
+    "text": "Identity matrix\n\n\n\\[\\begin{align*}\nI = \\left(\\begin{array}{cccc}\n1 & 0 & \\dots & 0 \\\\\n0 & 1 & & \\vdots \\\\\n\\vdots &  & \\ddots & 0\\\\\n0 & 0 & & 1 \\\\\n\\end{array}\\right)_{p\\times p}\n\\end{align*}\\]\n\n\ndiag(1, 8, 8)\n\n     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]\n[1,]    1    0    0    0    0    0    0    0\n[2,]    0    1    0    0    0    0    0    0\n[3,]    0    0    1    0    0    0    0    0\n[4,]    0    0    0    1    0    0    0    0\n[5,]    0    0    0    0    1    0    0    0\n[6,]    0    0    0    0    0    1    0    0\n[7,]    0    0    0    0    0    0    1    0\n[8,]    0    0    0    0    0    0    0    1"
+  },
+  {
+    "objectID": "week1/slides.html#inverting-a-matrix-math",
+    "href": "week1/slides.html#inverting-a-matrix-math",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Inverting a matrix: math",
+    "text": "Inverting a matrix: math\n\n\nSuppose that \\({\\mathbf A}\\) is square\n\\[\\begin{align*}\n{\\mathbf A}_{2\\times 2} = \\left(\\begin{array}{cc}\na & b  \\\\\nc & d \\\\ \\end{array} \\right)\n\\end{align*}\\]\nthen the inverse is (if \\(ad-bc \\neq 0\\))\n\\[\\begin{align*}\n{\\mathbf A}^{-1}_{2\\times 2} = \\frac{1}{ad-bc} \\left(\\begin{array}{cc}\nd & -b \\\\\n-c & a \\\\ \\end{array} \\right)\n\\end{align*}\\]\nand \\({\\mathbf A}{\\mathbf A}^{-1} = I\\) where\n\\[\\begin{align*}\n{\\mathbf I}_{2\\times 2} = \\left(\\begin{array}{cc}\n1 & 0 \\\\\n0 & 1 \\\\ \\end{array} \\right)\n\\end{align*}\\]\n\nIf \\(AB=I\\), then \\(B=A^{-1}\\).\n\nvc\n\n     [,1] [,2] [,3]\n[1,]  1.0  0.5  0.2\n[2,]  0.5  1.0 -0.3\n[3,]  0.2 -0.3  1.0\n\nvc_i &lt;- solve(vc)\nvc_i\n\n       [,1]   [,2]   [,3]\n[1,]  1.625 -1.000 -0.625\n[2,] -1.000  1.714  0.714\n[3,] -0.625  0.714  1.339\n\nvc %*% vc_i\n\n          [,1]     [,2]      [,3]\n[1,]  1.00e+00 7.45e-17 -7.34e-18\n[2,] -1.96e-16 1.00e+00  4.82e-17\n[3,]  0.00e+00 0.00e+00  1.00e+00"
+  },
+  {
+    "objectID": "week1/slides.html#projections",
+    "href": "week1/slides.html#projections",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Projections",
+    "text": "Projections\n\n\n\\(d (\\leq p)\\) is used to denote the number of variables in a lower dimensional space, usually by taking a projection.\n\\(A\\) is a \\(p\\times d\\) orthonormal basis, \\(A^TA=I_d\\) ( \\(A'A=I_d\\) ).\nThe projection of \\({\\mathbf x_i}\\) onto \\(A\\) is \\(A^T{\\mathbf x}_i\\).\n\n\nproj\n\n      [,1] [,2]\n[1,] 0.707    0\n[2,] 0.707    0\n[3,] 0.000    1\n\nsum(proj[,1]^2)\n\n[1] 1\n\nsum(proj[,2]^2)\n\n[1] 1\n\nsum(proj[,1]*proj[,2])\n\n[1] 0\n\n\nproj would be considered to be a orthonormal projection matrix."
+  },
+  {
+    "objectID": "week1/slides.html#conceptual-framework",
+    "href": "week1/slides.html#conceptual-framework",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Conceptual framework",
+    "text": "Conceptual framework"
+  },
+  {
+    "objectID": "week1/slides.html#accuracy-vs-interpretability",
+    "href": "week1/slides.html#accuracy-vs-interpretability",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Accuracy vs interpretability",
+    "text": "Accuracy vs interpretability\n\n\nPredictive accuracy\nThe primary purpose is to be able to predict \\(\\widehat{Y}\\) for new data. And we’d like to do that well! That is, accurately.\n\n\n\nFrom XKCD\n\n\n\nInterpretability\nAlmost equally important is that we want to understand the relationship between \\({\\mathbf X}\\) and \\(Y\\). The simpler model that is (almost) as accurate is the one we choose, always.\n\n\n\nFrom Interpretable Machine Learning"
+  },
+  {
+    "objectID": "week1/slides.html#training-vs-test-splits",
+    "href": "week1/slides.html#training-vs-test-splits",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Training vs test splits",
+    "text": "Training vs test splits\n\nWhen data are reused for multiple tasks, instead of carefully spent from the finite data budget, certain risks increase, such as the risk of accentuating bias or compounding effects from methodological errors. Julia Silge\n\n\nTraining set: Used to fit the model, might be also broken into a validation set for frequent assessment of fit.\nTest set: Purely used to assess final models performance on future data."
+  },
+  {
+    "objectID": "week1/slides.html#training-vs-test-splits-1",
+    "href": "week1/slides.html#training-vs-test-splits-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Training vs test splits",
+    "text": "Training vs test splits\n\n\n\nd_bal &lt;- tibble(y=c(rep(\"A\", 6), rep(\"B\", 6)),\n                x=c(runif(12)))\nd_bal$y\n\n [1] \"A\" \"A\" \"A\" \"A\" \"A\" \"A\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\"\n\nset.seed(130)\nd_bal_split &lt;- initial_split(d_bal, prop = 0.70)\ntraining(d_bal_split)$y\n\n[1] \"A\" \"A\" \"B\" \"A\" \"B\" \"A\" \"B\" \"A\"\n\ntesting(d_bal_split)$y\n\n[1] \"A\" \"B\" \"B\" \"B\"\n\n\n\n\nd_unb &lt;- tibble(y=c(rep(\"A\", 2), rep(\"B\", 10)),\n                x=c(runif(12)))\nd_unb$y\n\n [1] \"A\" \"A\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\"\n\nset.seed(132)\nd_unb_split &lt;- initial_split(d_unb, prop = 0.70)\ntraining(d_unb_split)$y\n\n[1] \"B\" \"B\" \"A\" \"B\" \"B\" \"A\" \"B\" \"B\"\n\ntesting(d_unb_split)$y\n\n[1] \"B\" \"B\" \"B\" \"B\"\n\n\n\nAlways stratify splitting by sub-groups, especially response variable classes.\n\nd_unb_strata &lt;- initial_split(d_unb, prop = 0.70, strata=y)\ntraining(d_unb_strata)$y\n\n[1] \"A\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\" \"B\"\n\ntesting(d_unb_strata)$y\n\n[1] \"A\" \"B\" \"B\" \"B\""
+  },
+  {
+    "objectID": "week1/slides.html#measuring-accuracy-for-categorical-response",
+    "href": "week1/slides.html#measuring-accuracy-for-categorical-response",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Measuring accuracy for categorical response",
+    "text": "Measuring accuracy for categorical response\nCompute \\(\\widehat{y}\\) from training data, \\(\\{(y_i, {\\mathbf x}_i)\\}_{i = 1}^n\\). The error rate (fraction of misclassifications) to get the Training Error Rate\n\\[\\text{Error rate} = \\frac{1}{n}\\sum_{i=1}^n I(y_i \\ne \\widehat{y}({\\mathbf x}_i))\\]\nA better estimate of future accuracy is obtained using test data to get the Test Error Rate.\n\n\nTraining error will usually be smaller than test error. When it is much smaller, it indicates that the model is too well fitted to the training data to be accurate on future data (over-fitted)."
+  },
+  {
+    "objectID": "week1/slides.html#confusion-misclassification-matrix",
+    "href": "week1/slides.html#confusion-misclassification-matrix",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Confusion (misclassification) matrix",
+    "text": "Confusion (misclassification) matrix\n\n\n\n\n\n\n\n\n\n\npredicted\n\n\n\n\n\n\n\n\n1\n\n\n0\n\n\n\n\ntrue\n\n\n1\n\n\na\n\n\nb\n\n\n\n\n\n\n0\n\n\nc\n\n\nd\n\n\n\n\nConsider 1=positive (P), 0=negative (N).\n\nTrue positive (TP): a\nTrue negative (TN): d\nFalse positive (FP): b (Type I error)\nFalse negative (FN): c (Type II error)\n\n\n\nSensitivity, recall, hit rate, or true positive rate (TPR): TP/P = a/(a+b)\nSpecificity, selectivity or true negative rate (TNR): TN/N = d/(c+d)\nPrevalence: P/(P+N) = (a+b)/(a+b+c+d)\nAccuracy: (TP+TN)/(P+N) = (a+d)/(a+b+c+d)\nBalanced accuracy: (TPR + TNR)/2 (or average class errors)"
+  },
+  {
+    "objectID": "week1/slides.html#confusion-misclassification-matrix-computing",
+    "href": "week1/slides.html#confusion-misclassification-matrix-computing",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Confusion (misclassification) matrix: computing",
+    "text": "Confusion (misclassification) matrix: computing\n\n\nTwo classes\n\n# Write out the confusion matrix in standard form\ncm &lt;- a2 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n) |&gt;\n  select(y, bilby, quokka, cl_err)\n\n# A tibble: 2 × 4\n# Groups:   y [2]\n  y      bilby quokka cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3  0.75 \n2 quokka     5     10  0.667\n\n\n\naccuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.704\n\nbal_accuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.708\n\nsens(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.75\n\nspecificity(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.667\n\n\n\nMore than two classes\n\n# Write out the confusion matrix in standard form\ncm3 &lt;- a3 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm3 |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n, values_fill=0) |&gt;\n  select(y, bilby, quokka, numbat, cl_err)\n\n# A tibble: 3 × 5\n# Groups:   y [3]\n  y      bilby quokka numbat cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3      0  0.75 \n2 numbat     0      2      6  0.75 \n3 quokka     5     10      0  0.667\n\n\n\naccuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.714\n\nbal_accuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.783"
+  },
+  {
+    "objectID": "week1/slides.html#receiver-operator-curves-roc",
+    "href": "week1/slides.html#receiver-operator-curves-roc",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Receiver Operator Curves (ROC)",
+    "text": "Receiver Operator Curves (ROC)\n\n\nThe balance of getting it right, without predicting everything as positive.\n\n\n\nFrom wikipedia\n\n\nNeed predictive probabilities, probability of being each class.\n\n\na2 |&gt; slice_head(n=3)\n\n# A tibble: 3 × 4\n  y     pred  bilby quokka\n  &lt;fct&gt; &lt;fct&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 bilby bilby   0.9    0.1\n2 bilby bilby   0.8    0.2\n3 bilby bilby   0.9    0.1\n\nroc_curve(a2, y, bilby) |&gt;\n  autoplot()"
+  },
+  {
+    "objectID": "week1/slides.html#parametric-vs-non-parametric",
+    "href": "week1/slides.html#parametric-vs-non-parametric",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parametric vs non-parametric",
+    "text": "Parametric vs non-parametric\n\n\nParametric methods\n\nAssume that the model takes a specific form\nFitting then is a matter of estimating the parameters of the model\nGenerally considered to be less flexible\nIf assumptions are wrong, performance likely to be poor\n\n\nNon-parametric methods\n\nNo specific assumptions\nAllow the data to specify the model form, without being too rough or wiggly\nMore flexible\nGenerally needs more observations, and not too many variables\nEasier to over-fit"
+  },
+  {
+    "objectID": "week1/slides.html#section",
+    "href": "week1/slides.html#section",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "From XKCD\n\n\n\n\n\n\n\n\n\n\n\n\nBlack line is true boundary.\n\nGrids (right) show boundaries for two different models."
+  },
+  {
+    "objectID": "week1/slides.html#reducible-vs-irreducible-error",
+    "href": "week1/slides.html#reducible-vs-irreducible-error",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Reducible vs irreducible error",
+    "text": "Reducible vs irreducible error\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIf the model form is incorrect, the error (solid circles) may arise from wrong shape, and is thus reducible. Irreducible means that we have got the right model and mistakes (solid circles) are random noise."
+  },
+  {
+    "objectID": "week1/slides.html#flexible-vs-inflexible",
+    "href": "week1/slides.html#flexible-vs-inflexible",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Flexible vs inflexible",
+    "text": "Flexible vs inflexible\n\nParametric models tend to be less flexible but non-parametric models can be flexible or less flexible depending on parameter settings."
+  },
+  {
+    "objectID": "week1/slides.html#bias-vs-variance",
+    "href": "week1/slides.html#bias-vs-variance",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Bias vs variance",
+    "text": "Bias vs variance\n\n\nBias is the error that is introduced by modeling a complicated problem by a simpler problem.\n\nFor example, linear regression assumes a linear relationship and perhaps the relationship is not exactly linear.\nIn general, but not always, the more flexible a method is, the less bias it will have because it can fit a complex shape better.\n\n\n\nVariance refers to how much your estimate would change if you had different training data. Its measuring how much your model depends on the data you have, to the neglect of future data.\n\nIn general, the more flexible a method is, the more variance it has.\nThe size of the training data can impact on the variance."
+  },
+  {
+    "objectID": "week1/slides.html#bias",
+    "href": "week1/slides.html#bias",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Bias",
+    "text": "Bias\n\n\n\n\n\n\n\n\n\n\n\nWhen you impose too many assumptions with a parametric model, or use an inadequate non-parametric model, such as not letting an algorithm converge fully.\n\n\n\n\n\n\n\n\n\n\nWhen the model closely captures the true shape, with a parametric model or a flexible model."
+  },
+  {
+    "objectID": "week1/slides.html#variance",
+    "href": "week1/slides.html#variance",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Variance",
+    "text": "Variance\n\n\n\n\n\n\n\n\n\n\n\nThis fit will be virtually identical even if we had a different training sample.\n\n\n\n\n\n\n\n\n\n\nLikely to get a very different model if a different training set is used."
+  },
+  {
+    "objectID": "week1/slides.html#bias-variance-tradeoff",
+    "href": "week1/slides.html#bias-variance-tradeoff",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Bias-variance tradeoff",
+    "text": "Bias-variance tradeoff\n \nGoal: Without knowing what the true structure is, fit the signal and ignore the noise. Be flexible but not too flexible.\nImages 2.16, 2.15 from ISLR"
+  },
+  {
+    "objectID": "week1/slides.html#trade-off-between-accuracy-and-interpretability",
+    "href": "week1/slides.html#trade-off-between-accuracy-and-interpretability",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Trade-off between accuracy and interpretability",
+    "text": "Trade-off between accuracy and interpretability"
+  },
+  {
+    "objectID": "week1/slides.html#diagnosing-the-fit",
+    "href": "week1/slides.html#diagnosing-the-fit",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Diagnosing the fit",
+    "text": "Diagnosing the fit\n\n\nCompute and examine the usual diagnostics, some methods have more\n\nfit statistics: accuracy, sensitivity, specificity\nerrors/misclassifications\nvariable importance\nplot residuals, examine the misclassifications\ncheck test set is similar to training\n\nGo beyond … Look at the data and the model together!\nWickham et al (2015) Removing the Blindfold\n\n\nTraining - plusses; Test - dots"
+  },
+  {
+    "objectID": "week1/slides.html#feature-engineering",
+    "href": "week1/slides.html#feature-engineering",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Feature engineering",
+    "text": "Feature engineering\nCreating new variables to get better fits is a special skill! Sometimes automated by the method. All are transformations of the original variables. (See tidymodels steps.)\n\nscaling, centering, sphering (step_pca)\nlog or square root or box-cox transformation (step_log)\nratio of values (step_ratio)\npolynomials or splines: \\(x_1^2, x_1^3\\) (step_ns)\ndummy variables: categorical predictors expanded into multiple new binary variables (step_dummy)\nConvolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels"
+  },
+  {
+    "objectID": "week1/slides.html#the-big-picture",
+    "href": "week1/slides.html#the-big-picture",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "The big picture",
+    "text": "The big picture\n\n\n\nKnow your data\n\nCategorical response or no response\nTypes of predictors: quantitative, categorical\nIndependent observations\nDo you need to handle missing values?\nAre there anomalous observations?\n\nPlot your data\n\nWhat are the shapes (distribution and variance)?\nAre there gaps or separations (centres)?\n\n\n\n\nFit a model or two\n\nCompute fit statistics\nPlot the model\nExamine parameter estimates\n\nDiagnostics\n\nWhich is the better model\nIs there a simpler model?\nAre the errors reducible or systematic?\nAre you confident that your bias is low and variance is low?"
+  },
+  {
+    "objectID": "week1/slides.html#next-visualisation",
+    "href": "week1/slides.html#next-visualisation",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Next: Visualisation",
+    "text": "Next: Visualisation\n\n\n\nETC3250/5250 Lecture 1 | iml.numbat.space"
   },
   {
     "objectID": "week11/index.html",

@@ -2,7 +2,7 @@
 title: "ETC3250/5250 Resources"
 ---
 
-# Books
+# Books and articles
 
 - [An Introduction to Statistical Learning (ISLR)](https://www.statlearning.com)
 
