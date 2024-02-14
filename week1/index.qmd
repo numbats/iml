@@ -32,6 +32,7 @@ schedule |>
 - [html](https://iml.numbat.space/week1/slides.html)
 - [pdf](https://iml.numbat.space/week1/slides.pdf)
 - [quarto](https://iml.numbat.space/week1/slides.qmd)
+- [R code](https://iml.numbat.space/week1/slides.R)
 
 ## Tutorial instructions
 
