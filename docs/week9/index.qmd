@@ -1,0 +1,30 @@
+---
+title: "Week 9: K-nearest neighbours and hierarchical clustering"
+---
+
+```{r}
+week <- 9
+source(here::here("course_info.R"))
+```
+
+## Main reference
+
+```{r}
+#| output: asis
+schedule |>
+  filter(Week == week) |>
+  mutate(ref = glue::glue("[{Reference}]({Reference_URL})")) |>
+  pull(ref)
+```
+
+## What you will learn this week
+
+* Defining distance measure
+* k-means algorithm
+* Hierarchical algorithms
+* Making and using dendrograms
+
+```{r}
+#| output: asis
+show_assignments(week)
+```

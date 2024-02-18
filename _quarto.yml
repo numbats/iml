@@ -3,8 +3,14 @@ project:
   render:
   - "*.qmd"
   - "*.md"
+  - "!quizzes/"
   output-dir: docs
-
+  resources:
+  - "assets/*"
+  - "data/*"
+  - "images/*"
+  - "week*/*.qmd"
+  - "week*/*.R"
 website:
   title: "ETC3250/5250 Introduction to Machine Learning"
   site-url: "https://iml.numbat.space"

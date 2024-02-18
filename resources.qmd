@@ -28,6 +28,10 @@ This book by Cook and Laa is the primary resource for learning how to visualise 
 
 This book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them
 
+- [Feature Engineering A-Z](https://feaz-book.com)
+
+Written by Emil Hvitfeldt to cover creating new variables as broadly as possibly. Has classical methods such as dummy variables and box-cox transformations, temporal and spatial data and missing value imputation. 
+
 # Useful links
 
 - [TensorFlow for R](https://tensorflow.rstudio.com/install/)
