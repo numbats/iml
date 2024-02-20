@@ -1,0 +1,180 @@
+---
+title: "ETC53250/5250 Tutorial 2"
+subtitle: "Basics of machine learning"
+author: "Prof. Di Cook"
+date: "2024-03-04"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+unilur-solution: true
+echo: true
+---
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is for you to learn and practice some of the basics of machine learning. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Complete the quiz
+- Do the reading related to week 1
+
+
+## Exercises: 
+
+Open your project for this unit called `iml.Rproj`. 
+
+1. Answer the following questions for this data matrix, 
+
+\begin{align*}
+{\mathbf X} = \left(\begin{array}{rrrrr} 
+2 & -2 & -8 & 6 & -7 \\
+6 & 6 & -4 & 9 & 6 \\
+5 & 4 & 3 & -7 & 8 \\
+1 & -7 & 6 & 7 & -1\\
+\end{array}\right)
+\end{align*}
+
+a. What is $X_1$ (variable 1)?
+
+::: unilur-solution
+$X_1 = (2 ~6 ~5 ~1)$
+:::
+
+b. What is observation 3?
+
+::: unilur-solution
+$5 ~ 4 ~ 3 ~ -7 ~ 8$
+:::
+
+c. What is $n$?
+
+::: unilur-solution
+$4$
+:::
+
+d. What is $p$?
+
+::: unilur-solution
+$5$
+::: 
+
+e. What is $X^\top$?
+
+::: unilur-solution
+\begin{align*}
+{\mathbf X}^\top = \left(\begin{array}{rrrr} 
+2 & 6 & 5 & 1\\
+-2 & 6 & 4 & -7\\ 
+-8 & -4 & 3 & 6 \\
+6 & 9 & -7 & 7 \\
+-7 & 6 & 8 & -1
+\end{array}\right)
+\end{align*}
+:::
+
+f. Write a projection matrix which would generate a 2D projection where variables 1 and 4 are combined equally, and variables 2 and 5 are combined in 1 1:3 ratio.
+
+::: unilur-solution
+\begin{align*}
+{\mathbf A} = \left(\begin{array}{rr} 
+1/\sqrt{2} & 0 \\
+0 & 1/\sqrt{3} \\ 
+0 & 0  \\
+1/\sqrt{2} & 0  \\
+0 & \sqrt{2}/\sqrt{3} \\
+\end{array}\right)
+\end{align*}
+:::
+
+g. Why can't the following matrix considered a projection matrix?
+
+\begin{align*}
+{\mathbf A} = \left(\begin{array}{rr} 
+-1/\sqrt{2} & 1/\sqrt{3} \\ 
+0 & 0  \\
+1/\sqrt{2} & 0 \\
+0 & \sqrt{2}/\sqrt{3} \\
+\end{array}\right)
+\end{align*}
+
+::: unilur-solution
+The columns are not orthonormal. The cross-product is not equal to 0. 
+:::
+
+2. Which of these statements is the most accurate? And which is the most precise?
+
+*A. It is almost certain to rain in the next week.*
+
+*B. It is 90% likely to get at least 10mm of rain tomorrow.*
+
+::: unilur-solution
+A is more accurate, but B is more precise. 
+:::
+
+3. For the following data, make an appropriate training test split of 60:40. The response variable is `cause`. Deomstrate that you have made an appropriate split. 
+
+```{r}
+library(readr)
+library(dplyr)
+library(rsample)
+
+bushfires <- read_csv("https://raw.githubusercontent.com/dicook/mulgar_book/pdf/data/bushfires_2019-2020.csv")
+bushfires |> count(cause)
+```
+
+
+::: unilur-solution
+
+The data is unbalanced, so it is especially important to stratify the sampling by the response variable. Without stratifying the test set is likely missing observations in the `burning_off` category. 
+
+```{r}
+set.seed(1156)
+bushfires_split <- initial_split(bushfires, prop = 0.60, strata=cause)
+training(bushfires_split) |> count(cause)
+testing(bushfires_split) |> count(cause)
+```
+:::
+
+4. Bias vs variance
+
+5. Accuracy
+
+```{r eval=FALSE, echo=FALSE}
+# This code provides a data set to use for the question
+library(palmerpenguins)
+library(MASS)
+p_sub <- penguins |>
+  dplyr::filter(species != "Gentoo") |>
+  rename(bl = bill_length_mm,
+         bm = body_mass_g,
+         fl = flipper_length_mm,
+         bd = bill_depth_mm) |>
+  dplyr::select(species, bl, bd, fl, bm) |>
+  mutate(species = factor(species))
+p_lda <- lda(species~., data=p_sub)
+p_pred <- predict(p_lda, 
+                  p_sub, 
+                  method="predictive")
+p_sub |> count(species)
+set.seed(922)
+idx <- sort(c(sample(1:152, 30), sample(153:220, 5)))
+pred_data <- tibble(true = p_sub$species[idx],
+     adelie = p_pred$posterior[idx, 1],
+     chinstrap = p_pred$posterior[idx, 2])
+write_csv(pred_data, file="data/pred_data.csv")
+```
+
+
+6. Feature engineering
+
+7. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.
