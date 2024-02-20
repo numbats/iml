@@ -170,6 +170,9 @@ pred_data <- tibble(true = p_sub$species[idx],
 write_csv(pred_data, file="data/pred_data.csv")
 ```
 
+```{r}
+pred_data <- read_csv("")
+```
 
 6. Feature engineering
 
