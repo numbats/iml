@@ -19,22 +19,22 @@ week <- as.integer(1 + ((Sys.Date() - as_date(start_semester))/7))
 
 * **Professor Di Cook**
     - Email: [etc3250.clayton-x@monash.edu](mailto:etc3250.clayton-x@monash.edu) 
-    - Consultation: 
+    - Consultation: Thu 9:00-10:30 (zoom only)
 
 ## Tutors
 
 * Patrick Li
-    - Tutorials: 
+    - Tutorials: Mon 15:00, Fri 11:00 
     - Consultation:
 * Harriet Mason
-    - Tutorials: 
-    - Consultation:
+    - Tutorials: Wed 18:00, Fri 12:30
+    - Consultation: Thu 3:00-4:30 (zoom only)
 * Jayani Lakshika
-    - Tutorials: 
-    - Consultation:
+    - Tutorials: Wed 8:00, 9:30
+    - Consultation: Thu 12:00-1:30
 * Krisanat Anukarnsakulchularp
-    - Tutorials: 
-    - Consultation:
+    - Tutorials: Mon 12:00, 13:30
+    - Consultation: Fri 9:30-11:00
 
 ## Weekly schedule
 

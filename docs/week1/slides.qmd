@@ -32,7 +32,7 @@ source("../setup.R")
 
 Chief examiner: [Professor Dianne Cook]{.monash-fuchsia2}
 
-Contact: [etc3250.clayton-x@monash.edu]{.monash-orange2}
+Communication: All questions need to be communicated through the Discussion forum. Any of a private matter can e=be addressed to [etc3250.clayton-x@monash.edu]{.monash-orange2}. **Any emails directly to tutors or the instructor will be disregarded.**
 
 <br>
 Tutors: 
@@ -62,15 +62,20 @@ Tutors:
 
 ## How to do well
 
-- Keep up to date with content: 
-    - participate in the lecture each week
-    - attend tutorials
-    - complete weekly learning quiz to check your understanding
-    - read the relevant sections of the resource material
-    - run the code from lectures in the `qmd` files
-- Begin assessments when posted, map out a plan to complete it on time
-- Ask questions
+- **Keep up-to-date** with content: 
+    - **participate** in the lecture each week
+    - **attend tutorials**
+    - complete **weekly learning quiz** to check your understanding
+    - **read** the relevant sections of the resource material
+    - **run the code** from lectures in the `qmd` files
+- Begin assessments **early**, when posted, map out a plan to complete it on time
+- **Ask** questions
 
+## {.center}
+
+[*Machine learning is a big, big area. This semester is like the tip of the iceberg, there's a lot more, and interesting methods and problems, than what we can cover. Take this as a challenge to get you started, and become hungry to learn more!*]{.monash-blue2}
+
+## Types of problems {.transition-slide .center}
 
 ## Framing the problem
 
@@ -306,7 +311,7 @@ model.matrix(~ 0 + species, data = p_tidy) |>
 
 A transposed data matrix is denoted as
 \begin{align*}
-{\mathbf X}^T = \left(\begin{array}{cccc} 
+{\mathbf X}^\top = \left(\begin{array}{cccc} 
 x_{11} & x_{21} & \dots & x_{n1} \\
 x_{12} & x_{22} & \dots & x_{n2} \\
 \vdots & \vdots & \ddots & \vdots \\
@@ -466,9 +471,9 @@ vc %*% vc_i
 
 $d (\leq p)$ is used to denote the number of variables in a lower dimensional space, usually by taking a projection.
 
-$A$ is a $p\times d$ orthonormal basis, $A^TA=I_d$ ( $A'A=I_d$ ).
+$A$ is a $p\times d$ orthonormal basis, $A^\top A=I_d$ ( $A'A=I_d$ ).
 
-The projection of ${\mathbf x_i}$ onto $A$ is $A^T{\mathbf x}_i$.
+The projection of ${\mathbf x_i}$ onto $A$ is $A^\top{\mathbf x}_i$.
 
 :::
 ::: {.column}
