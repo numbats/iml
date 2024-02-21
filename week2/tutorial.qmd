@@ -13,6 +13,7 @@ format:
         embed-resources: true
 unilur-solution: true
 echo: true
+cache: false
 ---
 
 ## `r emo::ji("target")` Objectives
@@ -141,9 +142,27 @@ testing(bushfires_split) |> count(cause)
 ```
 :::
 
-4. Bias vs variance
+4. In the lecture slides from week 1 on bias vs variance, these four images were shown. 
 
-5. Accuracy
+![](images/bias-large.png){width=200}
+![](images/bias-small.png){width=200}
+
+![](images/variance-small.png){width=200}
+![](images/variance-large.png){width=200}
+
+Mark the images with the labels "true model", "fitted model", "bias". Then explain in your own words why the different model shown in each has (potentially) large bias or small bias, and small variance or large variance.
+
+::: unilur-solution
+
+The linear model will be very similar regardless of the training sample, so it has small variance. But because it misses the curved nature of the true model, it has large bias, missing critical parts of the two classes that are different.
+
+The non-parametric model which captures the curves thus has small bias, but the fitted model might vary a lot from one training sample to another which would result in it being considered to have large variance.
+
+![](images/bias-large-annotated.png){width=200}
+![](images/bias-small-annotated.png){width=200}
+:::
+
+5. The following data contains `true` class and predictive probabilities for a model fit. Answer the questions below for this data.
 
 ```{r eval=FALSE, echo=FALSE}
 # This code provides a data set to use for the question
@@ -171,10 +190,108 @@ write_csv(pred_data, file="data/pred_data.csv")
 ```
 
 ```{r}
-pred_data <- read_csv("")
+pred_data <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/pred_data.csv") |>
+  mutate(true = factor(true))
 ```
 
-6. Feature engineering
+a. How many classes?
+
+::: unilur-solution
+```{r}
+pred_data |> count(true)
+```
+:::
+
+b. Compute the confusion table, using the maximum predictive probability to label the observation.
+
+::: unilur-solution
+```{r}
+library(tidyr)
+pred_data <- pred_data |>
+  mutate(pred = levels(pred_data$true)[apply(pred_data[,-1], 1, which.max)])
+pred_data |> count(true, pred) |>  
+  group_by(true) |>
+  mutate(cl_err = n[pred==true]/sum(n)) |>
+  pivot_wider(names_from = pred, 
+              values_from = n,
+              values_fill = 0) |>
+  dplyr::select(true, Adelie, Chinstrap, cl_err)
+
+```
+:::
+
+c. Compute the accuracy, and accuracy if all observations were classified as Adelie. Why is the accuracy almost as good when all observations are predicted to be the majority class?
+
+::: unilur-solution
+Accuracy = 33/35 = 0.94
+
+Accuracy when all predicted to be Adelie = 32/35 = 0.91
+
+There are only 5 observations in the Chinstrap class. So accuracy remains high, if we simply ignore this class.
+:::
+
+d. Compute the balanced accuracy, by averaging the class errors. Why is it lower than the overall accuracy? Which is the better accuracy to use to reflect the ability to classify this data?
+
+::: unilur-solution
+The balanced accuracy is `r (1+0.6)/2`. This is a better reflection on the predictive ability of the model for this data because it reflects the difficulty in predicting the Chinstrap group.
+:::
+
+6. This question relates to feature engineering, creating better variables on which to build your model.
+
+a. The following `spam` data has a heavily skewed distribution for the size of the email message. How would you transform this variable to better see differences between spam and ham emails?
+
+```{r}
+library(ggplot2)
+library(ggbeeswarm)
+spam <- read_csv("http://ggobi.org/book/data/spam.csv")
+ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none")
+```
+
+::: unilur-solution
+```{r}
+ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none") +
+  scale_y_log10()
+```
+:::
+
+b. For the following data, how would you construct a new single variable which would capture the difference between the two classes using a linear model?
+
+```{r}
+olive <- read_csv("http://ggobi.org/book/data/olive.csv") |>
+  dplyr::filter(region != 1) |>
+  dplyr::select(region, arachidic, linoleic) |>
+  mutate(region = factor(region))
+ggplot(olive, aes(x=linoleic, 
+                  y=arachidic, 
+                  colour=region)) +
+  geom_point() +
+  scale_color_brewer("", palette = "Dark2") + 
+   theme(legend.position="none", 
+        aspect.ratio=1)
+```
+
+::: unilur-solution
+```{r}
+olive <- olive |>
+  mutate(linoarch = 0.377 * linoleic + 
+           0.926 * arachidic)
+ggplot(olive, aes(x=region, 
+                  y=linoarch, 
+                  colour=region)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none") 
+```
+:::
 
 7. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
 
