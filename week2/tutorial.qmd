@@ -1,5 +1,5 @@
 ---
-title: "ETC53250/5250 Tutorial 2"
+title: "ETC3250/5250 Tutorial 2"
 subtitle: "Basics of machine learning"
 author: "Prof. Di Cook"
 date: "2024-03-04"
@@ -8,9 +8,11 @@ format:
     unilur-html:
         output-file: tutorial.html
         embed-resources: true
+        css: "../assets/tutorial.css"
     unilur-html+solution:
         output-file: tutorialsol.html
         embed-resources: true
+        css: "../assets/tutorial.css"
 unilur-solution: true
 echo: true
 cache: false
@@ -30,7 +32,7 @@ The goal for this week is for you to learn and practice some of the basics of ma
 
 Open your project for this unit called `iml.Rproj`. 
 
-1. Answer the following questions for this data matrix, 
+#### 1. Answer the following questions for this data matrix, 
 
 \begin{align*}
 {\mathbf X} = \left(\begin{array}{rrrrr} 
@@ -108,7 +110,7 @@ g. Why can't the following matrix considered a projection matrix?
 The columns are not orthonormal. The cross-product is not equal to 0. 
 :::
 
-2. Which of these statements is the most accurate? And which is the most precise?
+#### 2. Which of these statements is the most accurate? And which is the most precise?
 
 *A. It is almost certain to rain in the next week.*
 
@@ -118,7 +120,7 @@ The columns are not orthonormal. The cross-product is not equal to 0.
 A is more accurate, but B is more precise. 
 :::
 
-3. For the following data, make an appropriate training test split of 60:40. The response variable is `cause`. Deomstrate that you have made an appropriate split. 
+#### 3. For the following data, make an appropriate training test split of 60:40. The response variable is `cause`. Deomstrate that you have made an appropriate split. 
 
 ```{r}
 library(readr)
@@ -142,7 +144,7 @@ testing(bushfires_split) |> count(cause)
 ```
 :::
 
-4. In the lecture slides from week 1 on bias vs variance, these four images were shown. 
+#### 4. In the lecture slides from week 1 on bias vs variance, these four images were shown. 
 
 ![](images/bias-large.png){width=200}
 ![](images/bias-small.png){width=200}
@@ -162,7 +164,7 @@ The non-parametric model which captures the curves thus has small bias, but the 
 ![](images/bias-small-annotated.png){width=200}
 :::
 
-5. The following data contains `true` class and predictive probabilities for a model fit. Answer the questions below for this data.
+#### 5. The following data contains `true` class and predictive probabilities for a model fit. Answer the questions below for this data.
 
 ```{r eval=FALSE, echo=FALSE}
 # This code provides a data set to use for the question
@@ -236,7 +238,7 @@ d. Compute the balanced accuracy, by averaging the class errors. Why is it lower
 The balanced accuracy is `r (1+0.6)/2`. This is a better reflection on the predictive ability of the model for this data because it reflects the difficulty in predicting the Chinstrap group.
 :::
 
-6. This question relates to feature engineering, creating better variables on which to build your model.
+#### 6. This question relates to feature engineering, creating better variables on which to build your model.
 
 a. The following `spam` data has a heavily skewed distribution for the size of the email message. How would you transform this variable to better see differences between spam and ham emails?
 
@@ -293,7 +295,7 @@ ggplot(olive, aes(x=region,
 ```
 :::
 
-7. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
+#### 7. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
 
 ## `r emo::ji("wave")` Finishing up
 

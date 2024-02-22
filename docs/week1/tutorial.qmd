@@ -8,11 +8,14 @@ format:
     unilur-html:
         output-file: tutorial.html
         embed-resources: true
+        css: "../assets/tutorial.css"
     unilur-html+solution:
         output-file: tutorialsol.html
         embed-resources: true
+        css: "../assets/tutorial.css"
 unilur-solution: true
 echo: true
+cache: false
 ---
 
 ## `r emo::ji("target")` Objectives
@@ -34,7 +37,7 @@ install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpc
 ## Exercises: 
 
 
-1. The materials at [https://learnr.numbat.space](https://learnr.numbat.space) are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error. 
+#### 1. The materials at [https://learnr.numbat.space](https://learnr.numbat.space) are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error. 
 
 ```{r}
 #| eval: false
@@ -70,11 +73,11 @@ To make the reprex, copy the code to clipboard, and run `reprex()`. This will ge
 
 :::
 
-2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error. 
+#### 2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error. 
 
-3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the [beginner tutorial](https://tensorflow.rstudio.com/tutorials/quickstart/beginner).
+#### 3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the [beginner tutorial](https://tensorflow.rstudio.com/tutorials/quickstart/beginner).
 
-4. [Download](https://github.com/numbats/iml/blob/master/week1/slides.qmd) the `slides.qmd` file for week 1 lecture. 
+#### 4. [Download](https://github.com/numbats/iml/blob/master/week1/slides.qmd) the `slides.qmd` file for week 1 lecture. 
 
 a. Use `knitr::purl()` to extract the R code for the class. 
 b. Open the resulting `slides.R` file in your RStudio file browser. What code is in the `setup.R` file that is sourced at the top?
