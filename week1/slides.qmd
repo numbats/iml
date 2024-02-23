@@ -32,7 +32,7 @@ source("../setup.R")
 
 Chief examiner: [Professor Dianne Cook]{.monash-fuchsia2}
 
-Communication: All questions need to be communicated through the Discussion forum. Any of a private matter can e=be addressed to [etc3250.clayton-x@monash.edu]{.monash-orange2}. **Any emails directly to tutors or the instructor will be disregarded.**
+Communication: All questions need to be communicated through the Discussion forum. Any of a private matter can be addressed to [etc3250.clayton-x@monash.edu]{.monash-orange2} or through a private message on the **edstem** forum. **Emails should never be sent directly to tutors or the instructor.**
 
 <br>
 Tutors: 
