@@ -1143,7 +1143,7 @@ Creating new variables to get better fits is a special skill! Sometimes automate
 - ratio of values (`step_ratio`)
 - polynomials or splines: $x_1^2, x_1^3$ (`step_ns`)
 - dummy variables: categorical predictors expanded into multiple new binary variables (`step_dummy`)
-- Convolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels
+- Convolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels; flattening of images
 
 ## The big picture
 

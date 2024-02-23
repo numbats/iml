@@ -599,7 +599,7 @@
     "href": "week1/slides.html#feature-engineering",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Feature engineering",
-    "text": "Feature engineering\nCreating new variables to get better fits is a special skill! Sometimes automated by the method. All are transformations of the original variables. (See tidymodels steps.)\n\nscaling, centering, sphering (step_pca)\nlog or square root or box-cox transformation (step_log)\nratio of values (step_ratio)\npolynomials or splines: \\(x_1^2, x_1^3\\) (step_ns)\ndummy variables: categorical predictors expanded into multiple new binary variables (step_dummy)\nConvolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels"
+    "text": "Feature engineering\nCreating new variables to get better fits is a special skill! Sometimes automated by the method. All are transformations of the original variables. (See tidymodels steps.)\n\nscaling, centering, sphering (step_pca)\nlog or square root or box-cox transformation (step_log)\nratio of values (step_ratio)\npolynomials or splines: \\(x_1^2, x_1^3\\) (step_ns)\ndummy variables: categorical predictors expanded into multiple new binary variables (step_dummy)\nConvolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels; flattening of images"
   },
   {
     "objectID": "week1/slides.html#the-big-picture",
