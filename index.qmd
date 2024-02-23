@@ -24,17 +24,17 @@ week <- as.integer(1 + ((Sys.Date() - as_date(start_semester))/7))
 ## Tutors
 
 * Patrick Li
-    - Tutorials: Mon 15:00, Fri 11:00 
+    - Tutorials: Mon 15:00 (LTB 323), Fri 11:00 (CL_33 Innovation Walk, FG04 Bldg 73P)
     - Consultation: Thu 10:30-12:00
 * Harriet Mason
-    - Tutorials: Wed 18:00, Fri 12:30
+    - Tutorials: Wed 18:00 (LTB G60), Fri 12:30 (CL_33 Innovation Walk, FG04 Bldg 73P)
     - Consultation: Thu 3:00-4:30 (zoom only)
 * Jayani Lakshika
-    - Tutorials: Wed 8:00, 9:30
+    - Tutorials: Wed 8:00, 9:30 (CL_33 Innovation Walk, FG04 Bldg 73P)
     - Consultation: Thu 12:00-1:30
 * Krisanat Anukarnsakulchularp
-    - Tutorials: Mon 12:00, 13:30
-    - Consultation: Fri 9:30-11:00
+    - Tutorials: Mon 12:00, 13:30 (LTB 323)
+    - Consultation: Fri 9:30-11:00 (W9.20)
 
 ## Weekly schedule
 

@@ -4,6 +4,7 @@ project:
   - "*.qmd"
   - "*.md"
   - "!quizzes/"
+  - "!week2/tutorial*"
   output-dir: docs
   resources:
   - "assets/*"
