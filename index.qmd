@@ -72,6 +72,8 @@ schedule |>
 
 ## Software
 
+We will be using the latest versions of [R](https://cran.rstudio.com) and [RStudio](https://posit.co/download/rstudio-desktop/). 
+
 Here is the code to install (most of) the R packages we will be using in this unit.
 
 ```r
