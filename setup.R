@@ -6,6 +6,7 @@ library(colorspace)
 library(patchwork)
 library(MASS)
 library(randomForest)
+library(gridExtra)
 
 
 # Locations

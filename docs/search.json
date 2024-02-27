@@ -333,7 +333,7 @@
     "href": "week1/slides.html#confusion-misclassification-matrix-computing",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Confusion (misclassification) matrix: computing",
-    "text": "Confusion (misclassification) matrix: computing\n\n\nTwo classes\n\n# Write out the confusion matrix in standard form\ncm &lt;- a2 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n) |&gt;\n  select(y, bilby, quokka, cl_err)\n\n# A tibble: 2 × 4\n# Groups:   y [2]\n  y      bilby quokka cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3  0.75 \n2 quokka     5     10  0.667\n\n\n\naccuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.704\n\nbal_accuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.708\n\nsens(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.75\n\nspecificity(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.667\n\n\n\nMore than two classes\n\n# Write out the confusion matrix in standard form\ncm3 &lt;- a3 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm3 |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n, values_fill=0) |&gt;\n  select(y, bilby, quokka, numbat, cl_err)\n\n# A tibble: 3 × 5\n# Groups:   y [3]\n  y      bilby quokka numbat cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3      0  0.75 \n2 numbat     0      2      6  0.75 \n3 quokka     5     10      0  0.667\n\n\n\naccuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.714\n\nbal_accuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.783"
+    "text": "Confusion (misclassification) matrix: computing\n\n\nTwo classes\n\n# Write out the confusion matrix in standard form\n#| label: oconfusion-matrix-tidy\ncm &lt;- a2 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n) |&gt;\n  select(y, bilby, quokka, cl_err)\n\n# A tibble: 2 × 4\n# Groups:   y [2]\n  y      bilby quokka cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3  0.75 \n2 quokka     5     10  0.667\n\n\n\naccuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.704\n\nbal_accuracy(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.708\n\nsens(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.75\n\nspecificity(a2, y, pred) |&gt; pull(.estimate)\n\n[1] 0.667\n\n\n\nMore than two classes\n\n# Write out the confusion matrix in standard form\ncm3 &lt;- a3 %&gt;% count(y, pred) |&gt;\n  group_by(y) |&gt;\n  mutate(cl_err = n[pred==y]/sum(n)) \ncm3 |&gt;\n  pivot_wider(names_from = pred, \n              values_from = n, values_fill=0) |&gt;\n  select(y, bilby, quokka, numbat, cl_err)\n\n# A tibble: 3 × 5\n# Groups:   y [3]\n  y      bilby quokka numbat cl_err\n  &lt;fct&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;dbl&gt;\n1 bilby      9      3      0  0.75 \n2 numbat     0      2      6  0.75 \n3 quokka     5     10      0  0.667\n\n\n\naccuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.714\n\nbal_accuracy(a3, y, pred) |&gt; pull(.estimate)\n\n[1] 0.783"
   },
   {
     "objectID": "week1/slides.html#receiver-operator-curves-roc",
@@ -733,5 +733,96 @@
     "title": "Week 8: Support vector machines and nearest neighbours",
     "section": "Assignments",
     "text": "Assignments\n\nAssignment 3 is due on Friday 26 April."
+  },
+  {
+    "objectID": "week2/slides.html#next-re-sampling-and-regularisation",
+    "href": "week2/slides.html#next-re-sampling-and-regularisation",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Next: Re-sampling and regularisation",
+    "text": "Next: Re-sampling and regularisation\n\n\n\nETC3250/5250 Lecture 2 | iml.numbat.space"
+  },
+  {
+    "objectID": "week2/slides.html#overview",
+    "href": "week2/slides.html#overview",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\nIn this week we will cover:\n\nConceptual framing for visualisation\nCommon methods: scatterplot matrix, parallel coordinates, tours\nDetails on using tours for examining clustering and class structure\nDimension reduction\n\nLinear: principal component analysis\nNon-linear: multidimensional scaling, t-stochastic neighbour embedding (t-SNE), uniform manifold approximation and projection (UMAP)\n\nUsing tours to assess dimension reduction"
+  },
+  {
+    "objectID": "week2/slides.html#concepts",
+    "href": "week2/slides.html#concepts",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Concepts",
+    "text": "Concepts"
+  },
+  {
+    "objectID": "week2/slides.html#model-in-the-data-space",
+    "href": "week2/slides.html#model-in-the-data-space",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Model-in-the-data-space",
+    "text": "Model-in-the-data-space\n\n\n\n\n\nFrom XKCD\n\n\n\n We plot the model on the data to assess whether it fits or is a misfit!\n\n\nDoing this in high-dimensions is considered difficult!\n\n\nSo it is common to only plot the data-in-the-model-space."
+  },
+  {
+    "objectID": "week2/slides.html#data-in-the-model-space",
+    "href": "week2/slides.html#data-in-the-model-space",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Data-in-the-model-space",
+    "text": "Data-in-the-model-space"
+  },
+  {
+    "objectID": "week2/slides.html#how-do-you-visualise-beyond-2d",
+    "href": "week2/slides.html#how-do-you-visualise-beyond-2d",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "How do you visualise beyond 2D?",
+    "text": "How do you visualise beyond 2D?"
+  },
+  {
+    "objectID": "week2/slides.html#scatterplot-matrix",
+    "href": "week2/slides.html#scatterplot-matrix",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Scatterplot matrix",
+    "text": "Scatterplot matrix"
+  },
+  {
+    "objectID": "week2/slides.html#parallel-coordinate-plot",
+    "href": "week2/slides.html#parallel-coordinate-plot",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parallel coordinate plot",
+    "text": "Parallel coordinate plot"
+  },
+  {
+    "objectID": "week2/slides.html#tours",
+    "href": "week2/slides.html#tours",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Tours",
+    "text": "Tours"
+  },
+  {
+    "objectID": "week2/slides.html#dimension-reduction",
+    "href": "week2/slides.html#dimension-reduction",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Dimension reduction",
+    "text": "Dimension reduction"
+  },
+  {
+    "objectID": "week2/slides.html#pca",
+    "href": "week2/slides.html#pca",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "PCA",
+    "text": "PCA"
+  },
+  {
+    "objectID": "week2/slides.html#t-sne",
+    "href": "week2/slides.html#t-sne",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "t-SNE",
+    "text": "t-SNE"
+  },
+  {
+    "objectID": "week2/slides.html#umap",
+    "href": "week2/slides.html#umap",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "UMAP",
+    "text": "UMAP"
   }
 ]

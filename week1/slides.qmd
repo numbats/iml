@@ -83,6 +83,7 @@ Tutors:
 2. **Unsupervised learning**: $y_i$ [unavailable]{.monash-orange2} for all $x_i$ 
 
 ```{r fig.width=6, fig.height=4, fig.align='center', echo=FALSE}
+#| label: overview-methods
 library(tidyverse)
 library(gapminder)
 library(gridExtra)
@@ -162,6 +163,7 @@ This is also considered the matrix of predictors, or explanatory or independent 
 ::: {.column}
 
 ```{r}
+#| label: generate-mv-data
 library(mvtnorm)
 vc <- matrix(c(1, 0.5, 0.2, 
                0.5, 1, -0.3, 
@@ -180,6 +182,7 @@ What's the dimension of the data?
 ::: {.column}
 
 ```{r}
+#| label: load-penguins
 library(palmerpenguins)
 p_tidy <- penguins |>
   select(species, bill_length_mm:body_mass_g) |>
@@ -531,6 +534,7 @@ When data are reused for multiple tasks, instead of carefully *spent* from the f
 ::: {.column}
 
 ```{r}
+#| label: balanced-data
 d_bal <- tibble(y=c(rep("A", 6), rep("B", 6)),
                 x=c(runif(12)))
 d_bal$y
@@ -544,6 +548,7 @@ testing(d_bal_split)$y
 ::: {.column}
 
 ```{r}
+#| label: unbalanced-data
 d_unb <- tibble(y=c(rep("A", 2), rep("B", 10)),
                 x=c(runif(12)))
 d_unb$y
@@ -557,6 +562,7 @@ testing(d_unb_split)$y
 Always [stratify splitting]{.monash-orange2} by sub-groups, especially response variable classes.
 
 ```{r}
+#| label: unbalanced-split
 d_unb_strata <- initial_split(d_unb, prop = 0.70, strata=y)
 training(d_unb_strata)$y
 testing(d_unb_strata)$y
@@ -625,6 +631,7 @@ Two classes
 
 ```{r}
 #| echo: false
+#| label: predictive-class-example
 a2 <- tibble(y = c(rep("bilby", 12),
                       rep("quokka", 15)),
              pred = c(rep("bilby", 9),
@@ -660,6 +667,7 @@ a3 <- a3 |>
 #| eval: false
 #| echo: false
 # tidymodels has it transposed
+#| label: confusion-matrix
 cm <- conf_mat(a2, y, pred)
 autoplot(cm)
 # Make it show in right direction
@@ -668,6 +676,7 @@ conf_mat(a2, pred, y, dnn=c("Truth", "Pred"))
 
 ```{r}
 # Write out the confusion matrix in standard form
+#| label: oconfusion-matrix-tidy
 cm <- a2 %>% count(y, pred) |>
   group_by(y) |>
   mutate(cl_err = n[pred==y]/sum(n)) 
@@ -723,6 +732,7 @@ Need [predictive probabilities]{.monash-orange2}, probability of being each clas
 ::: {.column}
 
 ```{r}
+#| label: roc-curve
 a2 |> slice_head(n=3)
 roc_curve(a2, y, bilby) |>
   autoplot()
@@ -768,6 +778,7 @@ roc_curve(a2, y, bilby) |>
 ```{r}
 #| echo: false
 #| eval: false
+#| label: sine-curve-data
 # Generate the sine-curve data
 set.seed(1259)
 x1 <- runif(340)
@@ -790,6 +801,7 @@ write_csv(d, file="data/sine-curve-test.csv")
 ```
 
 ```{r}
+#| label: sine-curve-plot
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
@@ -817,6 +829,7 @@ ggplot(w, aes(x=x1, y=x2, colour = cl)) +
 ::: {.column width=30%}
 
 ```{r}
+#| label: sin-curve-models
 #| echo: false
 #| fig-width: 4
 #| fig-height: 8
@@ -847,7 +860,8 @@ p2 <- ggplot(w_grid, aes(x=x1, y=x2, colour = prf)) +
   ggtitle("Non-parametric") +
   theme(legend.position = "none",
         axis.text = element_blank())
-p1 + p2 + plot_layout(ncol=1)
+#p1 + p2 + plot_layout(ncol=1)
+grid.arrange(p1, p2)
 ```
 
 :::
@@ -861,6 +875,7 @@ p1 + p2 + plot_layout(ncol=1)
 
 ::: {.column width=30%}
 ```{r}
+#| label: model-errors1
 #| echo: false
 #| fig-width: 5
 #| fig-height: 5
@@ -893,6 +908,7 @@ ggplot(w, aes(x=x1, y=x2,
 ::: {.column width=30%}
 
 ```{r}
+#| label: model-errors2
 #| echo: false
 #| fig-width: 5
 #| fig-height: 5
@@ -921,6 +937,7 @@ If the [model form is incorrect]{.monash-umber2}, the error (solid circles) may 
 ## Flexible vs inflexible
 
 ```{r}
+#| label: flexible-model
 #| echo: false
 #| fig-width: 9
 #| fig-height: 3
@@ -957,7 +974,8 @@ p3 <- ggplot(w_grid, aes(x=x1, y=x2, colour = prf)) +
         axis.text = element_blank(),
         axis.title = element_blank())
 
-p1 + p2 + p3 + plot_layout(ncol=3)
+#p1 + p2 + p3 + plot_layout(ncol=3)
+grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 [Parametric]{.monash-orange2} models tend to be [less flexible]{.monash-orange2} but [non-parametric]{.monash-blue2}  models can be flexible or less flexible depending on [parameter settings]{.monash-blue2}.
@@ -995,6 +1013,7 @@ refers to how much your estimate would change if you had different training data
 ::: {.column}
 
 ```{r}
+#| label: bias1
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
@@ -1008,6 +1027,7 @@ p1 + ggtitle("Large bias")
 ::: {.column}
 
 ```{r}
+#| label: bias2
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
@@ -1026,6 +1046,7 @@ p3 + ggtitle("Small bias")
 ::: {.column}
 
 ```{r}
+#| label: variance1
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
@@ -1039,6 +1060,7 @@ p1 + ggtitle("Small variance")
 ::: {.column}
 
 ```{r}
+#| label: variance2
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
@@ -1063,6 +1085,7 @@ Goal: Without knowing what the true structure is, fit the signal and ignore the 
 ## Trade-off between accuracy and interpretability
 
 ```{r}
+#| label: tradeoff-acc-interp
 #| echo: false
 #| fig-width: 5
 #| fig-height: 5
@@ -1111,6 +1134,7 @@ Compute and examine the [usual diagnostics]{.monash-blue2}, some methods have mo
 [*Training - plusses; Test - dots*]{.smaller .center}
 
 ```{r}
+#| label: training-test
 #| echo: false
 #| fig-width: 4
 #| fig-height: 4
