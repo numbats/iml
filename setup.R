@@ -7,7 +7,8 @@ library(patchwork)
 library(MASS)
 library(randomForest)
 library(gridExtra)
-
+library(GGally)
+library(geozoo)
 
 # Locations
 current_file <- knitr::current_input()

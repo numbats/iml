@@ -326,7 +326,7 @@
     "href": "week1/slides.html#confusion-misclassification-matrix",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Confusion (misclassification) matrix",
-    "text": "Confusion (misclassification) matrix\n\n\n\n\n\n\n\n\n\n\npredicted\n\n\n\n\n\n\n\n\n1\n\n\n0\n\n\n\n\ntrue\n\n\n1\n\n\na\n\n\nb\n\n\n\n\n\n\n0\n\n\nc\n\n\nd\n\n\n\n\nConsider 1=positive (P), 0=negative (N).\n\nTrue positive (TP): a\nTrue negative (TN): d\nFalse positive (FP): b (Type I error)\nFalse negative (FN): c (Type II error)\n\n\n\nSensitivity, recall, hit rate, or true positive rate (TPR): TP/P = a/(a+b)\nSpecificity, selectivity or true negative rate (TNR): TN/N = d/(c+d)\nPrevalence: P/(P+N) = (a+b)/(a+b+c+d)\nAccuracy: (TP+TN)/(P+N) = (a+d)/(a+b+c+d)\nBalanced accuracy: (TPR + TNR)/2 (or average class errors)"
+    "text": "Confusion (misclassification) matrix\n\n\n\n\n\n\n\n\n\n\npredicted\n\n\n\n\n\n\n\n\n1\n\n\n0\n\n\n\n\ntrue\n\n\n1\n\n\na\n\n\nb\n\n\n\n\n\n\n0\n\n\nc\n\n\nd\n\n\n\n\nConsider 1=positive (P), 0=negative (N).\n\nTrue positive (TP): a\nTrue negative (TN): d\nFalse positive (FP): c (Type I error)\nFalse negative (FN): b (Type II error)\n\n\n\nSensitivity, recall, hit rate, or true positive rate (TPR): TP/P = a/(a+b)\nSpecificity, selectivity or true negative rate (TNR): TN/N = d/(c+d)\nPrevalence: P/(P+N) = (a+b)/(a+b+c+d)\nAccuracy: (TP+TN)/(P+N) = (a+d)/(a+b+c+d)\nBalanced accuracy: (TPR + TNR)/2 (or average class errors)"
   },
   {
     "objectID": "week1/slides.html#confusion-misclassification-matrix-computing",
@@ -767,7 +767,7 @@
     "href": "week2/slides.html#data-in-the-model-space",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Data-in-the-model-space",
-    "text": "Data-in-the-model-space"
+    "text": "Data-in-the-model-space\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPredictive probabilities are aspects of the model. It is useful to plot. What do we learn here?\n\nBut it doesn’t tell you why there is a difference."
   },
   {
     "objectID": "week2/slides.html#how-do-you-visualise-beyond-2d",
@@ -781,7 +781,7 @@
     "href": "week2/slides.html#scatterplot-matrix",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Scatterplot matrix",
-    "text": "Scatterplot matrix"
+    "text": "Scatterplot matrix\n\n\n Start simply! Make static plots that organise the variables on a page. \nPlot all the pairs of variables. When laid out in a matrix format this is called a scatterplot matrix.\n Here, we see linear association, clumping and clustering, potentially some outliers."
   },
   {
     "objectID": "week2/slides.html#parallel-coordinate-plot",
@@ -824,5 +824,33 @@
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "UMAP",
     "text": "UMAP"
+  },
+  {
+    "objectID": "week2/slides.html#model-in-the-data-space-1",
+    "href": "week2/slides.html#model-in-the-data-space-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Model-in-the-data-space",
+    "text": "Model-in-the-data-space\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nModel is displayed, as a grid of predicted points in the original variable space. Data is overlaid, using text labels. What do you learn?\n\nOne model has a linear boundary, and the other has the highly non-linear boundary, which matches the class cluster better. Also …"
+  },
+  {
+    "objectID": "week2/slides.html#scatterplot-matrix-drawbacks",
+    "href": "week2/slides.html#scatterplot-matrix-drawbacks",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Scatterplot matrix: drawbacks",
+    "text": "Scatterplot matrix: drawbacks\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere is an outlier in the data on the right, like the one in the left, but it is hidden in a combination of variables. It’s not visible in any pair of variables."
+  },
+  {
+    "objectID": "week2/slides.html#hiding-in-high-d-22",
+    "href": "week2/slides.html#hiding-in-high-d-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Hiding in high-d  (2/2) ",
+    "text": "Hiding in high-d  (2/2)"
+  },
+  {
+    "objectID": "week2/slides.html#perception",
+    "href": "week2/slides.html#perception",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Perception",
+    "text": "Perception\n\nAspect ratio for scatterplots needs to be equal, or square!\n\nWhen you make a scatterplot of two variables from a multivariate data set, most software renders it with an unequal aspect ratio, as a rectangle. You need to over-ride this and force the square aspect ratio. Why?\n\nBecause it adversely affects the perception of correlation and association between variables."
   }
 ]

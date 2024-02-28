@@ -606,8 +606,8 @@ Consider `1`=positive (P), `0`=negative (N).
 
 - True positive (TP): `a`
 - True negative (TN): `d`
-- False positive (FP): `b` (Type I error)
-- False negative (FN): `c` (Type II error)
+- False positive (FP): `c` (Type I error)
+- False negative (FN): `b` (Type II error)
 
 :::
 ::: {.column}
