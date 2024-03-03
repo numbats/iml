@@ -1399,7 +1399,7 @@ track_pca
 ```
 
 
-## Assess
+## Summarise
 
 Summary of the principal components: 
 
@@ -1422,7 +1422,7 @@ kable(track_pca_smry, digits=2, align="r") %>%
 Increase in variance explained large until $k=3$ PCs, and then tapers off. A choice of [3 PCs]{.monash-orange2} would explain 97% of the total variance. 
 
 
-## Assess
+## Decide
 
 :::: {.columns}
 ::: {.column}
@@ -1448,12 +1448,7 @@ ggplot(track_pca_var, aes(x=n, y=evl)) + geom_line() +
 :::
 ::::
 
-## Interpretation
 
-- PC1 measures overall magnitude, the strength of the athletics program. High positive values indicate [poor]{.monash-orange2} programs with generally slow times across events. 
-- PC2 measures the [contrast]{.monash-orange2} in the program between [short and long distance]{.monash-orange2} events. Some countries have relatively stronger long distance atheletes, while others have relatively stronger short distance athletes.
-- There are several .[outliers]{.monash-orange2} visible in this plot, `wsamoa`, `cookis`, `dpkorea`. PCA, because it is computed using the variance in the data, can be affected by outliers. It may be better to remove these countries, and re-run the PCA. 
-- PC3, may or may not be useful to keep. The interpretation would that this variable summarises countries with different middle distance performance.
 
 ## Assess: Data-in-the-model-space 
 
@@ -1488,9 +1483,6 @@ pca_p <- ggplot() +
                                     label=variable),
             colour="orange", nudge_x=0.7) +
   geom_point(data=track_pca_pcs, aes(x=PC1, y=PC2)) +
-  #geom_text(data=filter(track_pca_pcs, abs(PC1)>5),
-  #          aes(x=PC1, y=PC2, label=cnt), 
-  #          nudge_y=0.1, nudge_x=-0.5) +
   geom_text(data=filter(track_pca_pcs, abs(PC2)>1.3),
             aes(x=PC1, y=PC2, label=cnt), 
             nudge_y=0.15, nudge_x=-0.5) +
@@ -1500,7 +1492,74 @@ pca_p
 :::
 ::::
 
+## Interpret
+
+- PC1 measures [overall magnitude]{.monash-orange2}, the strength of the athletics program. High positive values indicate [poor]{.monash-orange2} programs with generally slow times across events. 
+- PC2 measures the [contrast]{.monash-orange2} in the program between [short and long distance]{.monash-orange2} events. Some countries have relatively stronger long distance atheletes, while others have relatively stronger short distance athletes.
+- There are several [outliers]{.monash-orange2} visible in this plot, `wsamoa`, `cookis`, `dpkorea`. PCA, because it is computed using the variance in the data, can be affected by outliers. It may be better to remove these countries, and re-run the PCA. 
+- PC3, may or may not be useful to keep. The interpretation would that this variable summarises countries with different middle distance performance.
+
 ## Assess: Model-in-the-data-space 
+
+:::: {.columns}
+::: {.column .smaller}
+```{r eval=FALSE}
+track_std <- track |>   
+  mutate_if(is.numeric, function(x) (x-
+      mean(x, na.rm=TRUE))/
+      sd(x, na.rm=TRUE))
+track_std_pca <- prcomp(track_std[,1:7], 
+               scale = FALSE, 
+               retx=TRUE)
+track_model <- pca_model(track_std_pca, d=2, s=2)
+track_all <- rbind(track_model$points, track_std[,1:7])
+animate_xy(track_all, edges=track_model$edges,
+           edges.col="#E7950F", 
+           edges.width=3, 
+           axes="off")
+render_gif(track_all, 
+           grand_tour(), 
+           display_xy(
+                      edges=track_model$edges, 
+                      edges.col="#E7950F", 
+                      edges.width=3, 
+                      axes="off"),
+           gif_file="gifs/track_model.gif",
+           frames=500,
+           width=400,
+           height=400,
+           loop=FALSE)
+```
+
+Mostly captures the variance in the data. Seems to slightly miss the non-linear relationship.
+
+:::
+
+::: {.column}
+<center>
+![](../gifs/track_model.gif){width=600}
+</center>
+:::
+::::
+
+## Juicy morsels
+
+:::: {.columns}
+::: {.column}
+
+🤭
+
+> [*Sometimes the lowest PCs show the interesting patterns, like non-linear relationships, or clusters.*]{.monash-pink2}
+
+:::
+::: {.column}
+::: {.fragment}
+- PCA summarises [linear]{.monash-orange2} relationships, and might not see other interesting dependencies
+- [Outliers can affect results]{.monash-orange2}, because direction of outliers will appear to have larger variance
+- [Scaling of variables matters]{.monash-orange2}, and typically you would first standardise each variable to have mean 0 and variance 1. Otherwise, PCA might simply report the variables with the largest variance, which we already know.
+:::
+:::
+::::
 
 ## Non-linear dimension reduction {.transition-slide .center}
 

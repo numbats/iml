@@ -129,14 +129,15 @@ Examine 5D multivariate normal samples drawn from populations with a range of va
 ::: unilur-solution
 ```{r}
 library(mvtnorm)
+set.seed(501)
 
 s1 <- diag(5)
 s2 <- diag(5)
 s2[3,4] <- 0.7
 s2[4,3] <- 0.7
 s3 <- s2
-s3[1,2] <- 0.7
-s3[2,1] <- 0.7
+s3[1,2] <- -0.7
+s3[2,1] <- -0.7
 
 s1
 s2
@@ -161,9 +162,211 @@ For the data `d2`, `d3` have some projections where the data is concentrated alo
 
 #### 4. Principal components analysis on the simulated data
 
-Conduct a principal component analysis on the simulated data sets `d2` and `d3`. Report the variances (eigenvalues) and the 
+🧐 For data sets `d2` and `d3` what would you expect would be the number of PCs suggested by PCA?
 
-#### 7. Write a simple question about the week's material and test your neighbour, or your tutor. 
+👨🏽‍💻👩‍💻Conduct the PCA. Report the variances (eigenvalues), and cumulative proportions of total variance, make a scree plot, and the PC coefficients.
+
+🤯Often, the selected number of PCs are used in future work. For both `d3` and `d4`, think about the pros and cons of using 4 PCs and 3 PCs, respectively. 
+
+::: unilur-solution
+
+Thinking about it: In `d2` there is strong correlation between variables 3 and 4, which means probably only 4PC s would be needed. In `d3` there is strong correlation also between variables 1 and 2 which would mean that only 3 PCs would be needed.
+
+```{r}
+d2_pca <- prcomp(d2, scale=TRUE)
+d2_pca
+
+d2_pca$sdev^2/5
+
+mulgar::ggscree(d2_pca, q=5)
+```
+
+Four PCs explain 93% of the variation. PC1 is the combination of variables 3 and 4, which captures this reduced dimension.
+
+
+```{r}
+d3_pca <- prcomp(d3, scale=TRUE)
+d3_pca
+
+d3_pca$sdev^2/5
+
+mulgar::ggscree(d3_pca, q=5)
+```
+
+Three PCs explain 88% of the variation, and the last two PCs have much smaller variance than the others. PC 1 and 2 are  combinations of variables 1, 2, 3 and 4, which captures this reduced dimension, and PC 3 is primarily variable 5.
+
+The PCs are awkward combinations of the original variables. For `d2`, it would make sense to use PC1 (or equivalently and equal combination of V3, V4), and then keep the original variables V1, V2, V5. 
+
+For `d3` it's harder to make this call because the first two PCs are combinations of four variables. Its hard to see from this that the ideal solution would be to use an equal combination of V1, V2, and equal combination of V3, V4 and V5 on its own. 
+
+Often understanding the variance that is explained by the PCs is hard to interpret.
+:::
+
+#### 5. PCA on cross-currency time series
+
+The `rates.csv` data has 152 currencies relative to the USD for the period of Nov 1, 2019 through to Mar 31, 2020. Treating the dates as variables, conduct a PCA to examine how the cross-currencies vary, focusing on this subset: AARS, AUD, BRL, CAD, CHF, CNY, EUR, FJD, GBP, IDR, INR, ISK, JPY, KRW, KZT, MXN, MYR, NZD, QAR, RUB, SEK, SGD, UYU, ZAR. 
+
+```{r}
+#| message: false
+rates <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/rates_Nov19_Mar20.csv") |>
+  select(date, ARS, AUD, BRL, CAD, CHF, CNY, EUR, FJD, GBP, IDR, INR, ISK, JPY, KRW, KZT, MXN, MYR, NZD, QAR, RUB, SEK, SGD, UYU, ZAR)
+```
+
+a. Standardise the currency columns to each have mean 0 and variance 1. Explain why this is necessary prior to doing the PCA or is it? Use this data to make a time series plot overlaying all of the cross-currencies. 
+
+```{r}
+#| label: rates-std
+#| code-fold: true
+#| eval: false
+library(plotly)
+rates_std <- rates |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x))
+rownames(rates_std) <- rates_std$date
+p <- rates_std |>
+  pivot_longer(cols=ARS:ZAR, 
+               names_to = "currency", 
+               values_to = "rate") |>
+  ggplot(aes(x=date, y=rate, 
+             group=currency, label=currency)) +
+    geom_line() 
+ggplotly(p, width=400, height=300)
+```
+
+::: unilur-solution
+```{r}
+#| label: rates-std
+#| echo: false
+```
+
+It isn't necessary to standardise the variables before using the `prcomp` function because we can set `scale=TRUE` to have it done as part of the PCA computation. However, it is useful to standardise the variables to make the time series plot where all the currencies are drawn. This is useful for interpreting the principal components.
+:::
+
+b. Conduct a PCA. Make a scree plot, and summarise proportion of the total variance. Summarise these values and the coefficients for the first five PCs, nicely. 
+
+```{r}
+#| label: rates-pca
+#| code-fold: true
+#| eval: false
+rates_pca <- prcomp(rates_std[,-1], scale=FALSE)
+mulgar::ggscree(rates_pca, q=24)
+options(digits=2)
+summary(rates_pca)
+```
+
+```{r}
+#| label: rates-smry
+#| code-fold: true
+#| eval: false
+# Summarise the coefficients nicely
+rates_pca_smry <- tibble(evl=rates_pca$sdev^2) |>
+  mutate(p = evl/sum(evl), 
+         cum_p = cumsum(evl/sum(evl))) |> 
+  t() |>
+  as.data.frame()
+colnames(rates_pca_smry) <- colnames(rates_pca$rotation)
+rates_pca_smry <- bind_rows(as.data.frame(rates_pca$rotation),
+                            rates_pca_smry)
+rownames(rates_pca_smry) <- c(rownames(rates_pca$rotation),
+                              "Variance", "Proportion", 
+                              "Cum. prop")
+rates_pca_smry[,1:5]
+```
+
+::: unilur-solution
+```{r}
+#| label: rates-pca
+#| echo: false
+```
+
+```{r}
+#| label: rates-smry
+#| echo: false
+```
+
+- The first two principal components explain 85% of the total variation. 
+- PC1 is a combination of all of the currencies except for CHF, EUR, JPY, QAR. 
+- PC2 is a combination of CHF, EUR, JPY.
+:::
+
+c. Make a biplot of the first two PCs. Explain what you learn.
+
+```{r}
+#| label: rates-biplot
+#| code-fold: true
+#| eval: false
+library(ggfortify)
+autoplot(rates_pca, loadings = TRUE, 
+         loadings.label = TRUE) 
+```
+
+::: unilur-solution
+```{r}
+#| label: rates-biplot
+#| echo: false
+```
+
+- Most of the currencies contribute substantially to PC1. Only three contribute strongly to PC2: CHF, JPY, EUR. Similar to what is learned from the summary table (made in b).
+- The pattern of the points is most unusual! It has a curious S shape. Principal components are supposed to be a random scattering of values, with no obvious structure. This is a very strong pattern.
+:::
+
+d. Make a time series plot of PC1 and PC2. Explain why this is useful to do for this data. 
+
+```{r}
+#| label: rates-PC-ts
+#| code-fold: true
+#| eval: false
+rates_pca$x |>
+  as.data.frame() |>
+  mutate(date = rates_std$date) |>
+  ggplot(aes(x=date, y=PC1)) + geom_line()
+
+rates_pca$x |>
+  as.data.frame() |>
+  mutate(date = rates_std$date) |>
+  ggplot(aes(x=date, y=PC2)) + geom_line()
+
+```
+
+::: unilur-solution
+```{r}
+#| label: rates-PC-ts
+#| echo: false
+```
+
+- Because there is a strong pattern in the first two PCs, it could be useful to understand if this is related to the temporal context of the data. 
+- Here we might expect that the PCs extract the main temporal patterns. We see this is the case.
+- PC1 reflects the large group of currencies that greatly increase in mid-March.
+- PC2 reflects the few currencies that decrease at the start of March. 
+
+Note that: increase here means that the value of the currency declines relative to the USD and a decrease indicates stronger relative to the USD. *Is this correct?*
+:::
+
+e. You'll want to drill down deeper to understand what the PCA tells us about the movement of the various currencies, relative to the USD, over the volatile period of the COVID pandemic. Plot the first two PCs again, but connect the dots in order of time. Make it interactive with plotly, where the dates are the labels. What does following the dates tell us about the variation captured in the first two principal components?
+
+```{r}
+#| label: rates-PC-interactive
+#| code-fold: true
+#| eval: false
+library(plotly)
+p2 <- rates_pca$x |>
+  as.data.frame() |>
+  mutate(date = rates_std$date) |>
+  ggplot(aes(x=PC1, y=PC2, label=date)) +
+    geom_point() +
+    geom_path()
+ggplotly(p2, width=400, height=400)
+```
+
+::: unilur-solution
+```{r}
+#| label: rates-PC-interactive
+#| echo: false
+```
+
+The pattern in PC1 vs PC2 follows time. Prior to the pandemic there is a tangle of values on the left. Towards the end of February, when the world was starting to realise that COVID was a major health threat, there is a dramatic reaction from the world currencies, at least in relation to the USD. Currencies such as EUR, JPY, CHF reacted first, gaining strength relative to USD, and then they lost that strength. Most other currencies reacted later, losing value relative to the USD.
+:::
+
+#### 6. Write a simple question about the week's material and test your neighbour, or your tutor. 
 
 ## `r emo::ji("wave")` Finishing up
 
