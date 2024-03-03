@@ -1,0 +1,11 @@
+div.callout-solution.callout {
+  border-left-color: #12a629;
+}
+
+div.callout-solution.callout-style-default>.callout-header {
+  background-color: #ceffd0;
+}
+
+div.callout-solution.icon .callout-icon {
+  display: unset;
+}
