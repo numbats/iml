@@ -27,17 +27,17 @@ schedule |>
 
 ## Lecture slides
 
-- [html](https://iml.numbat.space/week1/slides.html)
-- [pdf](https://iml.numbat.space/week1/slides.pdf)
-- [qmd](https://iml.numbat.space/week1/slides.qmd)
-- [R](https://iml.numbat.space/week1/slides.R)
+- [html](https://iml.numbat.space/week2/slides.html)
+- [pdf](https://iml.numbat.space/week2/slides.pdf)
+- [qmd](https://iml.numbat.space/week2/slides.qmd)
+- [R](https://iml.numbat.space/week2/slides.R)
 
 ## Tutorial instructions
 
 Instructions:
 
-- [html](https://iml.numbat.space/week1/tutorial.html)
-- [qmd](https://iml.numbat.space/week1/tutorial.qmd)
+- [html](https://iml.numbat.space/week2/tutorial.html)
+- [qmd](https://iml.numbat.space/week2/tutorial.qmd)
 
 
 ```{r}
