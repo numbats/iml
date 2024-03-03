@@ -182,8 +182,29 @@
     "text": "What you will learn this week\n\nDimension reduction methods: linear and non-linear\nVisualising high-dimensions using animations of linear projections\nScatterplot matrices\nParallel coordinate plots\nConcept of model-in-the-data-space, relative to data-in-the-moel-space"
   },
   {
+    "objectID": "week2/index.html#lecture-slides",
+    "href": "week2/index.html#lecture-slides",
+    "title": "Week 2: Visualising your data and models",
+    "section": "Lecture slides",
+    "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
+  },
+  {
+    "objectID": "week2/index.html#tutorial-instructions",
+    "href": "week2/index.html#tutorial-instructions",
+    "title": "Week 2: Visualising your data and models",
+    "section": "Tutorial instructions",
+    "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
+  },
+  {
     "objectID": "week2/index.html#assignments",
     "href": "week2/index.html#assignments",
+    "title": "Week 2: Visualising your data and models",
+    "section": "Assignments",
+    "text": "Assignments"
+  },
+  {
+    "objectID": "week2/index.html#assignments-1",
+    "href": "week2/index.html#assignments-1",
     "title": "Week 2: Visualising your data and models",
     "section": "Assignments",
     "text": "Assignments\n\nAssignment 1 is due on Friday 22 March."

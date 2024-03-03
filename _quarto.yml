@@ -14,7 +14,8 @@ project:
   - "data/*"
   - "images/*"
   - "gifs/*"
-  - "week*/*.qmd"
+  - "week*/slides.qmd"
+  - "week*/tutorial.qmd"
   - "week*/*.R"
 website:
   title: "ETC3250/5250 Introduction to Machine Learning"
