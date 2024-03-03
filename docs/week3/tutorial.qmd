@@ -1,0 +1,170 @@
+---
+title: "ETC3250/5250 Tutorial 3"
+subtitle: "Visualising your data and models"
+author: "Prof. Di Cook"
+date: "2024-03-11"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "60%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: false
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(conflicted)
+library(colorspace)
+library(patchwork)
+library(MASS)
+library(randomForest)
+library(gridExtra)
+library(GGally)
+library(geozoo)
+library(mulgar)
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(palmerpenguins::penguins)
+conflicts_prefer(tourr::flea)
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is for you to learn and practice visualising high-dimensional data. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Complete the quiz
+- Do the reading related to week 2
+
+
+## Exercises: 
+
+Open your project for this unit called `iml.Rproj`. 
+
+#### 1. The sparseness of high dimensions
+
+Randomly generate data points that are uniformly distributed in a hyper-cube of 3, 5 and 10 dimensions, with 500 points in each sample, using the `cube.solid.random` function of the `geozoo` package. What differences do we expect to see? Now visualise each set in a grand tour and describe how they differ, and whether this matched your expectations? 
+
+::: unilur-solution
+
+The code to generate and view the cubes is:
+
+```{r eval=FALSE}
+library(tourr)
+library(geozoo)
+set.seed(1234)
+cube3 <- cube.solid.random(3, 500)$points
+cube5 <- cube.solid.random(5, 500)$points
+cube10 <- cube.solid.random(5, 500)$points
+
+animate_xy(cube3, axes="bottomleft")
+animate_xy(cube5, axes="bottomleft")
+animate_xy(cube10, axes="bottomleft")
+```
+
+Each of the projections has a boxy shape, which gets less distinct as the dimension increases. 
+
+As the dimension increases, the points tend to concentrate in the centre of the plot window, with a smattering of points in the edges. 
+:::
+
+#### 2. Detecting clusters
+
+For the data sets, `c1`, `c3` from the `mulgar` package, use the grand tour to view and try to identify structure (outliers, clusters, non-linear relationships). 
+
+::: unilur-solution
+```{r eval=FALSE}
+library(mulgar)
+animate_xy(c1)
+animate_xy(c3)
+```
+
+The first data set `c1` has 6 clusters, 4 small ones, and two big ones. The two big ones look like planes because they have no variation in some dimensions.
+
+The second data set `c2` has a triangular prism shape, which itself is divided into several smaller triangular prisms. It also has several dimensions with no variation, because the points collapse into a line in some projections.
+
+:::
+
+#### 3. Effect of covariance
+
+Examine 5D multivariate normal samples drawn from populations with a range of variance-covariance matrices.  (You can use the `mvtnorm` package to do the sampling, for example.) Examine the data using a grand tour. What changes when you change the correlation from close to zero to close to 1?  Can you see a difference between strong positive correlation and strong negative correlation?
+
+::: unilur-solution
+```{r}
+library(mvtnorm)
+
+s1 <- diag(5)
+s2 <- diag(5)
+s2[3,4] <- 0.7
+s2[4,3] <- 0.7
+s3 <- s2
+s3[1,2] <- 0.7
+s3[2,1] <- 0.7
+
+s1
+s2
+s3
+
+set.seed(1234)
+d1 <- as.data.frame(rmvnorm(500, sigma = s1))
+d2 <- as.data.frame(rmvnorm(500, sigma = s2))
+d3 <- as.data.frame(rmvnorm(500, sigma = s3))
+```
+
+```{r}
+#| eval: false
+animate_xy(d1)
+animate_xy(d2)
+animate_xy(d3)
+```
+
+The points in data `d1` are pretty spread in every projection. 
+For the data `d2`, `d3` have some projections where the data is concentrated along a line. This should be seen to be when variables 3 and 4 are contributing to the projection in `d2`, and when variables 1, 2, 3, 4 contributing to the projection in `d3`.
+:::
+
+#### 4. Principal components analysis on the simulated data
+
+Conduct a principal component analysis on the simulated data sets `d2` and `d3`. Report the variances (eigenvalues) and the 
+
+#### 7. Write a simple question about the week's material and test your neighbour, or your tutor. 
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.

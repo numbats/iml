@@ -1,0 +1,190 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 3: e-sampling and regularisation"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 3 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+```
+
+## Overview
+
+In this week we will cover:
+
+- Conceptual framing for visualisation
+- Common methods: scatterplot matrix, parallel coordinates, tours
+- Details on using tours for examining clustering and class structure
+- Dimension reduction
+    - Linear: principal component analysis
+    - Non-linear: multidimensional scaling, t-stochastic neighbour embedding (t-SNE), uniform manifold approximation and projection (UMAP)
+- Using tours to assess dimension reduction
+
+# Significance of loadings
+
+Bootstrap can be used to assess whether the coefficients of a PC are significantly different from 0. The 95% bootstrap confidence intervals can be computed by:
+
+1. Generating B bootstrap samples of the data
+2. Compute PCA, record the loadings
+3. Re-orient the loadings, by choosing one variable with large coefficient to be the direction base
+4. If B=1000, 25th and 975th sorted values yields the lower and upper bounds for confidence interval for each PC. 
+
+```{r fig.height=1, fig.width=6, out.width="50%"}
+library(ggpubr)
+library(ggthemes)
+l <- tibble(x=c(-1, 1), y=c(0,0))
+p1 <-  ggplot(l) + geom_line(aes(x=x, y=y), arrow=arrow(ends="last")) + theme_map()
+p2  <- ggplot(l) + geom_line(aes(x=x, y=y), arrow=arrow(ends="first")) + theme_map()
+ggarrange(p1, p2, ncol=1)
+```
+
+---
+
+
+```{r out.width="60%", fig.width=6, fig.height=4}
+library(boot)
+compute_PC1 <- function(data, index) {
+  pc1 <- prcomp(data[index,], center=TRUE, scale=TRUE)$rotation[,1]
+  # Coordinate signs
+  if (sign(pc1[1]) < 0) 
+    pc1 <- -pc1 
+  return(pc1)
+}
+# Make sure sign of first PC element is positive
+PC1_boot <- boot(data=track[,1:7], compute_PC1, R=1000)
+colnames(PC1_boot$t) <- colnames(track[,1:7])
+PC1_boot_ci <- as_tibble(PC1_boot$t) %>%
+  gather(var, coef) %>% 
+  mutate(var = factor(var, levels=c("m100", "m200", "m400", "m800", "m1500", "m3000", "marathon"))) %>%
+  group_by(var) %>%
+  summarise(q2.5 = quantile(coef, 0.025), 
+            q5 = median(coef),
+            q97.5 = quantile(coef, 0.975)) %>%
+  mutate(t0 = PC1_boot$t0) 
+  
+ggplot(PC1_boot_ci, aes(x=var, y=t0)) + 
+  geom_hline(yintercept=1/sqrt(7), linetype=2, colour="red") +
+  geom_point() +
+  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=0.1) +
+  geom_hline(yintercept=0, size=3, colour="white") +
+  xlab("") + ylab("coefficient") 
+``` 
+
+
+All of the coefficients on PC1 are significantly different from 0, and positive, approximately equal, .monash-orange2[not significantly different from being equal].
+
+
+---
+
+# Loadings for PC2
+
+```{r out.width="60%", fig.width=6, fig.height=4}
+compute_PC2 <- function(data, index) {
+  pc2 <- prcomp(data[index,], center=TRUE, scale=TRUE)$rotation[,2]
+  # Coordinate signs
+  if (sign(pc2[1]) < 0) 
+    pc2 <- -pc2 
+  return(pc2)
+}
+# Make sure sign of first PC element is positive
+PC2_boot <- boot(data=track[,1:7], compute_PC2, R=1000)
+colnames(PC2_boot$t) <- colnames(track[,1:7])
+PC2_boot_ci <- as_tibble(PC2_boot$t) %>%
+  gather(var, coef) %>% 
+  mutate(var = factor(var, levels=c("m100", "m200", "m400", "m800", "m1500", "m3000", "marathon"))) %>%
+  group_by(var) %>%
+  summarise(q2.5 = quantile(coef, 0.025), 
+            q5 = median(coef),
+            q97.5 = quantile(coef, 0.975)) %>%
+  mutate(t0 = PC2_boot$t0) 
+ggplot(PC2_boot_ci, aes(x=var, y=t0)) + 
+  geom_hline(yintercept=0, size=3, colour="white") +
+  geom_hline(yintercept=c(1/sqrt(7), -1/sqrt(7)), linetype=2, colour="red") +
+  geom_point() +
+  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=0.1) +
+  xlab("") + ylab("coefficient") 
+``` 
+
+On PC2 m100 and m200 contrast m1500 and m3000 (and possibly marathon). These are significantly different from 0. 
+
+---
+
+# Loadings for PC3
+
+```{r out.width="60%", fig.width=6, fig.height=4}
+compute_PC3 <- function(data, index) {
+  pc3 <- prcomp(data[index,], center=TRUE, scale=TRUE)$rotation[,3]
+  # Coordinate signs
+  if (sign(pc3[3]) < 0) 
+    pc3 <- -pc3 
+  return(pc3)
+}
+# Make sure sign of first PC element is positive
+PC3_boot <- boot(data=track[,1:7], compute_PC3, R=1000)
+colnames(PC3_boot$t) <- colnames(track[,1:7])
+PC3_boot_ci <- as_tibble(PC3_boot$t) %>%
+  gather(var, coef) %>% 
+  mutate(var = factor(var, levels=c("m100", "m200", "m400", "m800", "m1500", "m3000", "marathon"))) %>%
+  group_by(var) %>%
+  summarise(q2.5 = quantile(coef, 0.025), 
+            q5 = median(coef),
+            q97.5 = quantile(coef, 0.975)) %>%
+  mutate(t0 = PC3_boot$t0) 
+ggplot(PC3_boot_ci, aes(x=var, y=t0)) + 
+  geom_hline(yintercept=0, size=3, colour="white") +
+  geom_hline(yintercept=c(1/sqrt(7), -1/sqrt(7)), linetype=2, colour="red") +
+  geom_point() +
+  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=0.1) +
+  xlab("") + ylab("coefficient") 
+``` 
+
+On PC3 m400 and m800 (and possibly marathon) are significantly different from 0. 
+
+---
+# Interpretation
+
+- PC1 measures overall magnitude, the strength of the athletics program. High positive values indicate .monash-orange2[poor] programs with generally slow times across events. 
+- PC2 measures the .monash-orange2[contrast] in the program between .monash-orange2[short and long distance] events. Some countries have relatively stronger long distance atheletes, while others have relatively stronger short distance athletes.
+- There are several .monash-orange2[outliers] visible in this plot, `wsamoa`, `cookis`, `dpkorea`. PCA, because it is computed using the variance in the data, can be affected by outliers. It may be better to remove these countries, and re-run the PCA. 
+- PC3, may or may not be useful to keep. The interpretation would that this variable summarises countries with different middle distance performance.
+
+---
+class: transition
+
+# Other techniques
+
+---
+# Projection pursuit (PP) generalises PCA
+
+PCA:
+$$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} \frac{1}{n}\sum_{i=1}^n 
+\left(\sum_{j=1}^p \phi_{j1}x_{ij}\right)^{\!\!\!2} \text{ subject to }
+\sum_{j=1}^p \phi^2_{j1} = 1$$
+
+PP:
+
+$$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} ~~f\left(\sum_{j=1}^p \phi_{j1}x_{ij}\right) \text{ subject to }
+\sum_{j=1}^p \phi^2_{j1} = 1$$
+
+
+
+## Next: Re-sampling and regularisation {.transition-slide .center}
+
+

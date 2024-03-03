@@ -4,12 +4,15 @@ project:
   - "*.qmd"
   - "*.md"
   - "!quizzes/"
-  - "!week2/tutorial*"
+  - "!week3/tutorial*"
+  - "!week2/slides*"
+  - "!week3/slides*"
   output-dir: docs
   resources:
   - "assets/*"
   - "data/*"
   - "images/*"
+  - "gifs/*"
   - "week*/*.qmd"
   - "week*/*.R"
 website:

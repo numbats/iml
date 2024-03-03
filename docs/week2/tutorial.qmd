@@ -14,9 +14,56 @@ format:
         embed-resources: true
         css: "../assets/tutorial.css"
 unilur-solution: true
-echo: true
-cache: false
 ---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "60%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: false
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(conflicted)
+library(colorspace)
+library(patchwork)
+library(MASS)
+library(randomForest)
+library(gridExtra)
+library(GGally)
+library(geozoo)
+library(mulgar)
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(palmerpenguins::penguins)
+conflicts_prefer(tourr::flea)
+```
 
 ## `r emo::ji("target")` Objectives
 
@@ -35,12 +82,12 @@ Open your project for this unit called `iml.Rproj`.
 #### 1. Answer the following questions for this data matrix, 
 
 \begin{align*}
-{\mathbf X} = \left(\begin{array}{rrrrr} 
+{\mathbf X} = \left[\begin{array}{rrrrr} 
 2 & -2 & -8 & 6 & -7 \\
 6 & 6 & -4 & 9 & 6 \\
 5 & 4 & 3 & -7 & 8 \\
-1 & -7 & 6 & 7 & -1\\
-\end{array}\right)
+1 & -7 & 6 & 7 & -1
+\end{array}\right]
 \end{align*}
 
 a. What is $X_1$ (variable 1)?
@@ -71,39 +118,39 @@ e. What is $X^\top$?
 
 ::: unilur-solution
 \begin{align*}
-{\mathbf X}^\top = \left(\begin{array}{rrrr} 
+{\mathbf X}^\top = \left[\begin{array}{rrrr} 
 2 & 6 & 5 & 1\\
 -2 & 6 & 4 & -7\\ 
 -8 & -4 & 3 & 6 \\
 6 & 9 & -7 & 7 \\
 -7 & 6 & 8 & -1
-\end{array}\right)
+\end{array}\right]
 \end{align*}
 :::
 
-f. Write a projection matrix which would generate a 2D projection where variables 1 and 4 are combined equally, and variables 2 and 5 are combined in 1 1:3 ratio.
+f. Write a projection matrix which would generate a 2D projection where the first data projection has variables 1 and 4 combined equally, and the second data projection has one third of variable 2 and two thirds of 5.
 
 ::: unilur-solution
 \begin{align*}
-{\mathbf A} = \left(\begin{array}{rr} 
-1/\sqrt{2} & 0 \\
-0 & 1/\sqrt{3} \\ 
+{\mathbf A} = \left[\begin{array}{rr} 
+\frac{1}{\sqrt{2}} & 0 \\
+0 & \frac{1}{\sqrt{3}} \\ 
 0 & 0  \\
-1/\sqrt{2} & 0  \\
-0 & \sqrt{2}/\sqrt{3} \\
-\end{array}\right)
+\frac{1}{\sqrt{2}} & 0  \\
+0 & \frac{\sqrt{2}}{\sqrt{3}} \\
+\end{array}\right]
 \end{align*}
 :::
 
 g. Why can't the following matrix considered a projection matrix?
 
 \begin{align*}
-{\mathbf A} = \left(\begin{array}{rr} 
+{\mathbf A} = \left[\begin{array}{rr} 
 -1/\sqrt{2} & 1/\sqrt{3} \\ 
 0 & 0  \\
 1/\sqrt{2} & 0 \\
 0 & \sqrt{2}/\sqrt{3} \\
-\end{array}\right)
+\end{array}\right]
 \end{align*}
 
 ::: unilur-solution

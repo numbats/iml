@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://iml.numbat.space/week9/index.html</loc>
-    <lastmod>2024-02-05T21:29:35.414Z</lastmod>
+    <loc>https://iml.numbat.space/next-time.html</loc>
+    <lastmod>2024-03-01T04:03:01.661Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week7/index.html</loc>
-    <lastmod>2024-02-05T21:27:22.985Z</lastmod>
+    <loc>https://iml.numbat.space/week8/index.html</loc>
+    <lastmod>2024-02-05T21:28:13.682Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week5/index.html</loc>
-    <lastmod>2024-02-05T21:25:03.367Z</lastmod>
+    <loc>https://iml.numbat.space/week6/index.html</loc>
+    <lastmod>2024-02-05T21:26:36.255Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week3/index.html</loc>
-    <lastmod>2024-02-05T21:16:00.964Z</lastmod>
+    <loc>https://iml.numbat.space/week4/index.html</loc>
+    <lastmod>2024-02-05T21:19:00.639Z</lastmod>
+  </url>
+  <url>
+    <loc>https://iml.numbat.space/week2/tutorial.html</loc>
+    <lastmod>2024-03-01T04:58:52.053Z</lastmod>
+  </url>
+  <url>
+    <loc>https://iml.numbat.space/week2/tutorialsol.html</loc>
+    <lastmod>2024-03-01T04:58:52.053Z</lastmod>
   </url>
   <url>
     <loc>https://iml.numbat.space/week12/index.html</loc>
@@ -57,19 +65,19 @@
     <lastmod>2024-02-05T21:08:23.432Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week4/index.html</loc>
-    <lastmod>2024-02-05T21:19:00.639Z</lastmod>
+    <loc>https://iml.numbat.space/week3/index.html</loc>
+    <lastmod>2024-02-05T21:16:00.964Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week6/index.html</loc>
-    <lastmod>2024-02-05T21:26:36.255Z</lastmod>
+    <loc>https://iml.numbat.space/week5/index.html</loc>
+    <lastmod>2024-02-05T21:25:03.367Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week8/index.html</loc>
-    <lastmod>2024-02-05T21:28:13.682Z</lastmod>
+    <loc>https://iml.numbat.space/week7/index.html</loc>
+    <lastmod>2024-02-05T21:27:22.985Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week2/slides.html</loc>
-    <lastmod>2024-02-28T01:09:51.335Z</lastmod>
+    <loc>https://iml.numbat.space/week9/index.html</loc>
+    <lastmod>2024-02-05T21:29:35.414Z</lastmod>
   </url>
 </urlset>

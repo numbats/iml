@@ -9,6 +9,7 @@ library(randomForest)
 library(gridExtra)
 library(GGally)
 library(geozoo)
+library(mulgar)
 
 # Locations
 current_file <- knitr::current_input()
@@ -49,7 +50,8 @@ theme_set(theme_bw(base_size = 14) +
    )
 )
 
-conflict_prefer("filter", "dplyr")
-conflict_prefer("select", "dplyr")
-conflict_prefer("slice", "dplyr")
-conflict_prefer("penguins", "palmerpenguins")
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(palmerpenguins::penguins)
+conflicts_prefer(tourr::flea)
