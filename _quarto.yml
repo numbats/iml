@@ -4,8 +4,10 @@ project:
   - "*.qmd"
   - "*.md"
   - "!quizzes/"
+  - "!assignments/"
   - "!week3/tutorial*"
   - "!week3/slides*"
+  - "next-time*"
   output-dir: docs
   resources:
   - "assets/*"
