@@ -1657,7 +1657,6 @@ Tour animation
 
 <center>
 UMAP 2D representation
-</center>
 
 ```{r}
 #| label: track-umap
@@ -1679,6 +1678,7 @@ p_track <- ggplot(track_umap_df,
   geom_point(colour = "#EC5C00") 
 ggplotly(p_track, width=500, height=500)
 ```
+</center>
 
 :::
 
