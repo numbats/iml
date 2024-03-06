@@ -16,7 +16,8 @@ project:
   - "gifs/*"
   - "week*/slides.qmd"
   - "week*/tutorial.qmd"
-  - "week*/*.R"
+  - "week*/slides.R"
+  - "week*/slides.pdf"
   - "assignments/assign01.zip"
 website:
   title: "ETC3250/5250 Introduction to Machine Learning"
