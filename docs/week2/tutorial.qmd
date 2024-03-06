@@ -272,7 +272,7 @@ c. Compute the accuracy, and accuracy if all observations were classified as Ade
 ::: unilur-solution
 Accuracy = 33/35 = 0.94
 
-Accuracy when all predicted to be Adelie = 32/35 = 0.91
+Accuracy when all predicted to be Adelie = 30/35 = 0.86
 
 There are only 5 observations in the Chinstrap class. So accuracy remains high, if we simply ignore this class.
 :::

@@ -3,7 +3,7 @@ title: "ETC3250/5250 Introduction to Machine Learning"
 title-slide-attributes: 
   data-background-image: "../images/bg.png"
   data-background-size: 100%
-subtitle: "Week 3: e-sampling and regularisation"
+subtitle: "Week 3: Re-sampling and regularisation"
 author: 
  - name: "Professor Di Cook"
    email: "etc3250.clayton-x@monash.edu"
@@ -27,17 +27,158 @@ source("../setup.R")
 
 ## Overview
 
-In this week we will cover:
+We will cover:
 
-- Conceptual framing for visualisation
-- Common methods: scatterplot matrix, parallel coordinates, tours
-- Details on using tours for examining clustering and class structure
-- Dimension reduction
-    - Linear: principal component analysis
-    - Non-linear: multidimensional scaling, t-stochastic neighbour embedding (t-SNE), uniform manifold approximation and projection (UMAP)
-- Using tours to assess dimension reduction
+* Cross-validation for parameter tuning
+* Bootstrapping for understanding variance of parameter estimates
+* What can go wrong in high-d
+* Regularisation using ridge and lasso when there is insufficient observations relative to number of variables
 
-# Significance of loadings
+## Model development and choice 
+
+<br>
+
+<center>
+<img src="../images/newdata.jpg" style="width: 60%; align: center"/> </a>
+</center>
+
+## How do you get new data? {.transition-slide .center}
+
+## Resampling
+
+- [Training/test split]{.monash-blue2}: make one split of your data, keeping one purely for assessing future performance.
+- [Leave-one-out]{.monash-blue2}: make $n$ splits, fitting multiple models and using left-out observation for assessing variability.
+- [$k$-fold]{.monash-blue2}: break data into $k$ subsets, fitting multiple models with one group left out each time.
+- [Bootstrap]{.monash-blue2}: make many samples, with replacement, using out-of-bag observations for testing.
+
+## Training and test sets
+
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.1.pdf" target="_BLANK"> <img src="../images/5.1.png" style="width: 100%; align: center"/> </a>
+
+A set of $n$ observations are randomly split into a training set (blue, containing observations 7, 22, 13, ...) and a test set (yellow, all other observations not in training set).
+
+[Drawback]{.monash-orange2}: Only one split of data made, may have a lucky or unlucky split, accurately estimating test error relies on the one sample. 
+
+<br><br>
+[(Chapter5/5.1.pdf)]{.smallest}
+
+```{r}
+#| echo: false
+# Function that will compute the test MSE for 
+# four different models
+library(ISLR)
+compute_mse <- function(d) {
+  spl <- initial_split(d, 2/3)
+  d_train <- training(spl)
+  d_test <- testing(spl)
+
+  auto_rec1 <-    
+    recipe(mpg ~ horsepower, 
+         data = d_train) %>% 
+    step_poly(horsepower, degree = 1) 
+  auto_rec2 <-    
+    recipe(mpg ~ horsepower, 
+         data = d_train) %>% 
+    step_poly(horsepower, degree = 2) 
+  auto_rec3 <-    
+    recipe(mpg ~ horsepower, 
+         data = d_train) %>% 
+    step_poly(horsepower, degree = 3) 
+  auto_rec4 <-    
+    recipe(mpg ~ horsepower, 
+         data = d_train) %>% 
+    step_poly(horsepower, degree = 4) 
+  
+  lm_mod <- 
+  linear_reg() %>% 
+  set_engine("lm")
+  
+  auto_wf1 <- workflow() %>%
+    add_model(lm_mod) %>% 
+    add_recipe(auto_rec1)
+  auto_wf2 <- workflow() %>%
+    add_model(lm_mod) %>% 
+    add_recipe(auto_rec2)
+  auto_wf3 <- workflow() %>%
+    add_model(lm_mod) %>% 
+    add_recipe(auto_rec3)
+  auto_wf4 <- workflow() %>%
+    add_model(lm_mod) %>% 
+    add_recipe(auto_rec4)
+
+  sample_split <- tibble(id = 1:nrow(d)) %>%
+    mutate(id_in = ifelse(1:nrow(d) %in% spl$in_id, 
+                            "y", "n"))
+  
+  fit1 <- fit(auto_wf1, data=d_train)
+  fit2 <- fit(auto_wf2, data=d_train)
+  fit3 <- fit(auto_wf3, data=d_train)
+  fit4 <- fit(auto_wf4, data=d_train)
+
+  auto_test_pred1 <- augment(fit1,
+                             d_test)
+  auto_test_pred2 <- augment(fit2,
+                             d_test)
+  auto_test_pred3 <- augment(fit3,
+                             d_test)
+  auto_test_pred4 <- augment(fit4,
+                             d_test)
+  auto_mse <- tibble(poly = c(1,2,3,4)) %>%
+    mutate(mse = c(
+      rmse(auto_test_pred1, truth = mpg, 
+        estimate = .pred)$.estimate^2, 
+      rmse(auto_test_pred2, truth = mpg, 
+        estimate = .pred)$.estimate^2,
+      rmse(auto_test_pred3, truth = mpg, 
+        estimate = .pred)$.estimate^2,
+      rmse(auto_test_pred4, truth = mpg, 
+        estimate = .pred)$.estimate^2))
+
+  return(list(auto_mse, sample_split))
+}
+```
+
+```{r}
+#| echo: false
+# Compute test MSE for four training/test splits
+set.seed(1111)
+run1 <- compute_mse(Auto)
+run2 <- compute_mse(Auto)
+run3 <- compute_mse(Auto)
+run4 <- compute_mse(Auto)
+auto_runs <- run1[[1]] %>%
+  rename(mse1 = mse) %>%
+  select(mse1) %>%
+  bind_cols(run2[[1]]) %>%
+  rename(mse2 = mse) %>%
+  select(mse1, mse2) %>%
+  bind_cols(run3[[1]]) %>%
+  rename(mse3 = mse) %>%
+  select(mse1, mse2, mse3) %>%
+  bind_cols(run4[[1]]) %>%
+  rename(mse4 = mse) %>%
+  select(poly, mse1, mse2, mse3, mse4) 
+
+auto_samples <- run1[[2]] %>%
+  rename(id_in1 = id_in) %>%
+  select(id_in1) %>%
+  bind_cols(run2[[2]]) %>%
+  rename(id_in2 = id_in) %>%
+  select(id_in1, id_in2) %>%
+  bind_cols(run3[[2]]) %>%
+  rename(id_in3 = id_in) %>%
+  select(id_in1, id_in2, id_in3) %>%
+  bind_cols(run4[[2]]) %>%
+  rename(id_in4 = id_in) %>%
+  select(id, id_in1, id_in2, id_in3, id_in4) 
+# Make into a heatmap
+auto_samples <- auto_samples %>%
+  mutate(col = (id-1)%/%20 + 1, 
+         row = (id-1)%%20 + 1)
+```
+
+
+## Significance of loadings
 
 Bootstrap can be used to assess whether the coefficients of a PC are significantly different from 0. The 95% bootstrap confidence intervals can be computed by:
 
@@ -46,7 +187,11 @@ Bootstrap can be used to assess whether the coefficients of a PC are significant
 3. Re-orient the loadings, by choosing one variable with large coefficient to be the direction base
 4. If B=1000, 25th and 975th sorted values yields the lower and upper bounds for confidence interval for each PC. 
 
-```{r fig.height=1, fig.width=6, out.width="50%"}
+```{r}
+#| fig-height: 1 
+#| fig-width: 6 
+#| out-width: 50%
+#| echo: false
 library(ggpubr)
 library(ggthemes)
 l <- tibble(x=c(-1, 1), y=c(0,0))
@@ -55,10 +200,14 @@ p2  <- ggplot(l) + geom_line(aes(x=x, y=y), arrow=arrow(ends="first")) + theme_m
 ggarrange(p1, p2, ncol=1)
 ```
 
----
+## Loadings for PC 1
 
-
-```{r out.width="60%", fig.width=6, fig.height=4}
+```{r}
+#| echo: false
+#| out-width: 60%
+#| fig-width: 6
+#| fig-height: 4
+track <- read_csv(here::here("data/womens_track.csv"))
 library(boot)
 compute_PC1 <- function(data, index) {
   pc1 <- prcomp(data[index,], center=TRUE, scale=TRUE)$rotation[,1]
@@ -88,12 +237,10 @@ ggplot(PC1_boot_ci, aes(x=var, y=t0)) +
 ``` 
 
 
-All of the coefficients on PC1 are significantly different from 0, and positive, approximately equal, .monash-orange2[not significantly different from being equal].
+All of the coefficients on PC1 are significantly different from 0, and positive, approximately equal, [not significantly different from being equal]{.monash-orange2}.
 
 
----
-
-# Loadings for PC2
+## Loadings for PC 2
 
 ```{r out.width="60%", fig.width=6, fig.height=4}
 compute_PC2 <- function(data, index) {
@@ -124,9 +271,7 @@ ggplot(PC2_boot_ci, aes(x=var, y=t0)) +
 
 On PC2 m100 and m200 contrast m1500 and m3000 (and possibly marathon). These are significantly different from 0. 
 
----
-
-# Loadings for PC3
+## Loadings for PC 3
 
 ```{r out.width="60%", fig.width=6, fig.height=4}
 compute_PC3 <- function(data, index) {
@@ -157,21 +302,11 @@ ggplot(PC3_boot_ci, aes(x=var, y=t0)) +
 
 On PC3 m400 and m800 (and possibly marathon) are significantly different from 0. 
 
----
-# Interpretation
 
-- PC1 measures overall magnitude, the strength of the athletics program. High positive values indicate .monash-orange2[poor] programs with generally slow times across events. 
-- PC2 measures the .monash-orange2[contrast] in the program between .monash-orange2[short and long distance] events. Some countries have relatively stronger long distance atheletes, while others have relatively stronger short distance athletes.
-- There are several .monash-orange2[outliers] visible in this plot, `wsamoa`, `cookis`, `dpkorea`. PCA, because it is computed using the variance in the data, can be affected by outliers. It may be better to remove these countries, and re-run the PCA. 
-- PC3, may or may not be useful to keep. The interpretation would that this variable summarises countries with different middle distance performance.
 
----
-class: transition
+## Other techniques {.transition-slide .center}
 
-# Other techniques
-
----
-# Projection pursuit (PP) generalises PCA
+## Projection pursuit (PP) generalises PCA
 
 PCA:
 $$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} \frac{1}{n}\sum_{i=1}^n 
@@ -185,6 +320,6 @@ $$\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} ~~f\left(\sum_{j=1}^p \ph
 
 
 
-## Next: Re-sampling and regularisation {.transition-slide .center}
+## Next: Logistic regression and discriminant analysis {.transition-slide .center}
 
 

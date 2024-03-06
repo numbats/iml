@@ -239,7 +239,7 @@ d_r <- d %>%
 
 ::::: {.columns}
 
-::: {.column}
+::: {.column width=40%}
 
 ```{r}
 #| label: visible
@@ -252,7 +252,7 @@ ggpairs(d) +
 
 :::
 
-::: {.column}
+::: {.column width=40%}
 
 ```{r}
 #| label: invisible

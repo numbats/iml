@@ -35,6 +35,7 @@ auswt20 <- auswt20 |>
 auswt20 <- auswt20 |>  
   mutate(Average = ifelse(Average == Inf, 100, Average))
 save(auswt20, file="data/auswt20.rda")
+write_csv(auswt20, file="data/auswt20.csv")
 
 auswt20_pca <- prcomp(auswt20[, 6:22], scale = TRUE)
 ggscree(auswt20_pca, q=17)

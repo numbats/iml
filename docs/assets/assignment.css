@@ -5,13 +5,21 @@
   font-weight: 400;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3 {
   font-family: "PT Sans Narrow", sans-serif;
   font-weight: 700;
   color: #027EB6;
+}
+
+h4, h5, h6 {
+  font-size: 14pt;
+  font-weight: 700;
 }
 
 h1 {
     color: #006DAE;
 }
 
+a {
+  color: #C8008F;
+}
