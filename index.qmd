@@ -64,7 +64,7 @@ schedule |>
 ## Assessments
 
 * [Weekly learning quizzes](https://learning.monash.edu/course/view.php?id=9453&section=20): 3%
-* [Assignment 1](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
+* Assignment 1: [Instructions](assignments/assign01.zip),  [Submit to moodle](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
 * [Assignment 2](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
 * [Assignment 3](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
 * [Project](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%

@@ -900,7 +900,7 @@ This is a [basic tour]{.monash-orange2}, which will run in your RStudio plot win
 
 ```{r eval=FALSE}
 library(tourr)
-animate_xy(flea[, 1:6])
+animate_xy(flea[, 1:6], rescale=TRUE)
 ```
 
 ::: {.fragment}
@@ -917,7 +917,8 @@ Use this to [colour points]{.monash-orange2} with:
 
 ```{r eval=FALSE}
 animate_xy(flea[, 1:6], 
-           col = flea$species)
+           col = flea$species, 
+           rescale=TRUE)
 ```
 :::
 
@@ -932,6 +933,7 @@ You can specifically guide the tour [choice of projections]{.monash-orange2} usi
 animate_xy(flea[, 1:6], 
            tour_path = guided_tour(holes()), 
            col = flea$species, 
+           rescale = TRUE, 
            sphere = TRUE)
 ```
 
@@ -944,7 +946,7 @@ and you can [manually]{.monash-orange2} choose a variable to control with:
 set.seed(915)
 animate_xy(flea[, 1:6], 
            radial_tour(basis_random(6, 2), 
-                       mvar = 1), 
+                       mvar = 6), 
            rescale = TRUE,
            col = flea$species)
 ```
