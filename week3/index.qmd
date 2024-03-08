@@ -19,10 +19,27 @@ schedule |>
 
 ## What you will learn this week
 
+* Common re-sampling methods: bootstrap, cross-validation, permutation
 * Cross-validation for parameter tuning
 * Bootstrapping for understanding variance of parameter estimates
-* What can go wrong in high-d
-* Regularisation using ridge and lasso when there is insufficient observations relative to number of variables
+* Permutation to understand significance of associations between variables, and variable importance
+* What can go wrong in high-d, and how to adjust using regularisation methods
+
+## Lecture slides
+
+- [html](https://iml.numbat.space/week3/slides.html)
+- [pdf](https://iml.numbat.space/week3/slides.pdf)
+- [qmd](https://iml.numbat.space/week3/slides.qmd)
+- [R](https://iml.numbat.space/week3/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week3/tutorial.html)
+- [qmd](https://iml.numbat.space/week3/tutorial.qmd)
+
+## Assignments
 
 ```{r}
 #| output: asis

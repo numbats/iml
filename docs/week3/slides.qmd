@@ -29,10 +29,11 @@ source("../setup.R")
 
 We will cover:
 
-* Cross-validation for parameter tuning
-* Bootstrapping for understanding variance of parameter estimates
-* What can go wrong in high-d
-* Regularisation using ridge and lasso when there is insufficient observations relative to number of variables
+* Common re-sampling methods: **bootstrap**, **cross-validation**, **permutation**
+* **Cross-validation** for parameter tuning
+* **Bootstrapping** for understanding variance of parameter estimates
+* **Permutation** to understand significance of associations between variables, and variable importance
+* What can go wrong in high-d, and how to adjust using **regularisation** methods
 
 ## Model development and choice 
 
@@ -44,23 +45,303 @@ We will cover:
 
 ## How do you get new data? {.transition-slide .center}
 
-## Resampling
+## Common re-sampling methods
+
+:::: {.columns}
+::: {.column}
+::: {.info}
+- [**Cross-validation**]{.monash-blue2}: Splitting the data into multiple samples.
+- [**Bootstrap**]{.monash-blue2}: Sampling with replacement
+- [**Permutation**]{.monash-blue2}: Re-order the values of one or more variables
+:::
+
+::: {.incremental}
+- [Cross-validation]{.monash-orange2}: This is used to gain some understanding of the [variance]{.monash-orange2} (as in *bias-variance trade-off* ) of models, and how parameter or algorithm choices affect the performance of the model on future samples.
+:::
+
+:::
+::: {.column}
+::: {.incremental}
+
+- [Bootstrap]{.monash-pink2}: Compute [confidence intervals]{.monash-pink2} for model parameters, or the model fit statistics. can be used similarly to cross-validation samples but avoids the complication of smaller sample size that may affect interpretation of cross-validation samples.
+- [Permutation]{.monash-green2}: Used to assess [significance of relationships]{.monash-green2}, especially to assess the importance of individual variables or combinations of variables for a fitted model.
+
+
+:::
+:::
+::::
+
+## Cross-validation
 
 - [Training/test split]{.monash-blue2}: make one split of your data, keeping one purely for assessing future performance.
-- [Leave-one-out]{.monash-blue2}: make $n$ splits, fitting multiple models and using left-out observation for assessing variability.
-- [$k$-fold]{.monash-blue2}: break data into $k$ subsets, fitting multiple models with one group left out each time.
-- [Bootstrap]{.monash-blue2}: make many samples, with replacement, using out-of-bag observations for testing.
 
-## Training and test sets
+After making that split, we would use [these methods on the training sample]{.monash-orange2}:
+
+- [Leave-one-out]{.monash-orange2}: make $n$ splits, fitting multiple models and using left-out observation for assessing variability. 
+- [$k$-fold]{.monash-orange2}: break data into $k$ subsets, fitting multiple models with one group left out each time.
+
+## Training/test split [(1/3)]{.smaller}
 
 <a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter5/5.1.pdf" target="_BLANK"> <img src="../images/5.1.png" style="width: 100%; align: center"/> </a>
 
-A set of $n$ observations are randomly split into a training set (blue, containing observations 7, 22, 13, ...) and a test set (yellow, all other observations not in training set).
+[A set of $n$ observations are randomly split into a training set (blue, containing observations 7, 22, 13, ...) and a test set (yellow, all other observations not in training set).]{.smaller}
 
-[Drawback]{.monash-orange2}: Only one split of data made, may have a lucky or unlucky split, accurately estimating test error relies on the one sample. 
+- Need to [stratify the sampling]{.monash-orange2} to ensure training and test groups are appropriately [balanced]{.monash-orange2}.
+- Only one split of data made, may have a lucky or unlucky split, accurately estimating test error relies on the one sample. 
+ 
 
 <br><br>
 [(Chapter5/5.1.pdf)]{.smallest}
+
+## Training/test split [(2/3)]{.smaller}
+
+:::: {.columns}
+::: {.column}
+
+[With tidymodels, the function `initial_split()` creates the indexes of observations to be allocated into training or test samples. To generate these samples use `training()` and `test()` functions.]{.smaller}
+
+```{r}
+#| label: balanced-data1
+d_bal <- tibble(y=c(rep("A", 6), rep("B", 6)),
+                x=c(runif(12)))
+d_bal$y
+set.seed(130)
+d_bal_split <- initial_split(d_bal, prop = 0.70)
+training(d_bal_split)$y
+testing(d_bal_split)$y
+```
+
+::: {.fragment}
+How do you ensure that you get [0.70 in each class]{.monash-orange2}?
+:::
+
+:::
+::: {.column}
+
+::: {.fragment}
+
+[Stratify the sampling]{.monash-orange2}
+
+```{r}
+#| label: balanced-data2
+d_bal$y
+set.seed(1225)
+d_bal_split <- initial_split(d_bal, 
+                             prop = 0.70, 
+                             strata=y)
+training(d_bal_split)$y
+testing(d_bal_split)$y
+```
+
+Now the test set has 2 A's and 2 B'2. [This is best practice!]{.monash-orange2}
+
+:::
+
+:::
+::::
+
+## Training/test split [(3/3)]{.smaller}
+
+:::: {.columns}
+::: {.column}
+
+Not stratifying can cause major problems with unbalanced samples.
+
+```{r}
+#| label: unbalanced-data
+d_unb <- tibble(y=c(rep("A", 2), rep("B", 10)),
+                x=c(runif(12)))
+d_unb$y
+set.seed(132)
+d_unb_split <- initial_split(d_unb, prop = 0.70)
+training(d_unb_split)$y
+testing(d_unb_split)$y
+```
+
+[The test set is missing one entire class!]{.monash-red2}
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+::: {.info}
+Always [stratify splitting]{.monash-orange2} by sub-groups, especially response variable classes, and possibly other variables too.
+:::
+
+```{r}
+#| label: unbalanced-split
+d_unb_strata <- initial_split(d_unb, 
+                              prop = 0.70, 
+                              strata=y)
+training(d_unb_strata)$y
+testing(d_unb_strata)$y
+```
+
+[Now there is an A in the test set!]{.monash-green2}
+:::
+
+:::
+::::
+
+## Checking the training/test split: response
+
+:::: {.columns}
+::: {.column width=30%}
+
+<center>
+[GOOD]{.monash-green2}
+</center>
+
+```{r}
+#| echo: false
+#| label: penguins-good-split1
+#| fig-width: 3
+#| fig-height: 6
+#| out-width: 70%
+library(palmerpenguins)
+p_tidy <- penguins |>
+  select(species, bill_length_mm:body_mass_g) |>
+  rename(bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g) |>
+  filter(!is.na(bl)) |>
+  arrange(species)
+set.seed(224)
+p_split <- initial_split(p_tidy, 
+                         prop = 0.7,
+                         strata = species)
+p_tr <- training(p_split) |> 
+  mutate(set = "train")
+p_ts <- testing(p_split) |> 
+  mutate(set = "test")
+p_both <- bind_rows(p_tr, p_ts) |>
+  mutate(set = factor(set, levels=c("train", "test")))
+ggplot(p_both, aes(x=species, fill=species)) +
+  geom_bar() +
+  facet_wrap(~set, ncol=1, scales="free_x") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  xlab("") +
+  theme(legend.position="none") + coord_flip()
+```
+:::
+::: {.column width=30%}
+
+<center>
+[BAD]{.monash-red2}
+</center>
+
+```{r}
+#| echo: false
+#| label: penguins-bad-split1
+#| fig-width: 3
+#| fig-height: 6
+#| out-width: 70%
+p_bad <- p_tidy |>
+  mutate(set = factor(ifelse(species == "Adelie", "train", "test"),
+                      levels=c("train", "test")))
+ggplot(p_bad, aes(x=species, fill=species)) +
+  geom_bar() +
+  facet_wrap(~set, ncol=1) +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  xlab("") +
+  theme(legend.position="none") + coord_flip()
+```
+:::
+
+::: {.column width=30%}
+
+<br><br><br>
+You need to have similar numbers of each class in both sets.
+
+:::
+::::
+
+## Checking the training/test split: predictors
+
+:::: {.columns}
+::: {.column width="33%"}
+
+<center>
+[GOOD]{.monash-green2}
+</center>
+
+```{r}
+#| echo: false
+#| label: penguins-good-split2
+#| eval: false
+render_gif(p_both[,2:5], 
+           grand_tour(),
+           display_xy(col=p_both$species,
+             pch=p_both$set, shapeset=c(4, 16), rescale=TRUE),
+           rescale=TRUE,
+           gif_file = "../gifs/p_split_good.gif",
+           apf = 1/30,
+           frames = 500,
+           width = 400, 
+           height = 400)
+```
+
+![](../gifs/p_split_good.gif){width=500}
+
+[Training and test sets similar.]{.smaller}
+
+:::
+::: {.column width="33%"}
+
+<center>
+[Looks good]{.monash-pink2 .smaller}
+</center>
+
+```{r}
+#| echo: false
+#| label: penguins-bad-split2
+#| fig-width: 6
+#| fig-height: 3
+#| out-width: 80%
+p_bad2 <- p_tidy |>
+  mutate(set = factor(ifelse((species == "Adelie" & bd > 17.5 & fl > 183) | (species == "Chinstrap" & bd > 17.8 & fl > 187) |
+        (species == "Gentoo" & bd > 14.2 & fl > 211), "train", "test"),
+                      levels=c("train", "test")))
+ggplot(p_bad2, aes(x=species, fill=species)) +
+  geom_bar() +
+  facet_wrap(~set, ncol=2, scales="free") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  xlab("") +
+  theme(legend.position="none") + coord_flip()
+```
+
+[Training and test sets have similar proportions of each class.]{.smaller}
+:::
+::: {.column width="33%"}
+
+<center>
+[But BAD]{.monash-red2 .smaller}
+</center>
+
+```{r}
+#| echo: false
+#| eval: false
+render_gif(p_bad2[,2:5], 
+           grand_tour(),
+           display_xy(col=p_bad2$species,
+             pch=p_bad2$set, shapeset=c(4, 16), rescale=TRUE),
+           rescale=TRUE,
+           gif_file = "../gifs/p_split_bad.gif",
+           apf = 1/30,
+           frames = 500,
+           width = 400, 
+           height = 400)
+```
+
+![](../gifs/p_split_bad.gif){width=500}
+
+[Test set has smaller penguins on at least two of the variables.]{.smaller}
+:::
+::::
+
+##
 
 ```{r}
 #| echo: false

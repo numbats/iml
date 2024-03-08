@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
   fig.align = "center",
   out.width = "100%",
   code.line.numbers = FALSE,
-  fig.retina = 3,
+  fig.retina = 4,
   echo = TRUE,
   message = FALSE,
   warning = FALSE,
