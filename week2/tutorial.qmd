@@ -233,11 +233,11 @@ idx <- sort(c(sample(1:152, 30), sample(153:220, 5)))
 pred_data <- tibble(true = p_sub$species[idx],
      adelie = p_pred$posterior[idx, 1],
      chinstrap = p_pred$posterior[idx, 2])
-write_csv(pred_data, file="data/pred_data.csv")
+write_csv(pred_data, file="data/tutorial_pred_data.csv")
 ```
 
 ```{r}
-pred_data <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/pred_data.csv") |>
+pred_data <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/tutorial_pred_data.csv") |>
   mutate(true = factor(true))
 ```
 
