@@ -19,11 +19,12 @@ schedule |>
 
 ## What you will learn this week
 
-* Common re-sampling methods: bootstrap, cross-validation, permutation
-* Cross-validation for parameter tuning
-* Bootstrapping for understanding variance of parameter estimates
-* Permutation to understand significance of associations between variables, and variable importance
-* What can go wrong in high-d, and how to adjust using regularisation methods
+* Common re-sampling methods: bootstrap, cross-validation, permutation, simulation.
+* Cross-validation for checking generalisability of model fit, parameter tuning, variable selection.
+* Bootstrapping for understanding variance of parameter estimates.
+* Permutation to understand significance of associations between variables, and variable importance.
+* Simulation can be used to assess what might happen with samples from known distributions.
+* What can go wrong in high-d, and how to adjust using regularisation methods.
 
 ## Lecture slides
 

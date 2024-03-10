@@ -5,6 +5,7 @@ library(conflicted)
 library(colorspace)
 library(patchwork)
 library(MASS)
+library(rpart)
 library(randomForest)
 library(gridExtra)
 library(GGally)
@@ -31,7 +32,7 @@ knitr::opts_chunk$set(
   dev.args = list(pointsize = 11)
 )
 options(
-  digits = 3,
+  digits = 2,
   width = 60,
   ggplot2.continuous.colour = "viridis",
   ggplot2.continuous.fill = "viridis",
