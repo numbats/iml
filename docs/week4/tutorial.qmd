@@ -101,7 +101,7 @@ In the lecture, we used bootstrap to examine the significance of the coefficient
 The data can be read using:
 
 ```{r echo=TRUE}
-track <- track <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/womens_track.csv")
+track <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/womens_track.csv")
 ```
 
 ::: unilur-solution
