@@ -11,6 +11,7 @@ library(gridExtra)
 library(GGally)
 library(geozoo)
 library(mulgar)
+library(mvtnorm)
 
 # Locations
 current_file <- knitr::current_input()

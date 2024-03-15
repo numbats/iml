@@ -5,7 +5,7 @@ project:
   - "*.md"
   - "!quizzes/"
   - "!assignments/"
-  - "week4/tutorial.html"
+  - "!week4/slides*"
   - "next-time*"
   output-dir: docs
   resources:

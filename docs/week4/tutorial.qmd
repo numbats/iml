@@ -41,19 +41,27 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(tidymodels)
 library(conflicted)
-library(colorspace)
 library(patchwork)
-library(MASS)
-library(randomForest)
-library(gridExtra)
-library(GGally)
-library(geozoo)
 library(mulgar)
+library(mvtnorm)
+library(boot)
+library(nullabor)
+library(palmerpenguins)
+library(GGally)
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::slice)
 conflicts_prefer(palmerpenguins::penguins)
-conflicts_prefer(tourr::flea)
+
+options(digits=2)
+p_tidy <- penguins |>
+  select(species, bill_length_mm:body_mass_g) |>
+  rename(bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g) |>
+  filter(!is.na(bl)) |>
+  arrange(species)
 ```
 
 ```{r}
@@ -86,17 +94,188 @@ The goal for this week is for you to practice resampling methods, in order to tu
 
 Open your project for this unit called `iml.Rproj`. 
 
-#### 1. Significance of PC coefficients
+#### 1. Assess the significance of PC coefficients using bootstrap
 
-In the lecture, we used bootstrap to examine the significance of the coefficients for the second principal component from the womens' track PCA. Do this computation for PC1. Your question this time is: **Can we consider all of the coefficients to be equal?**
+In the lecture, we used bootstrap to examine the significance of the coefficients for the second principal component from the womens' track PCA. Do this computation for PC1. The question for you to answer is: *Can we consider all of the coefficients to be equal?*
+
+The data can be read using:
+
+```{r echo=TRUE}
+track <- track <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/womens_track.csv")
+```
 
 ::: unilur-solution
+```{r}
+compute_PC1 <- function(data, index) {
+  pc1 <- prcomp(data[index,], center=TRUE, scale=TRUE)$rotation[,1]
+  # Coordinate signs
+  if (sign(pc1[1]) < 0) 
+    pc1 <- -pc1 
+  return(pc1)
+}
+# Make sure sign of first PC element is positive
+PC1_boot <- boot(data=track[,1:7], compute_PC1, R=1000)
+colnames(PC1_boot$t) <- colnames(track[,1:7])
+PC1_boot_ci <- as_tibble(PC1_boot$t) %>%
+  gather(var, coef) %>% 
+  mutate(var = factor(var, levels=c("m100", "m200", "m400", "m800", "m1500", "m3000", "marathon"))) %>%
+  group_by(var) %>%
+  summarise(q2.5 = quantile(coef, 0.025), 
+            q5 = median(coef),
+            q97.5 = quantile(coef, 0.975)) %>%
+  mutate(t0 = PC1_boot$t0) 
+  
+# The red horizontal line indicates the null value 
+# of the coefficient when all are equal.
+ggplot(PC1_boot_ci, aes(x=var, y=t0)) + 
+  geom_hline(yintercept=1/sqrt(7), linetype=2, colour="red") +
+  geom_point() +
+  geom_errorbar(aes(ymin=q2.5, ymax=q97.5), width=0.1) +
+  #geom_hline(yintercept=0, linewidth=3, colour="white") +
+  xlab("") + ylab("coefficient") 
+``` 
+:::
 
- 
+#### 2. Using simulation to assess results when there is no structure 
+
+The `ggscree` function in the `mulgar` package computes PCA on multivariate standard normal samples, to learn what the largest eigenvalue might be when there the covariance between variables is 0.
+
+a. What is the mean and covariance matrix of a multivariate standard normal distribution?
+
+::: unilur-solution
+The mean is a $p$-dimensional vector of 0, and the covariance is a $p$-dimensional variance-covariance matrix. 
+:::
+
+b. Simulate a sample of 55 observations from a 7D standard multivariate normal distribution. Compute the sample mean and covariance. (Question: Why 55 observations? Why 7D?)
+
+::: unilur-solution
+```{r}
+set.seed(854)
+d <- rmvnorm(55, mean = rep(0, 7), sigma = diag(7))
+apply(d, 2, mean)
+cov(d)
+```
+:::
+
+c. Compute PCA on your sample, and note the variance of the first PC. How does this compare with variance of the first PC of the women's track data?
+
+::: unilur-solution
+```{r}
+d_pca <- prcomp(d, center=FALSE, scale=FALSE)
+d_pca$sdev^2
+```
+
+The variance of the first PC of the womens' track data is 5.8, which is much higher than that from this sample. It says that there is substantially more variance explained by PC 1 of the womens's track data than would be expected if there was no association between any variables. 
+
+You should repeat generating the multivariate normal samples and computing the variance of PC 1 a few more times to learn what is the largest that would be observed.
+:::
+
+#### 3. Making a lineup plot to assess the dependence between variables
+
+Permutation samples is used to significance assess relationships and importance of variables. Here we will use it to assess the strength of a non-linear relationship. 
+
+a. Generate a sample of data that has a strong non-linear relationship but no correlation, as follows:
+
+```{r}
+#| echo: true
+#| eval: false
+set.seed(908)
+n <- 205
+df <- tibble(x1 = runif(n)-0.5, x2 = x1^2 + rnorm(n)*0.01)
+```
+
+and then use permutation to generate another 19 plots where `x1` is permuted. You can do this with the `nullabor` package as follows:
+
+```{r}
+#| echo: true
+#| eval: false
+set.seed(912)
+df_l <- lineup(null_permute('x1'), df)
+```
+and make all 20 plots as follows:
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(df_l, aes(x=x1, y=x2)) + 
+  geom_point() + 
+  facet_wrap(~.sample)
+```
+
+Is the data plot recognisably different from the plots of permuted data?
+
+::: unilur-solution
+The data and the permuted data are very different. The permutation breaks any relationship between the two variables, so we know that there is NO relationship in any of the permuted data examples. This says that the relationship seen in the data is strongly statistically significant.
+:::
+
+b. Repeat this with a sample simulated with no relationship between the two variables. Can the data be distinguished from the permuted data?
+
+::: unilur-solution
+```{r}
+#| out-width: 100%
+#| fig-width: 8
+#| fig-height: 8
+set.seed(916)
+n <- 205
+df <- tibble(x1 = runif(n)-0.5, x2 = rnorm(n)*0.1)
+df_l <- lineup(null_permute('x1'), df)
+ggplot(df_l, aes(x=x1, y=x2)) + 
+  geom_point() + 
+  facet_wrap(~.sample)
+```
+
+The data cannot be distinguished from the permuted data, so there is no statistically significant relatiomship between the two variables.
+:::
+
+#### 4. Computing $k$-folds for cross-validation 
+
+For the penguins data, compute 5-fold cross-validation sets, stratified by species. 
+
+a. List the observations in each sample, so that you can see there is no overlap. 
+
+::: unilur-solution
+```{r}
+set.seed(929)
+p_folds <- vfold_cv(p_tidy, 5, strata=species)
+c(1:nrow(p_tidy))[-p_folds$splits[[1]]$in_id]
+c(1:nrow(p_tidy))[-p_folds$splits[[2]]$in_id]
+c(1:nrow(p_tidy))[-p_folds$splits[[3]]$in_id]
+c(1:nrow(p_tidy))[-p_folds$splits[[4]]$in_id]
+c(1:nrow(p_tidy))[-p_folds$splits[[5]]$in_id]
+```
+:::
+
+b. Make a scatterplot matrix for each fold, coloured by species. Do the samples look similar?
+
+::: unilur-solution
+```{r}
+p_sub <- p_tidy[-p_folds$splits[[1]]$in_id, ]
+ggscatmat(p_sub, columns=2:5, color="species") +
+  theme(legend.position="none",
+        axis.text = element_blank())
+p_sub <- p_tidy[-p_folds$splits[[2]]$in_id, ]
+ggscatmat(p_sub, columns=2:5, color="species") +
+  theme(legend.position="none",
+        axis.text = element_blank())
+p_sub <- p_tidy[-p_folds$splits[[3]]$in_id, ]
+ggscatmat(p_sub, columns=2:5, color="species") +
+  theme(legend.position="none",
+        axis.text = element_blank())
+p_sub <- p_tidy[-p_folds$splits[[4]]$in_id, ]
+ggscatmat(p_sub, columns=2:5, color="species") +
+  theme(legend.position="none",
+        axis.text = element_blank())
+p_sub <- p_tidy[-p_folds$splits[[5]]$in_id, ]
+ggscatmat(p_sub, columns=2:5, color="species") +
+  theme(legend.position="none",
+        axis.text = element_blank())
+```
+
+The folds are similar but there are some noticeable differences that might lead to variation in the statistics that are calculated from each other. However, one should consider this variation something that might generally occur if we had different samples. 
 :::
 
 
-#### 6. Write a simple question about the week's material and test your neighbour, or your tutor. 
+#### 5. What was the easiest part of this tutorial to understand, and what was the hardest? 
 
 ## `r emo::ji("wave")` Finishing up
 
