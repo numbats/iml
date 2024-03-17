@@ -679,11 +679,11 @@ conf_mat(a2, pred, y, dnn=c("Truth", "Pred"))
 #| label: oconfusion-matrix-tidy
 cm <- a2 %>% count(y, pred) |>
   group_by(y) |>
-  mutate(cl_err = n[pred==y]/sum(n)) 
+  mutate(cl_acc = n[pred==y]/sum(n)) 
 cm |>
   pivot_wider(names_from = pred, 
               values_from = n) |>
-  select(y, bilby, quokka, cl_err)
+  select(y, bilby, quokka, cl_acc)
 ```
 
 ```{r}

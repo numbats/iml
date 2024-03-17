@@ -12,6 +12,7 @@ library(GGally)
 library(geozoo)
 library(mulgar)
 library(mvtnorm)
+library(palmerpenguins)
 
 # Locations
 current_file <- knitr::current_input()
@@ -57,3 +58,11 @@ conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::slice)
 conflicts_prefer(palmerpenguins::penguins)
 conflicts_prefer(tourr::flea)
+
+p_tidy <- penguins |>
+  select(species, bill_length_mm:body_mass_g) |>
+  rename(bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g) |>
+  na.omit()
