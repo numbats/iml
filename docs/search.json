@@ -1600,7 +1600,7 @@
     "href": "week4/slides.html#the-logistic-function",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "The logistic function",
-    "text": "The logistic function\n\n\nInstead of predicting the outcome directly, we instead predict the probability of being class 1, given the (linear combination of) predictors, using the logistic function.\n\\[ p(y=1|\\beta_0 + \\beta_1 x)  = f(\\beta_0 + \\beta_1 x) \\] where\n\\[f(\\beta_0 + \\beta_1 x) = \\frac{e^{\\beta_0+\\beta_1x}}{1+e^{\\beta_0+\\beta_1x}}\\]"
+    "text": "The logistic function\n\n\nInstead of predicting the outcome directly, we instead predict the probability of being class 1, given the (linear combination of) predictors, using the logistic function.\n\\[ p(y=1|\\beta_0 + \\beta_1 x)  = f(x) \\] where\n\\[f(x) = \\frac{e^{\\beta_0+\\beta_1x}}{1+e^{\\beta_0+\\beta_1x}}\\]"
   },
   {
     "objectID": "week4/slides.html#logistic-function",
@@ -1832,6 +1832,27 @@
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "QDA: Olive oils example",
     "text": "QDA: Olive oils example\n\n\nEven if the population is NOT normally distributed, QDA might do reasonably. On this data, region 3 has a “banana-shaped” variance-covariance, and region 2 has two separate clusters. The quadratic boundary though does well to carve the space into neat sections dividing the two regions."
+  },
+  {
+    "objectID": "week4/slides.html#checking-the-assumptions-for-lda-and-qda-12",
+    "href": "week4/slides.html#checking-the-assumptions-for-lda-and-qda-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Checking the assumptions for LDA and QDA 1/2",
+    "text": "Checking the assumptions for LDA and QDA 1/2\nCheck the shape of the variability of each group could be considered to be elliptical, and the size is same for LDA but different to use QDA.\n\n\n\nGOOD\n\n\n\n\nBAD\n\n\n\n\nfrom Cook and Laa (2024)"
+  },
+  {
+    "objectID": "week4/slides.html#checking-the-assumptions-for-lda-and-qda-22",
+    "href": "week4/slides.html#checking-the-assumptions-for-lda-and-qda-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Checking the assumptions for LDA and QDA 2/2",
+    "text": "Checking the assumptions for LDA and QDA 2/2\nThis can also be done for \\(p&gt;2\\).\n\n\n\nDATA\n\n\n\n\nPOINTS ON SURFACE OF ELLIPSES\n\n\n\n\nfrom Cook and Laa (2024)"
+  },
+  {
+    "objectID": "week4/slides.html#plotting-the-model",
+    "href": "week4/slides.html#plotting-the-model",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Plotting the model",
+    "text": "Plotting the model\n\n\n\nData-in-the-model-space\n\n\n\n\nModel-in-the-data-space\n\n\n\n\nfrom Cook and Laa (2024)"
   },
   {
     "objectID": "week4/slides.html#next-trees-and-forests",

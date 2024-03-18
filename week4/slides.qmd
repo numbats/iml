@@ -109,10 +109,10 @@ ggplot(simcredit, aes(x=balance, y=default_bin)) +
 
 Instead of predicting the outcome directly, we instead predict the probability of being class 1, given the (linear combination of) predictors, using the [logistic]{.monash-orange2} function.
 
-$$ p(y=1|\beta_0 + \beta_1 x)  = f(\beta_0 + \beta_1 x) $$
+$$ p(y=1|\beta_0 + \beta_1 x)  = f(x) $$
 where
 
-$$f(\beta_0 + \beta_1 x) = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$
+$$f(x) = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$
 
 :::
 ::: {.column}
@@ -1065,6 +1065,86 @@ ggplot() +
 ```
 :::
 ::::
+
+## Checking the assumptions for LDA and QDA [1/2]{.smallest}
+
+Check the shape of the variability of each group could be considered to be elliptical, and the size is same for LDA but different to use QDA.
+
+:::: {.columns}
+::: {.column}
+<center>
+
+GOOD
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-assumptions1-1.png){}
+</center>
+:::
+
+::: {.column}
+<center>
+
+BAD
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-assumptions2-1.png){}
+</center>
+
+:::
+
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
+
+## Checking the assumptions for LDA and QDA [2/2]{.smallest}
+
+This can also be done for $p>2$.
+
+:::: {.columns}
+::: {.column}
+<center>
+
+DATA
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda1.gif){fig-alt="Animation showing a tour of the penguins data, with colour indicating species. The spread of points in each group is reasonably similar regardless of projection."}
+</center>
+:::
+
+::: {.column}
+<center>
+
+POINTS ON SURFACE OF ELLIPSES
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda2.gif){fig-alt="Animation showing a tour of the penguins data, with colour indicating species. The spread of points in each group is reasonably similar regardless of projection."}
+</center>
+
+:::
+
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
+
+## Plotting the model
+
+:::: {.columns}
+::: {.column}
+
+<center>
+Data-in-the-model-space
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-2D-boundaries-1.png){width=80%}
+</center>
+:::
+
+::: {.column}
+<center>
+Model-in-the-data-space
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda_boundaries.gif)
+
+</center>
+:::
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
 
 ## Next: Trees and forests {.transition-slide .center}
 
