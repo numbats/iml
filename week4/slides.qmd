@@ -544,7 +544,7 @@ $$
 f_k(x) = \frac{1}{\sqrt{2 \pi} \sigma_k} \text{exp}~ \left( - \frac{1}{2 \sigma^2_k} (x - \mu_k)^2 \right)
 $$
 
-where $\mu_k$ and $\sigma^2_k$ are the mean and variance parameters for the $k$th class. We also assume that $\sigma_A^2 = \sigma_B^2 = \dots = \sigma_K^2$; then the conditional probabilities are
+where $\mu_k$ and $\sigma^2_k$ are the mean and variance parameters for the $k$th class. We also assume that $\sigma_1^2 = \sigma_2^2 = \dots = \sigma_K^2$; then the conditional probabilities are
 
 $$
 p_k(x) = \frac{\pi_k \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_k)^2 \right) }{ \sum_{l = 1}^K \pi_l \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_l)^2 \right) }
@@ -843,7 +843,7 @@ that contain 95% of the probability for each of the three classes are shown. Sol
 ## Discriminant space: using sample statistics
 
 ::: {.info}
-[Discriminant space]{.monash-orange2}: is the low-dimensional space where the class means are the furthest apart relative to the common variance-covariance.
+[Discriminant space]{.monash-orange2}: is the low-dimensional space ($(K-1)$-dimensional) where the class means are the furthest apart relative to the common variance-covariance.
 :::
 
 The discriminant space is provided by the eigenvectors after making an eigen-decomposition of $W^{-1}B$, where

@@ -1593,7 +1593,7 @@ PCA is a special case of MDS. The result from PCA is a linear projection, but ge
 Many variations being developed:
 
 - [t-stochastic neighbourhood embedding (t-SNE)]{.monash-blue2}: compares interpoint distances with a standard probability distribution (eg $t$-distribution) to exaggerate local neighbourhood differences.
-- [uniform manifold approximation and projection (UMAP)]{.monash-blue2}: compares the interpoint distances with what might be expected if the data was uniformly distributed in the high-dimensional shapes. 
+- [uniform manifold approximation and projection (UMAP)]{.monash-blue2}: compares the interpoint distances with what might be expected if the data was uniformly distributed in the high-dimensions. 
 
 ::: {.info}
 NLDR can be useful but it can also make some misleading representations.

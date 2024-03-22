@@ -25,6 +25,22 @@ schedule |>
 * Diagnostics: vote matrix, variable importance, proximity
 * Boosted trees
 
+## Lecture slides
+
+- [html](https://iml.numbat.space/week5/slides.html)
+- [pdf](https://iml.numbat.space/week5/slides.pdf)
+- [qmd](https://iml.numbat.space/week5/slides.qmd)
+- [R](https://iml.numbat.space/week5/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week5/tutorial.html)
+- [qmd](https://iml.numbat.space/week5/tutorial.qmd)
+
+## Assignments
+
 ```{r}
 #| output: asis
 show_assignments(week)

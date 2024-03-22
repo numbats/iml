@@ -17,6 +17,7 @@ project:
   - "week*/slides.R"
   - "week*/slides.pdf"
   - "assignments/assign01.zip"
+  - "assignments/assign02.zip"
 website:
   title: "ETC3250/5250 Introduction to Machine Learning"
   site-url: "https://iml.numbat.space"
