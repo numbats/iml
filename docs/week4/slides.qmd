@@ -1,0 +1,1151 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 4: Logistic regression and discriminant analysis"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 4 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+library(ggpubr)
+library(kableExtra)
+```
+
+## Overview
+
+We will cover:
+
+- Fitting a categorical response using logistic curves
+- Multivariate summary statistics
+- Linear discriminant analysis, assuming samples are elliptically shaped and equal in size
+- Quadratic discriminant analysis, assuming samples are elliptically shaped and different in size
+- Discriminant space: making a low-dimensional visual summary
+
+## Logistic regression {.transition-slide .center}
+
+## When linear regression is not appropriate
+
+:::: {.columns}
+::: {.column}
+
+<br>
+Consider the following data `Default` in the ISLR R package (textbook) which looks at the default status based on credit balance.
+
+```{r}
+library(ISLR)
+data(Default)
+simcredit <- Default |>
+  mutate(default_bin = ifelse(default=="Yes", 1, 0))
+```
+
+<br><br>
+[Why is a linear model less than ideal for this data?]{.monash-blue2}
+
+:::
+::: {.column}
+
+<br>
+```{r}
+#| echo: false
+ggplot(simcredit, aes(x=balance, y=default_bin)) +
+  geom_point() +
+  geom_smooth(method="lm", colour = "#027EB6", se = FALSE) +
+  ylab("default") +
+  theme_minimal(base_size=18)
+```
+
+:::
+::::
+
+## Modelling binary responses
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+ggplot(simcredit, aes(x=balance, y=default_bin)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE, color = "#027EB6") +
+  geom_smooth(method="glm", 
+              method.args = list(family = "binomial"), 
+              colour = "#D93F00", se = FALSE) +
+  theme_minimal(base_size=18) +
+  ylab("default")
+```
+
+:::
+::: {.column}
+
+<br>
+
+[Orange line]{.monash-orange2} (logistic model fit) is similar to computing a running average of the 0s/1s. It's much better than the linear fit, because it remains between 0 and 1, and can be interpreted as proportion of 1s. 
+
+[What is a logistic function?]{.monash-orange2}
+
+:::
+::::
+
+## The logistic function
+
+:::: {.columns}
+::: {.column}
+
+Instead of predicting the outcome directly, we instead predict the probability of being class 1, given the (linear combination of) predictors, using the [logistic]{.monash-orange2} function.
+
+$$ p(y=1|\beta_0 + \beta_1 x)  = f(x) $$
+where
+
+$$f(x) = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$
+
+:::
+::: {.column}
+
+```{r, echo=FALSE, fig.retina=4, warning=F, message=F}
+x <- rep(seq(-10, 10, by=0.1), 2)
+logistic <- 1 / (1 + exp(-x))
+#Link <- c(rep("logistic", length(x.vals)))
+
+library(latex2exp)
+
+data <- tibble(x, logistic)
+ggplot(data, aes(x=x, y=logistic)) +
+  geom_line(size=1.4, color = "#D93F00") + 
+  xlab(TeX('$\\beta_0 + \\beta_1 x$')) + 
+  ylab(TeX('$p(y=1|\\beta_0 + \\beta_1 x) = f(\\beta_0 + \\beta_1 x)$')) +
+  theme_minimal() +
+  theme(text = element_text(size=18))
+```
+
+:::
+::::
+
+## Logistic function
+
+:::: {.columns}
+::: {.column}
+
+Transform the function:
+
+$$~~~~y = \frac{e^{\beta_0+\beta_1x}}{1+e^{\beta_0+\beta_1x}}$$
+
+$\longrightarrow  y = \frac{1}{1/e^{\beta_0+\beta_1x}+1}$
+
+$\longrightarrow  1/y = 1/e^{\beta_0+\beta_1x}+1$
+
+$\longrightarrow 1/y - 1 = 1/e^{\beta_0+\beta_1x}$
+
+$\longrightarrow  \frac{1}{1/y - 1} = e^{\beta_0+\beta_1x}$
+
+$\longrightarrow \frac{y}{1 - y} = e^{\beta_0+\beta_1x}$
+
+$\longrightarrow \log_e\frac{y}{1 - y} = \beta_0+\beta_1x$
+
+:::
+
+::: {.column}
+::: {.fragment}
+
+<br>
+<br>
+
+Transforming the response $\log_e\frac{y}{1 - y}$ makes it possible to use a linear model fit.
+ 
+<br>
+<br>
+
+::: {.info}
+The left-hand side, $\log_e\frac{y}{1 - y}$, is known as the [log-odds ratio]{.monash-orange2} or logit.
+<i class="fas fa-dice" style="color: #D93F00"></i>
+:::
+
+:::
+:::
+::::
+
+
+## The logistic regression model
+
+The fitted model, where $P(Y=0|X) = 1 - P(Y=1|X)$, is then written as:
+
+
+::: {.info}
+$\log_e\frac{P(Y=1|X)}{1 - P(Y=1|X)} = \beta_0+\beta_1X$
+:::
+
+
+<br><br>
+When there are [more than two]{.monash-blue2} categories:
+
+- the formula can be extended, using dummy variables.
+- follows from the above, extended to provide probabilities for each level/category, and the last category is 1-sum of the probabilities of other categories.
+- the sum of all probabilities has to be 1.
+
+## Connection to generalised linear models
+
+- To model **binary data**, we need to [link]{.monash-orange2} our **predictors** to our response using a *link function*. Another way to think about it is that we will [transform $Y$]{.monash-orange2}, to convert it to a proportion, and then build the linear model on the transformed response.
+- There are many different types of link functions we could use, but for a binary response we typically use the [logistic]{.monash-orange2} link function.
+
+## Interpretation 
+
+- [**Linear regression**]{.monash-blue2}
+    - $\beta_1$ gives the average change in $Y$ associated with a one-unit increase in $X$
+
+- [**Logistic regression**]{.monash-blue2}
+    - Because the model is not linear in $X$, $\beta_1$ does not correspond to the change in response associated with a one-unit increase in $X$.
+    - However, increasing $X$ by one unit changes the log odds by $\beta_1$, or equivalently it multiplies the odds by $e^{\beta_1}$
+
+## Maximum Likelihood Estimation
+
+Given the logistic $p(x_i) = \frac{1}{e^{-(\beta_0+\beta_1x_i)}+1}$
+choose parameters $\beta_0, \beta_1$ to maximize the likelihood:
+
+$$\mathcal{l}_n(\beta_0, \beta_1) = \prod_{i=1}^n p(x_i)^{y_i}(1-p(x_i))^{1-y_i}.$$
+
+It is more convenient to maximize the *log-likelihood*:
+
+\begin{align*}
+\log  l_n(\beta_0, \beta_1) &= \sum_{i = 1}^n \big( y_i\log p(x_i) + (1-y_i)\log(1-p(x_i))\big)\\
+&= \sum_{i=1}^n\big(y_i(\beta_0+\beta_1x_i)-\log{(1+e^{\beta_0+\beta_1x_i})}\big)
+\end{align*}
+
+
+## Making predictions
+
+:::: {.columns}
+::: {.column}
+
+With estimates from the model fit, $\hat{\beta}_0, \hat{\beta}_1$, we can predict the **probability of belonging to class 1** using:
+
+
+$$p(y=1|\hat{\beta}_0 + \hat{\beta}_1 x) = \frac{e^{\hat{\beta}_0+ \hat{\beta}_1x}}{1+e^{\hat{\beta}_0+ \hat{\beta}_1x}}$$
+<br>
+
+[Round to 0 or 1]{.monash-blue2} for class prediction.
+
+```{r}
+#| label: glmfit
+fit <- glm(default~balance,  
+           data=simcredit, family="binomial") 
+simcredit_fit <- augment(fit, simcredit,
+                         type.predict="response")
+```
+
+:::
+::: {.column}
+
+```{r}
+#| echo: false
+ggplot(simcredit_fit, aes(x=balance, y=default_bin)) +
+  geom_point() +
+  geom_point(aes(y=.fitted), colour = "#D93F00") +
+  theme_minimal(base_size=18) 
+```
+
+[Orange points are fitted values, $\hat{y}_i$.]{.monash-orange2} Black points are observed response, $y_i$ (either 0 or 1). 
+
+:::
+::::
+
+## Fitting credit data in R
+
+:::: {.columns}
+::: {.column}
+
+ We can use the `glm` function in R to fit a logistic regression model. The `glm` function can support many response types, so we specify `family="binomial"` to let R know that our response is *binary*.
+
+```{r}
+#| eval: false
+fit <- glm(default~balance,  
+           data=simcredit, family="binomial") 
+simcredit_fit <- augment(fit, simcredit,
+                         type.predict="response")
+```
+
+:::
+::: {.column}
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+Same calculation but written in `tidymodels` style
+
+
+```{r logistic_fit, echo=TRUE}
+logistic_mod <- logistic_reg() |> 
+  set_engine("glm") |> 
+  set_mode("classification") |> 
+  translate()
+
+logistic_fit <- 
+  logistic_mod |> 
+  fit(default ~ balance, 
+      data = simcredit)
+
+```
+
+:::
+::::
+
+## Examine the fit
+
+:::: {.columns}
+::: {.column}
+
+```{r echo=TRUE}
+tidy(logistic_fit) 
+glance(logistic_fit) 
+```
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+### Parameter estimates
+
+$\widehat{\beta}_0 =$ `r broom::tidy(logistic_fit)[1, 2]`
+
+$\widehat{\beta}_1 =$ `r broom::tidy(logistic_fit)[2, 2]`
+
+[Can you write out the model?]{.monash-orange2}
+
+::: {.fragment}
+
+### Model fit summary
+
+[Null model deviance]{.monash-blue2} `r round(broom::glance(logistic_fit)[1], 1)` (error for model with no predictors)
+
+[Model deviance]{.monash-blue2} `r round(broom::glance(logistic_fit)[6], 1)` (error from fitted model)
+
+[How good is the model?]{.monash-orange2}
+
+:::
+:::
+:::
+::::
+
+## Check the model performance
+
+:::: {.columns}
+::: {.column}
+
+```{r echo=TRUE}
+simcredit_fit <- augment(logistic_fit, simcredit) 
+simcredit_fit |> 
+  count(default, .pred_class) |>
+  group_by(default) |>
+  mutate(Accuracy = n[.pred_class==default]/sum(n)) |>
+  pivot_wider(names_from = ".pred_class", values_from = n) |>
+  select(default, No, Yes, Accuracy)
+```
+
+[Compute the balanced accuracy.]{.monash-blue2}
+
+[Unbalanced data set, with very different performance on each class.]{.smaller}
+
+
+
+:::
+
+::: {.column}
+[How good is this model?]{.monash-orange2}
+
+<br><br>
+
+::: {.fragment}
+
+- Explains about [half of the variation]{.monash-orange2} in the response, which would normally be reasonable.
+- Gets most of the [smaller but important class wrong]{.monash-orange2}.
+- Not a very useful model.
+:::
+
+:::
+
+::::
+
+## A warning for using GLMs!
+
+:::: {.columns}
+::: {.column}
+
+
+
+<br>
+
+::: {.info}
+Logistic regression model fitting fails when the data is *perfectly* separated.
+:::
+
+MLE fit will try and fit a step-wise function to this graph, pushing coefficients sizes towards infinity and produce large standard errors.
+
+[Pay attention to warnings!]{.monash-orange2}
+
+:::
+::: {.column}
+
+```{r}
+#| echo: false
+#| warning: false
+#| out-width: 80%
+simcredit <- simcredit |>
+  mutate(default_new = 
+           as.factor(case_when(balance <= 1500 ~ 0,
+                               balance > 1500 ~ 1)))
+
+ggplot(simcredit, aes(x=balance, 
+                      y=default_new)) +
+  geom_point() +
+  geom_vline(xintercept = 1500, 
+             col = "grey50", size = 1.1, 
+             linetype = "dashed") +
+  theme_minimal(base_size=18)
+```
+
+```{r echo = TRUE, warning = TRUE}
+logistic_fit <- 
+  logistic_mod |> 
+  fit(default_new ~ balance, 
+      data = simcredit)
+```
+
+
+:::
+::::
+
+## Discriminant Analysis {.transition-slide .center}
+
+## Linear Discriminant Analysis
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+p_tidy |>
+  filter(species != "Chinstrap") |>
+  ggplot(aes(x=bd, y=bm, colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1")
+```
+
+[Where would you draw a line to create a boundary separating Adelie and Gentoo penguins?]{.smaller}
+
+
+
+:::
+::: {.column}
+
+::: {.fragment}
+- [Where are the sample means?]{.smaller}
+- [What is the shape of the sample variance-covariance?]{.smaller}
+:::
+
+::: {.fragment}
+[Linear discriminant analysis]{.monash-blue2} assumes the distribution of the predictors is a [multivariate normal, with the same variance-covariance matrix]{.monash-blue2}, separately for each class.
+:::
+:::
+::::
+
+
+## Assumptions underlie LDA
+
+:::: {.columns}
+::: {.column}
+
+<center>
+![](https://imgs.xkcd.com/comics/when_you_assume.png){width=50%}
+
+[Source: https://xkcd.com]{.smallest}
+</center>
+
+:::
+::: {.column}
+
+
+<br><br>
+
+- All samples come from [normal populations]{.monash-orange2}
+- with the [same population variance-covariance matrix]{.monash-orange2}
+
+:::
+::::
+
+## LDA with $p=1$ predictors [1/4]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+If $K = 2$ (two classes labelled `A` and `B`) and each group has the *same prior probability*, the LDA rule is to assign the new observation $x_0$ to class `A` if
+
+<!-- 
+$$\delta_1(x_0) > \delta_2(x_0)$$
+
+$$x_0 \frac{\mu_1}{\sigma^2} - \frac{\mu_1^2}{2 \sigma^2} + \log(\pi) > x_0 \frac{\mu_2}{\sigma^2} - \frac{\mu_2^2}{2 \sigma^2} + \log(\pi) $$
+
+which simplifies to -->
+
+$$
+x_0 > \frac{\bar{x}_A + \bar{x}_B}{2}
+$$
+:::
+
+::: {.column}
+::: {.fragment}
+- It's a really intuitive rule, eh?
+- It also matters which of the two classes is considered to be `A`!!!
+- So maybe easier to think about as "**assign the new observation to the group with the closest mean**".
+- How does this rule arise from the assumptions? 
+
+:::
+:::
+::::
+
+
+
+## Bayes Theorem [2/4]{.smallest}
+
+Let $f_k(x)$ be the density function for predictor $x$ for class $k$. If $f$ is large, the probability that $x$ belongs to class $k$ is large, or if $f$ is small it is unlikely that $x$ belongs to class $k$.
+
+According to Bayes theorem (for $K$ classes) the probability that $x$ belongs to class $k$ is:
+
+$$P(Y = k|X = x) = p_k(x) = \frac{\pi_kf_k(x)}{\sum_{i=1}^K \pi_kf_k(x)}$$
+
+where $\pi_k$ is the prior probability that an observation comes from class $k$.
+
+
+## LDA with $p=1$ predictors [3/4]{.smallest}
+
+:::: {.columns}
+::: {.column width=60%}
+The [density function]{.monash-orange2} $f_k(x)$ of a univariate [normal]{.monash-orange2} (Gaussian) is
+
+$$
+f_k(x) = \frac{1}{\sqrt{2 \pi} \sigma_k} \text{exp}~ \left( - \frac{1}{2 \sigma^2_k} (x - \mu_k)^2 \right)
+$$
+
+where $\mu_k$ and $\sigma^2_k$ are the mean and variance parameters for the $k$th class. We also assume that $\sigma_1^2 = \sigma_2^2 = \dots = \sigma_K^2$; then the conditional probabilities are
+
+$$
+p_k(x) = \frac{\pi_k \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_k)^2 \right) }{ \sum_{l = 1}^K \pi_l \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_l)^2 \right) }
+$$
+:::
+::: {.column width=40%}
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 8
+#| out-width: 60%
+set.seed("15032019")
+n <- 244; n1 <- 55
+x <- c(rnorm(n1, -1), rnorm(n-n1, 1))
+y <- factor(c(rep("B", n1), rep("A", n-n1)), levels=c("B", "A"))
+df <- tibble(x, y)
+
+x <- seq(-4, 4, 0.1)
+dx <- c(dnorm(x, -1), dnorm(x, 1))
+y <- factor(c(rep("B", length(x)), rep("A", length(x))), levels=c("B", "A"))
+df_pop <- tibble(x=c(x, x), dx, y)
+df_means <- df |> 
+  group_by(y) |>
+  summarise(x=mean(x)) 
+p1 <- ggplot() +
+  geom_rug(data=df, aes(x=x, y=0, colour=factor(y)), alpha=0.7) +
+  geom_line(data=df_pop, aes(x=x, y=dx, colour=y)) +
+  scale_color_brewer("", palette="Dark2") +
+  geom_vline(xintercept=0, colour="grey40", linetype=2) +
+  ylab("density") + ggtitle("Population") +
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=x, fill=factor(y))) +
+        geom_histogram(binwidth=0.67, alpha=0.8) +
+  scale_fill_brewer("", palette="Dark2") +
+  scale_colour_brewer("", palette="Dark2") +
+  facet_wrap(~y, ncol=2, scales="free_y") +
+  geom_vline(data=df_means, aes(xintercept=x,
+                                colour=y), linetype=2) +
+  geom_vline(xintercept=0, colour="grey40", linetype=2) +
+  ggtitle("Data") +
+  theme(legend.position="none")
+ggarrange(p1, p2, ncol=1)
+```
+
+:::
+::::
+
+## LDA with $p=1$ predictors [4/4]{.smallest}
+
+:::: {.columns}
+::: {.column}
+A simplification of $p_k(x_0)$ yields the [discriminant functions]{.monash-orange2}, $\delta_k(x_0)$:
+
+$$\delta_k(x_0) = x_0 \frac{\mu_k}{\sigma^2} - \frac{\mu_k^2}{2 \sigma^2} + log(\pi_k)$$
+from which the LDA rule will assign $x_0$ to the class $k$ with the largest value.
+:::
+::: {.column .smallest}
+
+Let $K=2$, then the rule reduces to assign $x_0$ to class `A` if 
+
+\begin{align*}
+& \frac{\pi_A \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_A)^2 \right) }{ \sum_{l = 1}^2 \pi_l \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_l)^2 \right) } >  \frac{\pi_B \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_B)^2 \right) }{ \sum_{l = 1}^2 \pi_l \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x - \mu_l)^2 \right) }\\
+      &\longrightarrow \pi_A \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x_0 - \mu_A)^2 \right) > \pi_B \frac{1}{\sqrt{2 \pi} \sigma} \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x_0 - \mu_B)^2 \right)\\
+      &\longrightarrow \pi_A \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x_0 - \mu_A)^2 \right) > \pi_B \text{exp}~ \left( - \frac{1}{2 \sigma^2} (x_0 - \mu_B)^2 \right) \\
+      &\longrightarrow \log \pi_A - \frac{1}{2 \sigma^2} (x_0 - \mu_A)^2 > \log \pi_B - \frac{1}{2 \sigma^2} (x_0 - \mu_B)^2\\
+      &\longrightarrow \log \pi_A - \frac{1}{2 \sigma^2} (x_0^2 - 2x_0\mu_A + \mu_A^2) > \log \pi_B - \frac{1}{2 \sigma^2} (x_0^2 - 2x_0\mu_B + \mu_B^2) \\
+      &\longrightarrow \log \pi_A - \frac{1}{2 \sigma^2} (-2x_0\mu_A  + \mu_A^2) > \log \pi_B - \frac{1}{2 \sigma^2} (-2x_0\mu_B  + \mu_B^2) \\
+      &\longrightarrow \log \pi_A +  \frac{x_0\mu_A}{\sigma^2} - \frac{\mu_A^2}{\sigma^2} > \log \pi_B +  \frac{x_0\mu_B}{\sigma^2} - \frac{\mu_B^2}{\sigma^2} \\
+      &\longrightarrow \underbrace{x_0\frac{\mu_A}{\sigma^2} - \frac{\mu_A^2}{\sigma^2} + \log \pi_A}_{\text{Discriminant function for class A}} > \underbrace{x_0\frac{\mu_B}{\sigma^2} - \frac{\mu_B^2}{\sigma^2} + \log \pi_B}_{\text{Discriminant function for class B}}
+\end{align*}
+
+:::
+::::
+
+
+## Multivariate LDA, $p>1$
+
+A $p$-dimensional random variable $X$ has a multivariate Gaussian distribution with mean $\mu$ and variance-covariance $\Sigma$, we write $X \sim N(\mu, \Sigma)$.
+
+The multivariate normal density function is:
+
+$$f(x) = \frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}} \exp\{-\frac{1}{2}(x-\mu)^\top\Sigma^{-1}(x-\mu)\}$$
+
+with $x, \mu$ are $p$-dimensional vectors, $\Sigma$ is a $p\times p$ variance-covariance matrix.
+
+## Multivariate LDA, $K=2$
+
+The discriminant functions are:
+
+$$\delta_k(x) = x^\top\Sigma^{-1}\mu_k - \frac{1}{2}\mu_k^\top\Sigma^{-1}\mu_k + \log(\pi_k)$$
+
+and Bayes classifier is [assign a new observation]{.monash-orange2} $x_0$ [to the class with the highest]{.monash-orange2} $\delta_k(x_0)$.
+
+When $K=2$ and $\pi_A=\pi_B$ this reduces to
+
+Assign observation $x_0$ to class `A` if
+
+$$x_0^\top\underbrace{\Sigma^{-1}(\mu_A-\mu_B)}_{dimension~reduction} > \frac{1}{2}(\mu_A+\mu_B)^\top\underbrace{\Sigma^{-1}(\mu_A-\mu_B)}_{dimension~reduction}$$
+
+[NOTE: Class A and B need to be mapped to the classes in the your data. The class "to the right" on the reduced dimension will correspond to class `A` in this equation.]{.monash-blue2 .smaller}
+
+## Computation
+
+<br><br>
+Use sample mean $\bar{x}_k$ to estimate $\mu_k$, and  
+<br><br>
+
+to estimate $\Sigma$ use the [pooled variance-covariance]{.monash-orange2}:
+
+$$
+S = \frac{n_1S_1 + n_2S_2+ \dots +n_kS_k}{n_1+n_2+\dots +n_k}
+$$
+
+
+
+
+## Example: penguins [1/3]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+Summary statistics
+
+```{r}
+#| echo: false
+#| out-width: 80%
+p_sub <- p_tidy |>
+  filter(species != "Chinstrap") |>
+  mutate(species = factor(species)) |>
+  select(species, bm, bd)
+p_sub |>
+  group_by(species) |>
+  summarise_if(is.numeric, mean)
+cov(p_sub[p_sub$species == "Adelie",-1])
+cov(p_sub[p_sub$species == "Gentoo",-1])
+
+p_sub |>
+  ggplot(aes(x=bd, y=bm, colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1")
+```
+
+:::
+::: {.column}
+```{r}
+library(discrim)
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS", prior = c(0.5, 0.5))
+lda_fit <- lda_spec |> 
+  fit(species ~ bm + bd, data = p_sub)
+
+lda_fit
+```
+
+::: {.fragment}
+[Recommendation: standardise the variables before fitting model, even though it is not necessary for LDA.]{.monash-blue2 .smaller}
+:::
+
+:::
+::::
+
+## Example: penguins [2/3]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+Summary statistics
+
+```{r}
+#| echo: false
+#| out-width: 80%
+p_sub <- p_sub |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) 
+p_sub |>
+  group_by(species) |>
+  summarise_if(is.numeric, mean)
+cov(p_sub[p_sub$species == "Adelie",-1])
+cov(p_sub[p_sub$species == "Gentoo",-1])
+
+p_sub |>
+  ggplot(aes(x=bd, y=bm, colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1")
+```
+
+:::
+::: {.column}
+```{r}
+library(discrim)
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS", prior = c(0.5, 0.5))
+lda_fit <- lda_spec |> 
+  fit(species ~ bm + bd, data = p_sub)
+
+lda_fit
+```
+:::
+
+[Easier to see that both variables contribute almost equally to the classification.]{.monash-orange2}
+
+::::
+
+## Example: penguins [3/3]{.smallest}
+
+:::: {.columns}
+::: {.column .smaller}
+
+$$
+S^{-1}(\bar{x}_A - \bar{x}_B)
+$$
+```{r}
+S1 <- cov(p_sub[p_sub$species == "Adelie",-1])
+S2 <- cov(p_sub[p_sub$species == "Gentoo",-1])
+Sp <- (S1+S2)/2
+Sp
+Spinv <- solve(Sp)
+Spinv
+m1 <- as.matrix(lda_fit$fit$means[1,], ncol=1)
+m1
+m2 <- as.matrix(lda_fit$fit$means[2,], ncol=1)
+m2
+Spinv %*% (m1-m2)
+```
+:::
+::: {.column .smaller}
+
+$$
+x_0 S^{-1}(\bar{x}_A - \bar{x}_B) > \frac{\bar{x}_A + \bar{x}_B}{2} S^{-1}(\bar{x}_A - \bar{x}_B)
+$$
+
+```{r}
+(m1 + m2)/2
+
+matrix((m1 + m2)/2, ncol=2) %*% Spinv %*% (m1-m2)
+```
+
+If $x_0$ is `r p_sub[1,-1]`, what species is it? 
+
+::: {.fragment}
+```{r}
+as.matrix(p_sub[1,-1]) %*% Spinv %*% (m1-m2)
+```
+
+Is Adelie class A or is Gentoo class A?
+:::
+
+::: {.fragment}
+
+Check by plugging in the means
+
+```{r}
+t(m1) %*% Spinv %*% (m1-m2)
+```
+
+:::
+
+::: {.fragment}
+```{r}
+predict(lda_fit, p_sub[1,-1])$.pred_class
+```
+:::
+:::
+::::
+
+## Dimension reduction {.transition-slide .center}
+
+## Dimension reduction via LDA
+
+[Discriminant space]{.monash-orange2}: LDA also provides a low-dimensional projection of the $p$-dimensional space, where the groups are the most separated. For $K=2$, this is
+
+::: {.info}
+
+$$
+\Sigma^{-1}(\mu_A-\mu_B)
+$$
+
+The distance between means relative to the variance-covariance, ie Mahalanobis distance.
+
+:::
+
+
+
+## Discriminant space
+
+The dashed lines are the Bayes decision boundaries. Ellipses
+that contain 95% of the probability for each of the three classes are shown. Solid line corresponds to the class boundaries from the LDA model fit to the sample.
+
+<center>
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.6.pdf" target="_BLANK"> <img src="../images/4.6.png" style="width: 80%; align: center"/> </a>
+</center>
+
+[(Chapter4/4.6.pdf)]{.smallest}
+
+## Discriminant space: using sample statistics
+
+::: {.info}
+[Discriminant space]{.monash-orange2}: is the low-dimensional space ($(K-1)$-dimensional) where the class means are the furthest apart relative to the common variance-covariance.
+:::
+
+The discriminant space is provided by the eigenvectors after making an eigen-decomposition of $W^{-1}B$, where
+
+$$
+B = \frac{1}{K}\sum_{i=1}^{K} (\bar{x}_i-\bar{x})(\bar{x}_i-\bar{x})^\top
+~~~\text{and}~~~
+W = \frac{1}{K}\sum_{k=1}^K\frac{1}{n_k}\sum_{i=1}^{n_k} (x_i-\bar{x}_k)(x_i-\bar{x}_k)^\top
+$$
+
+Note $W$ is the (unweighted) pooled variance-covariance matrix. 
+
+
+##
+
+:::: {.columns}
+::: {.column}
+
+### Mahalanobis distance
+
+For two $p$-dimensional vectors, Euclidean distance is
+
+$$d(x,y) = \sqrt{(x-y)^\top(x-y)}$$
+and Mahalanobs distance is
+
+$$d(x,y) = \sqrt{(x-y)^\top\Sigma^{-1}(x-y)}$$
+
+Which points are closest according to [Euclidean]{.monash-orange2} distance?
+Which points are closest relative to the [variance-covariance]{.monash-orange2}?
+
+:::
+::: {.column}
+
+```{r}
+#| echo: false
+# Utility functions
+f.norm.vec<-function(x) {
+  x<-x/f.norm(x)
+  x
+}
+f.norm<-function(x) { sqrt(sum(x^2)) }
+f.gen.sphere<-function(n=100,p=5) {
+  x<-matrix(rnorm(n*p),ncol=p)
+  xnew<-t(apply(x,1,f.norm.vec))
+  xnew
+}
+f.vc.ellipse <- function(vc, xm, n=500) {
+  p<-ncol(vc)
+  x<-f.gen.sphere(n,p)
+
+  evc<-eigen(vc)
+  vc2<-(evc$vectors)%*%diag(sqrt(evc$values))%*%t(evc$vectors)
+  x<-x%*%vc2
+
+  x + matrix(rep(xm, each=n),ncol=p)
+}
+df <- f.vc.ellipse(vc=matrix(c(1,1.2,1.2,2), ncol=2), xm=c(0,0), n=1000)
+df <- as_tibble(df)
+```
+
+```{r}
+#| echo: false
+pts <- tibble(V1=c(0, -0.5, -0.8), V2=c(0, 0.5, -1.1), label=c("A", "B", "C"))
+ggplot(df, aes(x=V1, y=V2)) + geom_point() + 
+  geom_point(data=pts, aes(x=V1, y=V2, colour=label)) +
+  geom_text(data=pts, aes(x=V1, y=V2, label=label), nudge_x = 0.1, nudge_y = 0.1) +
+  scale_colour_brewer("", palette="Dark2") +
+  xlim(c(-1.5, 1.5)) + ylim(c(-1.5, 1.5)) +
+  theme(legend.position = "none", aspect.ratio=1)
+```
+
+:::
+::::
+
+## Discriminant space
+
+In the means of scenarios 1 and 2 are the same, but the variance-covariances are different. The calculated [discriminant space]{.monash-fuchsia2} is different for different variance-covariances.
+
+```{r}
+#| echo: false
+#| out-width: 50%
+#| fig-width: 8
+df1 <- f.vc.ellipse(vc=matrix(c(1,1.2,1.2,2), ncol=2), xm=c(0,0), n=1000)
+df1 <- as_tibble(df1)
+df2 <- f.vc.ellipse(vc=matrix(c(1,-0.3,-0.3,0.5), ncol=2), xm=c(0,0), n=1000)
+df2 <- as_tibble(df2)
+means <- tibble(V1=c(0.5, -0.5), V2=c(-0.5, 0.5), label=c("mu1", "mu2"))
+
+df3 <- df1 |> mutate(V1=V1+means$V1[1], 
+                      V2=V2+means$V2[1])
+df4 <- df1 |> mutate(V1=V1+means$V1[2], 
+                      V2=V2+means$V2[2])
+df <- bind_rows(df3, df4)
+p1 <- ggplot(df, aes(x=V1, y=V2)) + geom_point() + 
+  geom_point(data=means, aes(x=V1, y=V2, colour=label)) +
+  geom_text(data=means, aes(x=V1, y=V2, label=label), nudge_x = 0.2, nudge_y = 0.2) +
+  geom_abline(intercept=0, slope=-0.67, colour="purple") +
+  scale_colour_brewer("", palette="Dark2") +
+  xlim(c(-2, 2)) + ylim(c(-2, 2)) +
+  theme(legend.position = "none", aspect.ratio=1) +
+  ggtitle("Scenario 1")
+df3 <- df2 |> mutate(V1=V1+means$V1[1], 
+                      V2=V2+means$V2[1])
+df4 <- df2 |> mutate(V1=V1+means$V1[2], 
+                      V2=V2+means$V2[2])
+df <- bind_rows(df3, df4)
+p2 <- ggplot(df, aes(x=V1, y=V2)) + geom_point() + 
+  geom_point(data=means, aes(x=V1, y=V2, colour=label)) +
+  geom_text(data=means, aes(x=V1, y=V2, label=label), nudge_x = 0.2, nudge_y = 0.2) +
+  geom_abline(intercept=0, slope=3.03, colour="purple") +
+  scale_colour_brewer("", palette="Dark2") +
+  xlim(c(-2, 2)) + ylim(c(-2, 2)) +
+  theme(legend.position = "none", aspect.ratio=1) +
+  ggtitle("Scenario 2")
+p1 + p2
+```
+
+```{r eval=FALSE}
+#| echo: false
+# This code helps estimate the slope in the above diagram
+mydat1 <- data.frame(rbind(rmvnorm(250, mean=c(0.5, -0.5), sigma=matrix(c(1,1.2,1.2,2), ncol=2)),
+                rmvnorm(250, mean=c(-0.5, 0.5), sigma=matrix(c(1,1.2,1.2,2), ncol=2))))
+mydat1$class <- c(rep(1, 250), rep(2, 250))
+lda(class~X1+X2, data=mydat1)
+
+mydat2 <- data.frame(rbind(
+  rmvnorm(250, mean=c(0.5, -0.5), sigma=matrix(c(1,-0.3,-0.3,0.5), ncol=2)),
+  rmvnorm(250, mean=c(-0.5, 0.5), sigma=matrix(c(1,-0.3,-0.3,0.5), ncol=2))))
+mydat2$class <- c(rep(1, 250), rep(2, 250))
+lda(class~X1+X2, data=mydat2)
+```
+
+[Notice: Means for groups are different, and variance-covariance for each group are the same.]{.smaller}
+
+## Quadratic Discriminant Analysis {.transition-slide .center}
+
+If the groups have different variance-covariance matrices, but still come from a normal distribution
+
+## Quadratic DA (QDA)
+
+If the variance-covariance matrices for the groups are [NOT EQUAL]{.monash-orange2}, then the discriminant functions are:
+
+$$\delta_k(x) = x^\top\Sigma_k^{-1}x + x^\top\Sigma_k^{-1}\mu_k - \frac12\mu_k^\top\Sigma_k^{-1}\mu_k - \frac12 \log{|\Sigma_k|} + \log(\pi_k)$$
+
+where $\Sigma_k$ is the population variance-covariance for class $k$, estimated by the sample variance-covariance $S_k$, and $\mu_k$ is the population mean vector for class $k$, estimated by the sample mean $\bar{x}_k$.
+
+## Quadratic DA (QDA)
+
+A quadratic boundary is obtained by relaxing the assumption of equal variance-covariance, and assume that $\Sigma_k \neq \Sigma_l, ~~k\neq l, k,l=1,...,K$
+
+<center>
+<a href="http://www-bcf.usc.edu/~gareth/ISL/Chapter4/4.9.pdf" target="_BLANK"> <img src="../images/4.9.png" style="width: 80%; align: center"/> </a>
+</center>
+
+[true]{.monash-purple2}, LDA, [QDA]{.monash-green2}. 
+
+[(Chapter4/4.9.pdf)]{.smallest}
+
+## QDA: Olive oils example
+
+:::: {.columns}
+::: {.column}
+
+```{r results='hide'}
+#| echo: false
+olive <- read_csv("http://ggobi.org/book/data/olive.csv") |>
+  dplyr::filter(region != 1) |>
+  dplyr::select(region, arachidic, linoleic) |>
+  dplyr::mutate(region = factor(region))
+
+set.seed(775)
+olive_split <- initial_split(olive, 2/3, strata = region)
+olive_train <- analysis(olive_split)
+olive_test <- assessment(olive_split)
+
+olive_qda_fit <- qda(region ~ ., 
+      data = olive_train)
+# olive_qda_fit
+
+olive_train <- olive_train |>
+  mutate(pred = predict(olive_qda_fit, olive_train)$class)
+olive_test <- olive_test |>
+  mutate(pred = predict(olive_qda_fit, olive_test)$class)
+metrics(olive_train, truth = region, 
+        estimate = pred) |>
+  kable(caption = "Training") |>
+  kable_styling(full_width = FALSE)
+metrics(olive_test, truth = region, 
+        estimate = pred) |>
+  kable(caption = "Test") |>
+  kable_styling(full_width = FALSE)
+```
+
+Even if the population is NOT normally distributed, QDA might do reasonably. On this data, region 3 has a "banana-shaped" variance-covariance, and region 2 has two separate clusters. The quadratic boundary though does well to carve the space into neat sections dividing the two regions.
+
+:::
+::: {.column}
+
+```{r}
+#| out-width: "100%"
+#| fig-width: 4
+#| fig-height: 4
+#| echo: false
+olive_grid <- expand_grid(arachidic = seq(0, 105, 2.5),
+                    linoleic = seq(500, 1500, 20))
+olive_grid <- olive_grid |>
+  mutate(pred = predict(olive_qda_fit, olive_grid)$class)
+
+ggplot() +
+  geom_point(data=olive_grid, 
+             aes(x=arachidic, y=linoleic, colour=pred), 
+             size=2) + 
+  geom_point(data=olive, 
+             aes(x=arachidic, y=linoleic, shape=region),
+             size = 2, alpha=0.7) +
+  scale_colour_brewer(palette="Dark2") +
+  theme_bw() + theme(legend.position = "bottom")
+
+```
+:::
+::::
+
+## Checking the assumptions for LDA and QDA [1/2]{.smallest}
+
+Check the shape of the variability of each group could be considered to be elliptical, and the size is same for LDA but different to use QDA.
+
+:::: {.columns}
+::: {.column}
+<center>
+
+GOOD
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-assumptions1-1.png){}
+</center>
+:::
+
+::: {.column}
+<center>
+
+BAD
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-assumptions2-1.png){}
+</center>
+
+:::
+
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
+
+## Checking the assumptions for LDA and QDA [2/2]{.smallest}
+
+This can also be done for $p>2$.
+
+:::: {.columns}
+::: {.column}
+<center>
+
+DATA
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda1.gif){fig-alt="Animation showing a tour of the penguins data, with colour indicating species. The spread of points in each group is reasonably similar regardless of projection."}
+</center>
+:::
+
+::: {.column}
+<center>
+
+POINTS ON SURFACE OF ELLIPSES
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda2.gif){fig-alt="Animation showing a tour of the penguins data, with colour indicating species. The spread of points in each group is reasonably similar regardless of projection."}
+</center>
+
+:::
+
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
+
+## Plotting the model
+
+:::: {.columns}
+::: {.column}
+
+<center>
+Data-in-the-model-space
+
+![](https://dicook.github.io/mulgar_book/14-lda_files/figure-html/fig-lda-2D-boundaries-1.png){width=80%}
+</center>
+:::
+
+::: {.column}
+<center>
+Model-in-the-data-space
+
+![](https://dicook.github.io/mulgar_book/gifs/penguins_lda_boundaries.gif)
+
+</center>
+:::
+::::
+
+[from [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/)]{.smallest}
+
+## Next: Trees and forests {.transition-slide .center}
+
+
