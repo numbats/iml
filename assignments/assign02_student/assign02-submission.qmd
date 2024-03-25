@@ -1,0 +1,39 @@
+---
+title: "ETC3250/5250 Assignment 2"
+author: "YOUR NAME"
+date: "2024-04-12"
+quarto-required: ">=1.3.0"
+format:
+    html:
+        output-file: assign02-submission.html
+        css: "assignment.css"
+---
+
+<!-- Guide to using quarto at https://quarto.org/docs/get-started/hello/rstudio.html -->
+
+## Exercises
+
+#### 1. Bootstrapping your way to provide evidence (8pts)
+
+YOUR ANSWER HERE
+
+#### 2. How is your thinking about simple classifiers? (10pts)
+
+YOUR ANSWER HERE
+
+#### 3. How well can you build a simple classifier? (18pts)
+
+YOUR ANSWER HERE
+
+## References
+
+Hadley Wickham, Dianne Cook, Heike Hofmann, Andreas Buja
+  (2011). tourr: An R Package for Exploring Multivariate
+  Data with Projections. Journal of Statistical Software,
+  40(2), 1-18. URL http://www.jstatsoft.org/v40/i02/.
+  
+Kuhn et al., (2020). Tidymodels: a collection of
+  packages for modeling and machine learning using
+  tidyverse principles. https://www.tidymodels.org  
+  
+OpenAI (2023). ChatGPT (version 3.5) [Large language model]. https://chat.openai.com/chat, full script of conversation [here]( https://chat.openai.com/share/746c4f77-9b7b-4c3b-867a-826f639b91aa)

@@ -18,6 +18,8 @@ library(discrim)
 library(classifly)
 library(ggthemes)
 library(xgboost)
+library(uwot)
+library(Rtsne)
 
 # Locations
 current_file <- knitr::current_input()
