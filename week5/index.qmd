@@ -39,7 +39,6 @@ Instructions:
 - [html](https://iml.numbat.space/week5/tutorial.html)
 - [qmd](https://iml.numbat.space/week5/tutorial.qmd)
 
-## Assignments
 
 ```{r}
 #| output: asis

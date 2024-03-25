@@ -4,7 +4,7 @@
     "href": "next-time.html",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "",
-    "text": "Quizzes\n\nq02_6a,b Write out matrices as\nhtml\nremove the FALSE/TRUE list because it doesn’t get permuted and is confusing in feedback\nweek 4 quiz needs matrices in answer better formatted automatically\n\nLectures\nweek 4: - add the simple explanation of LDA and QDA - replace the ISLR figures - add high-dimension affect on LDA structure, importance of training/test, and regularisation alternatives - better integrate the checks on assumptions"
+    "text": "Quizzes\n\nq02_6a,b Write out matrices as\nhtml\nremove the FALSE/TRUE list because it doesn’t get permuted and is confusing in feedback\nweek 4 quiz needs matrices in answer better formatted automatically\n\nLectures\nweek 4: - add the simple explanation of LDA and QDA - replace the ISLR figures - add high-dimension affect on LDA structure, importance of training/test, and regularisation alternatives - better integrate the checks on assumptions - fix LDA math, to include /2 on constant term"
   },
   {
     "objectID": "week8/index.html",
@@ -928,7 +928,7 @@
     "href": "index.html#assessments",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Assessments",
-    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle: 9%\nAssignment 2: 9%\nAssignment 3: 9%\nProject: 10%\nFinal exam: 60%"
+    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle (9%)\nAssignment 2: Instructions, Submit to moodle (9%)\nAssignment 3: Instructions, Submit to moodle (9%)\nProject: 10%\nFinal exam: 60%"
   },
   {
     "objectID": "index.html#software",
@@ -2123,13 +2123,6 @@
   {
     "objectID": "week5/index.html#assignments",
     "href": "week5/index.html#assignments",
-    "title": "Week 5: Trees and forests",
-    "section": "Assignments",
-    "text": "Assignments"
-  },
-  {
-    "objectID": "week5/index.html#assignments-1",
-    "href": "week5/index.html#assignments-1",
     "title": "Week 5: Trees and forests",
     "section": "Assignments",
     "text": "Assignments\n\nAssignment 2 is due on Friday 12 April."
