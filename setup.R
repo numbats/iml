@@ -20,6 +20,7 @@ library(ggthemes)
 library(xgboost)
 library(uwot)
 library(Rtsne)
+library(plotly)
 
 # Locations
 current_file <- knitr::current_input()
@@ -66,6 +67,7 @@ conflicts_prefer(dplyr::slice)
 conflicts_prefer(palmerpenguins::penguins)
 conflicts_prefer(tourr::flea)
 conflicts_prefer(viridis::viridis_pal)
+conflicts_prefer(latex2exp::TeX)
 
 p_tidy <- penguins |>
   select(species, bill_length_mm:body_mass_g) |>
