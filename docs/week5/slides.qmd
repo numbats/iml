@@ -1,0 +1,1207 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 5: Trees and forests"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 4 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+library(ggpubr)
+library(kableExtra)
+```
+
+## Overview
+
+We will cover:
+
+* Classification trees, algorithm, stopping rules
+* Difference between algorithm and parametric methods, especially trees vs LDA
+* Forests: ensembles of bagged trees
+* Diagnostics: vote matrix, variable importance, proximity
+* Boosted trees
+
+## Trees {.transition-slide .center}
+
+[[Nice explanation of trees, forests, boosted trees](https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/)]{.f50}
+
+## Algorithm: growing a tree
+
+:::: {.columns}
+::: {.column style="font-size: 90%"}
+
+1. All observations in a single set
+2. [Sort]{.monash-blue2} values on first variable
+3. Compute the chosen [split criteria]{.monash-blue2} for all possible splits into two sets
+4. Choose the best split on this variable. Save this info.
+5. Repeat 2-4 for all other variables
+6. Choose the [best variable]{.monash-blue2} to split on, based on the best split. Your data is now in two sets. 
+7. Repeat 1-6 on each subset.
+8. [Stop]{.monash-blue2} when stopping rule that decides that the best  classification model is achieved. 
+:::
+::: {.column style="font-size: 90%"}
+
+::: {.fragment}
+**Pros and cons**:
+
+- Trees are a very [flexible]{.monash-green2} way to fit a classifier.
+- They can 
+    - utilise [different types]{.monash-green2} of predictor variables
+    - ignore [missing values]{.monash-green2}
+    - handle different units or scales on variables
+    - capture intricate patterns
+- However, they operate on a per variable basis, and [do not effectively]{.monash-orange2} model separation when a [combination of variables]{.monash-orange2} is needed.
+
+:::
+:::
+::::
+
+## Common split criteria
+
+:::: {.columns}
+::: {.column}
+
+#### Classification
+
+- The [Gini index]{.monash-blue2} measures is defined as:
+	$$G = \sum_{k =1}^K \widehat{p}_{mk}(1 - \widehat{p}_{mk})$$
+- [Entropy]{.monash-blue2} is defined as
+	$$D = - \sum_{k =1}^K \widehat{p}_{mk} log(\widehat{p}_{mk})$$ 
+[What corresponds to a high value, and what corresponds to a low value?]{.monash-orange2}
+	
+:::
+
+::: {.column}
+
+#### Regression
+
+Define 
+
+$$\mbox{MSE} = \frac{1}{n}\sum_{i=1}^{n} (y_i - \widehat{y}_i)^2$$
+
+Split the data where combining MSE for left bucket (MSE_L) and right bucket (MSE_R), makes the [biggest reduction from the overall MSE]{.monash-blue2}.
+
+:::
+::::
+
+## Illustration [(1/2)]{.f70}
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| echo: false
+set.seed(65)
+df <- tibble(x = sort(sample(10:90, 7)), 
+             cl = factor(c("A", "A", "B", "A", 
+                           "A", "B", "B")))
+df %>% kable() %>% 
+  kable_styling(bootstrap_options = 
+                  c("striped", full_width = F))
+```
+
+**Note**: x is [sorted]{.monash-blue2} from lowest to highest!
+
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+All possible splits shown by vertical lines
+
+```{r fig.width=5, fig.height=3, out.width="100%"}
+#| echo: false
+possible_splits <- df$x[-7] + 
+  diff(df$x, lag = 1, differences = 1)/2
+ggplot(df, aes(x=x, y=cl, colour=cl)) + 
+  geom_point() +
+  geom_vline(xintercept = possible_splits, 
+             colour = "#6F7C4D",
+             linetype = 2) +
+  annotate("text", x = possible_splits, y=2.25, 
+           label = 1:6, 
+           colour = "#6F7C4D", 
+           hjust=0.05) +
+  scale_colour_discrete_divergingx(
+    palette = "Zissou 1") +
+  ylab("") +
+  theme(legend.position="none", aspect.ratio = 0.6)
+```
+
+What do you think is the best [split]{.monash-olive2}? [2, 3 or 5]{.monash-olive2}??
+:::
+
+:::
+
+::::
+
+## Illustration [(2/2)]{.f70}
+
+:::: {.columns}
+::: {.column style="font-size: 70%"}
+
+#### Calculate the impurity for split 5 
+The [left]{.monash-orange2} bucket is
+
+```{r}
+#| echo: false
+df %>%
+  slice(1:5) %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+
+and the [right]{.monash-orange2} bucket is
+
+```{r}
+#| echo: false
+df %>%
+  slice(6:7) %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+
+:::
+::: {.column style="font-size: 70%"}
+
+Using Gini $G = \sum_{k =1}^K \widehat{p}_{mk}(1 - \widehat{p}_{mk})$
+
+[Left]{.monash-orange2} bucket: 
+
+$$\widehat{p}_{LA} = 4/5, \widehat{p}_{LB} = 1/5, ~~ p_L = 5/7$$
+
+$$G_L=0.8(1-0.8)+0.2(1-0.2) = 0.32$$
+
+[Right]{.monash-orange2} bucket: 
+
+$$\widehat{p}_{RA} = 0/2, \widehat{p}_{RB} = 2/2, ~~ p_R = 2/7$$
+
+$$G_R=0(1-0)+1(1-1) = 0$$
+Combine with weighted sum to get [impurity for the split]{.monash-orange2}:
+
+$$5/7G_L + 2/7G_R=0.32$$
+
+<br><br>
+[**Your turn**: Compute the impurity for split 2.]{.monash-blue2}
+:::
+::::
+
+## 
+
+:::: {.columns}
+::: {.column}
+
+**Splits on categorical variables**
+
+```{r fig.width=5, fig.height=3, out.width="100%"}
+#| echo: false
+df_c <- tibble(x=c("emu", "emu", "roo", "roo", "koala", "koala"),
+               cl=c("WA", "Vic", "WA", "Vic", "WA", "Vic"),
+               count=c(5,3,7,1,2,6))
+ggplot(df_c, aes(x=x, y=count, fill=cl)) + 
+  geom_col() +
+  xlab("") + ylab("") +
+  scale_fill_discrete_divergingx() +
+  theme(axis.text.y = element_blank())
+```
+
+
+Possible best split would be [if koala then assign to Vic else assign to WA]{.monash-blue2}, because Vic has more koalas but and WA has more emus and roos.
+
+:::
+::: {.column style="font-size: 70%"}
+
+**Dealing with missing values on predictors**
+
+```{r}
+#| echo: false
+set.seed(87)
+df_m <- tibble(x1 = sample(10:20, 8), 
+               x2 = sample(-10:0, 8),
+               x3 = sample(21:37, 8),
+               x4 = sample(-35:(-23), 8),
+               y=c("A", "A", "B", "A", "A", "B", "B", "B")) 
+df_m$x1[2] <- NA
+df_m$x2[3] <- NA
+df_m$x3[5] <- NA
+df_m$x4[6] <- NA
+df_m %>% kable() %>% 
+  kable_styling(bootstrap_options = c("striped", full_width = F))
+```
+
+50% of cases have missing values. [Trees]{.monash-blue2} ignore missings only on a [single variable]{.monash-blue2}. 
+
+::: {.fragment}
+[Every other method ignores a full observation]{.monash-orange2} if missing on any variable. That is, would only be able to use half the data.
+:::
+
+:::
+::::
+
+## Example: penguins [1/3]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 6
+#| out-width: 80%
+p_sub <- p_tidy |>
+  filter(species != "Gentoo") |>
+  mutate(species = factor(species)) |>
+  select(species, bl, bm)
+
+p_sub |>
+  ggplot(aes(x=bl, y=bm, colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(
+    palette = "Zissou 1") +
+  theme(legend.position="bottom")
+```
+:::
+
+::: {.column style="font-size: 80%"}
+
+```{r}
+set.seed(1156)
+p_split <- initial_split(p_sub, 2/3, strata=species)
+p_tr <- training(p_split)
+p_ts <- testing(p_split)
+
+tree_spec <- decision_tree() |>
+  set_mode("classification") |>
+  set_engine("rpart")
+
+p_fit_tree <- tree_spec |>
+  fit(species~., data=p_tr)
+
+p_fit_tree
+```
+
+::: {.fragment}
+<br><br>
+[Can you draw the tree?]{.monash-orange2}
+:::
+
+:::
+
+::::
+
+## Stopping rules
+
+- [Minimum split]{.monash-orange2}: number of observations in a node, in order for a split to be made
+- [Minimum bucket]{.monash-orange2}: Minimum number of observations allowed in a terminal node
+- [Complexity parameter]{.monash-orange2}: minimum difference between impurity values required to continue splitting
+
+## Example: penguins [2/3]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+Defaults for `rpart` are:
+
+<br>
+
+```
+rpart.control(minsplit = 20, 
+  minbucket = round(minsplit/3), 
+  cp = 0.01, 
+  maxcompete = 4, 
+  maxsurrogate = 5, 
+  usesurrogate = 2, 
+  xval = 10,
+  surrogatestyle = 0, maxdepth = 30, 
+  ...)
+```
+
+:::
+::: {.column}
+
+```{r}
+tree_spec <- decision_tree() |>
+  set_mode("classification") |>
+  set_engine("rpart",
+             control = rpart.control(minsplit = 10), 
+             model=TRUE)
+
+p_fit_tree <- tree_spec |>
+  fit(species~., data=p_tr)
+
+p_fit_tree
+```
+
+:::
+::::
+
+## Example: penguins [3/3]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 6
+#| out-width: 80%
+p_tr |>
+  ggplot(aes(x=bl, y=bm, colour=species)) +
+  geom_point(shape=1) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  annotate("segment", x=43, xend=43, 
+           y=3388, yend=3825, linetype=2) +
+  annotate("segment", x=41, xend=41, 
+           y=2700, yend=3388, linetype=2) +
+  annotate("segment", x=41, xend=43, 
+           y=3388, yend=3388, linetype=2) +
+  annotate("segment", x=46, xend=46, 
+           y=3825, yend=4800, linetype=2) +
+  annotate("segment", x=43, xend=46, 
+           y=3825, yend=3825, linetype=2) +  
+  theme(legend.position="bottom")
+```
+
+:::
+::: {.column}
+
+```{r}
+
+p_fit_tree |>
+  extract_fit_engine() |>
+  rpart.plot(type=3, extra=1)
+```
+
+:::
+::::
+
+## Example: penguins [3/4]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+Model fit summary
+
+```{r}
+#| echo: false
+p_ts_pred <- p_ts |>
+  mutate(pspecies = predict(p_fit_tree$fit, 
+                            p_ts, 
+                            type="class"))
+accuracy(p_ts_pred, species, pspecies)
+p_ts_pred |>
+  count(species, pspecies) |>
+  group_by(species) |>
+  mutate(Accuracy = n[species==pspecies]/sum(n)) |>
+  pivot_wider(names_from = "pspecies", 
+              values_from = n) |>
+  select(species, Adelie, Chinstrap, Accuracy)
+bal_accuracy(p_ts_pred, species, pspecies)
+```
+
+<br>
+
+[Can you see the misclassified test cases?]{.monash-orange2}
+:::
+
+::: {.column}
+
+Model-in-the-data-space
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 6
+#| out-width: 80%
+p_all <- p_sub |>
+  mutate(set = ifelse(c(1:nrow(p_sub)) %in% p_split$in_id, "train", "test")) |>
+  mutate(set = factor(set, levels=c("train", "test")))
+p_all |>
+  ggplot(aes(x=bl, y=bm, colour=species, 
+             shape=set)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  annotate("segment", x=43, xend=43, 
+           y=3388, yend=3825, linetype=2) +
+  annotate("segment", x=41, xend=41, 
+           y=2700, yend=3388, linetype=2) +
+  annotate("segment", x=41, xend=43, 
+           y=3388, yend=3388, linetype=2) +
+  annotate("segment", x=46, xend=46, 
+           y=3825, yend=4800, linetype=2) +
+  annotate("segment", x=43, xend=46, 
+           y=3825, yend=3825, linetype=2) +  theme(legend.position="bottom",
+        legend.title = element_blank())
+```
+:::
+::::
+
+## Comparison with LDA
+
+::: {.columns}
+
+::: {.column}
+
+<center>Tree model</center>
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 70%
+p_explore <- explore(p_fit_tree$fit, p_all) |>
+  mutate(set = factor(c(rep(NA, 10000), p_all$set)))
+
+ggplot() +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "simulated",], 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "actual",], 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none")
+```
+
+<center>
+[Data-driven, only split on single variables]{.smallest}
+</center>
+
+:::
+::: {.column}
+
+<center> LDA model </center>
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 70%
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS")
+p_lda_fit <- lda_spec |> 
+  fit(species ~ ., data = p_tr)
+
+p_explore <- explore(p_lda_fit$fit, p_all) |>
+  mutate(set = factor(c(rep(NA, 10000), p_all$set)))
+
+ggplot() +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "simulated",], 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "actual",], 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none")
+```
+
+<center>
+[Assume normal, equal VC, oblique splits]{.smallest}
+</center>
+:::
+::::
+
+## Random forests {.transition-slide .center}
+
+## Overview 
+
+A random forest is an [ensemble]{.monash-blue2} classifier, built from fitting [multiple trees]{.monash-blue2} to [different subsets]{.monash-blue2} of the training data.
+
+```{r}
+#| echo: false
+#| fig-width: 15
+#| fig-height: 7
+#| out-width: 100%
+d <- as.data.frame(matrix(1, nrow=32, ncol=7))
+
+set.seed(529)
+d1 <- d 
+d1[sample(1:32, 11), ] <- 0
+d1[, sample(1:7, 3)] <- 0
+
+p1 <- d1 |> 
+  mutate(id = 1:32) |>
+  pivot_longer(V1:V7, names_to = "V", 
+               values_to = "value") |>
+  mutate(value = factor(value, 
+                        labels=c("out", "in"))) |>
+  ggplot(aes(x=V, y=id, fill=value)) +
+    geom_tile(colour="white") +
+    scale_fill_discrete_divergingx(palette="Cividis",
+                                   rev=1) +
+    ggtitle("Sample 1") +
+    theme(axis.title = element_blank(),
+          axis.text.y = element_blank(),
+          legend.title = element_blank()) 
+
+d1 <- d 
+d1[sample(1:32, 11), ] <- 0
+d1[, sample(1:7, 3)] <- 0
+
+p2 <- d1 |> 
+  mutate(id = 1:32) |>
+  pivot_longer(V1:V7, names_to = "V", 
+               values_to = "value") |>
+  mutate(value = factor(value, 
+                        labels=c("out", "in"))) |>
+  ggplot(aes(x=V, y=id, fill=value)) +
+    geom_tile(colour="white") +
+    scale_fill_discrete_divergingx(palette="Cividis",
+                                   rev=1) +
+    ggtitle("Sample 2") +
+    theme(axis.title = element_blank(),
+          axis.text.y = element_blank(),
+          legend.title = element_blank()) 
+  
+d1 <- d 
+d1[sample(1:32, 11), ] <- 0
+d1[, sample(1:7, 3)] <- 0
+
+p3 <- d1 |> 
+  mutate(id = 1:32) |>
+  pivot_longer(V1:V7, names_to = "V", 
+               values_to = "value") |>
+  mutate(value = factor(value, 
+                        labels=c("out", "in"))) |>
+  ggplot(aes(x=V, y=id, fill=value)) +
+    geom_tile(colour="white") +
+    scale_fill_discrete_divergingx(palette="Cividis",
+                                   rev=1) +
+    ggtitle("Sample 3") +
+    theme(axis.title = element_blank(),
+          axis.text.y = element_blank(),
+          legend.title = element_blank()) 
+
+p1 + p2 + p3 + plot_layout(ncol=3, guides = "collect")
+```
+
+
+## Bagging and variable sampling
+
+:::: {.columns}
+::: {.column}
+
+- Take $B$ different [bootstrapped]{.monash-blue2} training sets:
+$D_1, D_2, \dots, D_B$, each using a [sample of variables]{.monash-blue2}.
+- Build a separate prediction model using each $D_{(\cdot)}$:
+$$\widehat{f}_1(x), \widehat{f}_2(x), \dots, \widehat{f}_B(x)$$
+- Predict the **out-of-bag** cases for each tree, compute [proportion]{.monash-blue2} of trees a case was predicted to be each class. 
+- [Predicted value]{.monash-blue2} for each observation is the class with the highest proportion.
+
+
+:::
+
+::: {.column}
+
+::: {.fragment}
+- Each individual tree has [high variance]{.monash-orange2}. 
+- Aggregating the results from $B$ trees [reduces the variance]{.monash-orange2}. 
+:::
+
+:::
+::::
+
+## Comparison with a single tree and LDA
+
+::: {.columns}
+
+::: {.column width=33%}
+
+<center>Tree model</center>
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+p_explore <- explore(p_fit_tree$fit, p_all) |>
+  mutate(set = factor(c(rep(NA, 10000), p_all$set)))
+
+ggplot() +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "simulated",], 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "actual",], 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none")
+```
+
+<center>
+[Data-driven, only split on single variables]{.smallest}
+</center>
+
+:::
+
+::: {.column width=33%}
+
+<center> Random forest </center>
+
+```{r }
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+set.seed(632)
+rf_spec <- rand_forest(mtry=2, trees=1000) |>
+  set_mode("classification") |>
+  set_engine("randomForest")
+p_fit_rf <- rf_spec |> 
+  fit(species ~ ., data = p_tr)
+
+# explore() throws an error
+p_explore <- tibble(bl = runif(10000, 32, 58),
+                    bm = runif(10000, 2700, 4800)) 
+p_explore$species <- predict(p_fit_rf$fit, 
+                             p_explore,
+                           type="response")
+p_explore <- p_explore |>
+  select(species, bl, bm)
+
+ggplot() +
+  geom_point(data=p_explore, 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=p_all, 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none")
+```
+
+<center>
+[Data-driven, multiple trees gives non-linear fit]{.smallest}
+</center>
+:::
+
+::: {.column width=33%}
+
+<center> LDA model </center>
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS")
+p_lda_fit <- lda_spec |> 
+  fit(species ~ ., data = p_tr)
+
+p_explore <- explore(p_lda_fit$fit, p_all) |>
+  mutate(set = factor(c(rep(NA, 10000), p_all$set)))
+
+ggplot() +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "simulated",], 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=
+               p_explore[p_explore$.TYPE == 
+                           "actual",], 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none")
+```
+
+<center>
+[Assume normal, equal VC, oblique splits]{.smallest}
+</center>
+:::
+::::
+
+## Random forest fit and predicted values
+
+:::: {.columns}
+::: {.column}
+
+Fit
+
+```{r}
+#| eval: false
+rf_spec <- rand_forest(mtry=2, trees=1000) |>
+  set_mode("classification") |>
+  set_engine("randomForest")
+p_fit_rf <- rf_spec |> 
+  fit(species ~ ., data = p_tr)
+```
+
+```{r}
+#| echo: false
+p_fit_rf
+```
+
+:::
+
+::: {.column}
+Predicted values
+
+```{r}
+#| echo: false
+p_ts_pred <- p_ts |>
+  mutate(pspecies = predict(p_fit_rf$fit, 
+                            p_ts, 
+                            type="response"))
+accuracy(p_ts_pred, species, pspecies)
+p_ts_pred |>
+  count(species, pspecies) |>
+  group_by(species) |>
+  mutate(Accuracy = n[species==pspecies]/sum(n)) |>
+  pivot_wider(names_from = "pspecies", 
+              values_from = n, 
+              values_fill = 0) |>
+  select(species, Adelie, Chinstrap, Accuracy)
+bal_accuracy(p_ts_pred, species, pspecies)
+```
+
+::: {.fragment}
+<br>
+[Warning:]{.monash-orange2} Don't use the `predict()` on the [training set]{.monash-orange2}, you'll always get 0 error. The object `p_fit_rf$fit$predict` has the fitted values.
+:::
+
+:::
+::::
+
+## Diagnostics
+
+- [Error]{.monash-blue2} is computed automatically on the [out-of-bag]{.monash-blue2} cases.
+- [Vote matrix]{.monash-blue2}, $n\times K$: Proportion of times a case is predicted to the class $k$. Also consider these to be [predictive probabilities]{.monash-orange2}.
+- [Variable importance]{.monash-blue2}: uses [permutation]{.monash-orange2}!
+- [Proximities]{.monash-blue2}, $n\times n$: Closeness of cases measured by how often they are in the same terminal node.
+
+## Vote Matrix
+
+:::: {.columns}
+::: {.column}
+
+- [Proportion of trees]{.monash-orange2} the case is predicted to be each class, ranges between 0-1
+- Can be used to [identify troublesome]{.monash-orange2} cases.
+- Used with plots of the actual data can help determine if it is the record itself that is the problem, or if method is biased.
+- Understand the difference in accuracy of prediction for different classes.
+:::
+::: {.column}
+```{r}
+p_fit_rf$fit$votes
+```
+:::
+::::
+
+## Curious
+
+:::: {.columns}
+::: {.column}
+Where are the Adelie penguins in the training set that are misclassified?
+
+```{r}
+#| echo: false
+p_fit_rf
+```
+
+::: {.fragment style="font-size: 70%"}
+[Join data]{.monash-orange2} containing true, predicted and predictive probabilities, to [diagnose]{.monash-orange2}.
+:::
+
+:::
+
+::: {.column}
+::: {.fragment}
+
+```{r}
+#| echo: false
+# Need to run again bc LDA overwrote
+p_explore <- tibble(bl = runif(10000, 32, 58),
+                    bm = runif(10000, 2700, 4800)) 
+p_explore$species <- predict(p_fit_rf$fit, 
+                             p_explore,
+                           type="response")
+p_explore <- p_explore |>
+  select(species, bl, bm)
+
+```
+
+```{r}
+#| echo: false
+p_tr_pred <- p_tr |>
+  mutate(pspecies = p_fit_rf$fit$predicted) |>
+  bind_cols(p_fit_rf$fit$votes)
+
+p_tr_pred |>
+  filter(species != pspecies)
+```
+
+```{r}
+#| echo: false
+p_tr_wrong <- p_tr_pred |>
+  filter(species != pspecies)
+ggplot() +
+  geom_point(data=p_explore, 
+             aes(x=bl, y=bm, colour=species), 
+             shape=16, alpha=0.1) +
+  geom_point(data=p_all, 
+             aes(x=bl, y=bm, colour=species, 
+                 shape=set), 
+             inherit.aes = FALSE) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  scale_shape_manual(values=c(1, 19)) +
+  theme(legend.position="none") +
+  geom_point(data=p_tr_wrong, 
+             aes(x=bl, y=bm, colour=species), 
+             shape=5, size=4,
+             inherit.aes = FALSE)
+```
+:::
+:::
+::::
+
+## Variable importance [(1/2)]{.f70}
+
+1. For every tree predict the oob cases and count the number of votes [cast for the correct class]{.monash-orange2}. 
+
+::: {.fragment}
+2. [Randomly permute]{.monash-orange2} the values on a variable in the oob cases and predict the class for these cases. 
+:::
+
+::: {.fragment}
+3.Difference the votes for the correct class in the variable-permuted oob cases and the real oob cases. Average this number over all trees in the forest. If the [value is large, then the variable is very important]{.monash-orange2}. 
+:::
+
+::: {.fragment}
+<br>
+Alternatively, [Gini importance]{.monash-orange2} adds up the difference in impurity value of the descendant nodes with the parent node. Quick to compute.
+:::
+
+::: {.fragment style="font-size: 80%"}
+<br>
+Read a fun explanation by [Harriet Mason](https://numbat.space/post/permutation_variable_importance/permutationvariableimportance/)
+:::
+
+## Variable importance [(2/2)]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+p_fit_rf$fit$importance
+```
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 70%
+ggplot(p_tr, aes(x=bl, y=bm, colour=species)) +
+  geom_point()  +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  ggtitle("Training data") +
+  theme(legend.position="none")
+```
+
+:::
+::: {.column style="font-size: 70%"}
+
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 70%
+p_tr_perm <- p_tr |>
+  mutate(bl = sample(bl))
+ggplot(p_tr_perm, aes(x=bl, y=bm, colour=species)) +
+  geom_point()  +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  ggtitle("Permuted bl") +
+  theme(legend.position="none")
+```
+
+<center> Votes will be close to 0.5 for both classes. </center>
+
+:::
+
+
+::::
+
+
+## Proximities
+
+- Measure how [each pair]{.monash-blue2} of observations land in the forest
+- Run both in- and out-of-bag cases down the tree, and increase proximity value of cases $i, j$ by 1 each time they are in the same terminal node. 
+- Normalize by dividing by $B$.
+
+This creates a [**similarity matrix**]{.monash-blue2} between all pairs of observations. 
+
+- Use this for cluster analysis of the data for further diagnosing unusual observations, and model inadequacies.
+
+## Utilising diagnostics [(1/3)]{.f70}
+
+:::: {.columns}
+::: {.column}
+The [votes]{.monash-orange2} matrix yields more information than the confusion matrix, about the [confidence]{.monash-orange2} that the model has in the prediction for each observation, in the training set.
+
+It is a $K$-D object, but lives in $(K-1)$-D because the rows add to 1. 
+
+Let's re-fit the random forest model to the three species of the penguins.
+:::
+
+::: {.column}
+
+```{r}
+#| echo: false
+set.seed(923)
+p_split2 <- initial_split(p_tidy, 2/3, strata=species)
+p_tr2 <- training(p_split2)
+p_ts2 <- testing(p_split2)
+
+rf_spec <- rand_forest(mtry=2, trees=1000) |>
+  set_mode("classification") |>
+  set_engine("randomForest")
+p_fit_rf2 <- rf_spec |> 
+  fit(species ~ ., data = p_tr2)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Votes
+animate_xy(p_fit_rf2$fit$votes, col=p_tr2$species)
+
+# Save an animated gif
+render_gif(p_fit_rf2$fit$votes,
+           grand_tour(),
+           display_xy(v_rel=0.02, 
+             col=p_tr2$species, 
+             axes="bottomleft"), 
+           gif_file="../gifs/penguins_rf_votes.gif",
+           frames=500,
+           width=300,
+           height=300,
+           loop=FALSE
+)
+
+```
+
+<center>
+![](../gifs/penguins_rf_votes.gif){width=300}
+</center>
+
+```{r}
+#| echo: false
+# Votes reduce dim
+proj <- t(geozoo::f_helmert(3)[-1,])
+p_rf_v_p <- as.matrix(p_fit_rf2$fit$votes) %*% proj
+colnames(p_rf_v_p) <- c("x1", "x2")
+p_rf_v_p <- p_rf_v_p %>%
+  as.data.frame() %>%
+  mutate(species = p_tr2$species)
+
+# Add simplex
+simp <- simplex(p=2)
+sp <- data.frame(cbind(simp$points), simp$points[c(2,3,1),])
+colnames(sp) <- c("x1", "x2", "x3", "x4")
+sp$species = sort(unique(p_tr2$species))
+p_ternary <- ggplot() +
+  geom_segment(data=sp, aes(x=x1, y=x2, xend=x3, yend=x4)) +
+  geom_text(data=sp, aes(x=x1, y=x2, label=species),
+            nudge_x=c(-0.06, 0.07, 0),
+            nudge_y=c(0.05, 0.05, -0.05)) +
+  geom_point(data=p_rf_v_p, aes(x=x1, y=x2, 
+                                colour=species), 
+             size=2, alpha=0.5) +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  theme_map() +
+  theme(aspect.ratio=1, legend.position="none")
+```
+
+```{r}
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 60%
+p_ternary
+```
+:::
+::::
+
+## Utilising diagnostics [(2/3)]{.f70}
+
+DEMO: Use interactivity to investigate the uncertainty in the predictions.
+
+```{r}
+#| echo: true
+#| eval: false
+library(detourr)
+library(crosstalk)
+library(plotly)
+library(viridis)
+p_tr2_std <- p_tr2 |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x))
+p_tr2_v <- bind_cols(p_tr2_std, p_rf_v_p[,1:2]) 
+p_tr2_v_shared <- SharedData$new(p_tr2_v)
+
+detour_plot <- detour(p_tr2_v_shared, tour_aes(
+  projection = bl:bm,
+  colour = species)) |>
+    tour_path(grand_tour(2), 
+                    max_bases=50, fps = 60) |>
+       show_scatter(alpha = 0.9, axes = FALSE,
+                    width = "100%", 
+                    height = "450px",
+                    palette = hcl.colors(3,
+                      palette="Zissou 1"))
+
+vot_mat <- plot_ly(p_tr2_v_shared, 
+                    x = ~x1,
+                    y = ~x2,
+                    color = ~species,
+                    colors = hcl.colors(3,
+                        palette="Zissou 1"),
+                    height = 450) |>
+  highlight(on = "plotly_selected", 
+              off = "plotly_doubleclick") %>%
+    add_trace(type = "scatter", 
+              mode = "markers")
+  
+bscols(
+     detour_plot, vot_mat,
+     widths = c(5, 6)
+ )                 
+```
+
+## Utilising diagnostics [(3/3)]{.f70}
+
+:::: {.columns}
+::: {.column}
+
+Variable importance can help with [variable selection]{.monash-orange2}. 
+
+<br>
+
+```{r}
+p_fit_rf2$fit$importance
+```
+
+
+Top two variables are `bl` and `fl`. 
+<br>
+<br>
+
+Especially useful when you have many more variables.
+:::
+
+::: {.column}
+
+```{r}
+#| echo: false
+ggplot(p_tr2, aes(x=bl, y=fl, colour=species)) +
+  geom_point() + 
+  scale_colour_discrete_divergingx(palette = "Zissou 1")
+```
+:::
+::::
+
+## Boosted trees [(1/3)]{.f70}
+
+Random forests build an ensemble of [independent trees]{.monash-blue2}, while [boosted trees]{.monash-orange2} build an ensemble from [shallow trees in a sequence]{.monash-orange2} with each tree learning and improving on the previous one, by [re-weighting observations]{.monash-orange2} to give mistakes more importance.
+
+<center>
+<img src="https://bradleyboehmke.github.io/HOML/images/boosted-trees-process.png" style="width: 50%"/>
+</center>
+
+[Source: [Boehmke (2020) Hands on Machine Learning with R](https://bradleyboehmke.github.io/HOML/)]{.smallest}
+
+## Boosted trees [(2/3)]{.f70}
+
+Boosting iteratively fits multiple trees, sequentially putting [more weight]{.monash-orange2} on observations that have predicted [inaccurately]{.monash-orange2}. 
+
+1. Set weights (probabilities) for all observations in training set ( according to class sample sizes using log odds ratio). Fit a tree with fixed $d$ splits ( $d+1$ terminal nodes).
+2. For b=1, 2, ..., B, repeat:<br>
+    a. Compute fitted values  <br>
+    b. Compute pseudo-residuals  <br>
+    c. Fit the tree to the residuals <br>
+    d. Compute new weights (probabilities)
+3. Aggregate predictions from all trees.
+
+[This [StatQuest video by Josh Starmer](https://www.youtube.com/embed/jxuNLH5dXCs), is the best explanation!]{.smallest}
+
+[And this is a fun explanation of boosting [by Harriet Mason](https://numbat.space/post/boosting/).]{.smallest}
+
+## Boosted trees [(3/3)]{.f70}
+
+```{r}
+set.seed(1110)
+bt_spec <- boost_tree() |>
+  set_mode("classification") |>
+  set_engine("xgboost")
+p_fit_bt <- bt_spec |> 
+  fit(species ~ ., data = p_tr2)
+```
+
+```{r}
+#| echo: false
+p_ts2_pred <- p_ts2 |>
+  mutate(pspecies = predict(p_fit_bt, 
+                            p_ts2)$.pred_class)
+accuracy(p_ts2_pred, species, pspecies)
+p_ts2_pred |>
+  count(species, pspecies) |>
+  group_by(species) |>
+  mutate(Accuracy = n[species==pspecies]/sum(n)) |>
+  pivot_wider(names_from = "pspecies", 
+              values_from = n, values_fill = 0) |>
+  select(species, Adelie, Chinstrap, Accuracy)
+```
+
+## Limitations of trees
+
+- Most implementations only splits on a single variable, not combinations.
+- There are versions that build trees on combinations, eg [PPTreeViz](https://cran.r-project.org/web/packages/PPtreeViz/index.html) and [PPforest](https://natydasilva.github.io/PPforest/), but you lose interpretability, and fitting is more difficult.
+- Sees only splits, but not gaps. (See support vector machines, in a few weeks.)
+- Algorithm takes variables in order, and splits in order, and will use first as best.
+- Need tuning and cross-validation.
+
+## Next: Neural networks and deep learning {.transition-slide .center}
+
+

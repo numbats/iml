@@ -58,6 +58,7 @@ conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::slice)
 conflicts_prefer(palmerpenguins::penguins)
+conflicts_prefer(viridis::viridis_pal)
 
 options(digits=2)
 p_tidy <- penguins |>
