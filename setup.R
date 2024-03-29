@@ -68,6 +68,7 @@ conflicts_prefer(palmerpenguins::penguins)
 conflicts_prefer(tourr::flea)
 conflicts_prefer(viridis::viridis_pal)
 conflicts_prefer(latex2exp::TeX)
+conflicts_prefer(geozoo::simplex)
 
 p_tidy <- penguins |>
   select(species, bill_length_mm:body_mass_g) |>

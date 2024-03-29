@@ -8,7 +8,7 @@ author:
  - name: "Professor Di Cook"
    email: "etc3250.clayton-x@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 4 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 5 | [iml.numbat.space](iml.numbat.space)"
 format:
   revealjs:
     multiplex: false
@@ -195,7 +195,7 @@ $$\widehat{p}_{RA} = 0/2, \widehat{p}_{RB} = 2/2, ~~ p_R = 2/7$$
 $$G_R=0(1-0)+1(1-1) = 0$$
 Combine with weighted sum to get [impurity for the split]{.monash-orange2}:
 
-$$5/7G_L + 2/7G_R=0.32$$
+$$5/7G_L + 2/7G_R=0.23$$
 
 <br><br>
 [**Your turn**: Compute the impurity for split 2.]{.monash-blue2}
