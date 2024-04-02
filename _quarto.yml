@@ -6,8 +6,9 @@ project:
   - "!quizzes/"
   - "!assignments/"
   - "next-time*"
-  - "week5/tutorial*"
+  - "week6/tutorial*"
   - "!data/ACIC23-competition/"
+  - "!week6/slides*"
   output-dir: docs
   resources:
   - "assets/*"

@@ -39,3 +39,5 @@ Written by Emil Hvitfeldt to cover creating new variables as broadly as possibly
 - [A gentle introduction to deep learning in R using Keras](https://lnalborczyk.github.io/slides/vendredi_quanti_2021/vendredi_quantis#1)
 
 - [(M+C)² Blog](https://lorentzen.ch/index.php/blog/)
+
+- [Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)

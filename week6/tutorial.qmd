@@ -468,7 +468,7 @@ p1 + p2 + p3 + plot_layout(ncol=3)
 Each of these variables has some difference in median value between the classes, but none shows any separation between them. If the three most important variables show little separation, it indicates the difficulty in distinguishing between these classes. However, it looks like if the distance from a road, or CFA station is bigger, the chance of the cause being a lightning start is higher. This makes sense, because these would be locations further from human activity, and thus the fire is less likely to started by people. The arf360 relates to rain from a year ago. It also appears that if the rainfall was higher a year ago, lightning is more likely the cause. This also makes some sense, because with more rain in the previous year, there should be more vegetation. Particularly, if recent months have been dry, then there is likely a lot of dry vegetation which is combustible. Ideally we would create a new variable (feature engineering) that looks at difference in rainfall from the previous year to just before the current year's fire season, to model these types of conditions.
 :::
 
-## Can boosting better detect bushfire case?
+## Can boosting better detect bushfire cause?
 
 Fit a boosted tree model using `xgboost` to the bushfires data. You can use the code below. Compute the confusion tables and the balanced accuracy for the test data for both the forest model and the boosted tree model, to make the comparison.
 

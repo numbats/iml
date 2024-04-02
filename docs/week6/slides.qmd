@@ -1,0 +1,276 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 6: Neural networks and deep learning"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 6 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+library(ggpubr)
+library(kableExtra)
+```
+
+## Overview
+
+We will cover:
+
+* Structure of a neural network
+* Fitting neural networks
+* Diagnosing the fit
+
+## Structure of a neural network {.transition-slide .center}
+
+## Nested logistic regressions
+
+:::: {.columns}
+::: {.column}
+
+Remember the logistic function:
+
+\begin{align}
+f(x) &= \frac{e^{\beta_0+\sum_{j=1}^p\beta_jx_j}}{1+e^{\beta_0+\sum_{j=1}^p\beta_jx_j}}\\
+  &= \frac{1}{1+e^{-(\beta_0+\sum_{j=1}^p\beta_jx_j)}}
+\end{align}
+
+Also,
+
+$$\log_e\frac{f(x)}{1 - f(x)} = \beta_0+\sum_{j=1}^p\beta_jx_j$$
+:::
+
+::: {.column}
+::: {.fragment}
+
+<br><br>
+[Above the threshold predict to be 1.]{.smaller} 
+
+```{r}
+#| echo: false
+#| out-width: 70%
+#| fig-width: 4
+#| fig-height: 4
+library(tidyverse)
+x <- seq(-2, 2, 0.1)
+y <- exp(1+3*x)/(1+exp(1+3*x))
+df2 <- tibble(x, y)
+ggplot(df2, aes(x=x, y=y)) + 
+  geom_line() +
+  geom_hline(yintercept=0.5, colour="orange") +
+  annotate("text", x=0.84, y=0.55, label="Activation threshold ??", colour="orange") +
+  geom_hline(yintercept=c(0,1), linetype=2)
+```
+
+:::
+
+:::
+::::
+
+## Linear regression as a network
+
+:::: {.columns}
+::: {.column}
+$$\widehat{y} =b_0+\sum_{j=1}^pb_jx_j$$
+
+Drawing as a network model: 
+
+$p$ [inputs]{.monash-orange2} (predictors), multiplied by [weights]{.monash-orange2} (coefficients), summed, add a [constant]{.monash-orange2}, predicts [output]{.monash-orange2} (response). 
+:::
+::: {.column}
+![](../images/reg_nn.png){width=80%}
+
+:::
+::::
+
+## Single hidden layer NN
+
+:::: {.columns}
+::: {.column}
+
+\begin{align}
+\widehat{y} =a_{0}+\sum_{k=1}^s(a_{k}(b_{j0}+\sum_{j=1}^pb_{jk}x_j))
+\end{align}
+
+
+:::
+::: {.column}
+
+![](../images/nn_annotate.png)
+:::
+::::
+
+## What does this look like? [(1/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="font-size: 70%"}
+The architecture allows for combining multiple linear models to generate non-linear classifications. 
+
+```{r}
+#| echo: false
+#| out-width: 70%
+#| fig-width: 4
+#| fig-height: 5
+w <- read_csv(here::here("data/wiggly.csv"))
+ggplot(w, aes(x=x, y=y, colour=class, shape=class)) + 
+  geom_point() +
+  scale_color_brewer("", palette="Dark2") +
+  scale_shape("") +
+  theme(legend.position = "bottom") 
+```
+
+:::
+::: {.column style="font-size: 70%"}
+
+The best fit uses $s=4$, four nodes in the hidden layer. Can you sketch four lines that would split this data well?
+
+```{r}
+#| echo: false
+#| out-width: 70%
+#| fig-width: 4
+#| fig-height: 5
+load(here::here("data/nnet_many.rda"))
+load(here::here("data/nnet_best.rda"))
+
+ggplot(subset(best$output,  node == 1), aes(x, y)) +
+  geom_raster(aes(fill = pred)) +
+  geom_point(aes(shape = class), data = w) +
+  scale_fill_gradient2("", low="#1B9E77", 
+                       high="#D95F02", 
+                       mid = "white", 
+                       midpoint = 0.5,
+                       guide = "colourbar",
+                       limits = c(0,1)) +
+  scale_shape("") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=6)) 
+```
+:::
+::::
+
+[[Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)]{.smallest}
+
+## What does this look like? [(2/2)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+The models at each of the nodes of the hidden layer. 
+
+```{r}
+#| echo: false
+#| out-width: 90%
+#| fig-width: 5
+#| fig-height: 4
+ggplot(data=best$hidden, aes(x, y)) +
+  geom_tile(aes(fill=pred)) + 
+  geom_point(data=w, aes(shape=class)) +
+  facet_wrap(~node, ncol=2) + 
+  scale_fill_gradient2("", low="#AF8DC3",
+                                    mid="#F7F7F7",
+                                    high="#7FBF7B",
+                                    midpoint=0.5,
+                                    limits=c(0,1)) +
+  scale_shape("") +
+  theme(axis.text = element_blank(), 
+        axis.title = element_blank(),
+        legend.text = element_text(size=6))
+```
+:::
+
+::: {.column}
+::: {.fragment}
+
+```{r}
+#| echo: false
+#| out-width: 70%
+#| fig-width: 4
+#| fig-height: 4
+ggplot(data=best$hidden, aes(x, y)) + 
+  geom_contour(aes(z=pred, group=node), 
+               colour="grey50", 
+               size=2, 
+               breaks = 0.5) +
+  geom_point(data=w, aes(colour=class, 
+                 shape=class)) + 
+  scale_color_brewer("", palette="Dark2") +
+  scale_shape("") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size=6)) 
+
+
+```
+:::
+:::
+::::
+
+## But can be painful to find the best!
+
+These are all the models fitted, using $s=2, 3, 4$ with the fit statistics.
+
+```{r}
+#| echo: false
+#| out-width: 100%
+#| fig-width: 12
+#| fig-height: 4
+qual <- unique(many[, c("value", "accuracy", "nodes", "id")])
+ggplot(qual, aes(x=accuracy, y=value)) +
+  geom_point(alpha=0.7, size=3) +
+  xlab("Accuracy") +
+  ylab("Value of fitting criterion") +
+  facet_wrap(~nodes)
+
+```
+
+Fitted using the R package `nnet`. It's very unstable, and this is still a problem with current procedures.
+
+## Fitting with keras {.transition-slide .center}
+
+## Steps
+
+1. Define architecture
+
+- if you are classifying images, you need to flatten the image into a single row of data, eg 24x24 pixel image would be converted to a row of 576 values. Each pixel is a variable.
+- How many hidden layers do you need? 
+- How many nodes in the hidden layer?
+
+2. Specify activation
+
+- linear
+- relu
+- sigmoid
+- softmax
+
+3. Choose loss function
+
+4. Training process
+
+5. Evaluation
+
+## Example: penguins
+
+## Example: fashion_mnist
+
+## Want to learn more?
+
+This is a very nice slide set: [A gentle introduction to deep learning in R using Keras](https://lnalborczyk.github.io/slides/vendredi_quanti_2021/vendredi_quantis#1)
+
+And the tutorials at [TensorFlow for R](https://tensorflow.rstudio.com/install/) have lots of examples.
+
+## Next: Explainable artificial intelligence (XAI) {.transition-slide .center}
+
+
