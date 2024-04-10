@@ -8,7 +8,6 @@ project:
   - "next-time*"
   - "week6/tutorial*"
   - "!data/ACIC23-competition/"
-  - "!week6/slides*"
   output-dir: docs
   resources:
   - "assets/*"

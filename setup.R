@@ -21,6 +21,7 @@ library(xgboost)
 library(uwot)
 library(Rtsne)
 library(plotly)
+library(keras)
 
 # Locations
 current_file <- knitr::current_input()
@@ -77,3 +78,7 @@ p_tidy <- penguins |>
          fl=flipper_length_mm,
          bm=body_mass_g) |>
   na.omit()
+
+p_std <- p_tidy |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) 
+
