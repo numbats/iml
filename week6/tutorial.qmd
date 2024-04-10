@@ -128,7 +128,7 @@ b. For two groups, how would the impurity of a **split** be measured? Give the e
 
 ::: unilur-solution
 
-$$p_L(p_{L1}(1-p_{L1})) + p_R(p_{R1}(1-p_{R1}))$$
+$$p_L(p_{L1}(1-p_{L1})+p_{L2}(1-p_{L2})) + p_R(p_{R1}(1-p_{R1})+p_{R2}(1-p_{R2}))$$
 where $p_L$ is the proportion of observations to the left of the split, $p_{L1}$ is the proportion of observations of class 1 to the left of the split, and $p_{R1}$ indicates the equivalent quantities for observations to the right of the split. 
 
 :::
