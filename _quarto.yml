@@ -5,8 +5,7 @@ project:
   - "*.md"
   - "!quizzes/"
   - "!assignments/"
-  - "next-time*"
-  - "week6/tutorial*"
+  - "!next-time*"
   - "!data/ACIC23-competition/"
   output-dir: docs
   resources:

@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://iml.numbat.space/next-time.html</loc>
-    <lastmod>2024-04-09T01:58:05.276Z</lastmod>
+    <loc>https://iml.numbat.space/week9/index.html</loc>
+    <lastmod>2024-02-05T21:29:35.414Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week8/index.html</loc>
-    <lastmod>2024-02-05T21:28:13.682Z</lastmod>
+    <loc>https://iml.numbat.space/week7/tutorial.html</loc>
+    <lastmod>2024-04-12T08:37:51.251Z</lastmod>
+  </url>
+  <url>
+    <loc>https://iml.numbat.space/week7/tutorialsol.html</loc>
+    <lastmod>2024-04-12T08:37:51.251Z</lastmod>
   </url>
   <url>
     <loc>https://iml.numbat.space/week6/tutorial.html</loc>
-    <lastmod>2024-04-09T05:52:24.697Z</lastmod>
+    <lastmod>2024-04-12T00:23:53.048Z</lastmod>
   </url>
   <url>
     <loc>https://iml.numbat.space/week6/tutorialsol.html</loc>
-    <lastmod>2024-04-10T06:11:07.202Z</lastmod>
+    <lastmod>2024-04-12T00:23:53.048Z</lastmod>
   </url>
   <url>
     <loc>https://iml.numbat.space/week6/index.html</loc>
@@ -126,10 +130,10 @@
   </url>
   <url>
     <loc>https://iml.numbat.space/week7/index.html</loc>
-    <lastmod>2024-02-05T21:27:22.985Z</lastmod>
+    <lastmod>2024-04-12T08:41:19.172Z</lastmod>
   </url>
   <url>
-    <loc>https://iml.numbat.space/week9/index.html</loc>
-    <lastmod>2024-02-05T21:29:35.414Z</lastmod>
+    <loc>https://iml.numbat.space/week8/index.html</loc>
+    <lastmod>2024-02-05T21:28:13.682Z</lastmod>
   </url>
 </urlset>

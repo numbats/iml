@@ -1,0 +1,496 @@
+---
+title: "ETC3250/5250 Tutorial 7"
+subtitle: "Neural networks"
+author: "Prof. Di Cook"
+date: "2024-04-15"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Load the libraries and avoid conflicts"
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(patchwork)
+library(mulgar)
+library(GGally)
+library(tourr)
+library(geozoo)
+library(keras)
+library(uwot)
+library(colorspace)
+library(ggthemes)
+library(conflicted)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+```
+
+```{r}
+#| echo: false
+# Set plot theme
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is learn to fit, diagnose, and predict from a neural network model. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Make sure you have all the necessary libraries installed. There are a few new ones this week!
+
+## Exercises: 
+
+Open your project for this unit called `iml.Rproj`. We will be working through the tutorial at [TensorFlow for R](https://tensorflow.rstudio.com/tutorials/keras/classification) for fitting and predicting the fashion MNIST image data.
+
+#### 1. Get the data
+
+We use the Fashion MNIST dataset which contains 70,000 grayscale images in 10 categories of articles sold on Zalando's multi-brand, digital platform for fashion, beauty, and lifestyle. 
+
+```{r}
+# download the data
+fashion_mnist <- dataset_fashion_mnist()
+
+# split into input variables and response
+c(train_images, train_labels) %<-% fashion_mnist$train
+c(test_images, test_labels) %<-% fashion_mnist$test
+
+# for interpretation we also define the category names
+class_names = c('T-shirt/top',
+                'Trouser',
+                'Pullover',
+                'Dress',
+                'Coat',
+                'Sandal',
+                'Shirt',
+                'Sneaker',
+                'Bag',
+                'Ankle boot')
+
+```
+
+#### 2. What's in the data?
+
+Check how many observations are in the training and test sets, and plot some of the images.
+
+```{r}
+#| label: data-summary
+#| eval: false
+dim(train_images)
+dim(train_labels)
+dim(test_images)
+dim(test_labels)
+
+# Choose an image randomly
+img <- as.data.frame(train_images[sample(1:60000, 1), , ])
+colnames(img) <- seq_len(ncol(img))
+img$y <- seq_len(nrow(img))
+img <- img |>
+  pivot_longer(cols = -y,
+               names_to="x", 
+               values_to="value") |>
+  mutate(x = as.integer(x))
+
+ggplot(img, aes(x = x, y = y, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", 
+                      high = "black", 
+                      na.value = NA) +
+  scale_y_reverse() +
+  theme_map() +
+  theme(legend.position = "none")
+```
+
+::: unilur-solution
+```{r}
+#| label: data-summary
+#| fig-width: 3
+#| fig-height: 3
+#| out-width: 10%
+#| echo: false
+```
+
+:::
+
+
+#### 3. Pre-process the data
+
+It may not be necessary, says Patrick, but we'll scale the data to 0-1, before modeling.
+
+```{r}
+train_images <- train_images / 255
+test_images <- test_images / 255
+```
+
+#### 4. Set up the model
+
+The model architecture will have: 
+
+- a flatten layer to turn the images into vectors
+- one hidden layer with 128 nodes with (rectified) linear activation
+- final layer with 10 nodes and logistic activation
+
+Why 10 nodes in the last layer? Why 128 nodes in the hidden layer?
+
+
+```{r}
+model_fashion_mnist <- keras_model_sequential()
+model_fashion_mnist |>
+  # flatten the image data into a long vector
+  layer_flatten(input_shape = c(28, 28)) |>
+  # hidden layer with 128 units
+  layer_dense(units = 128, activation = 'relu') |>
+  # output layer for 10 categories
+  layer_dense(units = 10, activation = 'softmax')
+```
+
+Set the optimizer to be `adam`, loss function to be `sparse_categorical_crossentropy` and `accuracy` as the metric. What other optimizers could be used? What is the `sparse_catgorical_crossentropy`?
+
+```{r}
+model_fashion_mnist |> compile(
+  optimizer = 'adam',
+  loss = 'sparse_categorical_crossentropy',
+  metrics = c('accuracy')
+)
+```
+
+::: unilur-solution
+There are 10 classes, so we need 10 nodes in the final layer.
+
+The choice of 128 nodes in the hidden layer is arbitrary. It means that we are reducing the dimension down from 784 to 128 at this point.
+
+Sparse categorical cross-entropy is an extension of the categorical cross-entropy loss function that is used when the output labels are represented in a sparse matrix format. The labels are represented as a single index value rather than a binary matrix.
+
+https://keras.io/api/optimizers/ has a list of optimizers available.
+:::
+
+#### 5. Fit the model
+
+```{r}
+model_fashion_mnist |> fit(train_images,
+              train_labels,
+              epochs = 5,
+              verbose = 0)
+```
+
+#### 6. Evaluate the model
+
+```{r}
+#| label: model-evaluation
+#| eval: false
+fmnist_score <- model_fashion_mnist |> 
+  evaluate(test_images, test_labels, verbose = 0)
+
+fmnist_score
+```
+
+Check with other people in class. Do you get the same result? If not, why would this be?
+
+::: unilur-solution
+```{r}
+#| label: model-evaluation
+#| echo: false
+```
+
+Each person has started the optimizer with a different random seed, since we didn't set one. You could try to set the seed using `tensorflow::set_random_seed()`, and have your neighbour do the same, to check if you get the same result. You will need to clean your environment before attempting this because if you fit the model again it will update the current one rather than starting afresh.
+:::
+
+#### 7. Predict the test set
+
+Which classes are most often confused?
+
+```{r}
+#| label: model-predictions
+#| eval: false
+test_tags <- factor(class_names[test_labels + 1],
+                    levels = class_names)
+
+fashion_test_pred <- predict(model_fashion_mnist,
+                             test_images, verbose = 0)
+fashion_test_pred_cat <- levels(test_tags)[
+  apply(fashion_test_pred, 1,
+        which.max)]
+predicted <- factor(
+  fashion_test_pred_cat,
+  levels=levels(test_tags)) |>
+  as.numeric() - 1
+observed <- as.numeric(test_tags) -1
+table(observed, predicted)
+```
+
+::: unilur-solution
+```{r}
+#| label: model-predictions
+#| echo: false
+```
+
+There are several classes that have some confusion with other classes, particularly 6 with 0, 2, 4. But other classes are most often confused with at least one other. Classes 1, 5, 7, 8, 9 are rarely confused.
+:::
+
+#### 8. Compute metrics
+
+Compute the accuracy of the model on the test set. How does this compare with the accuracy reported when you fitted the model? 
+
+If the model equally accurate on all classes? If not, which class(es) is(are) poorly fitted?
+
+```{r}
+#| label: model-metrics
+#| eval: false
+fashion_test_pred <- fashion_test_pred |>
+  cbind(observed, predicted)
+
+fashion_test_pred <- fashion_test_pred |>
+  as.tibble() |>
+  mutate(label = test_tags,
+         plabel = factor(class_names[predicted+1], 
+                         levels = levels(test_tags)))
+
+accuracy(fashion_test_pred, label, plabel)
+bal_accuracy(fashion_test_pred, label, plabel)
+fashion_test_pred |>
+  count(label, plabel) |>
+  group_by(label) |>
+  mutate(Accuracy = ifelse(sum(n)>0, n[plabel==label]/sum(n), 0)) |>
+  pivot_wider(names_from = "plabel", 
+              values_from = n, 
+              values_fill = 0) |>
+  select(label, Accuracy)
+```
+
+::: unilur-solution
+```{r}
+#| label: model-metrics
+#| echo: false
+```
+:::
+
+#### 9. Investigating the results
+
+This section is motivated by the examples in [Cook and Laa (2024)](https://dicook.github.io/mulgar_book/17-nn.html). Focus on the test data to investigate the fit, and lack of fit.
+
+- PCA can be used to reduce the dimension down from 784, to a small number of PCS, to examine the nature of differences between the classes. Compute the scree plot to decide on a reasonable number that can be examined in a tour. Plot the first two statically. Explain how the class structure matches any clustering.
+
+```{r}
+#| label: PCA-data
+#| eval: false
+test_images_flat <- test_images
+dim(test_images_flat) <- c(nrow(test_images_flat), 784)
+images_pca <- prcomp(as.data.frame(test_images_flat))
+images_pc <- as.data.frame(images_pca$x)
+ggscree(images_pca, q=20, guide=FALSE)
+ggplot(images_pc,
+       aes(PC1, PC2, color = test_tags)) +
+  geom_point(size = 0.1) +
+  scale_color_discrete_qualitative(palette = "Dynamic") +
+  theme(legend.title = element_blank())
+```
+
+```{r eval=FALSE}
+animate_xy(images_pc[,1:5], col = test_tags,
+        cex=0.2, palette = "Dynamic")
+```
+
+::: unilur-solution
+```{r}
+#| label: PCA-data
+#| echo: false
+```
+
+There isn't much separation between classes in the PCs. There is some difference between classes, with overlap between them. It looks less separated than what the confusion matrix would suggest.
+:::
+
+
+- UMAP can also be used to understand the class structure. Make a 2D UMAP representation and explain how the class structure matches cluster structure.
+
+```{r}
+#| label: UMAP-data
+#| eval: false
+set.seed(253)
+fashion_umap <- umap(test_images_flat, init = "spca")
+fashion_umap_df <- fashion_umap |>
+  as_tibble() |>
+  rename(UMAP1 = V1, UMAP2 = V2) |>
+  mutate(label = test_tags)
+ggplot(fashion_umap_df, aes(x = UMAP1, 
+                            y = UMAP2,
+                            colour = label)) +
+  geom_point(size = 0.3, alpha=0.5) +
+  scale_color_discrete_qualitative(palette = "Dynamic") +
+  theme(legend.title = element_blank())
+```
+
+::: unilur-solution
+```{r}
+#| label: UMAP-data
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+```
+
+There are multiple well-separated clusters in the representation. Mostly these are mixtures of several classes. Only one cluster mostly matches an article, Trouser.
+:::
+
+- Interestingly, the nodes in the hidden layer can be thought of as 128 new variables which are linear combinations of the original 784 variables. This is too many to visualise but we can again use PCA to reduce their dimension again, and make plots.
+
+```{r}
+#| label: PCA-activations
+#| eval: false
+activations_model_fashion <- keras_model(
+  inputs = model_fashion_mnist$input,
+  outputs = model_fashion_mnist$layers[[2]]$output
+)
+activations_fashion <- predict(
+  activations_model_fashion,
+  test_images, verbose = 0)
+
+# PCA for activations
+activations_pca <- prcomp(activations_fashion)
+activations_pc <- as.data.frame(activations_pca$x)
+
+ggscree(activations_pca, q=20, guide=FALSE)
+
+ggplot(activations_pc,
+       aes(PC1, PC2, color = test_tags)) +
+  geom_point(size = 0.1) +
+  ggtitle("Activations") +
+  scale_color_discrete_qualitative(palette = "Dynamic") 
+```
+
+```{r eval=FALSE}
+animate_xy(activations_pc[,1:5], col = test_tags,
+        cex=0.2, palette = "Dynamic")
+```
+
+::: unilur-solution
+```{r}
+#| label: PCA-activations
+#| echo: false
+```
+
+There substantial separation between classes in the PCs of these new variables. It looks now reasonable that the classes are distinguishable as the confusion matrix suggests.
+:::
+
+- Similarly, we can general a 2D representation using UMAP of these new variables.
+
+```{r}
+#| label: UMAP-activations
+#| eval: false
+set.seed(253)
+fashion_umap <- umap(activations_fashion, init = "spca")
+fashion_umap_df <- fashion_umap |>
+  as_tibble() |>
+  rename(UMAP1 = V1, UMAP2 = V2) |>
+  mutate(label = test_tags)
+ggplot(fashion_umap_df, aes(x = UMAP1, 
+                            y = UMAP2,
+                            colour = label)) +
+  geom_point(size = 0.5, alpha=0.5) +
+  scale_color_discrete_qualitative(palette = "Dynamic")
+```
+
+::: unilur-solution
+```{r}
+#| label: UMAP-activations
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+```
+
+There is a lot of clustering in this view, but it mostly doesn't match the classes. Trouser is the only class that appears to be primarily in one cluster.
+:::
+
+- Last task is to explan on what was learned from the cnfusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.
+
+```{r}
+# Generate the projection to 9D
+proj <- t(geozoo::f_helmert(10)[-1,])
+f_nn_v_p <- as.matrix(fashion_test_pred[,1:10]) %*% proj
+colnames(f_nn_v_p) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")
+
+f_nn_v_p <- f_nn_v_p %>%
+  as.data.frame() %>%
+  mutate(class = test_tags)
+
+simp <- geozoo::simplex(p=9)
+sp <- data.frame(simp$points)
+colnames(sp) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")
+sp$class = ""
+f_nn_v_p_s <- bind_rows(sp, f_nn_v_p) %>%
+  mutate(class = ifelse(class %in% c("T-shirt/top",
+                                     "Pullover",
+                                     "Shirt",
+                                     "Coat"), class, "Other")) %>%
+  mutate(class = factor(class, levels=c("T-shirt/top",
+                                        "Pullover",
+                                        "Shirt",
+                                        "Coat",
+                                        "Other"))) 
+```
+
+```{r eval=FALSE}
+animate_xy(f_nn_v_p_s[,1:9], col = f_nn_v_p_s$class, 
+           axes = "off", cex=0.2,
+           edges = as.matrix(simp$edges),
+           edges.width = 0.05,
+           palette = "Viridis")
+```
+
+![](../gifs/fashion_confusion_gt.gif)
+
+#### 10. Ways to improve the model
+
+There are many ways to improve neural networks. If you have time, read through the approaches taken in the [HOML](https://bradleyboehmke.github.io/HOML/deep-learning.html) book. It used the digits data, but the approaches will be suitable to apply to the fashion data. Try:
+
+- increasing the number of epochs (don't think this helps here)
+- try adding batch processing using batch size
+- use a validation set split 
+- try a different number of nodes in the hidden layer
+- expand the number of layers
+- add batch normalisation
+- use regularisation at each layer
+- add dropout for each layer
+- experiment with the learning rate
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.

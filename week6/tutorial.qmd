@@ -116,7 +116,7 @@ p_tr <- training(p_split)
 p_ts <- testing(p_split)
 ```
 
-#### 1. Becoming a car mechanic - looking under the hood at the tree algoriithm
+#### 1. Becoming a car mechanic - looking under the hood at the tree algorithm
 
 a. Write down the equation for the Gini measure of impurity, for two groups, and the parameter $p$ which is the proportion of observations in class 1. Specify the domain of the function, and determine the value of $p$ which gives the maximum value, and report what that maximum function value is.
 

@@ -23,6 +23,20 @@ schedule |>
 * LIME
 * Shapley values
 
+## Lecture slides
+
+- [html](https://iml.numbat.space/week7/slides.html)
+- [pdf](https://iml.numbat.space/week7/slides.pdf)
+- [qmd](https://iml.numbat.space/week7/slides.qmd)
+- [R](https://iml.numbat.space/week7/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week7/tutorial.html)
+- [qmd](https://iml.numbat.space/week7/tutorial.qmd)
+
 ```{r}
 #| output: asis
 show_assignments(week)
