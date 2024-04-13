@@ -1,0 +1,54 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 7: Explainable artificial intelligence (XAI)"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 7 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+```
+
+## Overview
+
+We will cover:
+
+* Local explainability
+* LIME
+* Shapley values
+
+## Remember: variable importance {.transition-slide .center}
+
+## Variable importance
+
+- Coefficients from model on standardised data
+- Effect of collinearity
+- Importance from permutation
+
+## Local explainability {.transition-slide .center}
+
+## Global vs local
+
+Linear separation vs non-linear
+
+## LIME
+
+## Next: Support vector machines and nearest neighbours {.transition-slide .center}
+
+
