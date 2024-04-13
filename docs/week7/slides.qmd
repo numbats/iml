@@ -33,21 +33,52 @@ We will cover:
 * LIME
 * Shapley values
 
-## Remember: variable importance {.transition-slide .center}
+## ## Global explainability {.transition-slide .center}
 
-## Variable importance
+## Remember: Variable importance
+
+:::: {.columns}
+::: {.column}
 
 - Coefficients from model on standardised data
 - Effect of collinearity
 - Importance from permutation
+:::
+::: {.column}
+::: {.fragment}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS", prior = c(0.5, 0.5))
+lda_fit <- lda_spec |> 
+  fit(species ~ ., data = p_std)
+
+lda_fit
+
+
+```
+
+:::
+
+:::
+::::
+
+## Partial dependence plot
 
 ## Local explainability {.transition-slide .center}
 
-## Global vs local
-
-Linear separation vs non-linear
+## Linear separation vs non-linear
 
 ## LIME
+
+## Counterfactuals
+
+## Anchors
+
+## Shapley values
 
 ## Next: Support vector machines and nearest neighbours {.transition-slide .center}
 

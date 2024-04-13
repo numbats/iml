@@ -45,7 +45,7 @@ schedule <- tibble(
         "https://www.statlearning.com",
         "https://www.statlearning.com",
         "https://www.statlearning.com",
-        "https://www.statlearning.com",
+        "https://christophm.github.io/interpretable-ml-book/",
         "https://www.statlearning.com",
         "https://bradleyboehmke.github.io/HOML/",
         "https://bradleyboehmke.github.io/HOML/",
