@@ -26,7 +26,11 @@ This book by Cook and Laa is the primary resource for learning how to visualise 
 
 - [Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/)
 
-This book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them
+This book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them.
+
+- [Explanatory Model Analysis](https://ema.drwhy.ai)
+
+This book by Biecek and Burzykowski provides useful approaches for making black boxes explainable. 
 
 - [Feature Engineering A-Z](https://feaz-book.com)
 
@@ -41,3 +45,5 @@ Written by Emil Hvitfeldt to cover creating new variables as broadly as possibly
 - [(M+C)² Blog](https://lorentzen.ch/index.php/blog/)
 
 - [Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)
+
+- [Project in Data Analytics for Decision Making](https://bookdown.org/gaetan_lovey/data_analytics/)

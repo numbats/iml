@@ -19,9 +19,12 @@ schedule |>
 
 ## What you will learn this week
 
+* Global explainability
 * Local explainability
-* LIME
-* Shapley values
+    * LIME
+    * Counterfactuals
+    * Anchors
+    * Shapley values
 
 ## Lecture slides
 

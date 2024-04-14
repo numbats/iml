@@ -103,7 +103,7 @@ $p$ [inputs]{.monash-orange2} (predictors), multiplied by [weights]{.monash-oran
 ::: {.column}
 
 \begin{align}
-\widehat{y} =a_{0}+\sum_{k=1}^s(a_{k}(b_{j0}+\sum_{j=1}^pb_{jk}x_j))
+\widehat{y} =a_{0}+\sum_{k=1}^s(a_{k}(b_{0k}+\sum_{j=1}^pb_{jk}x_j))
 \end{align}
 
 

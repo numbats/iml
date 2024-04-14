@@ -439,7 +439,7 @@ ggplot(fashion_umap_df, aes(x = UMAP1,
 There is a lot of clustering in this view, but it mostly doesn't match the classes. Trouser is the only class that appears to be primarily in one cluster.
 :::
 
-- Last task is to explan on what was learned from the cnfusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.
+- Last task is to explain on what was learned from the confusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.
 
 ```{r}
 # Generate the projection to 9D
