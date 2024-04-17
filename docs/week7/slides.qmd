@@ -38,7 +38,7 @@ We will cover:
 
 ## Global explainability {.transition-slide .center}
 
-## Variable importance [(1/4)]{.smaller}
+## Variable importance [(1/3)]{.smaller}
 
 :::: {.columns}
 ::: {.column}
@@ -55,7 +55,7 @@ Remember:
 :::
 ::::
 
-## Variable importance [(2/4)]{.smaller}
+## Variable importance [(2/3)]{.smaller}
 
 :::: {.columns}
 ::: {.column}
@@ -96,7 +96,7 @@ ggplot(p_std, aes(x=bd, y=bl, colour=species)) +
 :::
 ::::
 
-## Variable importance [(3/4)]{.smaller}
+## Variable importance [(3/3)]{.smaller}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
@@ -327,7 +327,7 @@ pdp_lda$agr_profiles |>
 :::
 ::::
 
-## Partial dependence profiles [(1/2)]{.smaller}
+## Partial dependence profiles [(2/2)]{.smaller}
 
 :::: {.columns}
 ::: {.column}
@@ -445,6 +445,17 @@ Mark a point where `x2` is most important in distinguishing the classes.
 
 :::
 ::::
+
+## Why should I know about local explainers?
+
+<br>
+<br>
+
+If you deploy a complex model, you [**may** need to be able to explain any decision]{.monash-blue2} made from it. 
+
+<br>
+<br>
+If the decisions affect people or organisations, they might be [challenged in court]{.monash-orange2}. You as the analyst may be expected to justify the decision, that it was made [fairly, without bias]{.monash-orange2}, and based on specific measurements collected for the model.
 
 ## Selected points to use for illustration
 
@@ -752,6 +763,11 @@ They don't all agree.
 <br>
 
 You [need good visualisation of the model in the data space]{.monash-orange2} to fully digest the importance of the variables.
+
+<br>
+
+NOTE: We can use [magnitude]{.monash-orange2} when interpreting the local explainers because we used [standardised data]{.monash-orange2}. The interpretations are more complicated otherwise.
+
 :::
 ::::
 

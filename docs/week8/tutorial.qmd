@@ -1,0 +1,451 @@
+---
+title: "ETC3250/5250 Tutorial 8"
+subtitle: "Explainability (XAI)"
+author: "Prof. Di Cook"
+date: "2024-04-22"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Load the libraries and avoid conflicts, and prepare data"
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(patchwork)
+library(mulgar)
+library(GGally)
+library(tourr)
+library(plotly)
+library(randomForest)
+library(colorspace)
+library(ggthemes)
+library(conflicted)
+library(DALEXtra)
+# devtools::install_github("dandls/counterfactuals")
+# You need the GitHub version
+library(counterfactuals)
+library(kernelshap)
+library(shapviz)
+library(lime)
+library(palmerpenguins)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(palmerpenguins::penguins)
+
+p_tidy <- penguins |>
+  select(species, bill_length_mm:body_mass_g) |>
+  rename(bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g) |>
+  na.omit()
+
+# `id` variable added to ensure we know which case
+# when investigating the models
+p_std <- p_tidy |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |>
+  mutate(id = 1:nrow(p_tidy)) 
+
+# Only use Adelie and Chinstrap, because explainers are easy to calculate with only two groups
+p_sub <- p_std |>
+  filter(species != "Gentoo") |>
+  mutate(species = factor(species)) # Fix factor
+
+# Split intro training and test sets
+set.seed(821)
+p_split <- p_sub |> 
+  select(species:id) |>
+  initial_split(prop = 2/3, 
+                strata=species)
+p_train <- training(p_split)
+p_test <- testing(p_split)
+```
+
+```{r}
+#| echo: false
+# Set plot theme
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is learn to diagnose a model, and understand variable importance and local explainers. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Make sure you have all the necessary libraries installed. There are a few new ones this week!
+
+## Exercises: 
+
+Open your project for this unit called `iml.Rproj`. 
+
+[**CHALLENGE QUESTION**]{.monash-blue2}: In the penguins data, find an  observation where you think various models might differ in their prediction. Try to base your choice on the structure of the various models, not from that observation being in an overlap area between class clusters. (The code like that below will help to identify observations by their row number.)
+
+```{r}
+#| eval: false
+ggplot(p_std, aes(x=bl, y=bd, 
+                  colour=species, 
+                  label=id)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+ggplotly()
+```
+
+::: unilur-solution
+
+```{r}
+#| eval: false
+ggscatmat(p_std, 
+          columns=2:5, 
+          color="species", 
+          alpha=0.5) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+```
+
+A scatterplot matrix is useful to get an overall look at the data. Then plot two variables, and if you use plotly to mouse over the plot you can get the row number to show. This can help find observations. 
+
+These are the ones that I selected to investigate below:
+
+- 19, 28, 37, 111, 122, 129 Adelie
+- 185, 189, 250, 253 Gentoo
+- 281, 292, 295, 305 Chinstrap
+
+Most of these choices are because they are outliers in their group, and model fits could possibly have different boundaries in these regions: orthogonal to axes like in a tree/forest rather than oblique like LDA, logistic and NN.
+
+Did you find any others?
+:::
+
+
+#### 1. Create and build - construct the (non-linear) model
+
+Fit a random forest model to a subset of the penguins data containing only Adelie and Chinstrap. Report the summaries, and which variable(s) are globally important.
+
+```{r}
+#| label: random forest model fit
+set.seed(857)
+p_rf <- randomForest(species ~ ., 
+                     data = p_train[,-6])
+```
+
+::: unilur-solution
+```{r}
+p_rf
+p_rf$importance
+```
+
+`bl` is much more important than any of the other variables.
+
+```{r}
+p_rf_tr_pred <- p_train |>
+  mutate(pspecies = p_rf$predicted)
+
+p_rf_ts_pred <- p_test |>
+  mutate(pspecies = predict(p_rf, 
+                            p_test, 
+                            type="response")) 
+accuracy(p_rf_ts_pred, species, pspecies)
+p_rf_ts_pred |>
+  count(species, pspecies) |>
+  group_by(species) |>
+  mutate(Accuracy = n[species==pspecies]/sum(n)) |>
+  pivot_wider(names_from = "pspecies", 
+              values_from = n, 
+              values_fill = 0) |>
+  select(species, Adelie, Chinstrap, Accuracy)
+```
+
+:::
+
+#### 2. How does your model affect individuals?
+
+Compute LIME, counterfactuals and SHAP for these cases: 19, 28, 37, 111, 122, 129, 281, 292, 295, 305. Report these values. (You can use this code to compute these.)
+
+```{r}
+# Filter the selected observations
+p_new <- p_sub |>
+  filter(id %in% c(19, 28, 37, 111, 122, 129, 281, 292, 295, 305))
+```
+
+```{r}
+#| message: false
+# Compute LIME and re-organise
+p_rf_exp <- DALEX::explain(model = p_rf,  
+                        data = p_new[, 2:5],
+                        y = p_new$species == "Adelie",
+                        verbose = FALSE)
+model_type.dalex_explainer <-
+  DALEXtra::model_type.dalex_explainer
+predict_model.dalex_explainer <-
+  DALEXtra::predict_model.dalex_explainer
+p_rf_lime <- predict_surrogate(
+  explainer = p_rf_exp, 
+              new_observation = p_new[, 2:5], 
+              n_features = 4, 
+              n_permutations = 100,
+              type = "lime")
+# Re-format the output
+p_rf_lime_coef <- p_rf_lime |>
+  select(case, model_intercept, feature_weight) |>
+  as_tibble() |>
+  rename(bl = feature_weight) |>
+  mutate(bd = 0, 
+         fl = 0,
+         bm = 0)
+p_rf_lime_coef$bd[seq(1, 39, 4)] <-
+  p_rf_lime_coef$bl[seq(2, 40, 4)]
+p_rf_lime_coef$fl[seq(1, 39, 4)] <-
+  p_rf_lime_coef$bl[seq(3, 40, 4)]
+p_rf_lime_coef$bm[seq(1, 39, 4)] <-
+  p_rf_lime_coef$bl[seq(4, 40, 4)]
+p_rf_lime_coef <- p_rf_lime_coef[seq(1, 39, 4),]
+```
+
+```{r}
+# Compute counterfactuals
+predictor_rf = iml::Predictor$new(p_rf, 
+                                  type = "prob")
+p_classif <- counterfactuals::NICEClassif$new(
+  predictor_rf)
+
+p_new_cf <- p_new
+p_new_cf$species <- as.character(ifelse(p_new[,1]=="Adelie", 
+                           "Chinstrap", "Adelie"))
+# Must not match prediction
+p_new_cf$species[6] <- as.character(p_new$species[6])
+for (i in 1:nrow(p_new)) {
+  p_cf = p_classif$find_counterfactuals(
+    x_interest = p_new[i,2:5], 
+    desired_class = as.character(p_new_cf[i,1]),
+                 desired_prob = c(0.5, 1)
+  )
+  p_new_cf[i, 2] <- p_cf$data$bl
+  p_new_cf[i, 3] <- p_cf$data$bd
+  p_new_cf[i, 4] <- p_cf$data$fl
+  p_new_cf[i, 5] <- p_cf$data$bm
+}
+```
+
+```{r}
+# Compute SHAP values
+p_explain <- kernelshap(
+    p_rf,
+    p_new[,2:5], 
+    p_new[,2:5],
+    verbose = FALSE
+  )
+p_shap <- p_new |>
+  mutate(shapAbl = p_explain$S$Adelie[,1],
+         shapAbd = p_explain$S$Adelie[,2],
+         shapAfl = p_explain$S$Adelie[,3],
+         shapAbm = p_explain$S$Adelie[,4],)
+```
+
+::: unilur-solution
+
+```{r}
+# Check misclassified
+p_rf_tr_pred |> 
+  filter(species != pspecies)
+p_rf_ts_pred |> 
+  filter(species != pspecies)
+```
+
+Observations 19, 111, 295 and 305 are misclassified in the training set. 
+
+Observation 129 is misclassified in the test set. 
+
+```{r}
+p_rf_lime_coef
+```
+
+
+- For most observations, `bl` is most important. 
+- For observations 4 (111) and 6 (129), `bd` and `bm` have some importance.  
+- For observation 9 (295), `fl` has some importance.
+
+
+```{r}
+p_new |> mutate(bl = bl-p_new_cf$bl,
+                bd = bd-p_new_cf$bd,
+                fl = fl-p_new_cf$fl,
+                bm = bm-p_new_cf$bm)
+```
+
+You need to look at the difference between the original values, and the new values to understand the importance.
+
+- For most observations `bl` is the only important variable.
+- For observation 1 (19), `bd` is most important
+- For observation 4 (111), `bd` and `fl` are important
+
+```{r}
+p_shap[,6:10]
+```
+
+
+- SHAP values suggest `bl` is most important for most of these observations
+- For observation 1 (19) and 10 (305), `bl`, `bd` and `bm` are most important
+- For observation 4 (111), similarly, but `bm` is more important than `bl` and `bd`
+- For observation 7 (281) and 9 (295), `bm` is important, along with `bl`
+:::
+
+#### 3. Putting the pieces back together
+
+Explain what you learn about the fitted model by studying the local explainers for the selected cases. (You will want to compare the suggested variable importance of the local explainers, for an observation, and then make plots of those variables with the observation of interest marked.)
+
+::: unilur-solution
+The model has non-linear boundaries because the local variable importance do have different values than the global variable importance. So we have something to investigate locally!
+
+Here's a summary of what is learned about each observation form the local explainers.
+
+| id | species | predicted | LIME | CF | SHAP |
+|----|---------|-----------|------|----|------|
+| 19 | Adelie  | Chinstrap |  | `bd` | `bd`, `bm` |
+| 28 | Adelie  | Adelie    | | | |
+| 37 | Adelie  | Adelie    | | | |
+| 111 | Adelie | Chinstrap | `bd`, `bm` | `bd`, `fl` | `bm` |
+| 122 | Adelie | Adelie    | | | |
+| 129 | Adelie | Chinstrap | `bd`, `bm` | | |
+| 281 | Chinstrap | Chinstrap | | | `bm` |
+| 292 | Chinstrap | Chinstrap | | | |
+| 295 | Chinstrap | Adelie | `fl` | `fl` | `bm` |
+| 305 | Chinstrap | Adelie | | | `bd`, `bm` |
+
+Plotting two variables and identifying the observation could help understand the model at this point. 
+
+- Focus on the misclassified observations, because this helps understand where the model is going wrong. We choose 19 here, which is an observation in the training set, so was used to build the model.
+- Plot the variables that are important, with the observation of interest marked. Always `bl` was important. For observation 19, two explainers suggested `bd`, with one also suggesting `bm`.
+
+```{r}
+#| fig-width: 9
+#| fig-height: 3
+#| out-width: 100%
+p1 <- ggplot(data=p_sub, aes(x=bl, y=bd, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[1,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p2 <- ggplot(data=p_sub, aes(x=bl, y=bm, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[1,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p3 <- ggplot(data=p_sub, aes(x=bd, y=bm, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[1,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p1 + p2 + p3 + plot_layout(ncol=3)
+```
+
+Penguin 19 is a slightly unusual. It has a high value of `bd`, slightly higher than all other Adelie (blue) penguins. It also has slightly higher `bm` compared to other Adelie penguins with similar `bl` values. We suspect that the model, in the way that it makes "boxy" boundaries carved the region in `bd` vs `bl` as a prediction region for the Chinstrap (red). (Note, `bd` and `bm` together show nothing interesting.)
+
+
+```{r}
+#| fig-width: 9
+#| fig-height: 3
+#| out-width: 100%
+p1 <- ggplot(data=p_sub, aes(x=bl, y=bd, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[6,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p2 <- ggplot(data=p_sub, aes(x=bl, y=bm, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[6,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p3 <- ggplot(data=p_sub, aes(x=bd, y=bm, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[6,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p1 + p2 + p3 + plot_layout(ncol=3)
+```
+
+Penguin 129 is in the test set. Only LIME suggested any variables other than `bl` were important, and these were `bd` and `bm`. We can see that in each of these variables when plotted against `bl` that this penguin is in the confusion region between Adelie and Chinstrap. The error is likely because the training set had no other Adelie similar `bl`, `bd` and `bm` characteristics, that all penguins in this region in the training set were Chinstrap.
+
+```{r}
+#| fig-width: 6
+#| fig-height: 3
+#| out-width: 100%
+p1 <- ggplot(data=p_sub, aes(x=bl, y=fl, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[9,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p2 <- ggplot(data=p_sub, aes(x=bl, y=bm, 
+                  colour=species)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_new[9,], shape=1, size=3) +
+  theme(legend.position="none", 
+        axis.text = element_blank())
+p1 + p2 + plot_layout(ncol=2)
+```
+
+Penguin 295 is a Chinstrap and was in the training set. It is unusual in both `fl` and `bm` relative to `bl`. The error most likely occurs because of the "boxy" boundaries of forests. Most of the penguins with these characteristics are Adelie, hence the misclassification.
+
+:::
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.
