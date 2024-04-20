@@ -23,6 +23,20 @@ schedule |>
 * Non-linear kernels
 * Naive models using nearest neighbours
 
+## Lecture slides
+
+- [html](https://iml.numbat.space/week8/slides.html)
+- [pdf](https://iml.numbat.space/week8/slides.pdf)
+- [qmd](https://iml.numbat.space/week8/slides.qmd)
+- [R](https://iml.numbat.space/week8/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week8/tutorial.html)
+- [qmd](https://iml.numbat.space/week8/tutorial.qmd)
+
 ```{r}
 #| output: asis
 show_assignments(week)
