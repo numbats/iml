@@ -1,0 +1,614 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 8: Support vector machines, nearest neighbours and regularisation"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 8 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+```
+
+## Overview
+
+We will cover:
+
+* Separating hyperplanes
+* Non-linear kernels
+* Really simple models using nearest neighbours
+* Regularisation methods
+
+## Why use support vector machines?
+
+```{r}
+#| echo: false
+#| eval: false
+set.seed(427)
+n1 <- 102
+n2a <- 25
+n2b <- 37
+n2c <- 32
+vc1 <- matrix(c(4, -1, -1, 4), ncol=2, byrow=TRUE)
+vc2 <- matrix(c(0.25, -0.2, -0.2, 0.5), ncol=2, byrow=TRUE)
+d1 <- rmvnorm(n1, c(5, 5), vc1)
+d2a <- rmvnorm(n2a, c(-1.2, 0), vc2)
+d2b <- rmvnorm(n2b, c(-1, -1), vc2)
+d2c <- rmvnorm(n2c, c(-0.5, -3), vc2)
+pebbles <- tibble(x1 = c(d1[,1], d2a[,1], 
+                         d2b[,1], d2c[,1]),
+                  x2 = c(d1[,2], d2a[,2], 
+                         d2b[,2], d2c[,2]),
+                  cl = factor(c(rep("A", n1),
+                              rep("B", n2a+n2b+n2c))))
+pebbles <- pebbles |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x))
+ggplot(pebbles, aes(x=x1, y=x2, 
+                    colour=cl)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1")
+write_csv(pebbles, file="data/pebbles.csv")
+```
+
+:::: {.columns}
+::: {.column width=33%}
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+pebbles <- read_csv(here::here("data/pebbles.csv")) |>
+  mutate(cl = factor(cl))
+ggplot(pebbles, aes(x=x1, y=x2, 
+                    colour=cl)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position = "none")
+```
+
+Where would you put the boundary to classify these two groups?
+
+:::
+
+::: {.column width=33%}
+::: {.fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS", prior = c(0.5, 0.5))
+lda_fit <- lda_spec |> 
+  fit(cl ~ ., data = pebbles)
+
+pebbles_grid <- tibble(
+  x1 = runif(10000, -1.5, 2.5),
+  x2 = runif(10000, -1.75, 2.25))
+pebbles_grid <- pebbles_grid |>
+  mutate(cl_lda = factor(predict(lda_fit$fit,
+                             pebbles_grid)$class))
+ggplot(pebbles_grid, aes(x=x1, y=x2, 
+                    colour=cl_lda)) +
+  geom_point(alpha=0.05, size=2) +
+  geom_point(data=pebbles, aes(colour=cl), 
+             shape=16, size=2) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position = "none")
+
+```
+
+Here's where LDA puts the boundary. [What's wrong with it?]{.monash-blue2}
+
+:::
+:::
+
+::: {.column width=33%}
+::: {.fragment}
+```{r}
+#| message: false
+#| results: hide
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+svm_spec <- svm_linear() |>
+  set_mode("classification") |>
+  set_engine("kernlab")
+svm_fit <- svm_spec |> 
+  fit(cl ~ ., data = pebbles)
+
+pebbles_grid <- pebbles_grid |>
+  mutate(cl_svm = factor(predict(svm_fit$fit,
+                             pebbles_grid)))
+ggplot(pebbles_grid, aes(x=x1, y=x2, 
+                    colour=cl_svm)) +
+  geom_point(alpha=0.05, size=2) +
+  geom_point(data=pebbles, aes(colour=cl),
+             shape=16, size=2) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position = "none")
+
+```
+
+Why is this the better fit?
+
+:::
+:::
+
+::::
+
+## Separating hyperplanes [(1/3)]{.smaller}
+
+:::: {.columns}
+::: {.column style="font-size: 90%;"}
+LDA is an example of a classifier that generates a separating hyperplane
+
+```{r}
+lda_fit$fit$scaling
+```
+
+is defines a line orthogonal to the 1D separating hyperplane, with slope `r lda_fit$fit$scaling[2]/lda_fit$fit$scaling[1]`.
+
+[Equation for the separating hyperplane is]{.monash-blue2} $x_2 = mx_1+b$, where $m=$ `r -lda_fit$fit$scaling[1]/lda_fit$fit$scaling[2]`, and $b$ can be solved by substituting in the point $((\bar{x}_{A1}+\bar{x}_{B1})/2, (\bar{x}_{A2}+\bar{x}_{B2})/2)$. (Separating hyperplane has to pass through the average of the two means, if prior probabilities of each class are equal.)
+
+
+:::
+
+::: {.column style="font-size: 70%;"}
+::: {.fragment}
+```{r}
+#| echo: false
+#| eval: false
+p_sub <- p_std |>
+  filter(species != "Chinstrap") |>
+  mutate(species = factor(species)) |>
+  select(species, bl:bm)
+
+lda_fit2 <- lda_spec |> 
+  fit(species ~ ., data = p_sub)
+
+p_explore <- classifly::explore(lda_fit2$fit, p_sub)
+p_lda_bnd <- p_explore |>
+  as_tibble() |>
+  #filter(.TYPE == "simulated") |>
+  filter(!.BOUNDARY)
+
+animate_xy(p_lda_bnd[,1:4], 
+           col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, shapeset = c(19, 4))
+
+render_gif(p_lda_bnd[,1:4], 
+           grand_tour(),
+           display_xy(col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, 
+           shapeset = c(19, 4)), 
+           gif_file = "gifs/p_svm.gif",
+           frames=500,
+           width=400,
+           height=400)
+```
+
+Separating hyperplane produced by LDA on [4D penguins data, for Gentoo vs Adelie]{.monash-blue2}. (It is 3D.)
+
+<center>
+![](../gifs/p_svm.gif)
+</center>
+
+
+:::
+:::
+
+::::
+
+## Separating hyperplanes [(2/3)]{.smaller}
+
+:::: {.columns}
+::: {.column}
+The equation of $p$-dimensional hyperplane is given by
+
+$$\beta_0 + \beta_1 X_1 + \dots + \beta_p X_p = 0$$
+
+::: {.fragment}
+<br>
+[LDA]{.monash-blue2} estimates $\beta_j$ based on the [sample statistics]{.monash-blue2}, means for each class and pooled covariance. 
+:::
+
+::: {.fragment}
+[SVM]{.monash-orange2} estimates $\beta_j$ based on [support vectors]{.monash-orange2} ([$\circ$]{.monash-red2}, [$\circ$]{.monash-blue2}), observations on the border between the two groups. Thus, the boundary will divide in the gap.
+:::
+
+:::
+
+::: {.column}
+::: {.fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+#| results: hide
+svm_spec2 <- svm_linear(cost=1.5) |>
+  set_mode("classification") |>
+  set_engine("kernlab")
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = pebbles)
+svm_fit2$fit@SVindex
+svm_fit2$fit@alpha
+
+pebbles_sv <- pebbles |>
+  mutate(id = row_number()) |>
+  mutate(sv = ifelse(id %in%
+                       svm_fit2$fit@SVindex, 
+                     "yes", "no")) 
+ggplot(pebbles_sv, aes(x=x1, y=x2, 
+             colour=cl)) +
+  geom_point() +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=filter(pebbles_sv, 
+                         sv == "yes"), shape=1, size=3) +
+  theme(legend.position = "none")
+```
+
+
+:::
+:::
+
+::::
+
+## Separating hyperplanes [(3/3)]{.smaller}
+
+:::: {.columns}
+::: {.column style="font-size: 70%;"}
+
+LDA
+
+$$
+x ~S^{-1}(\bar{x}_A - \bar{x}_B) - \frac{\bar{x}_A + \bar{x}_B}{2} S^{-1}(\bar{x}_A - \bar{x}_B) = 0
+$$
+
+resulting in:
+
+$$\widehat{\beta}_0 = - \frac{\bar{x}_A + \bar{x}_B}{2} S^{-1}(\bar{x}_A - \bar{x}_B)$$
+
+$$\left( \begin{array}{c} \widehat{\beta}_1 \\
+                          \widehat{\beta}_2 \\
+                          \vdots \\
+                          \widehat{\beta}_p \end{array}\right) = S^{-1}(\bar{x}_A - \bar{x}_B)$$
+
+:::
+::: {.column style="font-size: 70%;"}
+
+SVM 
+
+Set $y_A=1, y_B=-1$, and $x_j$ scaled to $[0,1]$, $s=$ number of support vectors.
+
+<!--
+$$\widehat{\beta}_0 = -\sum_{k=1}^s (\alpha_ky_k)$$
+-->
+
+$$\left( \begin{array}{c} \widehat{\beta}_1 \\
+                          \widehat{\beta}_2 \\
+                          \vdots \\
+                          \widehat{\beta}_p \end{array}\right) = \sum_{k=1}^s (\alpha_ky_k)x_{kj}$$
+
+::: 
+
+::::
+
+## Linear support vector machine classifier [(1/2)]{.smaller}
+
+:::: {.columns}
+::: {.column}
+- Many possible separating hyperplanes, [which is best?]{.monash-blue2}
+
+<center>
+![](../images/svm-hyperplanes.jpg)
+</center>
+
+- [Computationally hard.]{.monash-blue2} Need to find the observations which when used to define the hyperplane maximise the margin.
+
+:::
+
+::: {.column style="font-size: 80%;"}
+
+<center>
+![](../images/svm_diagram.png){width=450}
+</center>
+
+[Minimise]{.monash-orange2} wrt $\beta_j, j=0, ..., p$
+
+$$\frac{1}{2}\sqrt{\sum_{i=1}^p \beta_j^2}$$
+subject to $y_i(\sum_{j=1}^px_{ij}\beta_j + \beta_0) \geq 1$.
+:::
+
+::::
+
+## Linear support vector machine classifier [(2/2)]{.smaller}
+
+Classify the test observation $x$ based on the [sign]{.monash-orange2} of 
+$$s(x) = \beta_0 + \beta_1 x_{1} + \dots + \beta_p x_{p}$$
+
+- If $s(x_0) > 0$, class $1$, and if $s(x_0) < 0$, class $-1$, i.e. $h(x_0) = \mbox{sign}(s(x_0)).$
+- $s(x_0) \mbox{ far from zero } \rightarrow$ $x_0$ lies far from the hyperplane + **more confident** about our classification
+
+Note: The margin ($M$) is set to be equal to 1 here, but could be anything depending on scaling.
+
+## Using kernels for non-linear classification
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+
+Note: Linear SVM is
+
+$$f(x) = \beta_0 +  \sum_{i \in \mathcal{S}} \alpha_i \langle x, x_i \rangle.$$
+
+where the inner product is defined as 
+
+$$
+\begin{align*}
+\langle x_1, x_2\rangle &= x_{11}x_{21} + x_{12}x_{22} + \dots + x_{1p}x_{2p} \\ &= \sum_{j=1}^{p} x_{1j}x_{2j}
+\end{align*}
+$$
+
+::: {.fragment}
+
+![](../images/kernel-trick.png)
+
+[Source: Grace Zhang @zxr.nju]{.smallest}
+
+:::
+:::
+
+::: {.column style="font-size: 80%;"}
+
+::: {.fragment}
+A kernel function is an inner product of vectors mapped to a (higher dimensional) feature space.
+
+$$
+\mathcal{K}(x_1, x_2)  = \langle \psi(x_1), \psi(x_2) \rangle
+$$
+
+We can [generalise SVM to a non-linear classifier]{.monash-blue2} by replacing the inner product with the kernel function as follows:
+
+$$f(x) = \beta_0 +  \sum_{i \in \mathcal{S}} \alpha_i \mathcal{K}( x, x_i ).$$
+
+<br>
+Common kernels: polynomial, radial
+
+:::
+:::
+::::
+
+## Soft threshold, when no separation
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+
+![](../images/SVM_misclass.png)
+
+Distance observation $i$ is on wrong side of boundary is $\xi_i/||b||$.
+
+:::
+
+::: {.column style="font-size: 80%;"}
+
+Minimise wrt $\beta_j, j=0, ..., p$
+
+$$\frac{1}{2}\sqrt{\sum_{i=1}^p \beta_j^2} + C\sum_{i=1}^{s^*} \xi_i $$
+
+- subject to $y_i(\sum_{j=1}^px_{ij}\beta_j + \beta_0) \geq 1$, 
+- where $C$ is a [regularisation parameter]{.monash-orange2} that controls the trade-off between maximizing the margin and minimizing the misclassifications $\sum_{i=1}^{s^*} \xi_i$, for $s^*$ misclassified observations.
+:::
+::::
+
+## Really simple models {.transition-slide .center}
+
+## $k$-nearest neighbours
+
+Predict $y$ using the $k-$ nearest neighbours from observation of interest. 
+
+## Regularisation {.transition-slide .center}
+
+## What is the problem in high-high-D? [(1/3)]{.smaller}
+
+20 observations and 2 classes: A, B. [One variable with separation, 99 noise variables]{.monash-blue2}
+
+```{r}
+#| echo: false
+#| out-width: 100%
+#| fig-width: 8
+#| fig-height: 3
+set.seed(839)
+tr <- matrix(rnorm(20*100),ncol=100)
+colnames(tr) <- paste0("x", 1:100)
+tr[1:10,1] <- tr[1:10,1]+5
+tr <- apply(tr, 2, function(x) (x-mean(x))/sd(x))
+tr <- as_tibble(tr) %>% mutate(cl=c(rep("A",10), rep("B",10)))
+p1 <- ggplot(data=tr, aes(x=x1, y=x2, colour=cl, shape=cl)) + 
+  geom_point(size=3) + 
+  scale_color_brewer(palette="Dark2") +
+  theme_bw() + 
+  theme(legend.position="none", aspect.ratio=1) +
+  ggtitle("Gap in x1")
+p2 <- ggplot(data=tr, aes(x=x2, y=x3, colour=cl, shape=cl)) + 
+  geom_point(size=3) + 
+  scale_color_brewer(palette="Dark2") +
+  theme_bw() + 
+  theme(legend.position="none", aspect.ratio=1) +
+  ggtitle("Noise")
+grid.arrange(p1, p2, ncol=2)
+
+# Generate test data
+ts <- matrix(rnorm(10*100),ncol=100)
+colnames(ts) <- paste0("x", 1:100)
+ts[1:5,1] <- ts[1:5,1]+5
+ts <- apply(ts, 2, function(x) (x-mean(x))/sd(x))
+ts <- as_tibble(ts) %>% mutate(cl=c(rep("A",5), rep("B",5)))
+```
+
+[What will be the optimal LDA coefficients?]{.monash-blue2}
+
+## What is the problem in high-high-D? [(2/3)]{.smaller}
+
+:::: {.columns}
+::: {.column}
+Fit linear discriminant analysis on [first two variables]{.monash-blue2}.
+<br>
+
+```{r}
+#| echo: false
+library(MASS)
+tr_lda <- lda(cl~., data=tr[,c(1:2,101)], prior=c(0.5,0.5))
+tr_lda
+```
+
+<br>
+Coefficient for `x1` MUCH higher than `x2`. [As expected!]{.monash-blue2}
+:::
+::: {.column}
+Predict the training and test sets
+
+
+```{r}
+#| echo: false
+tr_p <- predict(tr_lda, tr)
+table(tr_p$class, tr$cl)
+
+ts_p <- predict(tr_lda, ts)
+table(ts_p$class, ts$cl)
+```
+
+```{r}
+#| echo: false
+#| out-width: "80%"
+#| fig-width: 4 
+#| fig-height: 2
+ggplot(data=data.frame(
+  LD1=tr_p$x, cl=tr$cl), 
+  aes(x=LD1, y=cl)) +
+         geom_point(size=5, alpha=0.5) +
+         ylab("Class") + xlim(c(-10,10)) +
+  geom_point(data=data.frame(LD1=ts_p$x, cl=ts$cl), 
+             shape=2, size=5, colour="red")
+```
+
+[Perfect!]{.monash-blue2}
+:::
+::::
+
+## What is the problem in high-high-D? [(3/3)]{.smaller}
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+
+What happens to test set (and predicted training values) as [number of noise variables increases]{.monash-blue2}?
+
+```{r, animation.hook='gifski', out.width="100%", fig.width=9, fig.height=4.5, echo=FALSE}
+for (i in 2:16) {
+  tr_lda <- lda(cl~., data=tr[,c(1:i,101)], prior=c(0.5,0.5))
+  tr_p <- predict(tr_lda, tr)
+  ts_p <- predict(tr_lda, ts)
+  t1 <- table(tr$cl, tr_p$class)
+  t2 <- table(ts$cl, ts_p$class)
+  tr_err <- (t1[1,2]+t1[2,1])/sum(t1)
+  ts_err <- (t2[1,2]+t2[2,1])/sum(t2)
+
+  print(
+    ggplot(data=data.frame(LD1=tr_p$x, cl=tr$cl), aes(x=LD1, y=cl)) +
+         geom_point(size=5, alpha=0.5) +
+         ylab("Class") + xlim(c(-20,20)) +
+      geom_point(data=data.frame(LD1=ts_p$x, cl=ts$cl), 
+             shape=2, size=5, colour="red") +
+      ggtitle(paste0("p = ", i, " train = ", tr_err, " test = ", ts_err))
+  )
+}
+```
+:::
+::: {.column style="font-size: 80%;"}
+::: {.fragment}
+
+What happens to the [estimated coefficients]{.monash-blue2} as dimensions of noise increase?
+
+[Remember, the noise variables should have coefficient = ZERO.]{.monash-blue2}
+
+```{r, animation.hook='gifski', out.width="100%", fig.width=10, fig.height=4, echo=FALSE}
+for (i in 2:20) {
+  tr_lda <- lda(cl~., data=tr[,c(1:i,101)], prior=c(0.5,0.5))
+  coef <- tibble(var=colnames(tr)[1:20], coef=c(1,rep(0,19)))
+  coef$var <- factor(coef$var, levels=c(paste0("x",1:20)))
+  coef$coef[1:i] <- abs(tr_lda$scaling)/sqrt(sum(tr_lda$scaling^2))
+  print(
+    ggplot(data=coef, aes(x=var, y=coef)) +
+    geom_col() + ylim(c(0,1)) + xlab("Variable") + 
+    ylab("Coefficient") +
+    ggtitle(paste0("p = ", i)) +
+      theme(aspect.ratio=0.3)
+  )
+}
+```
+
+:::
+:::
+
+::::
+
+## How do you check?
+
+- Having a test set is really critical. 
+- If results (error/accuracy, low-d visual summary) on test set are very different than training, it could be due to high-dimensionality.
+
+## How can you correct?
+
+:::: {.columns}
+::: {.column}
+
+- [Subset selection]{.monash-blue2}: reduce the number of variables before attempting to model
+- [Penalisation]{.monash-blue2}: change the optimisation criteria to include another term which makes it worse when there are more coefficients
+:::
+::: {.column style="font-size: 80%;"}
+
+[**Penalised LDA**]{.monash-blue2}
+
+Recall: LDA involves the eigen-decomposition of $\color{orange}{\Sigma^{-1}\Sigma_B}$. (Inverting $\Sigma$ is a problem with too many variables.)
+
+The eigen-decomposition is an analytical solution to an optimisation: 
+
+\begin{align*}
+& \small{\underset{{\beta_k}}{\text{maximize}}~~ \beta_k^T\hat{\Sigma}_B \beta_k} \\
+& \small{\mbox{ subject to  }  \beta_k^T\hat{\Sigma} \beta_k \leq 1, ~~\beta_k^T\hat{\Sigma}\beta_j = 0 \mbox{  } \forall i<k}
+\end{align*}
+
+[Fix]{.monash-blue2} this by:
+
+\begin{align*}
+& \underset{{\beta_k}}{\text{maximize}} \left(\beta_k^T\hat{\Sigma}_B \beta_k + \color{orange}{\lambda_k \sum_{j=1}^p |\hat{\sigma}_j\beta_{kj}|}\right)\\
+& \mbox{ subject to  }  \beta_k^T\tilde{\Sigma} \beta_k \leq 1
+\end{align*}
+
+
+:::
+::::
+
+## Next: K-nearest neighbours and hierarchical clustering {.transition-slide .center}
+
+

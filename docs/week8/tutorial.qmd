@@ -305,8 +305,8 @@ p_rf_lime_coef
 
 
 - For most observations, `bl` is most important. 
-- For observations 4 (111) and 6 (129), `bd` and `bm` have some importance.  
-- For observation 9 (295), `fl` has some importance.
+- For observation 4 (111) `bd` and `bm` have some importance.  
+- For observations 6 (129) and 9 (295) `bd` has some importance.
 
 
 ```{r}
@@ -349,10 +349,10 @@ Here's a summary of what is learned about each observation form the local explai
 | 37 | Adelie  | Adelie    | | | |
 | 111 | Adelie | Chinstrap | `bd`, `bm` | `bd`, `fl` | `bm` |
 | 122 | Adelie | Adelie    | | | |
-| 129 | Adelie | Chinstrap | `bd`, `bm` | | |
+| 129 | Adelie | Chinstrap | `bd` | | |
 | 281 | Chinstrap | Chinstrap | | | `bm` |
 | 292 | Chinstrap | Chinstrap | | | |
-| 295 | Chinstrap | Adelie | `fl` | `fl` | `bm` |
+| 295 | Chinstrap | Adelie | `bd` | `fl` | `bm` |
 | 305 | Chinstrap | Adelie | | | `bd`, `bm` |
 
 Plotting two variables and identifying the observation could help understand the model at this point. 

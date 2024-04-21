@@ -31,6 +31,7 @@ library(lime)
 # devtools::install_github("dandls/counterfactuals")
 library(iml)
 library(counterfactuals)
+library(kernlab)
 
 # Locations
 current_file <- knitr::current_input()

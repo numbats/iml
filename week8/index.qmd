@@ -21,7 +21,8 @@ schedule |>
 
 * Separating hyperplanes
 * Non-linear kernels
-* Naive models using nearest neighbours
+* Really simple models using nearest neighbours
+* Regularisation methods
 
 ## Lecture slides
 
