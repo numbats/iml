@@ -4,6 +4,7 @@ project:
   - "*.qmd"
   - "*.md"
   - "!quizzes/"
+  - "!exam/"
   - "!assignments/"
   - "!next-time*"
   - "!data/ACIC23-competition/"

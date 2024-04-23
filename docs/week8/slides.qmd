@@ -425,7 +425,57 @@ $$\frac{1}{2}\sqrt{\sum_{i=1}^p \beta_j^2} + C\sum_{i=1}^{s^*} \xi_i $$
 
 ## $k$-nearest neighbours
 
+:::: {.columns}
+::: {.column width=75%}
 Predict $y$ using the $k-$ nearest neighbours from observation of interest. 
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 100%
+p_tiny <- p_std[c(1:10, 152:161, 275:284),]
+obs1 <- 28  
+p_tiny_dst <- dist(p_tiny[,2:3])
+# sort(as.matrix(p_tiny_dst)[obs1,])
+kn3 <- c(22, 23, 25)
+kn3_lines <- tibble(x=rep(p_tiny$bl[obs1], 3), 
+                    xend=p_tiny$bl[kn3], 
+                    y=rep(p_tiny$bd[obs1], 3), 
+                    yend=p_tiny$bd[kn3], 
+                    species=p_tiny$species[kn3])
+p1 <- ggplot(p_tiny, aes(x=bl, y=bd, colour=species)) +
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_tiny[obs1,], shape=1, size=4) +
+  geom_segment(data=kn3_lines, aes(x=x, xend=xend,
+                                   y=y, yend=yend)) +
+  ggtitle("k=3") + xlim(c(-2,2)) + ylim(c(-2,2))
+obs2 <- 12  
+# sort(as.matrix(p_tiny_dst)[obs2,])
+kn5 <- c(14,  18,  20,  15,  21) 
+kn5_lines <- tibble(x=rep(p_tiny$bl[obs2], 5), 
+                    xend=p_tiny$bl[kn5], 
+                    y=rep(p_tiny$bd[obs2], 5), 
+                    yend=p_tiny$bd[kn5], 
+                    species=p_tiny$species[kn5])
+
+p2 <- ggplot(p_tiny, aes(x=bl, y=bd, colour=species)) +
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_tiny[obs2,], shape=1, size=4) +
+  geom_segment(data=kn5_lines, aes(x=x, xend=xend,
+                                   y=y, yend=yend)) +
+  ggtitle("k=5") + xlim(c(-2,2)) + ylim(c(-2,2))
+p1 + p2 + plot_layout(ncol=2)
+```
+:::
+::: {.column width=25%}
+
+- standardise your data, to compute distances between points accordingly
+- fails in high dimensions because data is too sparse
+:::
+::::
 
 ## Regularisation {.transition-slide .center}
 
@@ -572,9 +622,90 @@ for (i in 2:20) {
 
 ::::
 
-## How do you check?
+## How do you check? [(1/2)]{.smaller}
 
-- Having a test set is really critical. 
+:::: {.columns}
+::: {.column style="font-size: 70%;"}
+
+```{r}
+w <- matrix(runif(48*40), ncol=40) |>
+  as.data.frame() |>
+  mutate(cl = factor(rep(c("A", "B", "C", "D"), rep(12, 4))))
+w_lda <- lda(cl~., data=w)
+w_pred <- predict(w_lda, w, dimen=2)$x
+w_p <- w |>
+  mutate(LD1 = w_pred[,1],
+         LD2 = w_pred[,2])
+```
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4
+#| out-width: 80%
+ggplot(w_p, aes(x=LD1, y=LD2, colour=cl)) + 
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1",
+                                   nmax=4, rev=TRUE) 
+```
+
+<center>
+$n=48, p=40$
+Class labels are randomly generated
+</center>
+
+
+```{r}
+#| eval: false
+#| echo: false
+animate_xy(w[,1:40], guided_tour(lda_pp(w$cl)), 
+           col=w$cl,
+           sphere=TRUE, 
+           axes="off",
+           half_range=4)
+```
+:::
+
+::: {.column style="font-size: 70%;"}
+
+::: {.fragment}
+
+Permutation is your friend, for high-dimensional data analysis. [Permute the class labels.]{.monash-blue2}
+
+```{r}
+#| echo: true
+set.seed(951)
+ws <- w |>
+  mutate(cl = sample(cl))
+```
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4
+#| out-width: 80%
+ws_lda <- lda(cl~., data=ws)
+ws_pred <- predict(ws_lda, ws, dimen=2)$x
+ws_p <- ws |>
+  mutate(LD1 = ws_pred[,1],
+         LD2 = ws_pred[,2])
+ggplot(ws_p, aes(x=LD1, y=LD2, colour=cl)) + 
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1",
+                                   nmax=4, rev=TRUE) 
+```
+
+:::
+
+:::
+::::
+
+
+
+## How do you check? [(2/2)]{.smaller}
+
+- Permuting response, repeating the analysis, then make model summaries and diagnostic plots
+- Comparing with test set is critical. 
 - If results (error/accuracy, low-d visual summary) on test set are very different than training, it could be due to high-dimensionality.
 
 ## How can you correct?
