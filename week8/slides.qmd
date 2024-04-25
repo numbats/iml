@@ -196,6 +196,43 @@ animate_xy(p_lda_bnd[,1:4],
            col=p_lda_bnd$species, 
            pch=p_lda_bnd$.TYPE, shapeset = c(19, 4))
 
+b1 <- cbind(lda_fit2$fit$scaling, c(1,0,0,0)) 
+colnames(b1) <- c("proj1", "proj2")
+b1 <- tourr::orthonormalise(b1)
+animate_xy(p_lda_bnd[,1:4], 
+           radial_tour(b1, mvar = 1),
+           col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, shapeset = c(19, 4),
+           axes="bottomleft",
+           fps = 50)
+b2 <- cbind(lda_fit2$fit$scaling, c(0,1,0,0)) 
+colnames(b2) <- c("proj1", "proj2")
+b2 <- tourr::orthonormalise(b2)
+animate_xy(p_lda_bnd[,1:4], 
+           radial_tour(b2, mvar = 2),
+           col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, shapeset = c(19, 4),
+           axes="bottomleft",
+           fps = 50)
+b3 <- cbind(lda_fit2$fit$scaling, c(0,0,1,0)) 
+colnames(b3) <- c("proj1", "proj2")
+b3 <- tourr::orthonormalise(b3)
+animate_xy(p_lda_bnd[,1:4], 
+           radial_tour(b3, mvar = 3),
+           col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, shapeset = c(19, 4),
+           axes="bottomleft",
+           fps = 50)
+b4 <- cbind(lda_fit2$fit$scaling, c(0,0,0,1)) 
+colnames(b4) <- c("proj1", "proj2")
+b4 <- tourr::orthonormalise(b4)
+animate_xy(p_lda_bnd[,1:4], 
+           radial_tour(b4, mvar = 4),
+           col=p_lda_bnd$species, 
+           pch=p_lda_bnd$.TYPE, shapeset = c(19, 4),
+           axes="bottomleft",
+           fps = 50)
+
 render_gif(p_lda_bnd[,1:4], 
            grand_tour(),
            display_xy(col=p_lda_bnd$species, 
