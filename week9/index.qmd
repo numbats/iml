@@ -1,5 +1,5 @@
 ---
-title: "Week 9: K-nearest neighbours and hierarchical clustering"
+title: "Week 9: K-means and hierarchical clustering"
 ---
 
 ```{r}
@@ -23,6 +23,20 @@ schedule |>
 * k-means algorithm
 * Hierarchical algorithms
 * Making and using dendrograms
+
+## Lecture slides
+
+- [html](https://iml.numbat.space/week9/slides.html)
+- [pdf](https://iml.numbat.space/week9/slides.pdf)
+- [qmd](https://iml.numbat.space/week9/slides.qmd)
+- [R](https://iml.numbat.space/week9/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week9/tutorial.html)
+- [qmd](https://iml.numbat.space/week9/tutorial.qmd)
 
 ```{r}
 #| output: asis

@@ -42,53 +42,14 @@ library(tidyverse)
 library(tidymodels)
 library(patchwork)
 library(mulgar)
-library(GGally)
 library(tourr)
-library(plotly)
-library(randomForest)
+library(geozoo)
 library(colorspace)
 library(ggthemes)
 library(conflicted)
-library(DALEXtra)
-# devtools::install_github("dandls/counterfactuals")
-# You need the GitHub version
-library(counterfactuals)
-library(kernelshap)
-library(shapviz)
-library(lime)
-library(palmerpenguins)
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::slice)
-conflicts_prefer(palmerpenguins::penguins)
-
-p_tidy <- penguins |>
-  select(species, bill_length_mm:body_mass_g) |>
-  rename(bl=bill_length_mm,
-         bd=bill_depth_mm,
-         fl=flipper_length_mm,
-         bm=body_mass_g) |>
-  na.omit()
-
-# `id` variable added to ensure we know which case
-# when investigating the models
-p_std <- p_tidy |>
-  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |>
-  mutate(id = 1:nrow(p_tidy)) 
-
-# Only use Adelie and Chinstrap, because explainers are easy to calculate with only two groups
-p_sub <- p_std |>
-  filter(species != "Gentoo") |>
-  mutate(species = factor(species)) # Fix factor
-
-# Split intro training and test sets
-set.seed(821)
-p_split <- p_sub |> 
-  select(species:id) |>
-  initial_split(prop = 2/3, 
-                strata=species)
-p_train <- training(p_split)
-p_test <- testing(p_split)
 ```
 
 ```{r}
@@ -110,38 +71,219 @@ theme_set(theme_bw(base_size = 14) +
 
 ## `r emo::ji("target")` Objectives
 
-The goal for this week is learn to XXX. 
+The goal for this week is learn to about fitting support vector machine models. 
 
 ## `r emo::ji("wrench")` Preparation 
 
-- Make sure you have all the necessary libraries installed. There are a few new ones this week!
+- Make sure you have all the necessary libraries installed. 
 
 ## Exercises: 
 
 #### 1. A little algebra
 
-Let $\mathbf{x}$ and $\mathbf{y}$ be vectors in $\mathbb{R}^2$. By expanding $\mathcal{K}(\mathbf{x}, \mathbf{y}) = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2$ show that this is equivalent to an inner product in $\mathcal{H} = \mathbb{R}^6$.
+Let $\mathbf{x_1}$ and $\mathbf{x_2}$ be vectors in $\mathbb{R}^2$, that is, two observations where $p=2$. By expanding $\mathcal{K}(\mathbf{x_1}, \mathbf{x_2}) = (1 + \langle \mathbf{x_1}, \mathbf{x_2}\rangle) ^2$ show that this is equivalent to an inner product of transformations of the original variables defined as $\mathbf{y} \in \mathbb{R}^6$.
 
 <br>
 
-Remember: $\langle \mathbf{x}, \mathbf{y}\rangle =\sum_{j=1}^{p} x_jy_j$.
+Remember: $\langle \mathbf{x_1}, \mathbf{x_2}\rangle =\sum_{j=1}^{p} x_{1j}x_{2j}$.
 
 
 ::: unilur-solution
 $$
 \begin{align*}
-\mathcal{K}(\mathbf{x}, \mathbf{y}) & = (1 + \langle \mathbf{x}, \mathbf{y}\rangle) ^2 \\
-                                    & = \left(1 + \sum_{j = 1}^2 x_jy_j \right) ^2 \\
-                                    & = (1 + x_1y_1 + x_2y_2)^2 \\
-                                    & = (1 + x_1^2y_1^2 + x_2^2y_2^2 + 2x_1y_1 + 2x_2y_2 + 2x_1x_2y_1y_2) \\
-                                    & = \langle \psi(\mathbf{x}), \psi(\mathbf{y}) \rangle
+\mathcal{K}(\mathbf{x_1}, \mathbf{x_2}) & = (1 + \langle \mathbf{x_1}, \mathbf{x_2}\rangle) ^2 \\
+                                    & = \left(1 + \sum_{j = 1}^2 x_{1j}x_{2j} \right) ^2 \\
+                                    & = (1 + x_{11}x_{21} + x_{12}x_{22})^2 \\
+                                    & = (1 + x_{11}^2x_{21}^2 + x_{12}^2x_{22}^2 + 2x_{11}x_{21} + 2x_{12}x_{22} + 2x_{11}x_{12}x_{21}x_{22}) \\
+                                    & = \langle \psi(\mathbf{x_1}), \psi(\mathbf{x_2}) \rangle
 \end{align*}
 $$
 
 <br>
-where $\psi(\mathbf{x}) = (1, x_1^2, x_2^2, \sqrt2x_1, \sqrt2x_2, \sqrt2x_1x_2)$.
+where $\mathbf{y} = (1, y_1^2, y_2^2, \sqrt{2}y_1, \sqrt{2}y_2, \sqrt{2}y_1y_2)$.
+
+Try working it through in the reverse direction also.
+:::
+
+#### 2. Fitting and examining the support vector machine model
+
+Simulate two toy data sets as follows. 
+
+```{r}
+#| code-summary: "Code to simulate data examples"
+# Toy examples
+set.seed(1125)
+n1 <- 162
+vc1 <- matrix(c(1, -0.7, -0.7, 1), ncol=2, byrow=TRUE)
+c1 <- rmvn(n=n1, p=2, mn=c(-2, -2), vc=vc1)
+vc2 <- matrix(c(1, -0.4, -0.4, 1)*2, ncol=2, byrow=TRUE)
+n2 <- 138
+c2 <- rmvn(n=n2, p=2, mn=c(2, 2), vc=vc2)
+df1 <- data.frame(x1=mulgar:::scale2(c(c1[,1], c2[,1])), 
+                 x2=mulgar:::scale2(c(c1[,2], c2[,2])), 
+                 cl = factor(c(rep("A", n1), 
+                               rep("B", n2))))
+c1 <- sphere.hollow(p=2, n=n1)$points*3 + 
+  c(rnorm(n1, sd=0.3), rnorm(n1, sd=0.3))
+c2 <- sphere.solid.random(p=2, n=n2)$points
+df2 <- data.frame(x1=mulgar:::scale2(c(c1[,1], c2[,1])), 
+                  x2=mulgar:::scale2(c(c1[,2], c2[,2])), 
+                  cl = factor(c(rep("A", n1), 
+                               rep("B", n2))))
+```
+
+a. Make plots of each data set.
+
+::: unilur-solution
+
+```{r}
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 100%
+s1 <- ggplot() + 
+  geom_point(data=df1, aes(x=x1, y=x2, colour=cl),
+             shape=20) +
+  scale_colour_discrete_divergingx(palette="Zissou 1") +
+  theme(legend.position = "none") 
+
+s2 <- ggplot() + 
+  geom_point(data=df2, aes(x=x1, y=x2, colour=cl), shape=20) +
+  scale_colour_discrete_divergingx(palette="Zissou 1") +
+  theme(legend.position = "none") 
+
+s1+s2+plot_layout(ncol=2)
+```
+:::
+
+b. What type of kernel would be appropriate for each? How many support vectors would you expect are needed to define the boundary in each case?
+
+::: unilur-solution
+
+Linear and radial kernels would be recommended. 
+
+We should be able to use as few as 3 points for the linear model. For the non-linear it would need many more points to define the circle boundary. 
+:::
+
+c. Break the data into training and test. 
+
+::: unilur-solution
+
+```{r}
+set.seed(1141)
+df1_split <- initial_split(df1, strata=cl)
+df2_split <- initial_split(df2, strata=cl)
+df1_tr <- training(df1_split)
+df1_ts <- testing(df1_split)
+df2_tr <- training(df2_split)
+df2_ts <- testing(df2_split)
+```
+:::
+
+d. Fit the svm model. Try changing the cost parameter to explore the number of support vectors used. Choose the value that gives you the smallest number. You can use code like this (`scaled = FALSE` indicates that the variables are already scaled and no further standardising is needed):
+
+```{r}
+#| eval: false
+svm_spec1 <- svm_linear(cost=1) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit1 <- svm_spec1 |> 
+  fit(cl ~ ., data = df1_tr)
+svm_spec2 <- svm_rbf() |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = df2_tr)
+```
+
+::: unilur-solution
+
+A `cost=1.5` gives the fewest support vectors, 4 for the linear fit. For the radial basis fit, `cost=2` seems to give the fewest.
+
+```{r}
+svm_spec1 <- svm_linear(cost=1.5) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit1 <- svm_spec1 |> 
+  fit(cl ~ ., data = df1_tr)
+svm_spec2 <- svm_rbf(cost=2) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = df2_tr)
+```
 
 :::
+
+e. Can you use the parameter estimates to write out the equation of the separating hyperplane for the linear SVM model? (Also check that the combination of the support vectors, using `svm_fit1$fit@alphaindex` and `svm_fit1$fit@alpha` computes to the coefficients `svm_fit1$fit@coef`.) Try sketching your line on your plot.
+
+::: unilur-solution
+
+ 
+The equation of the separating hyperplane would be `r round(svm_fit1$fit@b, 2)` $+$ `r round(svm_fit1$fit@coef[[1]][1], 2)`$x_1$ $+$ `r round(svm_fit1$fit@coef[[1]][2], 2)`$x_2 = 0$.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 50%
+s1 + geom_abline(intercept=svm_fit1$fit@b, slope = -svm_fit1$fit@coef[[1]][1]/svm_fit1$fit@coef[[1]][2])
+```
+:::
+
+f. Compute the confusion table, and the test error for each model.
+
+::: unilur-solution
+
+```{r}
+df1_pts <- df1_ts |>
+  mutate(pcl = predict(svm_fit1, df1_ts)$.pred_class)
+accuracy(df1_pts, cl, pcl)
+df1_pts |>
+  count(cl, pcl) |>
+  group_by(cl) |>
+  mutate(accuracy = n[cl==pcl]/sum(n)) |>
+  pivot_wider(names_from = "pcl", 
+              values_from = n, values_fill = 0) |>
+  select(cl, A, B, accuracy)
+
+df2_pts <- df2_ts |>
+  mutate(pcl = predict(svm_fit2, df2_ts)$.pred_class)
+accuracy(df2_pts, cl, pcl)
+df2_pts <- df2_ts |>
+  mutate(pcl = predict(svm_fit2, df2_ts)$.pred_class)
+accuracy(df2_pts, cl, pcl)
+df2_pts |>
+  count(cl, pcl) |>
+  group_by(cl) |>
+  mutate(accuracy = n[cl==pcl]/sum(n)) |>
+  pivot_wider(names_from = "pcl", 
+              values_from = n, values_fill = 0) |>
+  select(cl, A, B, accuracy)
+```
+:::
+
+g. Which observations would you expect to be the support vectors? Overlay indications of the support vectors from each model to check whether the model thinks the same as you.
+
+::: unilur-solution
+```{r}
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 100%
+s1 <- s1 +
+  geom_point(data=df1_tr[svm_fit1$fit@SVindex,], 
+             aes(x=x1, y=x2, colour=cl),
+             shape=1, size=4) + 
+  geom_abline(
+  intercept=svm_fit1$fit@b, 
+  slope = -svm_fit1$fit@coef[[1]][1]/svm_fit1$fit@coef[[1]][2]) 
+s2 <- s2 +   
+  geom_point(data=df2_tr[svm_fit2$fit@SVindex,], 
+             aes(x=x1, y=x2, colour=cl),
+             shape=1, size=4)  
+s1 + s2 + plot_layout(ncol=2)
+```
+:::
+
+h. Think about whether a neural network might be able to fit the second data set? Have a discussion with your neighbour and tutor about what would need to be done to make a neural network architecture.x
 
 ## `r emo::ji("wave")` Finishing up
 
