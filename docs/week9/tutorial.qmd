@@ -214,18 +214,22 @@ svm_fit2 <- svm_spec2 |>
 
 :::
 
-e. Can you use the parameter estimates to write out the equation of the separating hyperplane for the linear SVM model? (Also check that the combination of the support vectors, using `svm_fit1$fit@alphaindex` and `svm_fit1$fit@alpha` computes to the coefficients `svm_fit1$fit@coef`.) Try sketching your line on your plot.
+e. Can you use the parameter estimates to write out the equation of the separating hyperplane for the linear SVM model? You can use `svm_fit1$fit@coef` and `svm_fit1$fit@SVindex` to  compute the coefficients as given by equation on slide 6 of week 8 slides. Try sketching your line on your plot.
 
 ::: unilur-solution
 
+```{r}
+sv_betas <- apply(svm_fit1$fit@coef*
+                    df1_tr[svm_fit1$fit@SVindex,-3], 2, sum)
+```
  
-The equation of the separating hyperplane would be `r round(svm_fit1$fit@b, 2)` $+$ `r round(svm_fit1$fit@coef[[1]][1], 2)`$x_1$ $+$ `r round(svm_fit1$fit@coef[[1]][2], 2)`$x_2 = 0$.
+The equation of the separating hyperplane would be `r round(svm_fit1$fit@b, 2)` $+$ `r round(sv_betas[1], 2)`$x_1$ $+$ `r round(sv_betas[2], 2)`$x_2 = 0$.
 
 ```{r}
 #| fig-width: 4
 #| fig-height: 4
 #| out-width: 50%
-s1 + geom_abline(intercept=svm_fit1$fit@b, slope = -svm_fit1$fit@coef[[1]][1]/svm_fit1$fit@coef[[1]][2])
+s1 + geom_abline(intercept=svm_fit1$fit@b, slope = -1)
 ```
 :::
 

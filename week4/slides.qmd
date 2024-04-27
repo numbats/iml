@@ -774,7 +774,7 @@ Spinv %*% (m1-m2)
 ::: {.column .smaller}
 
 $$
-x_0 S^{-1}(\bar{x}_A - \bar{x}_B) > \frac{\bar{x}_A + \bar{x}_B}{2} S^{-1}(\bar{x}_A - \bar{x}_B)
+x_0^\top S^{-1}(\bar{x}_A - \bar{x}_B) > (\frac{\bar{x}_A + \bar{x}_B}{2})^\top S^{-1}(\bar{x}_A - \bar{x}_B)
 $$
 
 ```{r}
@@ -867,9 +867,11 @@ Note $W$ is the (unweighted) pooled variance-covariance matrix.
 For two $p$-dimensional vectors, Euclidean distance is
 
 $$d(x,y) = \sqrt{(x-y)^\top(x-y)}$$
+
 and Mahalanobs distance is
 
 $$d(x,y) = \sqrt{(x-y)^\top\Sigma^{-1}(x-y)}$$
+
 
 Which points are closest according to [Euclidean]{.monash-orange2} distance?
 Which points are closest relative to the [variance-covariance]{.monash-orange2}?
