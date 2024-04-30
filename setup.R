@@ -33,6 +33,9 @@ library(lime)
 library(iml)
 library(counterfactuals)
 library(kernlab)
+library(kableExtra)
+library(fpc)
+library(ggdendro)
 
 # Locations
 current_file <- knitr::current_input()
