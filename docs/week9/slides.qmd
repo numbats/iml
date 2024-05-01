@@ -301,7 +301,7 @@ Compute Euclidean distance between $a_1$ and $a_2$.
 
 :::
 ::: {.fragment}
-Could you compute a correlation distance? $d_cor = 1-|r|$
+Could you compute a correlation distance? $d_{cor} = 1-|r|$
 Is $a_1$ close to $a_3$ than $a_2$?
 :::
 :::

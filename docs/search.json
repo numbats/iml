@@ -1789,28 +1789,28 @@
     "href": "project/project-instructions.html#about-the-data",
     "title": "Project",
     "section": "About the data",
-    "text": "About the data"
+    "text": "About the data\nThe data is downloaded from https://www.waterpointdata.org and represents a subset from a region in Africa. The actual spatial coordinates are disguised. The data has been cleaned, with missing values (small number) imputed, and only reliable variables included.\nThere files provided:\n\nwater-train.csv: the training set of data\nwater-test.csv: the test set, with no labels, that you need to predict the response variable status_id.\nsample-submissions.csv: the format of the data that you need to use to make a submission to kaggle.\n\nThe website is the best place to learn about the variables provided."
   },
   {
     "objectID": "project/project-instructions.html#rules",
     "href": "project/project-instructions.html#rules",
     "title": "Project",
     "section": "Rules",
-    "text": "Rules"
+    "text": "Rules\n\nYou need to follow the rules detailed at Maintain academic integrity information for students. If you are concerned about, you can report these to the chief examiner.\nFor any reason, but especially if there is suspicion of violation of academic integrity, the chief examiner can request that you attend an oral exam to explain any of your answers, or to answer related questions on the assignment. Your score will be adjusted based on answers provided during the oral exam.\n\nYou need to make at least 5 kaggle submissions. All are individual submissions.\nThe competition is scored on balanced accuracy because it is an imbalanced classification."
   },
   {
     "objectID": "project/project-instructions.html#submit",
     "href": "project/project-instructions.html#submit",
     "title": "Project",
     "section": "Submit",
-    "text": "Submit"
+    "text": "Submit\n\nkaggle\n\nThe competition website is https://www.kaggle.com/competitions/maji-safi. It is called maji safi which means clean water in swahili.\nYou have access to submit your predictions from your Monash student email. If for some rare reason, you cannot access the submission system from your Monash email, contact the chief examiner to obtain access from a different email.\nYou can make as many as 2 submissions per day, and you can see your predictions on the private set twice in the entire competition period.\n\n\n\nMoodle\n\nSubmit your (1) R code (R script file, not qmd) that produces what you think is your best model, and (2) a file containing the predictions from this model, the same format as sample-submissions.csv. If you have a specific model that takes an extremely long time to run, you can also submit an rda or folder containing that fitted model (similar to what was done with the penguin-cnn save of the NN model used in class).\n\n\n\nDue dates\n\nCompetition deadline is May 17, 11:55pm. There are no extensions for this, it is controlled entirely by kaggle.\nSubmission of files to moodle is due May 19, 11:55pm.\n\nNote that this is an activity that cannot have deadlines extended. If for some reason you cannot participate in this assessment activity, the option will be to take a 30 minute in-person practical oral exam on May 23, 27, 31 or June 10."
   },
   {
     "objectID": "project/project-instructions.html#etc5250-students",
     "href": "project/project-instructions.html#etc5250-students",
     "title": "Project",
     "section": "ETC5250 students",
-    "text": "ETC5250 students"
+    "text": "ETC5250 students\nAll students enrolled in ETC5250 need to do an additional team activity. Your score for the predictions will be scaled to 6, and the remaining 3 points will be from this activity.\n\nForm a team of up to 4 class members. Complete this form. This needs to be completed by May 17, 11:55pm. If you need help forming a team, your tutors or chief examiner can help.\nYour task is to report three things that are interesting about the data, or about different models. For example, “xgboost always predicts the test set to be all y”, or “most of the n class were installed prior to 2015”.\nAssessment: Each of your three things will be scored in the way that the quiz show Pointless scores their questions. Each item is worth 1 point. If every other team reports the same thing, everyone scores 0. If no other team reports your thing you earn the full 1 point. So a higher score for each thing is awarded for interesting findings that are valid, and few other teams report.\nSubmit: You need to submit an html (self-contained) and qmd file with your three things, and your supporting evidence by May 21, 11:55pm.\nDuring the lecture period on Wednesday May 22, 1-3pm your team presents your findings within 3 minutes. Any team members presenting will get a 10% boost to their score on this part."
   },
   {
     "objectID": "week1/index.html",
@@ -3056,7 +3056,7 @@
     "href": "week9/slides.html#distance-calculations",
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Distance calculations",
-    "text": "Distance calculations\n\n\n\n\n   V1  V2  V3  V4 point\n1 7.3 7.6 7.7 8.0    a1\n2 7.4 7.2 7.3 7.2    a2\n3 4.1 4.6 4.6 4.8    a3\n\n\n\n\n\n\n\n\n\n\nCompute Euclidean distance between \\(a_1\\) and \\(a_2\\).\n\n\n🔑 Standardise your variables!!!!\n\n\nCould you compute a correlation distance? \\(d_cor = 1-|r|\\) Is \\(a_1\\) close to \\(a_3\\) than \\(a_2\\)?"
+    "text": "Distance calculations\n\n\n\n\n   V1  V2  V3  V4 point\n1 7.3 7.6 7.7 8.0    a1\n2 7.4 7.2 7.3 7.2    a2\n3 4.1 4.6 4.6 4.8    a3\n\n\n\n\n\n\n\n\n\n\nCompute Euclidean distance between \\(a_1\\) and \\(a_2\\).\n\n\n🔑 Standardise your variables!!!!\n\n\nCould you compute a correlation distance? \\(d_{cor} = 1-|r|\\) Is \\(a_1\\) close to \\(a_3\\) than \\(a_2\\)?"
   },
   {
     "objectID": "week9/slides.html#basic-rules-of-a-distance-metric",
@@ -3253,5 +3253,26 @@
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Next: Model-based clustering and self-organising maps",
     "text": "Next: Model-based clustering and self-organising maps\n\n\n\nETC3250/5250 Lecture 9 | iml.numbat.space"
+  },
+  {
+    "objectID": "project/project-instructions.html",
+    "href": "project/project-instructions.html",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#overview",
+    "href": "project/project-instructions.html#overview",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#assessment",
+    "href": "project/project-instructions.html#assessment",
+    "title": "Project",
+    "section": "Assessment",
+    "text": "Assessment\n\nTotal: 10 points\nObtaining balanced accuracy of\n\n70% will earn 6 out of 10 points.\n72% will earn 7 out of 10 points.\n73-75% will earn 8 out of 10 points.\nAbove 75% will earn 9 out of 10 points.\nBeing in the top 10% of the submissions will earn full points.\n\nFailure to submit your R code and prediction file will result in a deduction of 7 points.\nIf your R code cannot be run, does not match your predictions, or provide a balanced accuracy close to any of your submissions to kaggle will result in a 50% reduction of your total.\nFailure to make at least 5 submissions to kaggle earns a 50% reduction of your total."
   }
 ]
