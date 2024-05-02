@@ -1,0 +1,437 @@
+---
+title: "ETC3250/5250 Tutorial 10"
+subtitle: "K-means and hierarchical clustering"
+author: "Prof. Di Cook"
+date: "2024-05-06"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Load the libraries and avoid conflicts, and prepare data"
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(tidyclust)
+library(purrr)
+library(ggdendro)
+library(fpc)
+library(patchwork)
+library(mulgar)
+library(tourr)
+library(geozoo)
+library(ggbeeswarm)
+library(colorspace)
+library(plotly)
+library(ggthemes)
+library(conflicted)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(purrr::map)
+```
+
+```{r}
+#| echo: false
+# Set plot theme
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is learn to about fitting support vector machine models. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Make sure you have all the necessary libraries installed. 
+
+## Exercises: 
+
+#### 1. How would you cluster this data?
+
+a. How would you cluster this data?
+
+```{r}
+#| echo: false
+set.seed(840)
+challenge <- sphere.hollow(p=2, n=200)$points |> as_tibble()
+challenge[1:100, ] <- challenge[1:100, ] * 2.2
+challenge <- challenge |>
+  mutate(V1 = V1+rnorm(200, 0, 0.15),
+         V2 = V2+rnorm(200, 0, 0.15))
+ggplot(challenge, aes(x=V1, y=V2)) + geom_point()
+```
+
+b. Derive a distance metric that will capture your clusters. Provide some evidence that it satisfies the four distance rules.
+
+c. Compute your rule on the data, and establish that it does indeed capture your clusters.
+
+
+::: unilur-solution
+
+My distance will use the radial distance from $(0, 0)$. You first convert each point into polar coordinates, but only take the radius. This will always be positive. The distance between two points will be the absolute value of the difference between these values.
+
+
+```{r}
+mydist <- function(x1, x2) {
+  d <- abs(sqrt(sum(x1^2)) - sqrt(sum(x2^2)))
+  return(d)
+}
+ch_dist <- matrix(0, nrow(challenge), nrow(challenge)) 
+for (i in 1:(nrow(challenge)-1)) {
+  for (j in (i+1):nrow(challenge)) {
+    ch_dist[i,j] <- mydist(challenge[i,], challenge[j,])
+    ch_dist[j,i] <- ch_dist[i,j]
+  }
+}
+#x <- as.vector(ch_dist)
+#hist(x, 30) # you can see it is bimodal
+ch_dist <- as.dist(ch_dist)
+ch_hc <- hclust(ch_dist, method="ward.D2")
+ch_cl <- challenge |>
+  mutate(cl = factor(cutree(ch_hc, 2)))
+ggplot(ch_cl, aes(x=V1, y=V2, colour=cl)) + 
+  geom_point() +
+  scale_color_discrete_divergingx(palette="Zissou 1")
+```
+
+:::
+
+#### 2. Clustering spotify data with k-means
+
+This exercise is motivated by [this blog post](https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7) on using $k$-means to identify anomalies.
+
+You can read the data with this code. And because for clustering you need to first standardise the data the code will also do this. Variables `mode` and `time_signature` are removed because they have just a few values.
+
+```{r}
+# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7
+spotify <- read_csv("https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv")
+spotify_std <- spotify |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |>
+  select(-c(mode, time_signature)) # variables with few values
+```
+
+a. Make a plot of all of the variables. This could be a density or a jittered dotplot (`beeswarm::quasirandom`). 
+Many of the variables have skewed distributions. For cluster analysis, why might this be a problem? From the blog post, are any of the anomalies reported ones that can be seen as outliers in a single skewed variable?
+
+::: unilur-solution
+
+```{r}
+p <- spotify_std |>
+  pivot_longer(danceability:artist_popularity,
+               names_to="var", values_to="value") |>
+  ggplot(aes(x=var, y=value, label=name)) +
+    geom_quasirandom() + 
+    coord_flip() +
+    xlab("") 
+ggplotly(p)
+
+```
+
+The skewed variables are `speechiness`, `liveliness`, `instrumentalness`, `artist_popularity`, `accousticness` and possible we could mark `duration_ms` as having some skewness but also some low anomalies. 
+
+Yes, for example "Free Bird" and "Sparkle" could be found by simply examining a single variable.
+:::
+
+b. Transform the skewed variables to be as symmetric as possible, and then fit a $k=3$-means clustering. Extract and report these metrics: `totss`, `tot.withinss`, `betweenss`. What is the ratio of within to between SS?
+
+```{r}
+# Transforming some variables: imperfect
+spotify_tf <- spotify |>
+  mutate(speechiness = log10(speechiness),
+         liveness = log10(liveness),
+         duration_ms = log10(duration_ms),
+         danceability = danceability^2,
+         artist_popularity = artist_popularity^2,
+         acousticness = log10(acousticness)) |>
+  select(-c(mode, time_signature, instrumentalness)) |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) 
+
+spotify_tf |>
+  pivot_longer(danceability:artist_popularity,
+               names_to="var", values_to="value") |>
+  ggplot(aes(x=var, y=value, label=name)) +
+    geom_quasirandom() + 
+    coord_flip() +
+    xlab("") 
+```
+
+::: unilur-solution
+
+```{r}
+# Check that it clusters
+set.seed(131)
+spotify_km3 <- kmeans(spotify_tf[,5:15], 3)
+# Summarise means of each cluster
+tidy(spotify_km3)
+glance(spotify_km3)
+spotify_kcl3 <- augment(spotify_km3, spotify_tf)
+spotify_kcl3 |>
+  pivot_longer(danceability:artist_popularity,
+               names_to="var", values_to="value") |>
+  ggplot(aes(x=.cluster, y=value)) +
+    geom_quasirandom() +
+    facet_wrap(~var, ncol=4)
+```
+
+The differences between clusters is mostly in `acousticness`, `danceability`, `energy`, `loudness`, `valence`.
+
+:::
+
+c. Now the algorithm $k=1, ..., 20$. Extract the metrics, and plot the ratio of within SS to between SS against $k$. What would be suggested as the best model?
+
+::: unilur-solution
+
+```{r}
+# Run many k
+spotify_km <- 
+  tibble(k = 1:20) %>%
+  mutate(
+    kclust = purrr::map(k, ~kmeans(spotify_tf[,5:15], .x)),
+    tidied = purrr::map(kclust, tidy),
+    glanced = purrr::map(kclust, glance),
+    augmented = purrr::map(kclust, augment, spotify_tf)
+  )
+
+# Plot statistics
+spotify_cl <- 
+  spotify_km %>%
+  unnest(cols = c(glanced))
+ggplot(spotify_cl, aes(x=k, y=tot.withinss)) +
+  geom_point() +
+  geom_line()
+
+```
+
+Maybe 11, but the within SS decays very gradually so it is hard to tell.
+:::
+
+d. Divide the data into 11 clusters, and examine the number of songs in each. Using plotly, mouse over the resulting plot and explore songs belonging to a cluster. (I don't know much about these songs, but if you are a music fan maybe discussing with other class members and your tutor about the groupings, like which ones are grouped in clusters with high `liveness`, high `tempo` or `danceability` could be fun.)
+
+::: unilur-solution
+```{r}
+# Extract data with different classes labelled
+spotify_assign <- 
+  spotify_km %>% 
+  unnest(cols = c(augmented))
+spotify_assign_df <- spotify_assign |>
+  select(name:`artist_popularity`, k, .cluster) |>
+  pivot_wider(names_from=k, values_from=.cluster)
+
+spotify_assign_df |>
+  select(name:`artist_popularity`, `7`) |>
+  pivot_longer(danceability:artist_popularity,
+               names_to="var", values_to="value") |>
+  ggplot(aes(x=`7`, y=value, label=name)) +
+    geom_quasirandom() +
+    facet_wrap(~var, ncol=4) +
+  xlab("") + ylab("")
+# ggplotly()
+```
+:::
+
+#### 3. Clustering several simulated data sets with know cluster structure
+
+a. In tutorial of week 3 you used the tour to visualise the data sets `c1` and `c3` provided with the `mulgar` package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.
+
+::: unilur-solution
+
+
+```{r}
+#| eval: false
+animate_xy(c1)
+animate_xy(c3)
+```
+
+We said: 
+
+- `c1` has 6 clusters, 4 small ones, and two big ones. The two big ones look like planes because they have no variation in some dimensions. We would expect that a clustering analysis divides the data into these 6 clusters.
+- `c3` has a triangular prism shape, which itself is divided into several smaller triangular prisms. It also has several dimensions with no variation, because the points collapse into a line in some projections. We would expect the clustering analysis to divide the data into four clusters corresponding mostly to the four vertices. 
+:::
+
+b. Compute $k$-means and hierarchical clustering on these two data sets, without standardising them. Use a variety of $k$, linkage methods and check the resulting clusters using the cluster metrics. What method produces the best result, relative to what you said in a. (NOTE: Although we said that we should always standardise variables before doing clustering, you should not do this for `c3`. Why?)
+
+::: unilur-solution
+The scale of the variables is meaningful for these data sets. Even though some variables have smaller variance than others we would treat them to be measured on the same scale. 
+
+**$k$-means for `c1`:**
+
+```{r}
+c1_km <- 
+  tibble(k = 1:10) |>
+  mutate(
+    kclust = map(k, ~kmeans(c1, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, c1)
+  )
+
+# Plot statistics
+c1_cl <- 
+  c1_km %>%
+  unnest(cols = c(glanced))
+ggplot(c1_cl, aes(x=k, y=tot.withinss)) +
+  geom_point() +
+  geom_line()
+
+# Extract data with different classes labelled
+c1_assign <- 
+  c1_km %>% 
+  unnest(cols = c(augmented))
+c1_assign_df <- c1_assign |>
+  select(x1:x6, k, .cluster) |>
+  pivot_wider(names_from=k, values_from=.cluster)
+```
+
+The statistics suggest that 3 clusters is the best solution. If we look at the 6 clusters solution, it is different from what we would expect, one large cluster is divided, as is a small cluster.
+
+```{r}
+#| eval: false
+animate_xy(c1_assign_df[,1:6], col=c1_assign_df$`3`)
+animate_xy(c1_assign_df[,1:6], col=c1_assign_df$`6`)
+```
+
+**Hierarchical for `c1`:**
+
+```{r}
+c1_hc <- hclust(dist(c1), method="ward.D2")
+ggdendrogram(c1_hc, size = 4)
+
+f.hc <- NULL; f.hc.stats <- NULL
+for (i in 2:10) {
+  cl <- cutree(c1_hc, i)
+  x <- cluster.stats(dist(c1), cl)
+  f.hc <- cbind(f.hc, cl)
+  f.hc.stats <- rbind(f.hc.stats, 
+                      c(x$within.cluster.ss, 
+                        x$wb.ratio, x$ch,
+                        x$pearsongamma, x$dunn, 
+                        x$dunn2))
+}
+colnames(f.hc.stats) <- c("within.cluster.ss",
+                          "wb.ratio", "ch",
+                          "pearsongamma", "dunn",
+                          "dunn2")
+f.hc.stats <- data.frame(f.hc.stats)
+f.hc.stats$cl <- 2:10
+f.hc.stats.m <- f.hc.stats %>% 
+  pivot_longer(`within.cluster.ss`:dunn2,
+               names_to="stat", 
+               values_to="value") |>
+  mutate(stat = factor(stat,
+                       levels=colnames(f.hc.stats)))
+ggplot(data=f.hc.stats.m) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") 
+```
+
+The dendrogram suggests 3 clusters, and the statistics all agree and suggest 3 clusters. Although, `ch` possibly suggests 10!
+
+```{r}
+#| eval: false
+colnames(f.hc) <- paste0("hc", 2:10)
+f.hc <- data.frame(f.hc) |>
+  mutate_all(as.factor)
+c1_assign_df <- bind_cols(c1_assign_df, f.hc)
+animate_xy(c1_assign_df[,1:6], col=c1_assign_df$hc3)
+```
+
+The solution is the same as for $k$-means. The algorithms all treat the three small clusters as a single cluster.
+
+**Hierarchical for `c3`:**
+
+It's not really clear how the data should be divided so we'll start with using hierarchical.
+
+```{r}
+c3_hc <- hclust(dist(c3), method="ward.D2")
+ggdendrogram(c3_hc, size = 4)
+
+f.hc <- NULL; f.hc.stats <- NULL
+for (i in 2:10) {
+  cl <- cutree(c3_hc, i)
+  x <- cluster.stats(dist(c3), cl)
+  f.hc <- cbind(f.hc, cl)
+  f.hc.stats <- rbind(f.hc.stats, 
+                      c(x$within.cluster.ss, 
+                        x$wb.ratio, x$ch,
+                        x$pearsongamma, x$dunn, 
+                        x$dunn2))
+}
+colnames(f.hc.stats) <- c("within.cluster.ss",
+                          "wb.ratio", "ch",
+                          "pearsongamma", "dunn",
+                          "dunn2")
+f.hc.stats <- data.frame(f.hc.stats)
+f.hc.stats$cl <- 2:10
+f.hc.stats.m <- f.hc.stats %>% 
+  pivot_longer(`within.cluster.ss`:dunn2,
+               names_to="stat", 
+               values_to="value") |>
+  mutate(stat = factor(stat,
+                       levels=colnames(f.hc.stats)))
+ggplot(data=f.hc.stats.m) + 
+  geom_line(aes(x=cl, y=value)) + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") 
+```
+
+The dendrogram suggests 4 clusters, and many of the statistics suggest 4 clusters. 
+
+```{r}
+#| eval: false
+colnames(f.hc) <- paste0("hc", 2:10)
+f.hc <- data.frame(f.hc) |>
+  mutate_all(as.factor)
+c3_assign_df <- bind_cols(c3, f.hc)
+animate_xy(c3_assign_df[,1:6], col=c3_assign_df$hc4)
+```
+
+The four cluster solution is almost what we would expect, that they divide the data on the four vertices of the tetrahedron. One of the vertices is a little confused with one other.
+
+If you run $k$-means, I'd expect it does similarly to this solution. If you choose a different linkage method likely the results will change a lot.
+:::
+
+c. There are five other data sets in the `mulgar` package. Choose one or two or more to examine how they would be clustered. (I particularly would like to see how `c4` is clustered.)
+
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.

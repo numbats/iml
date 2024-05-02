@@ -24,6 +24,19 @@ schedule |>
 * Diagnostics for the model fit
 * Self-organising maps and dimension reduction
 
+## Lecture slides
+
+- [html](https://iml.numbat.space/week10/slides.html)
+- [pdf](https://iml.numbat.space/week10/slides.pdf)
+- [qmd](https://iml.numbat.space/week10/slides.qmd)
+- [R](https://iml.numbat.space/week19/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week10/tutorial.html)
+- [qmd](https://iml.numbat.space/week10/tutorial.qmd)
 
 ```{r}
 #| output: asis

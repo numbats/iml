@@ -198,7 +198,7 @@ It's *easy* if we can [see the clusters]{.monash-blue2}, but what an [algorithm 
 #| eval: false
 library(detourr)
 set.seed(645)
-detour(p_std[,1:4], 
+detour(p_std[,2:5], 
        tour_aes(projection = bl:bm)) |>
        tour_path(grand_tour(2), fps = 60, 
                  max_bases=40) |>
