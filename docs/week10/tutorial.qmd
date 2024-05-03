@@ -90,6 +90,7 @@ a. How would you cluster this data?
 
 ```{r}
 #| echo: false
+#| out-width: 60%
 set.seed(840)
 challenge <- sphere.hollow(p=2, n=200)$points |> as_tibble()
 challenge[1:100, ] <- challenge[1:100, ] * 2.2
@@ -110,6 +111,7 @@ My distance will use the radial distance from $(0, 0)$. You first convert each p
 
 
 ```{r}
+#| out-width: 60%
 mydist <- function(x1, x2) {
   d <- abs(sqrt(sum(x1^2)) - sqrt(sum(x2^2)))
   return(d)
@@ -154,6 +156,7 @@ Many of the variables have skewed distributions. For cluster analysis, why might
 ::: unilur-solution
 
 ```{r}
+#| out-width: 60%
 p <- spotify_std |>
   pivot_longer(danceability:artist_popularity,
                names_to="var", values_to="value") |>
@@ -173,6 +176,7 @@ Yes, for example "Free Bird" and "Sparkle" could be found by simply examining a 
 b. Transform the skewed variables to be as symmetric as possible, and then fit a $k=3$-means clustering. Extract and report these metrics: `totss`, `tot.withinss`, `betweenss`. What is the ratio of within to between SS?
 
 ```{r}
+#| out-width: 60%
 # Transforming some variables: imperfect
 spotify_tf <- spotify |>
   mutate(speechiness = log10(speechiness),
@@ -196,6 +200,7 @@ spotify_tf |>
 ::: unilur-solution
 
 ```{r}
+#| out-width: 60%
 # Check that it clusters
 set.seed(131)
 spotify_km3 <- kmeans(spotify_tf[,5:15], 3)
@@ -220,6 +225,7 @@ c. Now the algorithm $k=1, ..., 20$. Extract the metrics, and plot the ratio of 
 ::: unilur-solution
 
 ```{r}
+#| out-width: 60%
 # Run many k
 spotify_km <- 
   tibble(k = 1:20) %>%
@@ -267,7 +273,7 @@ spotify_assign_df |>
 ```
 :::
 
-#### 3. Clustering several simulated data sets with know cluster structure
+#### 3. Clustering several simulated data sets with known cluster structure
 
 a. In tutorial of week 3 you used the tour to visualise the data sets `c1` and `c3` provided with the `mulgar` package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.
 
