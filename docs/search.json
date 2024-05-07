@@ -305,7 +305,7 @@
     "href": "week7/tutorialsol.html#exercises",
     "title": "ETC3250/5250 Tutorial 7",
     "section": "Exercises:",
-    "text": "Exercises:\nOpen your project for this unit called iml.Rproj. We will be working through the tutorial at TensorFlow for R for fitting and predicting the fashion MNIST image data.\n\n1. Get the data\nWe use the Fashion MNIST dataset which contains 70,000 grayscale images in 10 categories of articles sold on Zalando’s multi-brand, digital platform for fashion, beauty, and lifestyle.\n\n# download the data\nfashion_mnist &lt;- dataset_fashion_mnist()\n\n# split into input variables and response\nc(train_images, train_labels) %&lt;-% fashion_mnist$train\nc(test_images, test_labels) %&lt;-% fashion_mnist$test\n\n# for interpretation we also define the category names\nclass_names = c('T-shirt/top',\n                'Trouser',\n                'Pullover',\n                'Dress',\n                'Coat',\n                'Sandal',\n                'Shirt',\n                'Sneaker',\n                'Bag',\n                'Ankle boot')\n\n\n\n2. What’s in the data?\nCheck how many observations are in the training and test sets, and plot some of the images.\n\ndim(train_images)\ndim(train_labels)\ndim(test_images)\ndim(test_labels)\n\n# Choose an image randomly\nimg &lt;- as.data.frame(train_images[sample(1:60000, 1), , ])\ncolnames(img) &lt;- seq_len(ncol(img))\nimg$y &lt;- seq_len(nrow(img))\nimg &lt;- img |&gt;\n  pivot_longer(cols = -y,\n               names_to=\"x\", \n               values_to=\"value\") |&gt;\n  mutate(x = as.integer(x))\n\nggplot(img, aes(x = x, y = y, fill = value)) +\n  geom_tile() +\n  scale_fill_gradient(low = \"white\", \n                      high = \"black\", \n                      na.value = NA) +\n  scale_y_reverse() +\n  theme_map() +\n  theme(legend.position = \"none\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n[1] 60000    28    28\n\n\n[1] 60000\n\n\n[1] 10000    28    28\n\n\n[1] 10000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Pre-process the data\nIt may not be necessary, says Patrick, but we’ll scale the data to 0-1, before modeling.\n\ntrain_images &lt;- train_images / 255\ntest_images &lt;- test_images / 255\n\n\n\n4. Set up the model\nThe model architecture will have:\n\na flatten layer to turn the images into vectors\none hidden layer with 128 nodes with (rectified) linear activation\nfinal layer with 10 nodes and logistic activation\n\nWhy 10 nodes in the last layer? Why 128 nodes in the hidden layer?\n\nmodel_fashion_mnist &lt;- keras_model_sequential()\nmodel_fashion_mnist |&gt;\n  # flatten the image data into a long vector\n  layer_flatten(input_shape = c(28, 28)) |&gt;\n  # hidden layer with 128 units\n  layer_dense(units = 128, activation = 'relu') |&gt;\n  # output layer for 10 categories\n  layer_dense(units = 10, activation = 'softmax')\n\nSet the optimizer to be adam, loss function to be sparse_categorical_crossentropy and accuracy as the metric. What other optimizers could be used? What is the sparse_catgorical_crossentropy?\n\nmodel_fashion_mnist |&gt; compile(\n  optimizer = 'adam',\n  loss = 'sparse_categorical_crossentropy',\n  metrics = c('accuracy')\n)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are 10 classes, so we need 10 nodes in the final layer.\nThe choice of 128 nodes in the hidden layer is arbitrary. It means that we are reducing the dimension down from 784 to 128 at this point.\nSparse categorical cross-entropy is an extension of the categorical cross-entropy loss function that is used when the output labels are represented in a sparse matrix format. The labels are represented as a single index value rather than a binary matrix.\nhttps://keras.io/api/optimizers/ has a list of optimizers available.\n\n\n\n\n\n\n5. Fit the model\n\nmodel_fashion_mnist |&gt; fit(train_images,\n              train_labels,\n              epochs = 5,\n              verbose = 0)\n\n\n\n6. Evaluate the model\n\nfmnist_score &lt;- model_fashion_mnist |&gt; \n  evaluate(test_images, test_labels, verbose = 0)\n\nfmnist_score\n\nCheck with other people in class. Do you get the same result? If not, why would this be?\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n    loss accuracy \n0.516321 0.831100 \n\n\nEach person has started the optimizer with a different random seed, since we didn’t set one. You could try to set the seed using tensorflow::set_random_seed(), and have your neighbour do the same, to check if you get the same result. You will need to clean your environment before attempting this because if you fit the model again it will update the current one rather than starting afresh.\n\n\n\n\n\n\n7. Predict the test set\nWhich classes are most often confused?\n\ntest_tags &lt;- factor(class_names[test_labels + 1],\n                    levels = class_names)\n\nfashion_test_pred &lt;- predict(model_fashion_mnist,\n                             test_images, verbose = 0)\nfashion_test_pred_cat &lt;- levels(test_tags)[\n  apply(fashion_test_pred, 1,\n        which.max)]\npredicted &lt;- factor(\n  fashion_test_pred_cat,\n  levels=levels(test_tags)) |&gt;\n  as.numeric() - 1\nobserved &lt;- as.numeric(test_tags) -1\ntable(observed, predicted)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n        predicted\nobserved   0   1   2   3   4   5   6   7   8   9\n       0 759   4  24  36   6   2 156   0  13   0\n       1   4 954   0  31   6   0   3   0   2   0\n       2  18  18 722   7 194   1  34   0   6   0\n       3  33   6  13 807  69   1  67   0   4   0\n       4   0  10 107  12 827   0  41   0   3   0\n       5   0   1   0   0   0 940   0  39   1  19\n       6  93   9 182  28 184   0 482   0  22   0\n       7   0   0   0   0   0  38   0 924   0  38\n       8   6   2   8  12   3   4  13   6 946   0\n       9   1   0   0   0   0  14   0  34   1 950\n\n\nThere are several classes that have some confusion with other classes, particularly 6 with 0, 2, 4. But other classes are most often confused with at least one other. Classes 1, 5, 7, 8, 9 are rarely confused.\n\n\n\n\n\n\n8. Compute metrics\nCompute the accuracy of the model on the test set. How does this compare with the accuracy reported when you fitted the model?\nIf the model equally accurate on all classes? If not, which class(es) is(are) poorly fitted?\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  cbind(observed, predicted)\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  as.tibble() |&gt;\n  mutate(label = test_tags,\n         plabel = factor(class_names[predicted+1], \n                         levels = levels(test_tags)))\n\naccuracy(fashion_test_pred, label, plabel)\nbal_accuracy(fashion_test_pred, label, plabel)\nfashion_test_pred |&gt;\n  count(label, plabel) |&gt;\n  group_by(label) |&gt;\n  mutate(Accuracy = ifelse(sum(n)&gt;0, n[plabel==label]/sum(n), 0)) |&gt;\n  pivot_wider(names_from = \"plabel\", \n              values_from = n, \n              values_fill = 0) |&gt;\n  select(label, Accuracy)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n# A tibble: 1 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy multiclass     0.831\n\n\n# A tibble: 1 × 3\n  .metric      .estimator .estimate\n  &lt;chr&gt;        &lt;chr&gt;          &lt;dbl&gt;\n1 bal_accuracy macro          0.906\n\n\n# A tibble: 10 × 2\n# Groups:   label [10]\n   label       Accuracy\n   &lt;fct&gt;          &lt;dbl&gt;\n 1 T-shirt/top    0.759\n 2 Trouser        0.954\n 3 Pullover       0.722\n 4 Dress          0.807\n 5 Coat           0.827\n 6 Sandal         0.94 \n 7 Shirt          0.482\n 8 Sneaker        0.924\n 9 Bag            0.946\n10 Ankle boot     0.95 \n\n\n\n\n\n\n\n\n9. Investigating the results\nThis section is motivated by the examples in Cook and Laa (2024). Focus on the test data to investigate the fit, and lack of fit.\n\nPCA can be used to reduce the dimension down from 784, to a small number of PCS, to examine the nature of differences between the classes. Compute the scree plot to decide on a reasonable number that can be examined in a tour. Plot the first two statically. Explain how the class structure matches any clustering.\n\n\ntest_images_flat &lt;- test_images\ndim(test_images_flat) &lt;- c(nrow(test_images_flat), 784)\nimages_pca &lt;- prcomp(as.data.frame(test_images_flat))\nimages_pc &lt;- as.data.frame(images_pca$x)\nggscree(images_pca, q=20, guide=FALSE)\nggplot(images_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\nanimate_xy(images_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere isn’t much separation between classes in the PCs. There is some difference between classes, with overlap between them. It looks less separated than what the confusion matrix would suggest.\n\n\n\n\n\nUMAP can also be used to understand the class structure. Make a 2D UMAP representation and explain how the class structure matches cluster structure.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(test_images_flat, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.3, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere are multiple well-separated clusters in the representation. Mostly these are mixtures of several classes. Only one cluster mostly matches an article, Trouser.\n\n\n\n\n\nInterestingly, the nodes in the hidden layer can be thought of as 128 new variables which are linear combinations of the original 784 variables. This is too many to visualise but we can again use PCA to reduce their dimension again, and make plots.\n\n\nactivations_model_fashion &lt;- keras_model(\n  inputs = model_fashion_mnist$input,\n  outputs = model_fashion_mnist$layers[[2]]$output\n)\nactivations_fashion &lt;- predict(\n  activations_model_fashion,\n  test_images, verbose = 0)\n\n# PCA for activations\nactivations_pca &lt;- prcomp(activations_fashion)\nactivations_pc &lt;- as.data.frame(activations_pca$x)\n\nggscree(activations_pca, q=20, guide=FALSE)\n\nggplot(activations_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  ggtitle(\"Activations\") +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") \n\n\nanimate_xy(activations_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere substantial separation between classes in the PCs of these new variables. It looks now reasonable that the classes are distinguishable as the confusion matrix suggests.\n\n\n\n\n\nSimilarly, we can general a 2D representation using UMAP of these new variables.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(activations_fashion, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.5, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere is a lot of clustering in this view, but it mostly doesn’t match the classes. Trouser is the only class that appears to be primarily in one cluster.\n\n\n\n\n\nLast task is to explain on what was learned from the confusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.\n\n\n# Generate the projection to 9D\nproj &lt;- t(geozoo::f_helmert(10)[-1,])\nf_nn_v_p &lt;- as.matrix(fashion_test_pred[,1:10]) %*% proj\ncolnames(f_nn_v_p) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\n\nf_nn_v_p &lt;- f_nn_v_p %&gt;%\n  as.data.frame() %&gt;%\n  mutate(class = test_tags)\n\nsimp &lt;- geozoo::simplex(p=9)\nsp &lt;- data.frame(simp$points)\ncolnames(sp) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\nsp$class = \"\"\nf_nn_v_p_s &lt;- bind_rows(sp, f_nn_v_p) %&gt;%\n  mutate(class = ifelse(class %in% c(\"T-shirt/top\",\n                                     \"Pullover\",\n                                     \"Shirt\",\n                                     \"Coat\"), class, \"Other\")) %&gt;%\n  mutate(class = factor(class, levels=c(\"T-shirt/top\",\n                                        \"Pullover\",\n                                        \"Shirt\",\n                                        \"Coat\",\n                                        \"Other\"))) \n\n\nanimate_xy(f_nn_v_p_s[,1:9], col = f_nn_v_p_s$class, \n           axes = \"off\", cex=0.2,\n           edges = as.matrix(simp$edges),\n           edges.width = 0.05,\n           palette = \"Viridis\")\n\n\n\n\n10. Ways to improve the model\nThere are many ways to improve neural networks. If you have time, read through the approaches taken in the HOML book. It used the digits data, but the approaches will be suitable to apply to the fashion data. Try:\n\nincreasing the number of epochs (don’t think this helps here)\ntry adding batch processing using batch size\nuse a validation set split\ntry a different number of nodes in the hidden layer\nexpand the number of layers\nadd batch normalisation\nuse regularisation at each layer\nadd dropout for each layer\nexperiment with the learning rate"
+    "text": "Exercises:\nOpen your project for this unit called iml.Rproj. We will be working through the tutorial at TensorFlow for R for fitting and predicting the fashion MNIST image data.\n\n1. Get the data\nWe use the Fashion MNIST dataset which contains 70,000 grayscale images in 10 categories of articles sold on Zalando’s multi-brand, digital platform for fashion, beauty, and lifestyle.\n\n# download the data\nfashion_mnist &lt;- dataset_fashion_mnist()\n\n# split into input variables and response\nc(train_images, train_labels) %&lt;-% fashion_mnist$train\nc(test_images, test_labels) %&lt;-% fashion_mnist$test\n\n# for interpretation we also define the category names\nclass_names = c('T-shirt/top',\n                'Trouser',\n                'Pullover',\n                'Dress',\n                'Coat',\n                'Sandal',\n                'Shirt',\n                'Sneaker',\n                'Bag',\n                'Ankle boot')\n\n\n\n2. What’s in the data?\nCheck how many observations are in the training and test sets, and plot some of the images.\n\ndim(train_images)\ndim(train_labels)\ndim(test_images)\ndim(test_labels)\n\n# Choose an image randomly\nimg &lt;- as.data.frame(train_images[sample(1:60000, 1), , ])\ncolnames(img) &lt;- seq_len(ncol(img))\nimg$y &lt;- seq_len(nrow(img))\nimg &lt;- img |&gt;\n  pivot_longer(cols = -y,\n               names_to=\"x\", \n               values_to=\"value\") |&gt;\n  mutate(x = as.integer(x))\n\nggplot(img, aes(x = x, y = y, fill = value)) +\n  geom_tile() +\n  scale_fill_gradient(low = \"white\", \n                      high = \"black\", \n                      na.value = NA) +\n  scale_y_reverse() +\n  theme_map() +\n  theme(legend.position = \"none\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n[1] 60000    28    28\n\n\n[1] 60000\n\n\n[1] 10000    28    28\n\n\n[1] 10000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Pre-process the data\nIt may not be necessary, says Patrick, but we’ll scale the data to 0-1, before modeling.\n\ntrain_images &lt;- train_images / 255\ntest_images &lt;- test_images / 255\n\n\n\n4. Set up the model\nThe model architecture will have:\n\na flatten layer to turn the images into vectors\none hidden layer with 128 nodes with (rectified) linear activation\nfinal layer with 10 nodes and logistic activation\n\nWhy 10 nodes in the last layer? Why 128 nodes in the hidden layer?\n\nmodel_fashion_mnist &lt;- keras_model_sequential()\nmodel_fashion_mnist |&gt;\n  # flatten the image data into a long vector\n  layer_flatten(input_shape = c(28, 28)) |&gt;\n  # hidden layer with 128 units\n  layer_dense(units = 128, activation = 'relu') |&gt;\n  # output layer for 10 categories\n  layer_dense(units = 10, activation = 'softmax')\n\nSet the optimizer to be adam, loss function to be sparse_categorical_crossentropy and accuracy as the metric. What other optimizers could be used? What is the sparse_catgorical_crossentropy?\n\nmodel_fashion_mnist |&gt; compile(\n  optimizer = 'adam',\n  loss = 'sparse_categorical_crossentropy',\n  metrics = c('accuracy')\n)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are 10 classes, so we need 10 nodes in the final layer.\nThe choice of 128 nodes in the hidden layer is arbitrary. It means that we are reducing the dimension down from 784 to 128 at this point.\nSparse categorical cross-entropy is an extension of the categorical cross-entropy loss function that is used when the output labels are represented in a sparse matrix format. The labels are represented as a single index value rather than a binary matrix.\nhttps://keras.io/api/optimizers/ has a list of optimizers available.\n\n\n\n\n\n\n5. Fit the model\n\nmodel_fashion_mnist |&gt; fit(train_images,\n              train_labels,\n              epochs = 5,\n              verbose = 0)\n\n\n\n6. Evaluate the model\n\nfmnist_score &lt;- model_fashion_mnist |&gt; \n  evaluate(test_images, test_labels, verbose = 0)\n\nfmnist_score\n\nCheck with other people in class. Do you get the same result? If not, why would this be?\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n     loss  accuracy \n0.5676619 0.8128000 \n\n\nEach person has started the optimizer with a different random seed, since we didn’t set one. You could try to set the seed using tensorflow::set_random_seed(), and have your neighbour do the same, to check if you get the same result. You will need to clean your environment before attempting this because if you fit the model again it will update the current one rather than starting afresh.\n\n\n\n\n\n\n7. Predict the test set\nWhich classes are most often confused?\n\ntest_tags &lt;- factor(class_names[test_labels + 1],\n                    levels = class_names)\n\nfashion_test_pred &lt;- predict(model_fashion_mnist,\n                             test_images, verbose = 0)\nfashion_test_pred_cat &lt;- levels(test_tags)[\n  apply(fashion_test_pred, 1,\n        which.max)]\npredicted &lt;- factor(\n  fashion_test_pred_cat,\n  levels=levels(test_tags)) |&gt;\n  as.numeric() - 1\nobserved &lt;- as.numeric(test_tags) -1\ntable(observed, predicted)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n        predicted\nobserved   0   1   2   3   4   5   6   7   8   9\n       0 536   2  36 107   7   0 302   0   9   1\n       1   0 941   6  37   5   0  10   0   1   0\n       2   2   0 575  10 186   0 223   0   4   0\n       3   3   5  19 853  61   0  56   0   3   0\n       4   0   0  61  16 757   0 160   0   6   0\n       5   0   0   0   1   0 922   1  49   3  24\n       6  29   1  68  59  92   0 743   0   8   0\n       7   0   0   0   0   0  29   0 920   0  51\n       8   2   0   3  11   7   3  41   4 928   1\n       9   0   0   0   0   0  15   2  30   0 953\n\n\nThere are several classes that have some confusion with other classes, particularly 6 with 0, 2, 4. But other classes are most often confused with at least one other. Classes 1, 5, 7, 8, 9 are rarely confused.\n\n\n\n\n\n\n8. Compute metrics\nCompute the accuracy of the model on the test set. How does this compare with the accuracy reported when you fitted the model?\nIf the model equally accurate on all classes? If not, which class(es) is(are) poorly fitted?\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  cbind(observed, predicted)\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  as.tibble() |&gt;\n  mutate(label = test_tags,\n         plabel = factor(class_names[predicted+1], \n                         levels = levels(test_tags)))\n\naccuracy(fashion_test_pred, label, plabel)\nbal_accuracy(fashion_test_pred, label, plabel)\nfashion_test_pred |&gt;\n  count(label, plabel) |&gt;\n  group_by(label) |&gt;\n  mutate(Accuracy = ifelse(sum(n)&gt;0, n[plabel==label]/sum(n), 0)) |&gt;\n  pivot_wider(names_from = \"plabel\", \n              values_from = n, \n              values_fill = 0) |&gt;\n  select(label, Accuracy)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n# A tibble: 1 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy multiclass     0.813\n\n\n# A tibble: 1 × 3\n  .metric      .estimator .estimate\n  &lt;chr&gt;        &lt;chr&gt;          &lt;dbl&gt;\n1 bal_accuracy macro          0.896\n\n\n# A tibble: 10 × 2\n# Groups:   label [10]\n   label       Accuracy\n   &lt;fct&gt;          &lt;dbl&gt;\n 1 T-shirt/top    0.536\n 2 Trouser        0.941\n 3 Pullover       0.575\n 4 Dress          0.853\n 5 Coat           0.757\n 6 Sandal         0.922\n 7 Shirt          0.743\n 8 Sneaker        0.92 \n 9 Bag            0.928\n10 Ankle boot     0.953\n\n\n\n\n\n\n\n\n9. Investigating the results\nThis section is motivated by the examples in Cook and Laa (2024). Focus on the test data to investigate the fit, and lack of fit.\n\nPCA can be used to reduce the dimension down from 784, to a small number of PCS, to examine the nature of differences between the classes. Compute the scree plot to decide on a reasonable number that can be examined in a tour. Plot the first two statically. Explain how the class structure matches any clustering.\n\n\ntest_images_flat &lt;- test_images\ndim(test_images_flat) &lt;- c(nrow(test_images_flat), 784)\nimages_pca &lt;- prcomp(as.data.frame(test_images_flat))\nimages_pc &lt;- as.data.frame(images_pca$x)\nggscree(images_pca, q=20, guide=FALSE)\nggplot(images_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\nanimate_xy(images_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere isn’t much separation between classes in the PCs. There is some difference between classes, with overlap between them. It looks less separated than what the confusion matrix would suggest.\n\n\n\n\n\nUMAP can also be used to understand the class structure. Make a 2D UMAP representation and explain how the class structure matches cluster structure.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(test_images_flat, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.3, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere are multiple well-separated clusters in the representation. Mostly these are mixtures of several classes. Only one cluster mostly matches an article, Trouser.\n\n\n\n\n\nInterestingly, the nodes in the hidden layer can be thought of as 128 new variables which are linear combinations of the original 784 variables. This is too many to visualise but we can again use PCA to reduce their dimension again, and make plots.\n\n\nactivations_model_fashion &lt;- keras_model(\n  inputs = model_fashion_mnist$input,\n  outputs = model_fashion_mnist$layers[[2]]$output\n)\nactivations_fashion &lt;- predict(\n  activations_model_fashion,\n  test_images, verbose = 0)\n\n# PCA for activations\nactivations_pca &lt;- prcomp(activations_fashion)\nactivations_pc &lt;- as.data.frame(activations_pca$x)\n\nggscree(activations_pca, q=20, guide=FALSE)\n\nggplot(activations_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  ggtitle(\"Activations\") +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") \n\n\nanimate_xy(activations_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere substantial separation between classes in the PCs of these new variables. It looks now reasonable that the classes are distinguishable as the confusion matrix suggests.\n\n\n\n\n\nSimilarly, we can general a 2D representation using UMAP of these new variables.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(activations_fashion, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.5, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere is a lot of clustering in this view, but it mostly doesn’t match the classes. Trouser is the only class that appears to be primarily in one cluster.\n\n\n\n\n\nLast task is to explain on what was learned from the confusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.\n\n\n# Generate the projection to 9D\nproj &lt;- t(geozoo::f_helmert(10)[-1,])\nf_nn_v_p &lt;- as.matrix(fashion_test_pred[,1:10]) %*% proj\ncolnames(f_nn_v_p) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\n\nf_nn_v_p &lt;- f_nn_v_p %&gt;%\n  as.data.frame() %&gt;%\n  mutate(class = test_tags)\n\nsimp &lt;- geozoo::simplex(p=9)\nsp &lt;- data.frame(simp$points)\ncolnames(sp) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\nsp$class = \"\"\nf_nn_v_p_s &lt;- bind_rows(sp, f_nn_v_p) %&gt;%\n  mutate(class = ifelse(class %in% c(\"T-shirt/top\",\n                                     \"Pullover\",\n                                     \"Shirt\",\n                                     \"Coat\"), class, \"Other\")) %&gt;%\n  mutate(class = factor(class, levels=c(\"T-shirt/top\",\n                                        \"Pullover\",\n                                        \"Shirt\",\n                                        \"Coat\",\n                                        \"Other\"))) \n\n\nanimate_xy(f_nn_v_p_s[,1:9], col = f_nn_v_p_s$class, \n           axes = \"off\", cex=0.2,\n           edges = as.matrix(simp$edges),\n           edges.width = 0.05,\n           palette = \"Viridis\")\n\n\n\n\n10. Ways to improve the model\nThere are many ways to improve neural networks. If you have time, read through the approaches taken in the HOML book. It used the digits data, but the approaches will be suitable to apply to the fashion data. Try:\n\nincreasing the number of epochs (don’t think this helps here)\ntry adding batch processing using batch size\nuse a validation set split\ntry a different number of nodes in the hidden layer\nexpand the number of layers\nadd batch normalisation\nuse regularisation at each layer\nadd dropout for each layer\nexperiment with the learning rate"
   },
   {
     "objectID": "week7/tutorialsol.html#finishing-up",
@@ -1512,46 +1512,319 @@
     "text": "Assignments\n\nProject is due on Friday 17 May."
   },
   {
-    "objectID": "week10/index.html",
-    "href": "week10/index.html",
-    "title": "Week 10: Model-based clustering and self-organising maps",
-    "section": "",
-    "text": "HOML Ch 22"
+    "objectID": "week10/slides.html#overview",
+    "href": "week10/slides.html#overview",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\nWe will cover:\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
   },
   {
-    "objectID": "week10/index.html#main-reference",
-    "href": "week10/index.html#main-reference",
-    "title": "Week 10: Model-based clustering and self-organising maps",
-    "section": "",
-    "text": "HOML Ch 22"
+    "objectID": "week10/slides.html#model-based-clustering",
+    "href": "week10/slides.html#model-based-clustering",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Model-based clustering",
+    "text": "Model-based clustering"
   },
   {
-    "objectID": "week10/index.html#what-you-will-learn-this-week",
-    "href": "week10/index.html#what-you-will-learn-this-week",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week10/slides.html#overview-1",
+    "href": "week10/slides.html#overview-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\nModel-based clustering makes an assumption about the distribution of the data, primarily\n\nAssumes the data is a sample from a Gaussian mixture model\nRequires the assumption that clusters have an elliptical shape\nThe shape is determined by the variance-covariance of the clusters\nA variety of models is available by using different constraints on the variance-covariance\n\nModel is\n\\[f(x_i) = \\sum_{k=1}^G\\pi_kf_k(x_i; \\mu_k, \\Sigma_k)\\]\nwhere \\(f_k\\) is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC."
+  },
+  {
+    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
+    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parametrisation of the var-cov matrices (1/2)",
+    "text": "Parametrisation of the var-cov matrices (1/2)\n\n\nConstraints applied on cluster variance-covariance:\n\\[\n\\Sigma_k = \\lambda_kD_kA_kD_k^\\top\n\\]\n\nvolume (\\(\\lambda_k\\)): each cluster has approximately the same size\nshape (\\(A_k\\)): each cluster has approximately the same variance so that the distribution is spherical\norientation (\\(D_k\\)): each cluster is forced to be axis-aligned\n\n\n\n\\(\\lambda I\\) is model 1, EI\n\\(\\lambda DAD^\\top\\) is model 7, EEE\n\\(\\lambda D_kAD_k^\\top\\) is model 11, EEV\n\n\n\n\n\nModel\nFamily\nVolume\nShape\nOrientation\nIdentifier\n\n\n\n\n1\nSpherical\nEqual\nEqual\nNA\nEII\n\n\n2\nSpherical\nVariable\nEqual\nNA\nVII\n\n\n3\nDiagonal\nEqual\nEqual\nAxes\nEEI\n\n\n4\nDiagonal\nVariable\nEqual\nAxes\nVEI\n\n\n5\nDiagonal\nEqual\nVariable\nAxes\nEVI\n\n\n6\nDiagonal\nVariable\nVariable\nAxes\nVVI\n\n\n7\nGeneral\nEqual\nEqual\nEqual\nEEE\n\n\n8\nGeneral\nEqual\nVariable\nEqual\nEVE\n\n\n9\nGeneral\nVariable\nEqual\nEqual\nVEE\n\n\n10\nGeneral\nVariable\nVariable\nEqual\nVVE\n\n\n11\nGeneral\nEqual\nEqual\nVariable\nEEV\n\n\n12\nGeneral\nVariable\nEqual\nVariable\nVEV\n\n\n13\nGeneral\nEqual\nVariable\nVariable\nEVV\n\n\n14\nGeneral\nVariable\nVariable\nVariable\nVVV"
+  },
+  {
+    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
+    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parametrisation of the var-cov matrices (2/2)",
+    "text": "Parametrisation of the var-cov matrices (2/2)\n\n\n\nSource: Boehmke (2020) Hands-on machine learning"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-12",
+    "href": "week10/slides.html#example-penguins-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (1/2)",
+    "text": "Example: penguins (1/2)\n\n\nLet the model decide on the number of clusters, and parametrisation.\n\np_mc &lt;- mclustBIC(p_std[,2:5], G=2:8)\nsummary(p_mc)\n\nBest BIC values:\n         VEE,4   VEE,5 VEE,3\nBIC      -2497 -2503.7 -2510\nBIC diff     0    -7.2   -14\n\n\n\n\npmc1 &lt;- ggmcbic(p_mc) +\n  scale_x_continuous(breaks=1:7, labels=2:8)\nggplotly(pmc1)"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-22",
+    "href": "week10/slides.html#example-penguins-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (2/2)",
+    "text": "Example: penguins (2/2)\n\n\n\n\nCode\npenguins_mc &lt;- Mclust(p_std[,2:5], \n                      G=4, \n                      modelNames = \"VEE\")\npenguins_mce &lt;- mc_ellipse(penguins_mc)\npenguins_cl &lt;- p_std\npenguins_cl$cl &lt;- factor(penguins_mc$classification)\n\npenguins_mc_data &lt;- penguins_cl |&gt;\n  select(bl:bm, cl) |&gt;\n  mutate(type = \"data\") |&gt;\n  bind_rows(bind_cols(penguins_mce$ell,\n                      type=rep(\"ellipse\",\n                               nrow(penguins_mce$ell)))) |&gt;\n  mutate(type = factor(type))\n\n\n\nBest model: VEE, 4\nWhat’s wrong with this fit?\n\n\n\nmodel: VEE, 3\nWhich is the better model? 4 or 3 clusters? Purely based on how well it fits the data?"
+  },
+  {
+    "objectID": "week10/slides.html#summary",
+    "href": "week10/slides.html#summary",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Summary",
+    "text": "Summary\n\nModel-based clustering provides a nice automated clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.\nNon-elliptical clusters could be modeled by combining multiple ellipses.\nIt is affected by nuisance observations, and has a parameter noise to attempt to filter these.\nIt may not function so well if the data hasn’t got separated clusters.\n\\(k\\)-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).\nHaving a functional model for the clusters is useful."
+  },
+  {
+    "objectID": "week10/slides.html#self-organising-maps",
+    "href": "week10/slides.html#self-organising-maps",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Self-organising maps",
+    "text": "Self-organising maps"
+  },
+  {
+    "objectID": "week10/slides.html#overview-2",
+    "href": "week10/slides.html#overview-2",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\n\n\n\nA self-organizing map is a constrained \\(k\\)-means algorithm\nA 1D or 2D net is stretched through the data. The knots in the net form the cluster means, and points closest to the knot are considered to belong to that cluster.\nThe net provides a low-dimensional summary of the clustering, nodes (and their corresponding clusters) that are close to each other being more similar than those that are further apart.\n\n\nSource: wikipedia\n\nAlgorithm\n\nScale your data\nInitialize the net defined by the knots (nodes \\(m_k, k=1, ..., K\\)): choose the number of nodes in the horizontal (and vertical directions for 2D), and set initial positions of these \\(K\\) nodes (eg first two PCs) in the data space.\nLoop over data points, \\(x_i, i=1, ..., n\\)\n\nfind the closest node, \\(m_{k^*}\\)\nfor each node, \\(m_k\\) in the neighborhood of \\(m_{k^*}\\) and update it by: \\(m_k = m_k + \\alpha h_k(x_i, m_{k^*}) (x_i-m_{k^*})\\), pulling it closer to \\(x_i\\),\n\n\nwhere \\(\\alpha\\) is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and \\(h_k\\) is a neighbourhood function, e.g. \\(h_k(x_i, m_{k^*})=exp(\\frac{||x_i-m_{k^*}||}{2\\alpha})^2)\\) which is a bubble function (within a distance or not).\nStep 3 is iterated until nodes stop changing position or a stopping rule is satisfied."
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-12-1",
+    "href": "week10/slides.html#example-penguins-12-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (1/2)",
+    "text": "Example: penguins (1/2)\n\n\n\nset.seed(947)\np_grid &lt;- kohonen::somgrid(xdim = 5, ydim = 5,\n                           topo = 'rectangular')\np_init &lt;- somInit(as.matrix(p_std[,2:5]), 5, 5)\np_som &lt;- som(as.matrix(p_std[,2:5]), \n             rlen=2000,\n             grid = p_grid,\n             init = p_init)\n\nrlen controls the length of the optimisation. Tend to need to run it for longer than default.\n\n\nplot(p_som, type=\"changes\")"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-22-1",
+    "href": "week10/slides.html#example-penguins-22-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (2/2)",
+    "text": "Example: penguins (2/2)\n\n\n\n\n\n\n\n\n\n\n\nFrom the map we can see that the clustering has effectively distinguished the species, with some confusion between Chinstrap and Adelie.\n\n\n\n\n The net is stretched and clumped into the three clusters in 4D."
+  },
+  {
+    "objectID": "week10/slides.html#example-surface-12",
+    "href": "week10/slides.html#example-surface-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: surface (1/2)",
+    "text": "Example: surface (1/2)\n\n\n\nc3_som &lt;- som(as.matrix(c3), \n  grid = kohonen::somgrid(5, 5, \"hexagonal\"))\n\n\n\nplot(c3_som, type=\"changes\")"
+  },
+  {
+    "objectID": "week10/slides.html#example-surface-22",
+    "href": "week10/slides.html#example-surface-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: surface (2/2)",
+    "text": "Example: surface (2/2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nthe net stretches into the vertices of the tetrahedron, filling the smaller tetrahedrons\nsee the break so that a 2D net fits the 3D object?\nthe 7 noise dimensions were ignored"
+  },
+  {
+    "objectID": "week10/slides.html#next-evaluating-your-clustering-model",
+    "href": "week10/slides.html#next-evaluating-your-clustering-model",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Next: Evaluating your clustering model",
+    "text": "Next: Evaluating your clustering model\n\n\n\nETC3250/5250 Lecture 10 | iml.numbat.space"
+  },
+  {
+    "objectID": "week1/tutorial.html",
+    "href": "week1/tutorial.html",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorial.html#objectives",
+    "href": "week1/tutorial.html#objectives",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorial.html#preparation",
+    "href": "week1/tutorial.html#preparation",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+  },
+  {
+    "objectID": "week1/tutorial.html#exercises",
+    "href": "week1/tutorial.html#exercises",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+  },
+  {
+    "objectID": "week1/tutorial.html#finishing-up",
+    "href": "week1/tutorial.html#finishing-up",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week1/tutorialsol.html",
+    "href": "week1/tutorialsol.html",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#objectives",
+    "href": "week1/tutorialsol.html#objectives",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#preparation",
+    "href": "week1/tutorialsol.html#preparation",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#exercises",
+    "href": "week1/tutorialsol.html#exercises",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe error is\nError in select(penguins, species, flipper_length_mm) : \n  unused arguments (species, flipper_length_mm)\nand is caused by a conflict in functions between the dplyr and MASS packages. If you read the warning messages when the packages were loaded you might have been aware of this before trying to run code.\nYou can fix it by:\n\nPrefacing functions that have conflicts with their package name, eg dplyr::select()\nUse the conflicted package to set your preferences at the start of any document.\n\nTo make the reprex, copy the code to clipboard, and run reprex(). This will generate:\n\n\n\n\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nLibraries are loaded.\nThere are some global options for slides set, and styling of plots.\nConflicts for some common functions are resolved with preferences.\n\n\n\n\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+  },
+  {
+    "objectID": "week1/tutorialsol.html#finishing-up",
+    "href": "week1/tutorialsol.html#finishing-up",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week1/index.html",
+    "href": "week1/index.html",
+    "title": "Week 1: Foundations of machine learning",
+    "section": "",
+    "text": "ISLR 2.1, 2.2"
+  },
+  {
+    "objectID": "week1/index.html#main-reference",
+    "href": "week1/index.html#main-reference",
+    "title": "Week 1: Foundations of machine learning",
+    "section": "",
+    "text": "ISLR 2.1, 2.2"
+  },
+  {
+    "objectID": "week1/index.html#what-you-will-learn-this-week",
+    "href": "week1/index.html#what-you-will-learn-this-week",
+    "title": "Week 1: Foundations of machine learning",
     "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
+    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models: training/test splits, optimisation\nMeasuring fit: accuracy, loss\nDiagnostics: residuals\nFeature engineering: combining variables to better match purpose and help the model fitting"
   },
   {
-    "objectID": "week10/index.html#lecture-slides",
-    "href": "week10/index.html#lecture-slides",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#lecture-slides",
+    "href": "week1/index.html#lecture-slides",
+    "title": "Week 1: Foundations of machine learning",
     "section": "Lecture slides",
     "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
   },
   {
-    "objectID": "week10/index.html#tutorial-instructions",
-    "href": "week10/index.html#tutorial-instructions",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#tutorial-instructions",
+    "href": "week1/index.html#tutorial-instructions",
+    "title": "Week 1: Foundations of machine learning",
     "section": "Tutorial instructions",
     "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
   },
   {
-    "objectID": "week10/index.html#assignments",
-    "href": "week10/index.html#assignments",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#assignments",
+    "href": "week1/index.html#assignments",
+    "title": "Week 1: Foundations of machine learning",
     "section": "Assignments",
-    "text": "Assignments\n\nProject is due on Friday 17 May."
+    "text": "Assignments"
+  },
+  {
+    "objectID": "project/project-instructions.html",
+    "href": "project/project-instructions.html",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#overview",
+    "href": "project/project-instructions.html#overview",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#about-the-data",
+    "href": "project/project-instructions.html#about-the-data",
+    "title": "Project",
+    "section": "About the data",
+    "text": "About the data\nThe data is downloaded from https://www.waterpointdata.org and represents a subset from a region in Africa. The actual spatial coordinates are disguised. The data has been cleaned, with missing values (small number) imputed, and only reliable variables included.\nThere files provided:\n\nwater-train.csv: the training set of data\nwater-test.csv: the test set, with no labels, that you need to predict the response variable status_id.\nsample-submissions.csv: the format of the data that you need to use to make a submission to kaggle.\n\nThe website is the best place to learn about the variables provided."
+  },
+  {
+    "objectID": "project/project-instructions.html#rules",
+    "href": "project/project-instructions.html#rules",
+    "title": "Project",
+    "section": "Rules",
+    "text": "Rules\n\nYou need to follow the rules detailed at Maintain academic integrity information for students. If you are concerned about, you can report these to the chief examiner.\nFor any reason, but especially if there is suspicion of violation of academic integrity, the chief examiner can request that you attend an oral exam to explain any of your answers, or to answer related questions on the assignment. Your score will be adjusted based on answers provided during the oral exam.\n\nYou need to make at least 5 kaggle submissions. All are individual submissions.\nThe competition is scored on balanced accuracy because it is an imbalanced classification."
+  },
+  {
+    "objectID": "project/project-instructions.html#submit",
+    "href": "project/project-instructions.html#submit",
+    "title": "Project",
+    "section": "Submit",
+    "text": "Submit\n\nkaggle\n\nThe competition website is https://www.kaggle.com/competitions/maji-safi. It is called maji safi which means clean water in swahili.\nYou have access to submit your predictions from your Monash student email. If for some rare reason, you cannot access the submission system from your Monash email, contact the chief examiner to obtain access from a different email.\nYou can make as many as 2 submissions per day, and you can see your predictions on the private set twice in the entire competition period.\n\n\n\nMoodle\n\nSubmit your (1) R code (R script file, not qmd) that produces what you think is your best model, and (2) a file containing the predictions from this model, the same format as sample-submissions.csv. If you have a specific model that takes an extremely long time to run, you can also submit an rda or folder containing that fitted model (similar to what was done with the penguin-cnn save of the NN model used in class).\n\n\n\nDue dates\n\nCompetition deadline is May 17, 11:55pm. There are no extensions for this, it is controlled entirely by kaggle.\nSubmission of files to moodle is due May 19, 11:55pm.\n\nNote that this is an activity that cannot have deadlines extended. If for some reason you cannot participate in this assessment activity, the option will be to take a 30 minute in-person practical oral exam on May 23, 27, 31 or June 10."
+  },
+  {
+    "objectID": "project/project-instructions.html#etc5250-students",
+    "href": "project/project-instructions.html#etc5250-students",
+    "title": "Project",
+    "section": "ETC5250 students",
+    "text": "ETC5250 students\nAll students enrolled in ETC5250 need to do an additional team activity. Your score for the predictions will be scaled to 6, and the remaining 3 points will be from this activity.\n\nForm a team of up to 4 class members. Complete this form. This needs to be completed by May 17, 11:55pm. If you need help forming a team, your tutors or chief examiner can help.\nYour task is to report three things that are interesting about the data, or about different models. For example, “xgboost always predicts the test set to be all y”, or “most of the n class were installed prior to 2015”.\nAssessment: Each of your three things will be scored in the way that the quiz show Pointless scores their questions. Each item is worth 1 point. If every other team reports the same thing, everyone scores 0. If no other team reports your thing you earn the full 1 point. So a higher score for each thing is awarded for interesting findings that are valid, and few other teams report.\nSubmit: You need to submit an html (self-contained) and qmd file with your three things, and your supporting evidence by May 21, 11:55pm.\nDuring the lecture period on Wednesday May 22, 1-3pm your team presents your findings within 3 minutes. Any team members presenting will get a 10% boost to their score on this part."
+  },
+  {
+    "objectID": "project/project-instructions.html#assessment",
+    "href": "project/project-instructions.html#assessment",
+    "title": "Project",
+    "section": "Assessment",
+    "text": "Assessment\n\nTotal: 10 points\nObtaining balanced accuracy of\n\n70% will earn 6 out of 10 points.\n72% will earn 7 out of 10 points.\n73-75% will earn 8 out of 10 points.\nAbove 75% will earn 9 out of 10 points.\nBeing in the top 10% of the submissions will earn full points.\n\nFailure to submit your R code and prediction file will result in a deduction of 7 points.\nIf your R code cannot be run, does not match your predictions, or provide a balanced accuracy close to any of your submissions to kaggle will result in a 50% reduction of your total.\nFailure to make at least 5 submissions to kaggle earns a 50% reduction of your total."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
+  },
+  {
+    "objectID": "index.html#lecturerchief-examiner",
+    "href": "index.html#lecturerchief-examiner",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
+  },
+  {
+    "objectID": "index.html#tutors",
+    "href": "index.html#tutors",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Tutors",
+    "text": "Tutors\n\nPatrick Li\n\nTutorials: Mon 15:00 (LTB 323), Fri 11:00 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 10:30-12:00 (W9.20)\n\nHarriet Mason\n\nTutorials: Wed 18:00 (LTB G60), Fri 12:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 3:00-4:30 (zoom only)\n\nJayani Lakshika\n\nTutorials: Wed 8:00, 9:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 12:00-1:30 (W9.20)\n\nKrisanat Anukarnsakulchularp\n\nTutorials: Mon 12:00, 13:30 (LTB 323)\nConsultation: Fri 9:30-11:00 (W9.20)"
+  },
+  {
+    "objectID": "index.html#weekly-schedule",
+    "href": "index.html#weekly-schedule",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Weekly schedule",
+    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
+  },
+  {
+    "objectID": "index.html#assessments",
+    "href": "index.html#assessments",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Assessments",
+    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle (9%)\nAssignment 2: Instructions, Submit to moodle (9%)\nAssignment 3: Instructions, Submit to moodle (9%)\nProject: Instructions, Submit predictions to kaggle, Submit files to moodle: 10%\nFinal exam: 60%"
+  },
+  {
+    "objectID": "index.html#software",
+    "href": "index.html#software",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Software",
+    "text": "Software\nWe will be using the latest versions of R and RStudio.\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
+  },
+  {
+    "objectID": "resources.html",
+    "href": "resources.html",
+    "title": "ETC3250/5250 Resources",
+    "section": "",
+    "text": "Books and articles\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them.\n\nExplanatory Model Analysis\n\nThis book by Biecek and Burzykowski provides useful approaches for making black boxes explainable.\n\nFeature Engineering A-Z\n\nWritten by Emil Hvitfeldt to cover creating new variables as broadly as possibly. Has classical methods such as dummy variables and box-cox transformations, temporal and spatial data and missing value imputation.\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog\nWickham et al (2015) Removing the Blindfold\nProject in Data Analytics for Decision Making"
   },
   {
     "objectID": "week1/slides.html#welcome-meet-the-teaching-team",
@@ -1841,214 +2114,46 @@
     "text": "Next: Visualisation\n\n\n\nETC3250/5250 Lecture 1 | iml.numbat.space"
   },
   {
-    "objectID": "resources.html",
-    "href": "resources.html",
-    "title": "ETC3250/5250 Resources",
+    "objectID": "week10/index.html",
+    "href": "week10/index.html",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "",
-    "text": "Books and articles\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them.\n\nExplanatory Model Analysis\n\nThis book by Biecek and Burzykowski provides useful approaches for making black boxes explainable.\n\nFeature Engineering A-Z\n\nWritten by Emil Hvitfeldt to cover creating new variables as broadly as possibly. Has classical methods such as dummy variables and box-cox transformations, temporal and spatial data and missing value imputation.\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog\nWickham et al (2015) Removing the Blindfold\nProject in Data Analytics for Decision Making"
+    "text": "HOML Ch 22"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "objectID": "week10/index.html#main-reference",
+    "href": "week10/index.html#main-reference",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
+    "text": "HOML Ch 22"
   },
   {
-    "objectID": "index.html#lecturerchief-examiner",
-    "href": "index.html#lecturerchief-examiner",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
-  },
-  {
-    "objectID": "index.html#tutors",
-    "href": "index.html#tutors",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Tutors",
-    "text": "Tutors\n\nPatrick Li\n\nTutorials: Mon 15:00 (LTB 323), Fri 11:00 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 10:30-12:00 (W9.20)\n\nHarriet Mason\n\nTutorials: Wed 18:00 (LTB G60), Fri 12:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 3:00-4:30 (zoom only)\n\nJayani Lakshika\n\nTutorials: Wed 8:00, 9:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 12:00-1:30 (W9.20)\n\nKrisanat Anukarnsakulchularp\n\nTutorials: Mon 12:00, 13:30 (LTB 323)\nConsultation: Fri 9:30-11:00 (W9.20)"
-  },
-  {
-    "objectID": "index.html#weekly-schedule",
-    "href": "index.html#weekly-schedule",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Weekly schedule",
-    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
-  },
-  {
-    "objectID": "index.html#assessments",
-    "href": "index.html#assessments",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Assessments",
-    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle (9%)\nAssignment 2: Instructions, Submit to moodle (9%)\nAssignment 3: Instructions, Submit to moodle (9%)\nProject: Instructions, Submit predictions to kaggle, Submit files to moodle: 10%\nFinal exam: 60%"
-  },
-  {
-    "objectID": "index.html#software",
-    "href": "index.html#software",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Software",
-    "text": "Software\nWe will be using the latest versions of R and RStudio.\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
-  },
-  {
-    "objectID": "project/project-instructions.html",
-    "href": "project/project-instructions.html",
-    "title": "Project",
-    "section": "",
-    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
-  },
-  {
-    "objectID": "project/project-instructions.html#overview",
-    "href": "project/project-instructions.html#overview",
-    "title": "Project",
-    "section": "",
-    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
-  },
-  {
-    "objectID": "project/project-instructions.html#about-the-data",
-    "href": "project/project-instructions.html#about-the-data",
-    "title": "Project",
-    "section": "About the data",
-    "text": "About the data\nThe data is downloaded from https://www.waterpointdata.org and represents a subset from a region in Africa. The actual spatial coordinates are disguised. The data has been cleaned, with missing values (small number) imputed, and only reliable variables included.\nThere files provided:\n\nwater-train.csv: the training set of data\nwater-test.csv: the test set, with no labels, that you need to predict the response variable status_id.\nsample-submissions.csv: the format of the data that you need to use to make a submission to kaggle.\n\nThe website is the best place to learn about the variables provided."
-  },
-  {
-    "objectID": "project/project-instructions.html#rules",
-    "href": "project/project-instructions.html#rules",
-    "title": "Project",
-    "section": "Rules",
-    "text": "Rules\n\nYou need to follow the rules detailed at Maintain academic integrity information for students. If you are concerned about, you can report these to the chief examiner.\nFor any reason, but especially if there is suspicion of violation of academic integrity, the chief examiner can request that you attend an oral exam to explain any of your answers, or to answer related questions on the assignment. Your score will be adjusted based on answers provided during the oral exam.\n\nYou need to make at least 5 kaggle submissions. All are individual submissions.\nThe competition is scored on balanced accuracy because it is an imbalanced classification."
-  },
-  {
-    "objectID": "project/project-instructions.html#submit",
-    "href": "project/project-instructions.html#submit",
-    "title": "Project",
-    "section": "Submit",
-    "text": "Submit\n\nkaggle\n\nThe competition website is https://www.kaggle.com/competitions/maji-safi. It is called maji safi which means clean water in swahili.\nYou have access to submit your predictions from your Monash student email. If for some rare reason, you cannot access the submission system from your Monash email, contact the chief examiner to obtain access from a different email.\nYou can make as many as 2 submissions per day, and you can see your predictions on the private set twice in the entire competition period.\n\n\n\nMoodle\n\nSubmit your (1) R code (R script file, not qmd) that produces what you think is your best model, and (2) a file containing the predictions from this model, the same format as sample-submissions.csv. If you have a specific model that takes an extremely long time to run, you can also submit an rda or folder containing that fitted model (similar to what was done with the penguin-cnn save of the NN model used in class).\n\n\n\nDue dates\n\nCompetition deadline is May 17, 11:55pm. There are no extensions for this, it is controlled entirely by kaggle.\nSubmission of files to moodle is due May 19, 11:55pm.\n\nNote that this is an activity that cannot have deadlines extended. If for some reason you cannot participate in this assessment activity, the option will be to take a 30 minute in-person practical oral exam on May 23, 27, 31 or June 10."
-  },
-  {
-    "objectID": "project/project-instructions.html#etc5250-students",
-    "href": "project/project-instructions.html#etc5250-students",
-    "title": "Project",
-    "section": "ETC5250 students",
-    "text": "ETC5250 students\nAll students enrolled in ETC5250 need to do an additional team activity. Your score for the predictions will be scaled to 6, and the remaining 3 points will be from this activity.\n\nForm a team of up to 4 class members. Complete this form. This needs to be completed by May 17, 11:55pm. If you need help forming a team, your tutors or chief examiner can help.\nYour task is to report three things that are interesting about the data, or about different models. For example, “xgboost always predicts the test set to be all y”, or “most of the n class were installed prior to 2015”.\nAssessment: Each of your three things will be scored in the way that the quiz show Pointless scores their questions. Each item is worth 1 point. If every other team reports the same thing, everyone scores 0. If no other team reports your thing you earn the full 1 point. So a higher score for each thing is awarded for interesting findings that are valid, and few other teams report.\nSubmit: You need to submit an html (self-contained) and qmd file with your three things, and your supporting evidence by May 21, 11:55pm.\nDuring the lecture period on Wednesday May 22, 1-3pm your team presents your findings within 3 minutes. Any team members presenting will get a 10% boost to their score on this part."
-  },
-  {
-    "objectID": "project/project-instructions.html#assessment",
-    "href": "project/project-instructions.html#assessment",
-    "title": "Project",
-    "section": "Assessment",
-    "text": "Assessment\n\nTotal: 10 points\nObtaining balanced accuracy of\n\n70% will earn 6 out of 10 points.\n72% will earn 7 out of 10 points.\n73-75% will earn 8 out of 10 points.\nAbove 75% will earn 9 out of 10 points.\nBeing in the top 10% of the submissions will earn full points.\n\nFailure to submit your R code and prediction file will result in a deduction of 7 points.\nIf your R code cannot be run, does not match your predictions, or provide a balanced accuracy close to any of your submissions to kaggle will result in a 50% reduction of your total.\nFailure to make at least 5 submissions to kaggle earns a 50% reduction of your total."
-  },
-  {
-    "objectID": "week1/index.html",
-    "href": "week1/index.html",
-    "title": "Week 1: Foundations of machine learning",
-    "section": "",
-    "text": "ISLR 2.1, 2.2"
-  },
-  {
-    "objectID": "week1/index.html#main-reference",
-    "href": "week1/index.html#main-reference",
-    "title": "Week 1: Foundations of machine learning",
-    "section": "",
-    "text": "ISLR 2.1, 2.2"
-  },
-  {
-    "objectID": "week1/index.html#what-you-will-learn-this-week",
-    "href": "week1/index.html#what-you-will-learn-this-week",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#what-you-will-learn-this-week",
+    "href": "week10/index.html#what-you-will-learn-this-week",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models: training/test splits, optimisation\nMeasuring fit: accuracy, loss\nDiagnostics: residuals\nFeature engineering: combining variables to better match purpose and help the model fitting"
+    "text": "What you will learn this week\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
   },
   {
-    "objectID": "week1/index.html#lecture-slides",
-    "href": "week1/index.html#lecture-slides",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#lecture-slides",
+    "href": "week10/index.html#lecture-slides",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Lecture slides",
     "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
   },
   {
-    "objectID": "week1/index.html#tutorial-instructions",
-    "href": "week1/index.html#tutorial-instructions",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#tutorial-instructions",
+    "href": "week10/index.html#tutorial-instructions",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Tutorial instructions",
     "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
   },
   {
-    "objectID": "week1/index.html#assignments",
-    "href": "week1/index.html#assignments",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#assignments",
+    "href": "week10/index.html#assignments",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Assignments",
-    "text": "Assignments"
-  },
-  {
-    "objectID": "week1/tutorialsol.html",
-    "href": "week1/tutorialsol.html",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorialsol.html#objectives",
-    "href": "week1/tutorialsol.html#objectives",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorialsol.html#preparation",
-    "href": "week1/tutorialsol.html#preparation",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
-  },
-  {
-    "objectID": "week1/tutorialsol.html#exercises",
-    "href": "week1/tutorialsol.html#exercises",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe error is\nError in select(penguins, species, flipper_length_mm) : \n  unused arguments (species, flipper_length_mm)\nand is caused by a conflict in functions between the dplyr and MASS packages. If you read the warning messages when the packages were loaded you might have been aware of this before trying to run code.\nYou can fix it by:\n\nPrefacing functions that have conflicts with their package name, eg dplyr::select()\nUse the conflicted package to set your preferences at the start of any document.\n\nTo make the reprex, copy the code to clipboard, and run reprex(). This will generate:\n\n\n\n\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nLibraries are loaded.\nThere are some global options for slides set, and styling of plots.\nConflicts for some common functions are resolved with preferences.\n\n\n\n\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
-  },
-  {
-    "objectID": "week1/tutorialsol.html#finishing-up",
-    "href": "week1/tutorialsol.html#finishing-up",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
-  },
-  {
-    "objectID": "week1/tutorial.html",
-    "href": "week1/tutorial.html",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorial.html#objectives",
-    "href": "week1/tutorial.html#objectives",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorial.html#preparation",
-    "href": "week1/tutorial.html#preparation",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
-  },
-  {
-    "objectID": "week1/tutorial.html#exercises",
-    "href": "week1/tutorial.html#exercises",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
-  },
-  {
-    "objectID": "week1/tutorial.html#finishing-up",
-    "href": "week1/tutorial.html#finishing-up",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+    "text": "Assignments\n\nProject is due on Friday 17 May."
   },
   {
     "objectID": "week10/tutorialsol.html",

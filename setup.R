@@ -36,6 +36,9 @@ library(kernlab)
 library(kableExtra)
 library(fpc)
 library(ggdendro)
+library(mclust)
+library(kohonen)
+library(aweSOM)
 
 # Locations
 current_file <- knitr::current_input()

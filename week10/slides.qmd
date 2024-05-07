@@ -1,0 +1,572 @@
+---
+title: "ETC3250/5250 Introduction to Machine Learning"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+subtitle: "Week 10: Model-based clustering and self-organising maps"
+author: 
+ - name: "Professor Di Cook"
+   email: "etc3250.clayton-x@monash.edu"
+institute: "Department of Econometrics and Business Statistics"
+footer: "ETC3250/5250 Lecture 10 | [iml.numbat.space](iml.numbat.space)"
+format:
+  revealjs:
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
+---
+
+```{r, include = FALSE}
+source("../setup.R")
+```
+
+## Overview
+
+We will cover:
+
+* Models of multimodality using Gaussian mixtures
+* Fitting model-based clustering
+* Diagnostics for the model fit
+* Self-organising maps and dimension reduction
+
+## Model-based clustering {.transition-slide .center}
+
+## Overview
+
+Model-based clustering makes an assumption about the distribution of the data, primarily
+
+- Assumes the data is a sample from a Gaussian mixture model
+- Requires the assumption that clusters have an elliptical shape
+- [The shape is determined by the variance-covariance of the clusters]{.monash-blue2}
+- [A variety of models is available by using different constraints on the variance-covariance]{.monash-blue2}
+
+Model is
+
+$$f(x_i) = \sum_{k=1}^G\pi_kf_k(x_i; \mu_k, \Sigma_k)$$
+
+where $f_k$ is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC. 
+
+## Parametrisation of the var-cov matrices [(1/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+Constraints applied on cluster variance-covariance:
+
+$$
+\Sigma_k = \lambda_kD_kA_kD_k^\top
+$$
+
+- [volume ($\lambda_k$)]{.monash-blue2}: each cluster has approximately the same size
+- [shape ($A_k$)]{.monash-blue2}: each cluster has approximately the same variance so that the distribution is spherical
+- [orientation ($D_k$)]{.monash-blue2}: each cluster is forced to be axis-aligned
+
+<br>
+
+- $\lambda I$ is model 1, EI
+- $\lambda DAD^\top$ is model 7, EEE
+- $\lambda D_kAD_k^\top$ is model 11, EEV
+
+:::
+::: {.column style="font-size: 70%;"}
+
+|Model|Family|Volume|Shape|Orientation|Identifier|
+|---|---|---|---|---|---|
+|1|Spherical|Equal|Equal|NA|EII|
+|2|Spherical|Variable|Equal|NA|VII|
+|3|Diagonal|Equal|Equal|Axes|EEI|
+|4|Diagonal|Variable|Equal|Axes|VEI|
+|5|Diagonal|Equal|Variable|Axes|EVI|
+|6|Diagonal|Variable|Variable|Axes|VVI|
+|7|General|Equal|Equal|Equal|EEE|
+|8|General|Equal|Variable|Equal|EVE|
+|9|General|Variable|Equal|Equal|VEE|
+|10|General|Variable|Variable|Equal|VVE|
+|11|General|Equal|Equal|Variable|EEV|
+|12|General|Variable|Equal|Variable|VEV|
+|13|General|Equal|Variable|Variable|EVV|
+|14|General|Variable|Variable|Variable|VVV|
+:::
+::::
+
+## Parametrisation of the var-cov matrices [(2/2)]{.smallest}
+
+<center>
+<img src="https://bradleyboehmke.github.io/HOML/20-model-clustering_files/figure-html/visualize-different-covariance-models-1.png" width="100%">
+</center>
+
+[Source: [Boehmke (2020) Hands-on machine learning](https://bradleyboehmke.github.io/HOML/model-clustering.html)]{.smallest}
+
+# Example: nuisance variable [(1/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190512)
+df <- data.frame(x1=scale(c(rnorm(50, -4), rnorm(50, 4))),
+                   x2=scale(c(rnorm(100))))
+ggplot(data=df, aes(x1, x2)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+:::
+::: {.column}
+
+```{r}
+#| echo: true
+df_mc <- Mclust(df, G = 2)
+summary(df_mc)
+```
+
+:::
+::::
+
+# Example: nuisance variable [(2/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: true
+#| out-width: 80%
+#| fig-width: 4
+plot(df_mc, what = "density")
+```
+
+:::
+::: {.column}
+
+```{r}
+#| echo: true
+#| out-width: 80%
+#| fig-width: 4
+plot(df_mc, what = "uncertainty")
+```
+
+:::
+::::
+
+# Example: nuisance variable [(3/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+Cluster means
+
+```{r}
+#| echo: true
+options(digits=2)
+df_mc$parameters$mean
+```
+
+:::
+::: {.column}
+
+Cluster variance-covariances
+
+```{r}
+#| echo: true
+df_mc$parameters$variance$sigma
+```
+
+:::
+::::
+
+# Example: nuisance cases [(1/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190514)
+x <- (runif(20)-0.5)*4
+y <- x
+df <- data.frame(x1=scale(c(rnorm(50, -3), rnorm(50, 3), x)),
+                   x2=scale(c(rnorm(50, -3), rnorm(50, 3), y)))
+ggplot(data=df, aes(x1, x2)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+:::
+::: {.column}
+
+```{r}
+#| echo: true
+df_mc <- Mclust(df, G = 2)
+summary(df_mc)
+```
+
+:::
+::::
+
+# Example: nuisance cases [(2/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: true
+#| fig-width: 4
+#| out-width: 80%
+plot(df_mc, what = "density")
+```
+
+:::
+::: {.column}
+
+```{r}
+#| echo: true
+#| fig-width: 4
+#| out-width: 80%
+plot(df_mc, what = "uncertainty")
+```
+:::
+::::
+
+# Example: nuisance cases [(3/3)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+Cluster means
+
+```{r}
+#| echo: true
+df_mc$parameters$mean
+```
+
+:::
+::: {.column}
+
+Cluster variance-covariances
+
+```{r}
+#| echo: true
+df_mc$parameters$variance$sigma
+```
+
+:::
+::::
+
+## Example: penguins [(1/2)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+Let the model decide on the number of clusters, and parametrisation.
+
+```{r echo=TRUE}
+#| echo: true
+p_mc <- mclustBIC(p_std[,2:5], G=2:8)
+summary(p_mc)
+```
+:::
+::: {.column style="font-size: 80%;"}
+
+```{r}
+#| out-width: 80%
+pmc1 <- ggmcbic(p_mc) +
+  scale_x_continuous(breaks=1:7, labels=2:8)
+ggplotly(pmc1)
+```
+
+::: {.fragment}
+```{r}
+#| echo: false
+#| out-width: 80%
+pmc2 <- ggmcbic(p_mc, top=6) +
+  scale_x_continuous(breaks=1:7, labels=2:8)
+ggplotly(pmc2)
+
+```
+:::
+
+:::
+::::
+
+## Example: penguins [(2/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="fint-size: 80%;"}
+```{r}
+#| code-fold: true
+penguins_mc <- Mclust(p_std[,2:5], 
+                      G=4, 
+                      modelNames = "VEE")
+penguins_mce <- mc_ellipse(penguins_mc)
+penguins_cl <- p_std
+penguins_cl$cl <- factor(penguins_mc$classification)
+
+penguins_mc_data <- penguins_cl |>
+  select(bl:bm, cl) |>
+  mutate(type = "data") |>
+  bind_rows(bind_cols(penguins_mce$ell,
+                      type=rep("ellipse",
+                               nrow(penguins_mce$ell)))) |>
+  mutate(type = factor(type))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+animate_xy(penguins_mc_data[,1:4],
+           col=penguins_mc_data$cl,
+           pch=c(4, 20 )[as.numeric(penguins_mc_data$type)], 
+           axes="off")
+```
+
+![](../gifs/penguins_best_mc.gif)
+
+Best model: VEE, 4
+
+[What's wrong with this fit?]{.monash-orange2}
+:::
+::: {.column style="fint-size: 80%;"}
+::: {.fragment}
+![](../gifs/penguins_simpler_mc.gif)
+
+model: VEE, 3
+
+[Which is the better model?]{.monash-orange2} 4 or 3 clusters? Purely based on how well it fits the data?
+:::
+:::
+::::
+
+
+## Summary
+
+- Model-based clustering provides a nice [automated]{.monash-blue2} clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.
+- Non-elliptical clusters could be modeled by combining multiple ellipses.
+- It is [affected by nuisance observations]{.monash-blue2}, and has a parameter `noise` to attempt to filter these.
+- It may not function so well if the data hasn't got separated clusters.
+- $k$-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).
+- Having a [functional model]{.monash-blue2} for the clusters is useful.
+
+## Self-organising maps {.transition-slide .center}
+
+## Overview
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+
+- A self-organizing map is a [constrained $k$-means]{.monash-blue2} algorithm
+- A 1D or 2D net is stretched through the data. The knots in the net form the cluster means, and points closest to the knot are considered to belong to that cluster.
+- The [net provides a low-dimensional summary]{.monash-blue2} of the clustering, nodes (and their corresponding clusters) that are close to each other being more similar than those that are further apart.
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/TrainSOM.gif/440px-TrainSOM.gif){width=200}
+
+[Source: wikipedia]{.smallest}
+
+:::
+::: {.column style="font-size: 60%;"}
+
+**Algorithm**
+
+1. Scale your data
+2. Initialize the net defined by the knots (nodes $m_k, k=1, ..., K$): choose the number of nodes in the
+horizontal (and vertical directions for 2D), and set initial positions of these $K$ nodes (eg first two PCs) in the data space.
+3. Loop over data points, $x_i, i=1, ..., n$
+    i. find the closest node, $m_{k^*}$
+    ii. for each node, $m_k$ in the neighborhood of $m_{k^*}$ and update it by: $m_k = m_k + \alpha h_k(x_i, m_{k^*}) (x_i-m_{k^*})$, pulling it closer to $x_i$,
+    
+where $\alpha$ is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and $h_k$ is a neighbourhood function, e.g. $h_k(x_i, m_{k^*})=exp(\frac{||x_i-m_{k^*}||}{2\alpha})^2)$ which is a bubble function (within a distance or not).
+
+Step 3 is iterated until nodes stop changing position or a stopping rule is satisfied.
+    
+:::
+::::
+
+## Example: penguins [(1/2)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+set.seed(947)
+p_grid <- kohonen::somgrid(xdim = 5, ydim = 5,
+                           topo = 'rectangular')
+p_init <- somInit(as.matrix(p_std[,2:5]), 5, 5)
+p_som <- som(as.matrix(p_std[,2:5]), 
+             rlen=2000,
+             grid = p_grid,
+             init = p_init)
+```
+
+`rlen` controls the length of the optimisation. Tend to need to run it for longer than default.
+
+
+:::
+::: {.column}
+
+```{r}
+plot(p_som, type="changes")
+```
+
+:::
+::::
+
+## Example: penguins [(2/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+
+```{r}
+#| echo: false
+p_som_df_net <- som_model(p_som)
+p_som_data <- p_som_df_net$data |> 
+  mutate(species = p_std$species)
+ggplot() +
+  geom_segment(data=p_som_df_net$edges_s, 
+               aes(x=x, xend=xend, y=y, 
+                   yend=yend)) +
+  geom_point(data=p_som_data, 
+             aes(x=map1, y=map2, 
+                 colour=species), 
+             size=3, alpha=0.5) +
+  xlab("map 1") + ylab("map 2") +
+  scale_color_discrete_divergingx(
+    palette="Zissou 1") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text = element_blank())
+
+# Set up data
+p_som_map <- p_som_df_net$net |>
+  mutate(species = "0", type="net")
+p_som_data <- p_som_data |> 
+  select(bl:bm, species) |>
+  mutate(type="data", 
+         species = as.character(species)) 
+p_som_map_data <- bind_rows(p_som_map, p_som_data)
+p_som_map_data$type <- factor(p_som_map_data$type,
+  levels=c("net", "data"))
+p_som_map_data$species <- factor(p_som_map_data$species,
+  levels=c("0","Adelie","Chinstrap","Gentoo"))
+p_pch <- c(46, 16)[as.numeric(p_som_map_data$type)]
+p_col <- c("black", hcl.colors(3, "Zissou 1"))[as.numeric(p_som_map_data$species)]
+```
+
+From the map we can see that the clustering has effectively distinguished the species, with some confusion between Chinstrap and Adelie.
+
+:::
+::: {.column style="font-size: 80%;"}
+
+```{r}
+#| eval: false
+#| echo: false
+animate_xy(p_som_map_data[,1:4],
+           col=p_col, 
+           pch=p_pch,
+           edges=as.matrix(p_som_df_net$edges), 
+           edges.col = "black",
+           axes="bottomleft")
+```
+
+<center>
+![](https://dicook.github.io/mulgar_book/gifs/p_som.gif){width=400}
+</center>
+
+<br>
+The net is stretched and clumped into the three clusters in 4D. 
+
+:::
+::::
+
+## Example: surface [(1/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+```{r}
+#| out-width: 80%
+c3_som <- som(as.matrix(c3), 
+  grid = kohonen::somgrid(5, 5, "hexagonal"))
+```
+:::
+::: {.column style="font-size: 80%;"}
+
+```{r}
+plot(c3_som, type="changes")
+```
+
+:::
+::::
+
+## Example: surface [(2/2)]{.smallest}
+
+:::: {.columns}
+::: {.column style="font-size: 80%;"}
+```{r}
+#| echo: false
+#| out-width: 80%
+c3_som_df_net <- som_model(c3_som)
+c3_som_data <- c3_som_df_net$data 
+ggplot() +
+  geom_segment(data=c3_som_df_net$edges_s, 
+               aes(x=x, xend=xend, y=y, 
+                   yend=yend)) +
+  geom_point(data=c3_som_data, 
+             aes(x=map1, y=map2), 
+             size=3, alpha=0.5) +
+  xlab("map 1") + ylab("map 2") +
+  theme(axis.text = element_blank())
+```
+
+:::
+::: {.column style="font-size: 80%;"}
+
+```{r}
+#| echo: false
+# Set up data
+c3_som_map <- c3_som_df_net$net |>
+  mutate(type="net")
+c3_som_data <- c3_som_data |> 
+  select(x1:x10) |>
+  mutate(type="data") 
+c3_som_map_data <- bind_rows(c3_som_map, c3_som_data)
+c3_som_map_data$type <- factor(c3_som_map_data$type,
+  levels=c("net", "data"))
+c3_pch <- c(19, 16)[as.numeric(c3_som_map_data$type)]
+```
+
+```{r}
+#| eval: false
+#| echo: false
+animate_xy(c3_som_map_data[,1:3],
+           pch=c3_pch,
+           col=c3_som_map_data$type,
+           edges=as.matrix(c3_som_df_net$edges), 
+           edges.col = "#3B99B1",
+           axes="bottomleft")
+render_gif(c3_som_map_data[,1:3],
+           grand_tour(),
+           display_xy(pch=c3_pch,
+           col=c3_som_map_data$type,
+           edges=as.matrix(c3_som_df_net$edges), 
+           edges.col = "#3B99B1",
+           axes="bottomleft"),
+           width=400,
+           height=400,
+           frames=300,
+           gif_file = "../gifs/c3_som.gif")
+```
+
+<center>
+![](../gifs/c3_som.gif)
+</center>
+
+- the net stretches into the vertices of the tetrahedron, filling the smaller tetrahedrons
+- see the break so that a 2D net fits the 3D object?
+- the 7 noise dimensions were ignored
+:::
+::::
+
+## Next: Evaluating your clustering model {.transition-slide .center}
+
+
