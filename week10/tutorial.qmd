@@ -76,7 +76,7 @@ theme_set(theme_bw(base_size = 14) +
 
 ## `r emo::ji("target")` Objectives
 
-The goal for this week is learn to about fitting support vector machine models. 
+The goal for this week is learn to about clustering data using $k$-means and hierarchical algorithms. 
 
 ## `r emo::ji("wrench")` Preparation 
 

@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Prof.&nbsp;Di Cook">
+<meta name="dcterms.date" content="2024-05-13">
+
+<title>ETC3250/5250 Introduction to Machine Learning - ETC3250/5250 Tutorial 11</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/unilur-0.0.4/unilur.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="../site_libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="../site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/tutorial.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ETC3250/5250 Introduction to Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> <i class="bi bi-house-fill" role="img">
+</i> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-schedule" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-calendar2-fill" role="img">
+</i> 
+ <span class="menu-text">Schedule</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-schedule">    
+        <li>
+    <a class="dropdown-item" href="../week1/index.html">
+ <span class="dropdown-text">Week 1: Foundations of machine learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week2/index.html">
+ <span class="dropdown-text">Week 2: Visualising your data and models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week3/index.html">
+ <span class="dropdown-text">Week 3: Re-sampling and regularisation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week4/index.html">
+ <span class="dropdown-text">Week 4: Logistic regression and discriminant analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week5/index.html">
+ <span class="dropdown-text">Week 5: Trees and forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week6/index.html">
+ <span class="dropdown-text">Week 6: Neural networks and deep learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week7/index.html">
+ <span class="dropdown-text">Week 7: Explainable artificial intelligence (XAI)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week8/index.html">
+ <span class="dropdown-text">Week 8: Support vector machines and nearest neighbours</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week9/index.html">
+ <span class="dropdown-text">Week 9: K-means and hierarchical clustering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week10/index.html">
+ <span class="dropdown-text">Week 10: Model-based clustering and self-organising maps</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week11/index.html">
+ <span class="dropdown-text">Week 11: Evaluating your clustering model</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../week12/index.html">
+ <span class="dropdown-text">Week 12: Project presentations by Masters students</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://edstem.org/au/courses/16048/discussion/"> <i class="bi bi-chat-fill" role="img">
+</i> 
+<span class="menu-text">Discussion</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://learning.monash.edu/course/view.php?id=9453"> <i class="bi bi-mortarboard-fill" role="img">
+</i> 
+<span class="menu-text">Moodle</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../resources.html"> <i class="bi bi-book" role="img">
+</i> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/numbats/iml"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">ETC3250/5250 Tutorial 11</h1>
+<p class="subtitle lead">Model-based clustering and self-organising maps</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Prof.&nbsp;Di Cook </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">13 May 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Load the libraries and avoid conflicts, and prepare data</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries used everywhere</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyclust)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdendro)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpc)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mclust)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kohonen)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mulgar)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tourr)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geozoo)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(colorspace)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(detourr)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(crosstalk)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>select)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>slice)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(purrr<span class="sc">::</span>map)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="objectives" class="level2">
+<h2 class="anchored" data-anchor-id="objectives">🎯 Objectives</h2>
+<p>The goal for this week is practice fitting model-based clustering and self-organising maps.</p>
+</section>
+<section id="preparation" class="level2">
+<h2 class="anchored" data-anchor-id="preparation">🔧 Preparation</h2>
+<ul>
+<li>Make sure you have all the necessary libraries installed.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises:</h2>
+<section id="clustering-spotify-data-with-model-based" class="level4">
+<h4 class="anchored" data-anchor-id="clustering-spotify-data-with-model-based">1. Clustering spotify data with model-based</h4>
+<p>This exercise is motivated by <a href="https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7">this blog post</a> on using <span class="math inline">\(k\)</span>-means to identify anomalies.</p>
+<p>You can read and pre-process the data with this code. Variables <code>mode</code>, <code>time_signature</code> and <code>instrumentalness</code> are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>spotify <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(mode, time_signature, instrumentalness)) <span class="co"># variables with few values</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>spotify_tf <span class="ot">&lt;-</span> spotify <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">speechiness =</span> <span class="fu">log10</span>(speechiness),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">liveness =</span> <span class="fu">log10</span>(liveness),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">duration_ms =</span> <span class="fu">log10</span>(duration_ms),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">danceability =</span> danceability<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">artist_popularity =</span> artist_popularity<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">acousticness =</span> <span class="fu">log10</span>(acousticness)) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x) (x<span class="sc">-</span><span class="fu">mean</span>(x))<span class="sc">/</span><span class="fu">sd</span>(x)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol type="a">
+<li>Fit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>s_mc <span class="ot">&lt;-</span> <span class="fu">mclustBIC</span>(spotify_tf[,<span class="dv">5</span><span class="sc">:</span><span class="dv">15</span>], <span class="at">G=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(s_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Best BIC values:
+          VVE,4    VVE,5  VVE,6
+BIC      -14772 -14773.5 -14775
+BIC diff      0     -1.8     -3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>smc1 <span class="ot">&lt;-</span> <span class="fu">ggmcbic</span>(s_mc) </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(smc1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-046d9d57b0b4f82b6292" style="width:100%;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-046d9d57b0b4f82b6292">{"x":{"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-15216.439780415847,-15173.712160425401,-15045.302435581982,-15102.875425256367,-15105.178933207058,-15074.753201942496,-15088.442677062902,-15103.936557534798,-15164.119793610795,-15194.022172944837,-15200.224695386782,-15238.731175027757,-15283.094950216455,-15332.474865665186],"text":["nc:  1<br />BIC_vals: -15241<br />model: EEE<br />model: EEE","nc:  2<br />BIC_vals: -15216<br />model: EEE<br />model: EEE","nc:  3<br />BIC_vals: -15174<br />model: EEE<br />model: EEE","nc:  4<br />BIC_vals: -15045<br />model: EEE<br />model: EEE","nc:  5<br />BIC_vals: -15103<br />model: EEE<br />model: EEE","nc:  6<br />BIC_vals: -15105<br />model: EEE<br />model: EEE","nc:  7<br />BIC_vals: -15075<br />model: EEE<br />model: EEE","nc:  8<br />BIC_vals: -15088<br />model: EEE<br />model: EEE","nc:  9<br />BIC_vals: -15104<br />model: EEE<br />model: EEE","nc: 10<br />BIC_vals: -15164<br />model: EEE<br />model: EEE","nc: 11<br />BIC_vals: -15194<br />model: EEE<br />model: EEE","nc: 12<br />BIC_vals: -15200<br />model: EEE<br />model: EEE","nc: 13<br />BIC_vals: -15239<br />model: EEE<br />model: EEE","nc: 14<br />BIC_vals: -15283<br />model: EEE<br />model: EEE","nc: 15<br />BIC_vals: -15332<br />model: EEE<br />model: EEE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(248,118,109,1)","dash":"solid"},"hoveron":"points","name":"EEE","legendgroup":"EEE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15522.638054959809,-15414.587285159454,-15261.878047030865,-15241.591858185759,-15200.520484944744,-15210.935601803203,-15200.964638173291,-15204.004000047573,-15242.738107159654,-15306.019669448093,-15234.646022299061,-15197.877840546696,-15352.722432026043,-15412.287247873708],"text":["nc:  1<br />BIC_vals: -15953<br />model: EEI<br />model: EEI","nc:  2<br />BIC_vals: -15523<br />model: EEI<br />model: EEI","nc:  3<br />BIC_vals: -15415<br />model: EEI<br />model: EEI","nc:  4<br />BIC_vals: -15262<br />model: EEI<br />model: EEI","nc:  5<br />BIC_vals: -15242<br />model: EEI<br />model: EEI","nc:  6<br />BIC_vals: -15201<br />model: EEI<br />model: EEI","nc:  7<br />BIC_vals: -15211<br />model: EEI<br />model: EEI","nc:  8<br />BIC_vals: -15201<br />model: EEI<br />model: EEI","nc:  9<br />BIC_vals: -15204<br />model: EEI<br />model: EEI","nc: 10<br />BIC_vals: -15243<br />model: EEI<br />model: EEI","nc: 11<br />BIC_vals: -15306<br />model: EEI<br />model: EEI","nc: 12<br />BIC_vals: -15235<br />model: EEI<br />model: EEI","nc: 13<br />BIC_vals: -15198<br />model: EEI<br />model: EEI","nc: 14<br />BIC_vals: -15353<br />model: EEI<br />model: EEI","nc: 15<br />BIC_vals: -15412<br />model: EEI<br />model: EEI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(227,137,0,1)","dash":"dash"},"hoveron":"points","name":"EEI","legendgroup":"EEI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-15024.013772705754,-15221.629994083827,-15349.634661064512,-15575.877561278632,-15855.179555284612,-16084.284119153841,-16410.487948768659,-16720.479782322131,-16961.829856401804,-17192.868726536064,-17512.861154660521,-17764.823887211634,-18029.038858091517,-18240.921554748704],"text":["nc:  1<br />BIC_vals: -15241<br />model: EEV<br />model: EEV","nc:  2<br />BIC_vals: -15024<br />model: EEV<br />model: EEV","nc:  3<br />BIC_vals: -15222<br />model: EEV<br />model: EEV","nc:  4<br />BIC_vals: -15350<br />model: EEV<br />model: EEV","nc:  5<br />BIC_vals: -15576<br />model: EEV<br />model: EEV","nc:  6<br />BIC_vals: -15855<br />model: EEV<br />model: EEV","nc:  7<br />BIC_vals: -16084<br />model: EEV<br />model: EEV","nc:  8<br />BIC_vals: -16410<br />model: EEV<br />model: EEV","nc:  9<br />BIC_vals: -16720<br />model: EEV<br />model: EEV","nc: 10<br />BIC_vals: -16962<br />model: EEV<br />model: EEV","nc: 11<br />BIC_vals: -17193<br />model: EEV<br />model: EEV","nc: 12<br />BIC_vals: -17513<br />model: EEV<br />model: EEV","nc: 13<br />BIC_vals: -17765<br />model: EEV<br />model: EEV","nc: 14<br />BIC_vals: -18029<br />model: EEV<br />model: EEV","nc: 15<br />BIC_vals: -18241<br />model: EEV<br />model: EEV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(196,154,0,1)","dash":"dot"},"hoveron":"points","name":"EEV","legendgroup":"EEV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15890.571668996177,-15597.74184977372,-15572.188552421812,-15508.654245277519,-15493.264188928586,-15422.236878965525,-15397.312358103996,-15423.781522782894,-15445.77080043067,-15465.85401135549,-15442.879388057292,-15393.223470233512,-15532.699628504941,-15582.863876157671,-15579.906061001304],"text":["nc:  1<br />BIC_vals: -15891<br />model: EII<br />model: EII","nc:  2<br />BIC_vals: -15598<br />model: EII<br />model: EII","nc:  3<br />BIC_vals: -15572<br />model: EII<br />model: EII","nc:  4<br />BIC_vals: -15509<br />model: EII<br />model: EII","nc:  5<br />BIC_vals: -15493<br />model: EII<br />model: EII","nc:  6<br />BIC_vals: -15422<br />model: EII<br />model: EII","nc:  7<br />BIC_vals: -15397<br />model: EII<br />model: EII","nc:  8<br />BIC_vals: -15424<br />model: EII<br />model: EII","nc:  9<br />BIC_vals: -15446<br />model: EII<br />model: EII","nc: 10<br />BIC_vals: -15466<br />model: EII<br />model: EII","nc: 11<br />BIC_vals: -15443<br />model: EII<br />model: EII","nc: 12<br />BIC_vals: -15393<br />model: EII<br />model: EII","nc: 13<br />BIC_vals: -15533<br />model: EII<br />model: EII","nc: 14<br />BIC_vals: -15583<br />model: EII<br />model: EII","nc: 15<br />BIC_vals: -15580<br />model: EII<br />model: EII"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(153,168,0,1)","dash":"dashdot"},"hoveron":"points","name":"EII","legendgroup":"EII","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-14964.074800437313,-14943.024875193014,-14900.28572803345,-14947.990221977399,-14894.52447384377,-14949.091038438357,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: EVE<br />model: EVE","nc:  2<br />BIC_vals: -14964<br />model: EVE<br />model: EVE","nc:  3<br />BIC_vals: -14943<br />model: EVE<br />model: EVE","nc:  4<br />BIC_vals: -14900<br />model: EVE<br />model: EVE","nc:  5<br />BIC_vals: -14948<br />model: EVE<br />model: EVE","nc:  6<br />BIC_vals: -14895<br />model: EVE<br />model: EVE","nc:  7<br />BIC_vals: -14949<br />model: EVE<br />model: EVE","nc:  8<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc:  9<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 10<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 11<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 12<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 13<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 14<br />BIC_vals:     NA<br />model: EVE<br />model: EVE","nc: 15<br />BIC_vals:     NA<br />model: EVE<br />model: EVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(83,180,0,1)","dash":"longdash"},"hoveron":"points","name":"EVE","legendgroup":"EVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15215.308801260018,-14884.847686730467,-14881.424260600284,-14889.804371027223,-14931.132790252488,-14932.837491137972,-14974.307390547759,-15068.231874521072,-15145.740010667763,-15174.524248473128,-15242.462159511479,-15302.439476441377,-15314.505771367647,-15402.322734447946],"text":["nc:  1<br />BIC_vals: -15953<br />model: EVI<br />model: EVI","nc:  2<br />BIC_vals: -15215<br />model: EVI<br />model: EVI","nc:  3<br />BIC_vals: -14885<br />model: EVI<br />model: EVI","nc:  4<br />BIC_vals: -14881<br />model: EVI<br />model: EVI","nc:  5<br />BIC_vals: -14890<br />model: EVI<br />model: EVI","nc:  6<br />BIC_vals: -14931<br />model: EVI<br />model: EVI","nc:  7<br />BIC_vals: -14933<br />model: EVI<br />model: EVI","nc:  8<br />BIC_vals: -14974<br />model: EVI<br />model: EVI","nc:  9<br />BIC_vals: -15068<br />model: EVI<br />model: EVI","nc: 10<br />BIC_vals: -15146<br />model: EVI<br />model: EVI","nc: 11<br />BIC_vals: -15175<br />model: EVI<br />model: EVI","nc: 12<br />BIC_vals: -15242<br />model: EVI<br />model: EVI","nc: 13<br />BIC_vals: -15302<br />model: EVI<br />model: EVI","nc: 14<br />BIC_vals: -15315<br />model: EVI<br />model: EVI","nc: 15<br />BIC_vals: -15402<br />model: EVI<br />model: EVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,188,86,1)","dash":"longdashdot"},"hoveron":"points","name":"EVI","legendgroup":"EVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-15058.174888634172,-15292.185253502328,-15464.826828858862,-15841.205129055335,-16014.978346114289,-16365.47010895279,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: EVV<br />model: EVV","nc:  2<br />BIC_vals: -15058<br />model: EVV<br />model: EVV","nc:  3<br />BIC_vals: -15292<br />model: EVV<br />model: EVV","nc:  4<br />BIC_vals: -15465<br />model: EVV<br />model: EVV","nc:  5<br />BIC_vals: -15841<br />model: EVV<br />model: EVV","nc:  6<br />BIC_vals: -16015<br />model: EVV<br />model: EVV","nc:  7<br />BIC_vals: -16365<br />model: EVV<br />model: EVV","nc:  8<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc:  9<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 10<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 11<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 12<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 13<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 14<br />BIC_vals:     NA<br />model: EVV<br />model: EVV","nc: 15<br />BIC_vals:     NA<br />model: EVV<br />model: EVV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,192,148,1)","dash":"dash"},"hoveron":"points","name":"EVV","legendgroup":"EVV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-15023.253915688561,-14966.51686059746,-14991.009671770405,-14975.910995188915,-14971.020351885663,-14914.335749093194,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: VEE<br />model: VEE","nc:  2<br />BIC_vals: -15023<br />model: VEE<br />model: VEE","nc:  3<br />BIC_vals: -14967<br />model: VEE<br />model: VEE","nc:  4<br />BIC_vals: -14991<br />model: VEE<br />model: VEE","nc:  5<br />BIC_vals: -14976<br />model: VEE<br />model: VEE","nc:  6<br />BIC_vals: -14971<br />model: VEE<br />model: VEE","nc:  7<br />BIC_vals: -14914<br />model: VEE<br />model: VEE","nc:  8<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc:  9<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 10<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 11<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 12<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 13<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 14<br />BIC_vals:     NA<br />model: VEE<br />model: VEE","nc: 15<br />BIC_vals:     NA<br />model: VEE<br />model: VEE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,191,196,1)","dash":"dashdot"},"hoveron":"points","name":"VEE","legendgroup":"VEE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15442.023241476745,-15326.430387469472,-15164.305699200919,-15158.8716166058,-15119.253041158145,-15121.17328040288,-15130.83025393597,-15165.893231619182,-15180.634699116925,-15106.235811479131,-15095.219365114948,-15122.680494934224,-15137.542615452918,-15172.628876543076],"text":["nc:  1<br />BIC_vals: -15953<br />model: VEI<br />model: VEI","nc:  2<br />BIC_vals: -15442<br />model: VEI<br />model: VEI","nc:  3<br />BIC_vals: -15326<br />model: VEI<br />model: VEI","nc:  4<br />BIC_vals: -15164<br />model: VEI<br />model: VEI","nc:  5<br />BIC_vals: -15159<br />model: VEI<br />model: VEI","nc:  6<br />BIC_vals: -15119<br />model: VEI<br />model: VEI","nc:  7<br />BIC_vals: -15121<br />model: VEI<br />model: VEI","nc:  8<br />BIC_vals: -15131<br />model: VEI<br />model: VEI","nc:  9<br />BIC_vals: -15166<br />model: VEI<br />model: VEI","nc: 10<br />BIC_vals: -15181<br />model: VEI<br />model: VEI","nc: 11<br />BIC_vals: -15106<br />model: VEI<br />model: VEI","nc: 12<br />BIC_vals: -15095<br />model: VEI<br />model: VEI","nc: 13<br />BIC_vals: -15123<br />model: VEI<br />model: VEI","nc: 14<br />BIC_vals: -15138<br />model: VEI<br />model: VEI","nc: 15<br />BIC_vals: -15173<br />model: VEI<br />model: VEI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,182,235,1)","dash":"dashdot"},"hoveron":"points","name":"VEI","legendgroup":"VEI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-14915.395392427787,-15072.101013195412,-15227.687175987892,-15475.064496212381,-15644.803206233037,-15998.349129633558,-16259.449327338716,-16615.994644571889,-16839.722169694607,-17185.547702367261,-17465.590514445441,-17759.18555349949,-18085.972423024978,-18330.778735297783],"text":["nc:  1<br />BIC_vals: -15241<br />model: VEV<br />model: VEV","nc:  2<br />BIC_vals: -14915<br />model: VEV<br />model: VEV","nc:  3<br />BIC_vals: -15072<br />model: VEV<br />model: VEV","nc:  4<br />BIC_vals: -15228<br />model: VEV<br />model: VEV","nc:  5<br />BIC_vals: -15475<br />model: VEV<br />model: VEV","nc:  6<br />BIC_vals: -15645<br />model: VEV<br />model: VEV","nc:  7<br />BIC_vals: -15998<br />model: VEV<br />model: VEV","nc:  8<br />BIC_vals: -16259<br />model: VEV<br />model: VEV","nc:  9<br />BIC_vals: -16616<br />model: VEV<br />model: VEV","nc: 10<br />BIC_vals: -16840<br />model: VEV<br />model: VEV","nc: 11<br />BIC_vals: -17186<br />model: VEV<br />model: VEV","nc: 12<br />BIC_vals: -17466<br />model: VEV<br />model: VEV","nc: 13<br />BIC_vals: -17759<br />model: VEV<br />model: VEV","nc: 14<br />BIC_vals: -18086<br />model: VEV<br />model: VEV","nc: 15<br />BIC_vals: -18331<br />model: VEV<br />model: VEV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(6,164,255,1)","dash":"dash"},"hoveron":"points","name":"VEV","legendgroup":"VEV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15890.571668996177,-15543.059057706247,-15466.521724563272,-15384.171467864515,-15330.028139272965,-15287.129859170289,-15261.302997213812,-15288.409965656385,-15268.06745540233,-15306.568967765352,-15323.335607129982,-15339.566169164667,-15363.41575064085,-15398.57315134445,-15412.076284381819],"text":["nc:  1<br />BIC_vals: -15891<br />model: VII<br />model: VII","nc:  2<br />BIC_vals: -15543<br />model: VII<br />model: VII","nc:  3<br />BIC_vals: -15467<br />model: VII<br />model: VII","nc:  4<br />BIC_vals: -15384<br />model: VII<br />model: VII","nc:  5<br />BIC_vals: -15330<br />model: VII<br />model: VII","nc:  6<br />BIC_vals: -15287<br />model: VII<br />model: VII","nc:  7<br />BIC_vals: -15261<br />model: VII<br />model: VII","nc:  8<br />BIC_vals: -15288<br />model: VII<br />model: VII","nc:  9<br />BIC_vals: -15268<br />model: VII<br />model: VII","nc: 10<br />BIC_vals: -15307<br />model: VII<br />model: VII","nc: 11<br />BIC_vals: -15323<br />model: VII<br />model: VII","nc: 12<br />BIC_vals: -15340<br />model: VII<br />model: VII","nc: 13<br />BIC_vals: -15363<br />model: VII<br />model: VII","nc: 14<br />BIC_vals: -15399<br />model: VII<br />model: VII","nc: 15<br />BIC_vals: -15412<br />model: VII<br />model: VII"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(165,138,255,1)","dash":"dash"},"hoveron":"points","name":"VII","legendgroup":"VII","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-14884.126922779324,-14818.658121529148,-14771.715518160157,-14773.480574018013,-14774.733525792442,-14905.297208250515,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: VVE<br />model: VVE","nc:  2<br />BIC_vals: -14884<br />model: VVE<br />model: VVE","nc:  3<br />BIC_vals: -14819<br />model: VVE<br />model: VVE","nc:  4<br />BIC_vals: -14772<br />model: VVE<br />model: VVE","nc:  5<br />BIC_vals: -14773<br />model: VVE<br />model: VVE","nc:  6<br />BIC_vals: -14775<br />model: VVE<br />model: VVE","nc:  7<br />BIC_vals: -14905<br />model: VVE<br />model: VVE","nc:  8<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc:  9<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 10<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 11<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 12<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 13<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 14<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 15<br />BIC_vals:     NA<br />model: VVE<br />model: VVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(223,112,248,1)","dash":"dash"},"hoveron":"points","name":"VVE","legendgroup":"VVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15132.560293303874,-15053.742028471603,-14982.216425118437,-14947.117519442847,-14801.565522182787,-14796.424755581465,-14879.817149492084,-14923.018525405772,-15017.040709958588,-15065.458312232393,-15154.642714116741,-15232.589583016943,-15274.709873454172,-15367.619615029365],"text":["nc:  1<br />BIC_vals: -15953<br />model: VVI<br />model: VVI","nc:  2<br />BIC_vals: -15133<br />model: VVI<br />model: VVI","nc:  3<br />BIC_vals: -15054<br />model: VVI<br />model: VVI","nc:  4<br />BIC_vals: -14982<br />model: VVI<br />model: VVI","nc:  5<br />BIC_vals: -14947<br />model: VVI<br />model: VVI","nc:  6<br />BIC_vals: -14802<br />model: VVI<br />model: VVI","nc:  7<br />BIC_vals: -14796<br />model: VVI<br />model: VVI","nc:  8<br />BIC_vals: -14880<br />model: VVI<br />model: VVI","nc:  9<br />BIC_vals: -14923<br />model: VVI<br />model: VVI","nc: 10<br />BIC_vals: -15017<br />model: VVI<br />model: VVI","nc: 11<br />BIC_vals: -15065<br />model: VVI<br />model: VVI","nc: 12<br />BIC_vals: -15155<br />model: VVI<br />model: VVI","nc: 13<br />BIC_vals: -15233<br />model: VVI<br />model: VVI","nc: 14<br />BIC_vals: -15275<br />model: VVI<br />model: VVI","nc: 15<br />BIC_vals: -15368<br />model: VVI<br />model: VVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(251,97,215,1)","dash":"dash"},"hoveron":"points","name":"VVI","legendgroup":"VVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-14969.248168453831,-15173.926608478077,-15374.124580853335,-15631.578230367957,-15927.99722145962,-16248.788062934191,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: VVV<br />model: VVV","nc:  2<br />BIC_vals: -14969<br />model: VVV<br />model: VVV","nc:  3<br />BIC_vals: -15174<br />model: VVV<br />model: VVV","nc:  4<br />BIC_vals: -15374<br />model: VVV<br />model: VVV","nc:  5<br />BIC_vals: -15632<br />model: VVV<br />model: VVV","nc:  6<br />BIC_vals: -15928<br />model: VVV<br />model: VVV","nc:  7<br />BIC_vals: -16249<br />model: VVV<br />model: VVV","nc:  8<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc:  9<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 10<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 11<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 12<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 13<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 14<br />BIC_vals:     NA<br />model: VVV<br />model: VVV","nc: 15<br />BIC_vals:     NA<br />model: VVV<br />model: VVV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(255,102,168,1)","dash":"none"},"hoveron":"points","name":"VVV","legendgroup":"VVV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.947696139476964,"r":9.2984640929846432,"b":52.071398920714003,"l":77.177251971772549},"plot_bgcolor":"transparent","paper_bgcolor":"transparent","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.29999999999999993,15.699999999999999],"tickmode":"array","ticktext":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],"tickvals":[1,2,3,4,5,6,7,8.0000000000000018,9,10,11,12,13,14,15],"categoryorder":"array","categoryarray":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"y","title":{"text":"Number of clusters","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-18508.731896154663,-14593.762357303276],"tickmode":"array","ticktext":["-18000","-17000","-16000","-15000"],"tickvals":[-18000,-17000,-16000,-15000],"categoryorder":"array","categoryarray":["-18000","-17000","-16000","-15000"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"x","title":{"text":"BIC_vals","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.8453149175440583,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"transparent","bordercolor":"transparent","borderwidth":2.405153901216893,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.87754254877543},"title":{"text":"model","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5acd150a727e":{"x":{},"y":{},"colour":{},"linetype":{},"type":"scatter"}},"cur_data":"5acd150a727e","visdat":{"5acd150a727e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>smc2 <span class="ot">&lt;-</span> <span class="fu">ggmcbic</span>(s_mc, <span class="at">top=</span><span class="dv">10</span>) </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(smc2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-b9f40f4a034e1dcdc578" style="width:100%;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-b9f40f4a034e1dcdc578">{"x":{"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15215.308801260018,-14884.847686730467,-14881.424260600284,-14889.804371027223,-14931.132790252488,-14932.837491137972,-14974.307390547759,-15068.231874521072,-15145.740010667763,-15174.524248473128,-15242.462159511479,-15302.439476441377,-15314.505771367647,-15402.322734447946],"text":["nc:  1<br />BIC_vals: -15953<br />model: EVI<br />model: EVI","nc:  2<br />BIC_vals: -15215<br />model: EVI<br />model: EVI","nc:  3<br />BIC_vals: -14885<br />model: EVI<br />model: EVI","nc:  4<br />BIC_vals: -14881<br />model: EVI<br />model: EVI","nc:  5<br />BIC_vals: -14890<br />model: EVI<br />model: EVI","nc:  6<br />BIC_vals: -14931<br />model: EVI<br />model: EVI","nc:  7<br />BIC_vals: -14933<br />model: EVI<br />model: EVI","nc:  8<br />BIC_vals: -14974<br />model: EVI<br />model: EVI","nc:  9<br />BIC_vals: -15068<br />model: EVI<br />model: EVI","nc: 10<br />BIC_vals: -15146<br />model: EVI<br />model: EVI","nc: 11<br />BIC_vals: -15175<br />model: EVI<br />model: EVI","nc: 12<br />BIC_vals: -15242<br />model: EVI<br />model: EVI","nc: 13<br />BIC_vals: -15302<br />model: EVI<br />model: EVI","nc: 14<br />BIC_vals: -15315<br />model: EVI<br />model: EVI","nc: 15<br />BIC_vals: -15402<br />model: EVI<br />model: EVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(248,118,109,1)","dash":"solid"},"hoveron":"points","name":"EVI","legendgroup":"EVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15240.65577033406,-14884.126922779324,-14818.658121529148,-14771.715518160157,-14773.480574018013,-14774.733525792442,-14905.297208250515,null,null,null,null,null,null,null,null],"text":["nc:  1<br />BIC_vals: -15241<br />model: VVE<br />model: VVE","nc:  2<br />BIC_vals: -14884<br />model: VVE<br />model: VVE","nc:  3<br />BIC_vals: -14819<br />model: VVE<br />model: VVE","nc:  4<br />BIC_vals: -14772<br />model: VVE<br />model: VVE","nc:  5<br />BIC_vals: -14773<br />model: VVE<br />model: VVE","nc:  6<br />BIC_vals: -14775<br />model: VVE<br />model: VVE","nc:  7<br />BIC_vals: -14905<br />model: VVE<br />model: VVE","nc:  8<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc:  9<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 10<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 11<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 12<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 13<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 14<br />BIC_vals:     NA<br />model: VVE<br />model: VVE","nc: 15<br />BIC_vals:     NA<br />model: VVE<br />model: VVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,186,56,1)","dash":"dash"},"hoveron":"points","name":"VVE","legendgroup":"VVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"y":[-15952.85677903209,-15132.560293303874,-15053.742028471603,-14982.216425118437,-14947.117519442847,-14801.565522182787,-14796.424755581465,-14879.817149492084,-14923.018525405772,-15017.040709958588,-15065.458312232393,-15154.642714116741,-15232.589583016943,-15274.709873454172,-15367.619615029365],"text":["nc:  1<br />BIC_vals: -15953<br />model: VVI<br />model: VVI","nc:  2<br />BIC_vals: -15133<br />model: VVI<br />model: VVI","nc:  3<br />BIC_vals: -15054<br />model: VVI<br />model: VVI","nc:  4<br />BIC_vals: -14982<br />model: VVI<br />model: VVI","nc:  5<br />BIC_vals: -14947<br />model: VVI<br />model: VVI","nc:  6<br />BIC_vals: -14802<br />model: VVI<br />model: VVI","nc:  7<br />BIC_vals: -14796<br />model: VVI<br />model: VVI","nc:  8<br />BIC_vals: -14880<br />model: VVI<br />model: VVI","nc:  9<br />BIC_vals: -14923<br />model: VVI<br />model: VVI","nc: 10<br />BIC_vals: -15017<br />model: VVI<br />model: VVI","nc: 11<br />BIC_vals: -15065<br />model: VVI<br />model: VVI","nc: 12<br />BIC_vals: -15155<br />model: VVI<br />model: VVI","nc: 13<br />BIC_vals: -15233<br />model: VVI<br />model: VVI","nc: 14<br />BIC_vals: -15275<br />model: VVI<br />model: VVI","nc: 15<br />BIC_vals: -15368<br />model: VVI<br />model: VVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(97,156,255,1)","dash":"dot"},"hoveron":"points","name":"VVI","legendgroup":"VVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.947696139476964,"r":9.2984640929846432,"b":52.071398920714003,"l":77.177251971772549},"plot_bgcolor":"transparent","paper_bgcolor":"transparent","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.29999999999999993,15.699999999999999],"tickmode":"array","ticktext":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],"tickvals":[1,2,3,4,5,6,7,8.0000000000000018,9,10,11,12,13,14,15],"categoryorder":"array","categoryarray":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"y","title":{"text":"Number of clusters","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-16011.913842075686,-14712.658455116562],"tickmode":"array","ticktext":["-16000","-15750","-15500","-15250","-15000","-14750"],"tickvals":[-16000,-15750,-15500,-15250,-15000,-14750],"categoryorder":"array","categoryarray":["-16000","-15750","-15500","-15250","-15000","-14750"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"x","title":{"text":"BIC_vals","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.8453149175440583,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"transparent","bordercolor":"transparent","borderwidth":2.405153901216893,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.87754254877543},"title":{"text":"model","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5acd2bfbc06":{"x":{},"y":{},"colour":{},"linetype":{},"type":"scatter"}},"cur_data":"5acd2bfbc06","visdat":{"5acd2bfbc06":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>The best parametrisation is the VVE model, and four clusters yields the best BIC.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="a">
+<li>Why are some variance-covariance parametrisations fitted to less than 15 clusters?</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<p>The number of parameters needed is too many for the number of observations.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="3" type="a">
+<li><p>Make a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes.</p></li>
+<li><p>How many parameters need to be estimated for the VVI model with 8 clusters? (Use the mixture model equation for calculating this, that is, how <span class="math inline">\(\Sigma_k\)</span> would change, or not, between clusters.) Compare this to the number of observations, and explain why the model cannot be estimated.</p></li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<p>VVI means the volume and shape are variable, but there is no covariance between variables, so they are all diagonal. It can be written as <span class="math inline">\(\lamba_k A_k\)</span>.</p>
+<p><span class="math inline">\(n=507, p=11, G=8\)</span></p>
+<ul>
+<li><span class="math inline">\(\widehat{\mu}\)</span>: <span class="math inline">\(8\times 11= 88\)</span></li>
+<li><span class="math inline">\(\widehat{\Sigma}\)</span>: <span class="math inline">\(8\times 11= 88\)</span></li>
+<li><span class="math inline">\(\pi\)</span> (mixing proportion): <span class="math inline">\(8-1 = 7\)</span></li>
+</ul>
+<p>The total number of parameters is 183.</p>
+<p>If we were to use the decomposition formula, then for <span class="math inline">\(\widehat{\Sigma}\)</span> we would have <span class="math inline">\(8\times 8\times 11= 704\)</span>. Total parameters are 799. We only have 507 observations, so this model cannot be estimated.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="4" type="a">
+<li>Fit just the best model, and extract the parameter estimates.</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>spotify_mc <span class="ot">&lt;-</span> <span class="fu">Mclust</span>(spotify_tf[,<span class="dv">5</span><span class="sc">:</span><span class="dv">15</span>], </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">G=</span><span class="dv">4</span>, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">modelNames =</span> <span class="st">"VVI"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>spotify_mc<span class="sc">$</span>parameters<span class="sc">$</span>mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    [,1]   [,2]    [,3]   [,4]
+danceability      -0.318 -0.487  0.7005 -0.353
+energy            -0.753 -1.060  0.2262  0.864
+key                0.055 -0.092  0.0896 -0.090
+loudness          -0.981 -0.697  0.3228  0.674
+speechiness        0.882 -0.737  0.0287 -0.166
+acousticness       0.552  0.786 -0.0099 -0.831
+liveness           0.012 -0.342 -0.0882  0.309
+valence           -0.073 -0.892  0.3801  0.125
+tempo              0.291  0.012 -0.3152  0.188
+duration_ms       -0.087  0.312 -0.1718  0.078
+artist_popularity -0.399  0.101  0.2059 -0.052</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># spotify_mc$parameters$variance$sigma</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>spotify_var <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(spotify_mc<span class="sc">$</span>parameters<span class="sc">$</span>variance<span class="sc">$</span>sigma[,,<span class="dv">1</span>]),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(spotify_mc<span class="sc">$</span>parameters<span class="sc">$</span>variance<span class="sc">$</span>sigma[,,<span class="dv">2</span>]),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(spotify_mc<span class="sc">$</span>parameters<span class="sc">$</span>variance<span class="sc">$</span>sigma[,,<span class="dv">3</span>]),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(spotify_mc<span class="sc">$</span>parameters<span class="sc">$</span>variance<span class="sc">$</span>sigma[,,<span class="dv">4</span>]))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>spotify_var[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 6
+  danceability energy   key loudness speechiness acousticness
+         &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+1        1.27   1.01  0.813    1.90        1.37         0.415
+2        0.843  0.614 0.880    0.539       0.155        0.254
+3        0.564  0.321 1.09     0.186       0.735        0.520
+4        0.508  0.188 1.06     0.169       0.722        1.15 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>spotify_var[,<span class="dv">7</span><span class="sc">:</span><span class="dv">11</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  liveness valence tempo duration_ms artist_popularity
+     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;
+1    1.06    1.14  1.77        3.56              1.33 
+2    0.228   0.546 1.14        0.491             1.16 
+3    1.04    0.755 0.366       0.355             0.724
+4    1.19    0.796 0.967       0.302             0.853</code></pre>
+</div>
+</div>
+<p>Because the the data is standardised differences between means and variances from one cluster to another can be compared directly.</p>
+<p>We could say that cluster 1 has high <code>speechiness</code>, and <code>low energy</code>, <code>loudness</code>. In contrast, cluster 4 has high <code>energy</code> and <code>loudness</code>, but low <code>acousticness</code>.</p>
+<p>On the variances, cluster 1 has low variance for <code>acousticness</code>, which means all songs in this cluster have similar <code>acousticness</code>. Cluster 4 has small variance on <code>energy</code> and <code>loudness</code>, so these songs have similar values on these variables.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="clustering-simulated-data-with-known-cluster-structure" class="level4">
+<h4 class="anchored" data-anchor-id="clustering-simulated-data-with-known-cluster-structure">2. Clustering simulated data with known cluster structure</h4>
+<ol type="a">
+<li>In tutorial of week 10 you clustered <code>c1</code> from the <code>mulgar</code> package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<p>We would expect 6 clusters would give the best results. The two big clusters are elliptical but oriented along variable axes, and have no variance in some variables. The four small clusters are spherical in the full 6D.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="a">
+<li>Fit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not.</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>c1_mc <span class="ot">&lt;-</span> <span class="fu">mclustBIC</span>(c1, <span class="at">G=</span><span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(c1_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Best BIC values:
+         VVI,6 VVI,7 VVE,6
+BIC       2814  2757  2735
+BIC diff     0   -56   -78</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>c1mc1 <span class="ot">&lt;-</span> <span class="fu">ggmcbic</span>(c1_mc) <span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">labels=</span><span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(c1mc1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-3e04835ef8441e2eecdc" style="width:100%;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-3e04835ef8441e2eecdc">{"x":{"data":[{"x":[1,2,3,4,5,6],"y":[-84.995506170572042,726.5401643447417,758.82448952939296,727.22750007793866,688.611823161252,653.10744803933426],"text":["nc: 1<br />BIC_vals:   -85<br />model: EEE<br />model: EEE","nc: 2<br />BIC_vals:   727<br />model: EEE<br />model: EEE","nc: 3<br />BIC_vals:   759<br />model: EEE<br />model: EEE","nc: 4<br />BIC_vals:   727<br />model: EEE<br />model: EEE","nc: 5<br />BIC_vals:   689<br />model: EEE<br />model: EEE","nc: 6<br />BIC_vals:   653<br />model: EEE<br />model: EEE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(248,118,109,1)","dash":"solid"},"hoveron":"points","name":"EEE","legendgroup":"EEE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[-800.97405836770076,786.82085258701909,836.67444254944371,807.86017386649473,768.95436833597034,730.82624956209872],"text":["nc: 1<br />BIC_vals:  -801<br />model: EEI<br />model: EEI","nc: 2<br />BIC_vals:   787<br />model: EEI<br />model: EEI","nc: 3<br />BIC_vals:   837<br />model: EEI<br />model: EEI","nc: 4<br />BIC_vals:   808<br />model: EEI<br />model: EEI","nc: 5<br />BIC_vals:   769<br />model: EEI<br />model: EEI","nc: 6<br />BIC_vals:   731<br />model: EEI<br />model: EEI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(227,137,0,1)","dash":"dash"},"hoveron":"points","name":"EEI","legendgroup":"EEI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[22.401818383396517,1307.5696259445845,1211.5685596445589,1113.9391419879712,1064.1961959748137,948.31920560784374],"text":["nc: 1<br />BIC_vals:    22<br />model: EEV<br />model: EEV","nc: 2<br />BIC_vals:  1308<br />model: EEV<br />model: EEV","nc: 3<br />BIC_vals:  1212<br />model: EEV<br />model: EEV","nc: 4<br />BIC_vals:  1114<br />model: EEV<br />model: EEV","nc: 5<br />BIC_vals:  1064<br />model: EEV<br />model: EEV","nc: 6<br />BIC_vals:   948<br />model: EEV<br />model: EEV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(196,154,0,1)","dash":"dot"},"hoveron":"points","name":"EEV","legendgroup":"EEV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[-4868.885295236978,-1787.4855135152864,-1516.7937397017295,-1323.2100295430942,-1363.1365067822137,-1403.0629938233999],"text":["nc: 1<br />BIC_vals: -4869<br />model: EII<br />model: EII","nc: 2<br />BIC_vals: -1787<br />model: EII<br />model: EII","nc: 3<br />BIC_vals: -1517<br />model: EII<br />model: EII","nc: 4<br />BIC_vals: -1323<br />model: EII<br />model: EII","nc: 5<br />BIC_vals: -1363<br />model: EII<br />model: EII","nc: 6<br />BIC_vals: -1403<br />model: EII<br />model: EII"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(153,168,0,1)","dash":"dashdot"},"hoveron":"points","name":"EII","legendgroup":"EII","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[-35.788016365672263,1547.7403009705272,1809.5143208659651,1741.0561513278367,1672.5735689933385,1604.168680237849],"text":["nc: 1<br />BIC_vals:   -36<br />model: EVE<br />model: EVE","nc: 2<br />BIC_vals:  1548<br />model: EVE<br />model: EVE","nc: 3<br />BIC_vals:  1810<br />model: EVE<br />model: EVE","nc: 4<br />BIC_vals:  1741<br />model: EVE<br />model: EVE","nc: 5<br />BIC_vals:  1673<br />model: EVE<br />model: EVE","nc: 6<br />BIC_vals:  1604<br />model: EVE<br />model: EVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(83,180,0,1)","dash":"longdash"},"hoveron":"points","name":"EVE","legendgroup":"EVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[765.05128654142061,1618.7346611987441,1877.9330842062504,1809.4463262996935,1741.0036094493491,1672.5654295049433],"text":["nc: 1<br />BIC_vals:   765<br />model: EVI<br />model: EVI","nc: 2<br />BIC_vals:  1619<br />model: EVI<br />model: EVI","nc: 3<br />BIC_vals:  1878<br />model: EVI<br />model: EVI","nc: 4<br />BIC_vals:  1809<br />model: EVI<br />model: EVI","nc: 5<br />BIC_vals:  1741<br />model: EVI<br />model: EVI","nc: 6<br />BIC_vals:  1673<br />model: EVI<br />model: EVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,188,86,1)","dash":"longdashdot"},"hoveron":"points","name":"EVI","legendgroup":"EVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[379.26238689392761,1359.7400866843202,1504.9366396188864,1354.539244832883,1199.2985975285565,1061.7283603494411],"text":["nc: 1<br />BIC_vals:   379<br />model: EVV<br />model: EVV","nc: 2<br />BIC_vals:  1360<br />model: EVV<br />model: EVV","nc: 3<br />BIC_vals:  1505<br />model: EVV<br />model: EVV","nc: 4<br />BIC_vals:  1355<br />model: EVV<br />model: EVV","nc: 5<br />BIC_vals:  1199<br />model: EVV<br />model: EVV","nc: 6<br />BIC_vals:  1062<br />model: EVV<br />model: EVV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,192,148,1)","dash":"dash"},"hoveron":"points","name":"EVV","legendgroup":"EVV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[270.59956643129402,1044.4142858415637,1252.1398861884002,1815.4669237364255,1799.7162231401353,1776.8862984527325],"text":["nc: 1<br />BIC_vals:   271<br />model: VEE<br />model: VEE","nc: 2<br />BIC_vals:  1044<br />model: VEE<br />model: VEE","nc: 3<br />BIC_vals:  1252<br />model: VEE<br />model: VEE","nc: 4<br />BIC_vals:  1815<br />model: VEE<br />model: VEE","nc: 5<br />BIC_vals:  1800<br />model: VEE<br />model: VEE","nc: 6<br />BIC_vals:  1777<br />model: VEE<br />model: VEE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,191,196,1)","dash":"dashdot"},"hoveron":"points","name":"VEE","legendgroup":"VEE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[-76.712143361431586,1085.1822205834337,1492.5180529491454,1891.631163037594,null,1851.438824424702],"text":["nc: 1<br />BIC_vals:   -77<br />model: VEI<br />model: VEI","nc: 2<br />BIC_vals:  1085<br />model: VEI<br />model: VEI","nc: 3<br />BIC_vals:  1493<br />model: VEI<br />model: VEI","nc: 4<br />BIC_vals:  1892<br />model: VEI<br />model: VEI","nc: 5<br />BIC_vals:    NA<br />model: VEI<br />model: VEI","nc: 6<br />BIC_vals:  1851<br />model: VEI<br />model: VEI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,182,235,1)","dash":"dashdot"},"hoveron":"points","name":"VEI","legendgroup":"VEI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[702.4036900333748,1496.8308454925511,1621.9473303742225,1585.0666365541706,1794.1570074282713,1730.1738313839821],"text":["nc: 1<br />BIC_vals:   702<br />model: VEV<br />model: VEV","nc: 2<br />BIC_vals:  1497<br />model: VEV<br />model: VEV","nc: 3<br />BIC_vals:  1622<br />model: VEV<br />model: VEV","nc: 4<br />BIC_vals:  1585<br />model: VEV<br />model: VEV","nc: 5<br />BIC_vals:  1794<br />model: VEV<br />model: VEV","nc: 6<br />BIC_vals:  1730<br />model: VEV<br />model: VEV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(6,164,255,1)","dash":"dash"},"hoveron":"points","name":"VEV","legendgroup":"VEV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[-2086.4632965029969,-844.51997988143205,282.28373318669753,1739.0444910745748,1709.6096441519203,1676.2114497206396],"text":["nc: 1<br />BIC_vals: -2086<br />model: VII<br />model: VII","nc: 2<br />BIC_vals:  -845<br />model: VII<br />model: VII","nc: 3<br />BIC_vals:   282<br />model: VII<br />model: VII","nc: 4<br />BIC_vals:  1739<br />model: VII<br />model: VII","nc: 5<br />BIC_vals:  1710<br />model: VII<br />model: VII","nc: 6<br />BIC_vals:  1676<br />model: VII<br />model: VII"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(165,138,255,1)","dash":"dash"},"hoveron":"points","name":"VII","legendgroup":"VII","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[1247.7530503721891,1880.9049868778361,2489.9645935017616,2735.324265736177,2689.2745442281703,2642.3255799013227],"text":["nc: 1<br />BIC_vals:  1248<br />model: VVE<br />model: VVE","nc: 2<br />BIC_vals:  1881<br />model: VVE<br />model: VVE","nc: 3<br />BIC_vals:  2490<br />model: VVE<br />model: VVE","nc: 4<br />BIC_vals:  2735<br />model: VVE<br />model: VVE","nc: 5<br />BIC_vals:  2689<br />model: VVE<br />model: VVE","nc: 6<br />BIC_vals:  2642<br />model: VVE<br />model: VVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(223,112,248,1)","dash":"dash"},"hoveron":"points","name":"VVE","legendgroup":"VVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[1204.2825799562206,1954.2875016120352,2562.0767209836845,2813.5284729405539,2757.3454573545914,2708.1026043900497],"text":["nc: 1<br />BIC_vals:  1204<br />model: VVI<br />model: VVI","nc: 2<br />BIC_vals:  1954<br />model: VVI<br />model: VVI","nc: 3<br />BIC_vals:  2562<br />model: VVI<br />model: VVI","nc: 4<br />BIC_vals:  2814<br />model: VVI<br />model: VVI","nc: 5<br />BIC_vals:  2757<br />model: VVI<br />model: VVI","nc: 6<br />BIC_vals:  2708<br />model: VVI<br />model: VVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(251,97,215,1)","dash":"dash"},"hoveron":"points","name":"VVI","legendgroup":"VVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[1366.9342891666106,1708.7062140769717,2153.5970677887867,2072.56472422145,1976.1054968332242,null],"text":["nc: 1<br />BIC_vals:  1367<br />model: VVV<br />model: VVV","nc: 2<br />BIC_vals:  1709<br />model: VVV<br />model: VVV","nc: 3<br />BIC_vals:  2154<br />model: VVV<br />model: VVV","nc: 4<br />BIC_vals:  2073<br />model: VVV<br />model: VVV","nc: 5<br />BIC_vals:  1976<br />model: VVV<br />model: VVV","nc: 6<br />BIC_vals:    NA<br />model: VVV<br />model: VVV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(255,102,168,1)","dash":"none"},"hoveron":"points","name":"VVV","legendgroup":"VVV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.947696139476964,"r":9.2984640929846432,"b":52.071398920714003,"l":69.73848069738483},"plot_bgcolor":"transparent","paper_bgcolor":"transparent","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.75,6.25],"tickmode":"array","ticktext":[3,4,5,6,7,8],"tickvals":[1,2,3,4,5,6],"categoryorder":"array","categoryarray":[3,4,5,6,7,8],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"y","title":{"text":"nc","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-5253.0059836458549,3197.6491613494304],"tickmode":"array","ticktext":["-5000","-2500","0","2500"],"tickvals":[-5000,-2500,0,2500],"categoryorder":"array","categoryarray":["-5000","-2500","0","2500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"x","title":{"text":"BIC_vals","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.8453149175440583,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"transparent","bordercolor":"transparent","borderwidth":2.405153901216893,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.87754254877543},"title":{"text":"model","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5acdb62b246":{"x":{},"y":{},"colour":{},"linetype":{},"type":"scatter"}},"cur_data":"5acdb62b246","visdat":{"5acdb62b246":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>c1mc2 <span class="ot">&lt;-</span> <span class="fu">ggmcbic</span>(c1_mc, <span class="at">top=</span><span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">labels=</span><span class="dv">3</span><span class="sc">:</span><span class="dv">8</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(c1mc2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-6f17477ee99b333d5cd4" style="width:100%;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-6f17477ee99b333d5cd4">{"x":{"data":[{"x":[1,2,3,4,5,6],"y":[1247.7530503721891,1880.9049868778361,2489.9645935017616,2735.324265736177,2689.2745442281703,2642.3255799013227],"text":["nc: 1<br />BIC_vals: 1248<br />model: VVE<br />model: VVE","nc: 2<br />BIC_vals: 1881<br />model: VVE<br />model: VVE","nc: 3<br />BIC_vals: 2490<br />model: VVE<br />model: VVE","nc: 4<br />BIC_vals: 2735<br />model: VVE<br />model: VVE","nc: 5<br />BIC_vals: 2689<br />model: VVE<br />model: VVE","nc: 6<br />BIC_vals: 2642<br />model: VVE<br />model: VVE"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(248,118,109,1)","dash":"solid"},"hoveron":"points","name":"VVE","legendgroup":"VVE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[1204.2825799562206,1954.2875016120352,2562.0767209836845,2813.5284729405539,2757.3454573545914,2708.1026043900497],"text":["nc: 1<br />BIC_vals: 1204<br />model: VVI<br />model: VVI","nc: 2<br />BIC_vals: 1954<br />model: VVI<br />model: VVI","nc: 3<br />BIC_vals: 2562<br />model: VVI<br />model: VVI","nc: 4<br />BIC_vals: 2814<br />model: VVI<br />model: VVI","nc: 5<br />BIC_vals: 2757<br />model: VVI<br />model: VVI","nc: 6<br />BIC_vals: 2708<br />model: VVI<br />model: VVI"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,186,56,1)","dash":"dash"},"hoveron":"points","name":"VVI","legendgroup":"VVI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6],"y":[1366.9342891666106,1708.7062140769717,2153.5970677887867,2072.56472422145,1976.1054968332242,null],"text":["nc: 1<br />BIC_vals: 1367<br />model: VVV<br />model: VVV","nc: 2<br />BIC_vals: 1709<br />model: VVV<br />model: VVV","nc: 3<br />BIC_vals: 2154<br />model: VVV<br />model: VVV","nc: 4<br />BIC_vals: 2073<br />model: VVV<br />model: VVV","nc: 5<br />BIC_vals: 1976<br />model: VVV<br />model: VVV","nc: 6<br />BIC_vals:   NA<br />model: VVV<br />model: VVV"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(97,156,255,1)","dash":"dot"},"hoveron":"points","name":"VVV","legendgroup":"VVV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.947696139476964,"r":9.2984640929846432,"b":52.071398920714003,"l":62.299709422997111},"plot_bgcolor":"transparent","paper_bgcolor":"transparent","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.75,6.25],"tickmode":"array","ticktext":[3,4,5,6,7,8],"tickvals":[1,2,3,4,5,6],"categoryorder":"array","categoryarray":[3,4,5,6,7,8],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"y","title":{"text":"nc","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1123.820285307004,2893.9907675897707],"tickmode":"array","ticktext":["1500","2000","2500"],"tickvals":[1500,2000,2500],"categoryorder":"array","categoryarray":["1500","2000","2500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":4.6492320464923216,"tickwidth":0.8453149175440583,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":14.87754254877543},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.8453149175440583,"zeroline":false,"anchor":"x","title":{"text":"BIC_vals","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.8453149175440583,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"transparent","bordercolor":"transparent","borderwidth":2.405153901216893,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.87754254877543},"title":{"text":"model","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969286}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5acd2f148185":{"x":{},"y":{},"colour":{},"linetype":{},"type":"scatter"}},"cur_data":"5acd2f148185","visdat":{"5acd2f148185":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Interestingly the 6 cluster model is the best, and it uses a VVI parametrisation.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="3" type="a">
+<li>Fit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>c1_mc <span class="ot">&lt;-</span> <span class="fu">Mclust</span>(c1, <span class="at">G=</span><span class="dv">6</span>, </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">modelNames =</span> <span class="st">"VVI"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>c1_mce <span class="ot">&lt;-</span> <span class="fu">mc_ellipse</span>(c1_mc)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>c1_cl <span class="ot">&lt;-</span> c1</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>c1_cl<span class="sc">$</span>cl <span class="ot">&lt;-</span> <span class="fu">factor</span>(c1_mc<span class="sc">$</span>classification)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>c1_mc_data <span class="ot">&lt;-</span> c1_cl <span class="sc">|&gt;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"data"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="fu">bind_cols</span>(c1_mce<span class="sc">$</span>ell,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">type=</span><span class="fu">rep</span>(<span class="st">"ellipse"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">nrow</span>(c1_mce<span class="sc">$</span>ell)))) <span class="sc">|&gt;</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">factor</span>(type))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(c1_mc_data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>],</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">col=</span>c1_mc_data<span class="sc">$</span>cl,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">pch=</span><span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">20</span> )[<span class="fu">as.numeric</span>(c1_mc_data<span class="sc">$</span>type)], </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">axes=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wow! It fits the clusters beautifully!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="music-similarity" class="level4">
+<h4 class="anchored" data-anchor-id="music-similarity">3. Music similarity</h4>
+<ol type="a">
+<li>The <code>music</code> data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package <code>tuneR</code>. Only a subset of the data is provided, with details:</li>
+</ol>
+<ul>
+<li><code>title</code>: Title of the track</li>
+<li><code>artist</code>: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya</li>
+<li><code>type</code>: rock, classical, or new wave</li>
+<li><code>lvar</code>, <code>lave</code>, <code>lmax</code>: average, variance, maximum of the frequencies of the left channel</li>
+<li><code>lfener</code>: an indicator of the amplitude or loudness of the sound</li>
+<li><code>lfreq</code>: median of the location of the 15 highest peak in the periodogram</li>
+</ul>
+<p>You can read the data into R using:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>music <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"http://ggobi.org/book/data/music-sub.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">title =</span> <span class="st">`</span><span class="at">...1</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>How many observations in the data? Explain how this should determine the maximum grid size for an SOM.</p>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<p>There are only 62 observations. If you use a 5x5 grid, this is less than 3 observations per cluster. You need to be careful about specifying a model with too many nodes for the number of observations. At the same time and SOM needs to have some flexibility to fit the data shape, and more nodes allows more flexibility.</p>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="a">
+<li>Fit a SOM model to the data using a 4x4 grid, using a large <code>rlen</code> value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).</li>
+</ol>
+<div class="callout callout-style-default callout-solution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="unilur-solution">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">831</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>music_std <span class="ot">&lt;-</span> music <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">function</span>(x) (x<span class="sc">-</span><span class="fu">mean</span>(x))<span class="sc">/</span><span class="fu">sd</span>(x))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>music_som1 <span class="ot">&lt;-</span> <span class="fu">som</span>(<span class="fu">as.matrix</span>(music_std[,<span class="dv">4</span><span class="sc">:</span><span class="dv">8</span>]), </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">grid =</span> <span class="fu">somgrid</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="st">"hexagonal"</span>), <span class="at">rlen=</span><span class="dv">2000</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>music_som1_df_net <span class="ot">&lt;-</span> <span class="fu">som_model</span>(music_som1)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>music_som1_data <span class="ot">&lt;-</span> music_som1_df_net<span class="sc">$</span>data <span class="sc">|&gt;</span> </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cl =</span> music_som1<span class="sc">$</span>unit.classif,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> music_std<span class="sc">$</span>title,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">artist =</span> music_std<span class="sc">$</span>artist) <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, title, artist, lvar<span class="sc">:</span>distance)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data=</span>music_som1_df_net<span class="sc">$</span>edges_s, </span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>               <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">xend=</span>xend, <span class="at">y=</span>y, </span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>                   <span class="at">yend=</span>yend)) <span class="sc">+</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data=</span>music_som1_data, </span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x=</span>map1, <span class="at">y=</span>map2, <span class="at">label=</span><span class="fu">paste</span>(artist, title)), </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">size=</span><span class="dv">3</span>, <span class="at">alpha=</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"map 1"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"map 2"</span>) <span class="sc">+</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tutorial_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplotly()</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 5D</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>music_som1_map <span class="ot">&lt;-</span> music_som1_df_net<span class="sc">$</span>net <span class="sc">|&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">artist =</span> <span class="st">"0"</span>, </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"0"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">type=</span><span class="st">"net"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>music_som1_data_tour <span class="ot">&lt;-</span> music_som1_data <span class="sc">|&gt;</span> </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lvar<span class="sc">:</span>lfreq, artist, title) <span class="sc">|&gt;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type=</span><span class="st">"data"</span>) </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>music_som1_map_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  music_som1_map, music_som1_data_tour)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>music_som1_map_data<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="fu">factor</span>(music_som1_map_data<span class="sc">$</span>type,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"net"</span>, <span class="st">"data"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(music_som1_map_data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>],</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">pch=</span>music_som1_map_data<span class="sc">$</span>type,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">shapeset=</span><span class="fu">c</span>(<span class="dv">46</span>, <span class="dv">16</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">edges=</span><span class="fu">as.matrix</span>(music_som1_df_net<span class="sc">$</span>edges), </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">edges.col =</span> <span class="st">"black"</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">axes=</span><span class="st">"bottomleft"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ol start="3" type="a">
+<li>Let’s take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.</li>
+</ol>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>music_som1_shared <span class="ot">&lt;-</span> SharedData<span class="sc">$</span><span class="fu">new</span>(music_som1_data)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>music_detour <span class="ot">&lt;-</span> <span class="fu">detour</span>(music_som1_shared, <span class="fu">tour_aes</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">projection =</span> lvar<span class="sc">:</span>lfreq)) <span class="sc">|&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tour_path</span>(<span class="fu">grand_tour</span>(<span class="dv">2</span>),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_bases=</span><span class="dv">50</span>, <span class="at">fps =</span> <span class="dv">60</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_scatter</span>(<span class="at">alpha =</span> <span class="fl">0.9</span>, <span class="at">axes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"450px"</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>music_map <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(music_som1_shared,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">x =</span> <span class="sc">~</span>map1,</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">y =</span> <span class="sc">~</span>map2,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">text =</span> <span class="sc">~</span><span class="fu">paste</span>(title, artist),</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">color=</span><span class="st">"black"</span>, <span class="at">size=</span><span class="dv">8</span>),</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">height =</span> <span class="dv">450</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">highlight</span>(<span class="at">on =</span> <span class="st">"plotly_selected"</span>,</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">off =</span> <span class="st">"plotly_doubleclick"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">type =</span> <span class="st">"scatter"</span>,</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">mode =</span> <span class="st">"markers"</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="fu">bscols</span>(</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  music_detour, music_map,</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">6</span>)</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Can you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece is most like a Beatles song?</p>
+</section>
+</section>
+<section id="finishing-up" class="level2">
+<h2 class="anchored" data-anchor-id="finishing-up">👋 Finishing up</h2>
+<p>Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

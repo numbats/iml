@@ -1,0 +1,371 @@
+---
+title: "ETC3250/5250 Tutorial 11"
+subtitle: "Model-based clustering and self-organising maps"
+author: "Prof. Di Cook"
+date: "2024-05-13"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Load the libraries and avoid conflicts, and prepare data"
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(tidyclust)
+library(purrr)
+library(ggdendro)
+library(fpc)
+library(mclust)
+library(kohonen)
+library(patchwork)
+library(mulgar)
+library(tourr)
+library(geozoo)
+library(ggbeeswarm)
+library(colorspace)
+library(detourr)
+library(crosstalk)
+library(plotly)
+library(ggthemes)
+library(conflicted)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+conflicts_prefer(purrr::map)
+```
+
+```{r}
+#| echo: false
+# Set plot theme
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+
+options(digits=2)
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is practice fitting model-based clustering and self-organising maps. 
+
+## `r emo::ji("wrench")` Preparation 
+
+- Make sure you have all the necessary libraries installed. 
+
+## Exercises: 
+
+#### 1. Clustering spotify data with model-based
+
+This exercise is motivated by [this blog post](https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7) on using $k$-means to identify anomalies.
+
+You can read and pre-process the data with this code. Variables `mode`, `time_signature` and `instrumentalness` are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.
+
+
+```{r}
+# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7
+spotify <- read_csv("https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv") |>
+  select(-c(mode, time_signature, instrumentalness)) # variables with few values
+
+spotify_tf <- spotify |>
+  mutate(speechiness = log10(speechiness),
+         liveness = log10(liveness),
+         duration_ms = log10(duration_ms),
+         danceability = danceability^2,
+         artist_popularity = artist_popularity^2,
+         acousticness = log10(acousticness)) |>
+  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) 
+
+```
+
+
+a. Fit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.
+
+
+::: unilur-solution
+
+```{r}
+#| out-width: 100%
+#| fig-width: 6
+#| fig-height: 4
+s_mc <- mclustBIC(spotify_tf[,5:15], G=1:15)
+summary(s_mc)
+smc1 <- ggmcbic(s_mc) 
+ggplotly(smc1)
+
+smc2 <- ggmcbic(s_mc, top=10) 
+ggplotly(smc2)
+```
+
+The best parametrisation is the VVE model, and four clusters yields the best BIC.
+
+:::
+
+b. Why are some variance-covariance parametrisations fitted to less than 15 clusters?
+
+::: unilur-solution
+The number of parameters needed is too many for the number of observations. 
+
+:::
+
+c. Make a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes. 
+
+d. How many parameters need to be estimated for the VVI model with 8 clusters? (Use the mixture model equation for calculating this, that is, how $\Sigma_k$ would change, or not, between clusters.) Compare this to the number of observations, and explain why the model cannot be estimated.
+
+::: unilur-solution
+
+VVI means the volume and shape are variable, but there is no covariance between variables, so they are all diagonal. It can be written as  $\lamba_k A_k$.
+
+$n=507, p=11, G=8$
+
+- $\widehat{\mu}$: $8\times 11= 88$
+- $\widehat{\Sigma}$: $8\times 11= 88$
+- $\pi$ (mixing proportion): $8-1 = 7$
+
+The total number of parameters is 183.
+
+If we were to use the decomposition formula, then for $\widehat{\Sigma}$ we would have  $8\times 8\times 11= 704$. Total parameters are 799. We only have 507 observations, so this model cannot be estimated.
+:::
+
+d. Fit just the best model, and extract the parameter estimates. 
+
+::: unilur-solution
+
+```{r}
+spotify_mc <- Mclust(spotify_tf[,5:15], 
+                      G=4, 
+                      modelNames = "VVI")
+spotify_mc$parameters$mean
+# spotify_mc$parameters$variance$sigma
+spotify_var <- bind_rows(
+  diag(spotify_mc$parameters$variance$sigma[,,1]),
+  diag(spotify_mc$parameters$variance$sigma[,,2]),
+  diag(spotify_mc$parameters$variance$sigma[,,3]),
+  diag(spotify_mc$parameters$variance$sigma[,,4]))
+spotify_var[,1:6]
+spotify_var[,7:11]
+```
+
+Because the the data is standardised differences between means and variances from one cluster to another can be compared directly.
+
+We could say that cluster 1 has high `speechiness`, and `low energy`, `loudness`. In contrast, cluster 4 has high `energy` and `loudness`, but low `acousticness`.
+
+On the variances, cluster 1 has low variance for `acousticness`, which means all songs in this cluster have similar `acousticness`. Cluster 4 has small variance on `energy` and `loudness`, so these songs have similar values on these variables.
+:::
+
+
+#### 2. Clustering simulated data with known cluster structure
+
+a. In tutorial of week 10 you clustered `c1` from the `mulgar` package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?
+
+::: unilur-solution
+
+We would expect 6 clusters would give the best results. The two big clusters are elliptical but oriented along variable axes, and have no variance in some variables. The four small clusters are spherical in the full 6D.
+:::
+
+b. Fit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not. 
+
+::: unilur-solution
+```{r}
+#| out-width: 100%
+#| fig-width: 6
+#| fig-height: 4
+c1_mc <- mclustBIC(c1, G=3:8)
+summary(c1_mc)
+c1mc1 <- ggmcbic(c1_mc) +
+  scale_x_continuous(breaks=1:6, labels=3:8)
+ggplotly(c1mc1)
+
+c1mc2 <- ggmcbic(c1_mc, top=10) +
+  scale_x_continuous(breaks=1:6, labels=3:8)
+ggplotly(c1mc2)
+```
+
+Interestingly the 6 cluster model is the best, and it uses a VVI parametrisation.
+:::
+
+c. Fit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?
+
+::: unilur-solution
+```{r}
+c1_mc <- Mclust(c1, G=6, 
+                modelNames = "VVI")
+c1_mce <- mc_ellipse(c1_mc)
+c1_cl <- c1
+c1_cl$cl <- factor(c1_mc$classification)
+
+c1_mc_data <- c1_cl |>
+  mutate(type = "data") |>
+  bind_rows(bind_cols(c1_mce$ell,
+                      type=rep("ellipse",
+                        nrow(c1_mce$ell)))) |>
+  mutate(type = factor(type))
+```
+
+```{r}
+#| eval: false
+animate_xy(c1_mc_data[,1:6],
+           col=c1_mc_data$cl,
+           pch=c(4, 20 )[as.numeric(c1_mc_data$type)], 
+           axes="off")
+```
+
+Wow! It fits the clusters beautifully!
+:::
+
+#### 3. Music similarity
+
+a. The `music` data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package `tuneR`. Only a subset of the data is provided, with details:
+
+- `title`: Title of the track
+- `artist`: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya
+- `type`: rock, classical, or new wave
+- `lvar`, `lave`, `lmax`: average, variance, maximum of the frequencies of the left channel
+- `lfener`: an indicator of the amplitude or loudness of the sound
+- `lfreq`: median of the location of the 15 highest peak in the periodogram
+
+You can read the data into R using:
+
+```{r}
+music <- read_csv("http://ggobi.org/book/data/music-sub.csv") |>
+  rename(title = `...1`)
+```
+
+How many observations in the data? Explain how this should determine the maximum grid size for an SOM.
+
+::: unilur-solution
+
+There are only 62 observations. If you use a 5x5 grid, this is less than 3 observations per cluster. You need to be careful about specifying a model with too many nodes for the number of observations. At the same time and SOM needs to have some flexibility to fit the data shape, and more nodes allows more flexibility. 
+
+:::
+
+b. Fit a SOM model to the data using a 4x4 grid, using a large `rlen` value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).
+
+::: unilur-solution
+
+```{r}
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 50%
+set.seed(831)
+music_std <- music |>
+  mutate_if(is.numeric, 
+            function(x) (x-mean(x))/sd(x))
+music_som1 <- som(as.matrix(music_std[,4:8]), 
+                 grid = somgrid(4, 4, "hexagonal"), rlen=2000)
+music_som1_df_net <- som_model(music_som1)
+music_som1_data <- music_som1_df_net$data |> 
+  mutate(cl = music_som1$unit.classif,
+         title = music_std$title,
+         artist = music_std$artist) |>
+  select(id, title, artist, lvar:distance)
+
+ggplot() +
+  geom_segment(data=music_som1_df_net$edges_s, 
+               aes(x=x, xend=xend, y=y, 
+                   yend=yend)) +
+  geom_point(data=music_som1_data, 
+             aes(x=map1, y=map2, label=paste(artist, title)), 
+             size=3, alpha=0.5) +
+  xlab("map 1") + ylab("map 2") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text = element_blank())
+# ggplotly()
+
+# 5D
+music_som1_map <- music_som1_df_net$net |>
+  mutate(artist = "0", 
+         title = "0",
+         type="net")
+music_som1_data_tour <- music_som1_data |> 
+  select(lvar:lfreq, artist, title) |>
+  mutate(type="data") 
+music_som1_map_data <- bind_rows(
+  music_som1_map, music_som1_data_tour)
+music_som1_map_data$type <- factor(music_som1_map_data$type,
+  levels=c("net", "data"))
+```
+
+```{r}
+#| eval: false
+animate_xy(music_som1_map_data[,1:4],
+           pch=music_som1_map_data$type,
+           shapeset=c(46, 16),
+           edges=as.matrix(music_som1_df_net$edges), 
+           edges.col = "black",
+           axes="bottomleft")
+
+```
+:::
+
+c. Let's take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.
+
+```{r}
+#| eval: false
+music_som1_shared <- SharedData$new(music_som1_data)
+
+music_detour <- detour(music_som1_shared, tour_aes(
+  projection = lvar:lfreq)) |>
+  tour_path(grand_tour(2),
+            max_bases=50, fps = 60) |>
+  show_scatter(alpha = 0.9, axes = FALSE,
+               width = "100%", height = "450px")
+
+music_map <- plot_ly(music_som1_shared,
+     x = ~map1,
+     y = ~map2,
+     text = ~paste(title, artist),
+     marker = list(color="black", size=8),
+     height = 450) |>
+  highlight(on = "plotly_selected",
+            off = "plotly_doubleclick") |>
+  add_trace(type = "scatter",
+            mode = "markers")
+
+bscols(
+  music_detour, music_map,
+  widths = c(5, 6)
+)
+```
+
+Can you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece  is most like a Beatles song?
+
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.
