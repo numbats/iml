@@ -305,7 +305,7 @@
     "href": "week7/tutorialsol.html#exercises",
     "title": "ETC3250/5250 Tutorial 7",
     "section": "Exercises:",
-    "text": "Exercises:\nOpen your project for this unit called iml.Rproj. We will be working through the tutorial at TensorFlow for R for fitting and predicting the fashion MNIST image data.\n\n1. Get the data\nWe use the Fashion MNIST dataset which contains 70,000 grayscale images in 10 categories of articles sold on Zalando’s multi-brand, digital platform for fashion, beauty, and lifestyle.\n\n# download the data\nfashion_mnist &lt;- dataset_fashion_mnist()\n\n# split into input variables and response\nc(train_images, train_labels) %&lt;-% fashion_mnist$train\nc(test_images, test_labels) %&lt;-% fashion_mnist$test\n\n# for interpretation we also define the category names\nclass_names = c('T-shirt/top',\n                'Trouser',\n                'Pullover',\n                'Dress',\n                'Coat',\n                'Sandal',\n                'Shirt',\n                'Sneaker',\n                'Bag',\n                'Ankle boot')\n\n\n\n2. What’s in the data?\nCheck how many observations are in the training and test sets, and plot some of the images.\n\ndim(train_images)\ndim(train_labels)\ndim(test_images)\ndim(test_labels)\n\n# Choose an image randomly\nimg &lt;- as.data.frame(train_images[sample(1:60000, 1), , ])\ncolnames(img) &lt;- seq_len(ncol(img))\nimg$y &lt;- seq_len(nrow(img))\nimg &lt;- img |&gt;\n  pivot_longer(cols = -y,\n               names_to=\"x\", \n               values_to=\"value\") |&gt;\n  mutate(x = as.integer(x))\n\nggplot(img, aes(x = x, y = y, fill = value)) +\n  geom_tile() +\n  scale_fill_gradient(low = \"white\", \n                      high = \"black\", \n                      na.value = NA) +\n  scale_y_reverse() +\n  theme_map() +\n  theme(legend.position = \"none\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n[1] 60000    28    28\n\n\n[1] 60000\n\n\n[1] 10000    28    28\n\n\n[1] 10000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Pre-process the data\nIt may not be necessary, says Patrick, but we’ll scale the data to 0-1, before modeling.\n\ntrain_images &lt;- train_images / 255\ntest_images &lt;- test_images / 255\n\n\n\n4. Set up the model\nThe model architecture will have:\n\na flatten layer to turn the images into vectors\none hidden layer with 128 nodes with (rectified) linear activation\nfinal layer with 10 nodes and logistic activation\n\nWhy 10 nodes in the last layer? Why 128 nodes in the hidden layer?\n\nmodel_fashion_mnist &lt;- keras_model_sequential()\nmodel_fashion_mnist |&gt;\n  # flatten the image data into a long vector\n  layer_flatten(input_shape = c(28, 28)) |&gt;\n  # hidden layer with 128 units\n  layer_dense(units = 128, activation = 'relu') |&gt;\n  # output layer for 10 categories\n  layer_dense(units = 10, activation = 'softmax')\n\nSet the optimizer to be adam, loss function to be sparse_categorical_crossentropy and accuracy as the metric. What other optimizers could be used? What is the sparse_catgorical_crossentropy?\n\nmodel_fashion_mnist |&gt; compile(\n  optimizer = 'adam',\n  loss = 'sparse_categorical_crossentropy',\n  metrics = c('accuracy')\n)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are 10 classes, so we need 10 nodes in the final layer.\nThe choice of 128 nodes in the hidden layer is arbitrary. It means that we are reducing the dimension down from 784 to 128 at this point.\nSparse categorical cross-entropy is an extension of the categorical cross-entropy loss function that is used when the output labels are represented in a sparse matrix format. The labels are represented as a single index value rather than a binary matrix.\nhttps://keras.io/api/optimizers/ has a list of optimizers available.\n\n\n\n\n\n\n5. Fit the model\n\nmodel_fashion_mnist |&gt; fit(train_images,\n              train_labels,\n              epochs = 5,\n              verbose = 0)\n\n\n\n6. Evaluate the model\n\nfmnist_score &lt;- model_fashion_mnist |&gt; \n  evaluate(test_images, test_labels, verbose = 0)\n\nfmnist_score\n\nCheck with other people in class. Do you get the same result? If not, why would this be?\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n     loss  accuracy \n0.5676619 0.8128000 \n\n\nEach person has started the optimizer with a different random seed, since we didn’t set one. You could try to set the seed using tensorflow::set_random_seed(), and have your neighbour do the same, to check if you get the same result. You will need to clean your environment before attempting this because if you fit the model again it will update the current one rather than starting afresh.\n\n\n\n\n\n\n7. Predict the test set\nWhich classes are most often confused?\n\ntest_tags &lt;- factor(class_names[test_labels + 1],\n                    levels = class_names)\n\nfashion_test_pred &lt;- predict(model_fashion_mnist,\n                             test_images, verbose = 0)\nfashion_test_pred_cat &lt;- levels(test_tags)[\n  apply(fashion_test_pred, 1,\n        which.max)]\npredicted &lt;- factor(\n  fashion_test_pred_cat,\n  levels=levels(test_tags)) |&gt;\n  as.numeric() - 1\nobserved &lt;- as.numeric(test_tags) -1\ntable(observed, predicted)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n        predicted\nobserved   0   1   2   3   4   5   6   7   8   9\n       0 536   2  36 107   7   0 302   0   9   1\n       1   0 941   6  37   5   0  10   0   1   0\n       2   2   0 575  10 186   0 223   0   4   0\n       3   3   5  19 853  61   0  56   0   3   0\n       4   0   0  61  16 757   0 160   0   6   0\n       5   0   0   0   1   0 922   1  49   3  24\n       6  29   1  68  59  92   0 743   0   8   0\n       7   0   0   0   0   0  29   0 920   0  51\n       8   2   0   3  11   7   3  41   4 928   1\n       9   0   0   0   0   0  15   2  30   0 953\n\n\nThere are several classes that have some confusion with other classes, particularly 6 with 0, 2, 4. But other classes are most often confused with at least one other. Classes 1, 5, 7, 8, 9 are rarely confused.\n\n\n\n\n\n\n8. Compute metrics\nCompute the accuracy of the model on the test set. How does this compare with the accuracy reported when you fitted the model?\nIf the model equally accurate on all classes? If not, which class(es) is(are) poorly fitted?\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  cbind(observed, predicted)\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  as.tibble() |&gt;\n  mutate(label = test_tags,\n         plabel = factor(class_names[predicted+1], \n                         levels = levels(test_tags)))\n\naccuracy(fashion_test_pred, label, plabel)\nbal_accuracy(fashion_test_pred, label, plabel)\nfashion_test_pred |&gt;\n  count(label, plabel) |&gt;\n  group_by(label) |&gt;\n  mutate(Accuracy = ifelse(sum(n)&gt;0, n[plabel==label]/sum(n), 0)) |&gt;\n  pivot_wider(names_from = \"plabel\", \n              values_from = n, \n              values_fill = 0) |&gt;\n  select(label, Accuracy)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n# A tibble: 1 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy multiclass     0.813\n\n\n# A tibble: 1 × 3\n  .metric      .estimator .estimate\n  &lt;chr&gt;        &lt;chr&gt;          &lt;dbl&gt;\n1 bal_accuracy macro          0.896\n\n\n# A tibble: 10 × 2\n# Groups:   label [10]\n   label       Accuracy\n   &lt;fct&gt;          &lt;dbl&gt;\n 1 T-shirt/top    0.536\n 2 Trouser        0.941\n 3 Pullover       0.575\n 4 Dress          0.853\n 5 Coat           0.757\n 6 Sandal         0.922\n 7 Shirt          0.743\n 8 Sneaker        0.92 \n 9 Bag            0.928\n10 Ankle boot     0.953\n\n\n\n\n\n\n\n\n9. Investigating the results\nThis section is motivated by the examples in Cook and Laa (2024). Focus on the test data to investigate the fit, and lack of fit.\n\nPCA can be used to reduce the dimension down from 784, to a small number of PCS, to examine the nature of differences between the classes. Compute the scree plot to decide on a reasonable number that can be examined in a tour. Plot the first two statically. Explain how the class structure matches any clustering.\n\n\ntest_images_flat &lt;- test_images\ndim(test_images_flat) &lt;- c(nrow(test_images_flat), 784)\nimages_pca &lt;- prcomp(as.data.frame(test_images_flat))\nimages_pc &lt;- as.data.frame(images_pca$x)\nggscree(images_pca, q=20, guide=FALSE)\nggplot(images_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\nanimate_xy(images_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere isn’t much separation between classes in the PCs. There is some difference between classes, with overlap between them. It looks less separated than what the confusion matrix would suggest.\n\n\n\n\n\nUMAP can also be used to understand the class structure. Make a 2D UMAP representation and explain how the class structure matches cluster structure.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(test_images_flat, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.3, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere are multiple well-separated clusters in the representation. Mostly these are mixtures of several classes. Only one cluster mostly matches an article, Trouser.\n\n\n\n\n\nInterestingly, the nodes in the hidden layer can be thought of as 128 new variables which are linear combinations of the original 784 variables. This is too many to visualise but we can again use PCA to reduce their dimension again, and make plots.\n\n\nactivations_model_fashion &lt;- keras_model(\n  inputs = model_fashion_mnist$input,\n  outputs = model_fashion_mnist$layers[[2]]$output\n)\nactivations_fashion &lt;- predict(\n  activations_model_fashion,\n  test_images, verbose = 0)\n\n# PCA for activations\nactivations_pca &lt;- prcomp(activations_fashion)\nactivations_pc &lt;- as.data.frame(activations_pca$x)\n\nggscree(activations_pca, q=20, guide=FALSE)\n\nggplot(activations_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  ggtitle(\"Activations\") +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") \n\n\nanimate_xy(activations_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere substantial separation between classes in the PCs of these new variables. It looks now reasonable that the classes are distinguishable as the confusion matrix suggests.\n\n\n\n\n\nSimilarly, we can general a 2D representation using UMAP of these new variables.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(activations_fashion, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.5, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere is a lot of clustering in this view, but it mostly doesn’t match the classes. Trouser is the only class that appears to be primarily in one cluster.\n\n\n\n\n\nLast task is to explain on what was learned from the confusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.\n\n\n# Generate the projection to 9D\nproj &lt;- t(geozoo::f_helmert(10)[-1,])\nf_nn_v_p &lt;- as.matrix(fashion_test_pred[,1:10]) %*% proj\ncolnames(f_nn_v_p) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\n\nf_nn_v_p &lt;- f_nn_v_p %&gt;%\n  as.data.frame() %&gt;%\n  mutate(class = test_tags)\n\nsimp &lt;- geozoo::simplex(p=9)\nsp &lt;- data.frame(simp$points)\ncolnames(sp) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\nsp$class = \"\"\nf_nn_v_p_s &lt;- bind_rows(sp, f_nn_v_p) %&gt;%\n  mutate(class = ifelse(class %in% c(\"T-shirt/top\",\n                                     \"Pullover\",\n                                     \"Shirt\",\n                                     \"Coat\"), class, \"Other\")) %&gt;%\n  mutate(class = factor(class, levels=c(\"T-shirt/top\",\n                                        \"Pullover\",\n                                        \"Shirt\",\n                                        \"Coat\",\n                                        \"Other\"))) \n\n\nanimate_xy(f_nn_v_p_s[,1:9], col = f_nn_v_p_s$class, \n           axes = \"off\", cex=0.2,\n           edges = as.matrix(simp$edges),\n           edges.width = 0.05,\n           palette = \"Viridis\")\n\n\n\n\n10. Ways to improve the model\nThere are many ways to improve neural networks. If you have time, read through the approaches taken in the HOML book. It used the digits data, but the approaches will be suitable to apply to the fashion data. Try:\n\nincreasing the number of epochs (don’t think this helps here)\ntry adding batch processing using batch size\nuse a validation set split\ntry a different number of nodes in the hidden layer\nexpand the number of layers\nadd batch normalisation\nuse regularisation at each layer\nadd dropout for each layer\nexperiment with the learning rate"
+    "text": "Exercises:\nOpen your project for this unit called iml.Rproj. We will be working through the tutorial at TensorFlow for R for fitting and predicting the fashion MNIST image data.\n\n1. Get the data\nWe use the Fashion MNIST dataset which contains 70,000 grayscale images in 10 categories of articles sold on Zalando’s multi-brand, digital platform for fashion, beauty, and lifestyle.\n\n# download the data\nfashion_mnist &lt;- dataset_fashion_mnist()\n\n# split into input variables and response\nc(train_images, train_labels) %&lt;-% fashion_mnist$train\nc(test_images, test_labels) %&lt;-% fashion_mnist$test\n\n# for interpretation we also define the category names\nclass_names = c('T-shirt/top',\n                'Trouser',\n                'Pullover',\n                'Dress',\n                'Coat',\n                'Sandal',\n                'Shirt',\n                'Sneaker',\n                'Bag',\n                'Ankle boot')\n\n\n\n2. What’s in the data?\nCheck how many observations are in the training and test sets, and plot some of the images.\n\ndim(train_images)\ndim(train_labels)\ndim(test_images)\ndim(test_labels)\n\n# Choose an image randomly\nimg &lt;- as.data.frame(train_images[sample(1:60000, 1), , ])\ncolnames(img) &lt;- seq_len(ncol(img))\nimg$y &lt;- seq_len(nrow(img))\nimg &lt;- img |&gt;\n  pivot_longer(cols = -y,\n               names_to=\"x\", \n               values_to=\"value\") |&gt;\n  mutate(x = as.integer(x))\n\nggplot(img, aes(x = x, y = y, fill = value)) +\n  geom_tile() +\n  scale_fill_gradient(low = \"white\", \n                      high = \"black\", \n                      na.value = NA) +\n  scale_y_reverse() +\n  theme_map() +\n  theme(legend.position = \"none\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n[1] 60000    28    28\n\n\n[1] 60000\n\n\n[1] 10000    28    28\n\n\n[1] 10000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Pre-process the data\nIt may not be necessary, says Patrick, but we’ll scale the data to 0-1, before modeling.\n\ntrain_images &lt;- train_images / 255\ntest_images &lt;- test_images / 255\n\n\n\n4. Set up the model\nThe model architecture will have:\n\na flatten layer to turn the images into vectors\none hidden layer with 128 nodes with (rectified) linear activation\nfinal layer with 10 nodes and logistic activation\n\nWhy 10 nodes in the last layer? Why 128 nodes in the hidden layer?\n\nmodel_fashion_mnist &lt;- keras_model_sequential()\nmodel_fashion_mnist |&gt;\n  # flatten the image data into a long vector\n  layer_flatten(input_shape = c(28, 28)) |&gt;\n  # hidden layer with 128 units\n  layer_dense(units = 128, activation = 'relu') |&gt;\n  # output layer for 10 categories\n  layer_dense(units = 10, activation = 'softmax')\n\nSet the optimizer to be adam, loss function to be sparse_categorical_crossentropy and accuracy as the metric. What other optimizers could be used? What is the sparse_catgorical_crossentropy?\n\nmodel_fashion_mnist |&gt; compile(\n  optimizer = 'adam',\n  loss = 'sparse_categorical_crossentropy',\n  metrics = c('accuracy')\n)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are 10 classes, so we need 10 nodes in the final layer.\nThe choice of 128 nodes in the hidden layer is arbitrary. It means that we are reducing the dimension down from 784 to 128 at this point.\nSparse categorical cross-entropy is an extension of the categorical cross-entropy loss function that is used when the output labels are represented in a sparse matrix format. The labels are represented as a single index value rather than a binary matrix.\nhttps://keras.io/api/optimizers/ has a list of optimizers available.\n\n\n\n\n\n\n5. Fit the model\n\nmodel_fashion_mnist |&gt; fit(train_images,\n              train_labels,\n              epochs = 5,\n              verbose = 0)\n\n\n\n6. Evaluate the model\n\nfmnist_score &lt;- model_fashion_mnist |&gt; \n  evaluate(test_images, test_labels, verbose = 0)\n\nfmnist_score\n\nCheck with other people in class. Do you get the same result? If not, why would this be?\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n     loss  accuracy \n0.5128567 0.8333000 \n\n\nEach person has started the optimizer with a different random seed, since we didn’t set one. You could try to set the seed using tensorflow::set_random_seed(), and have your neighbour do the same, to check if you get the same result. You will need to clean your environment before attempting this because if you fit the model again it will update the current one rather than starting afresh.\n\n\n\n\n\n\n7. Predict the test set\nWhich classes are most often confused?\n\ntest_tags &lt;- factor(class_names[test_labels + 1],\n                    levels = class_names)\n\nfashion_test_pred &lt;- predict(model_fashion_mnist,\n                             test_images, verbose = 0)\nfashion_test_pred_cat &lt;- levels(test_tags)[\n  apply(fashion_test_pred, 1,\n        which.max)]\npredicted &lt;- factor(\n  fashion_test_pred_cat,\n  levels=levels(test_tags)) |&gt;\n  as.numeric() - 1\nobserved &lt;- as.numeric(test_tags) -1\ntable(observed, predicted)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n        predicted\nobserved   0   1   2   3   4   5   6   7   8   9\n       0 857   1  10  43   2   4  61   0  22   0\n       1   4 959   4  26   3   0   2   0   2   0\n       2  24   5 684  16 193   0  57   0  21   0\n       3  37  10   8 880   8   1  50   0   6   0\n       4   0   2  72  59 752   0 105   0  10   0\n       5   0   0   0   1   0 930   0  29   4  36\n       6 200   4 112  36 139   1 461   0  47   0\n       7   0   0   0   0   0  66   0 912   0  22\n       8   5   1   4   8   2   4  11   4 961   0\n       9   0   0   0   0   0  13   0  49   1 937\n\n\nThere are several classes that have some confusion with other classes, particularly 6 with 0, 2, 4. But other classes are most often confused with at least one other. Classes 1, 5, 7, 8, 9 are rarely confused.\n\n\n\n\n\n\n8. Compute metrics\nCompute the accuracy of the model on the test set. How does this compare with the accuracy reported when you fitted the model?\nIf the model equally accurate on all classes? If not, which class(es) is(are) poorly fitted?\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  cbind(observed, predicted)\n\nfashion_test_pred &lt;- fashion_test_pred |&gt;\n  as.tibble() |&gt;\n  mutate(label = test_tags,\n         plabel = factor(class_names[predicted+1], \n                         levels = levels(test_tags)))\n\naccuracy(fashion_test_pred, label, plabel)\nbal_accuracy(fashion_test_pred, label, plabel)\nfashion_test_pred |&gt;\n  count(label, plabel) |&gt;\n  group_by(label) |&gt;\n  mutate(Accuracy = ifelse(sum(n)&gt;0, n[plabel==label]/sum(n), 0)) |&gt;\n  pivot_wider(names_from = \"plabel\", \n              values_from = n, \n              values_fill = 0) |&gt;\n  select(label, Accuracy)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n# A tibble: 1 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy multiclass     0.833\n\n\n# A tibble: 1 × 3\n  .metric      .estimator .estimate\n  &lt;chr&gt;        &lt;chr&gt;          &lt;dbl&gt;\n1 bal_accuracy macro          0.907\n\n\n# A tibble: 10 × 2\n# Groups:   label [10]\n   label       Accuracy\n   &lt;fct&gt;          &lt;dbl&gt;\n 1 T-shirt/top    0.857\n 2 Trouser        0.959\n 3 Pullover       0.684\n 4 Dress          0.88 \n 5 Coat           0.752\n 6 Sandal         0.93 \n 7 Shirt          0.461\n 8 Sneaker        0.912\n 9 Bag            0.961\n10 Ankle boot     0.937\n\n\n\n\n\n\n\n\n9. Investigating the results\nThis section is motivated by the examples in Cook and Laa (2024). Focus on the test data to investigate the fit, and lack of fit.\n\nPCA can be used to reduce the dimension down from 784, to a small number of PCS, to examine the nature of differences between the classes. Compute the scree plot to decide on a reasonable number that can be examined in a tour. Plot the first two statically. Explain how the class structure matches any clustering.\n\n\ntest_images_flat &lt;- test_images\ndim(test_images_flat) &lt;- c(nrow(test_images_flat), 784)\nimages_pca &lt;- prcomp(as.data.frame(test_images_flat))\nimages_pc &lt;- as.data.frame(images_pca$x)\nggscree(images_pca, q=20, guide=FALSE)\nggplot(images_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\nanimate_xy(images_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere isn’t much separation between classes in the PCs. There is some difference between classes, with overlap between them. It looks less separated than what the confusion matrix would suggest.\n\n\n\n\n\nUMAP can also be used to understand the class structure. Make a 2D UMAP representation and explain how the class structure matches cluster structure.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(test_images_flat, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.3, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") +\n  theme(legend.title = element_blank())\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere are multiple well-separated clusters in the representation. Mostly these are mixtures of several classes. Only one cluster mostly matches an article, Trouser.\n\n\n\n\n\nInterestingly, the nodes in the hidden layer can be thought of as 128 new variables which are linear combinations of the original 784 variables. This is too many to visualise but we can again use PCA to reduce their dimension again, and make plots.\n\n\nactivations_model_fashion &lt;- keras_model(\n  inputs = model_fashion_mnist$input,\n  outputs = model_fashion_mnist$layers[[2]]$output\n)\nactivations_fashion &lt;- predict(\n  activations_model_fashion,\n  test_images, verbose = 0)\n\n# PCA for activations\nactivations_pca &lt;- prcomp(activations_fashion)\nactivations_pc &lt;- as.data.frame(activations_pca$x)\n\nggscree(activations_pca, q=20, guide=FALSE)\n\nggplot(activations_pc,\n       aes(PC1, PC2, color = test_tags)) +\n  geom_point(size = 0.1) +\n  ggtitle(\"Activations\") +\n  scale_color_discrete_qualitative(palette = \"Dynamic\") \n\n\nanimate_xy(activations_pc[,1:5], col = test_tags,\n        cex=0.2, palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere substantial separation between classes in the PCs of these new variables. It looks now reasonable that the classes are distinguishable as the confusion matrix suggests.\n\n\n\n\n\nSimilarly, we can general a 2D representation using UMAP of these new variables.\n\n\nset.seed(253)\nfashion_umap &lt;- umap(activations_fashion, init = \"spca\")\nfashion_umap_df &lt;- fashion_umap |&gt;\n  as_tibble() |&gt;\n  rename(UMAP1 = V1, UMAP2 = V2) |&gt;\n  mutate(label = test_tags)\nggplot(fashion_umap_df, aes(x = UMAP1, \n                            y = UMAP2,\n                            colour = label)) +\n  geom_point(size = 0.5, alpha=0.5) +\n  scale_color_discrete_qualitative(palette = \"Dynamic\")\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThere is a lot of clustering in this view, but it mostly doesn’t match the classes. Trouser is the only class that appears to be primarily in one cluster.\n\n\n\n\n\nLast task is to explain on what was learned from the confusion matrix to examine the uncertainty in predictions from the predictive probabilities. Because there are 10 classes, these will fall in a 9D simplex. Each vertex is the spot where the model is completely certain about the prediction. Points along an edge indicate confusion only between two classes. Points on a triangular face indicate confusion between three classes. The code below will create the visualisation of the predictive probabilities, focusing on four of the 10 classes to make it a little simpler to digest.\n\n\n# Generate the projection to 9D\nproj &lt;- t(geozoo::f_helmert(10)[-1,])\nf_nn_v_p &lt;- as.matrix(fashion_test_pred[,1:10]) %*% proj\ncolnames(f_nn_v_p) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\n\nf_nn_v_p &lt;- f_nn_v_p %&gt;%\n  as.data.frame() %&gt;%\n  mutate(class = test_tags)\n\nsimp &lt;- geozoo::simplex(p=9)\nsp &lt;- data.frame(simp$points)\ncolnames(sp) &lt;- c(\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"x6\", \"x7\", \"x8\", \"x9\")\nsp$class = \"\"\nf_nn_v_p_s &lt;- bind_rows(sp, f_nn_v_p) %&gt;%\n  mutate(class = ifelse(class %in% c(\"T-shirt/top\",\n                                     \"Pullover\",\n                                     \"Shirt\",\n                                     \"Coat\"), class, \"Other\")) %&gt;%\n  mutate(class = factor(class, levels=c(\"T-shirt/top\",\n                                        \"Pullover\",\n                                        \"Shirt\",\n                                        \"Coat\",\n                                        \"Other\"))) \n\n\nanimate_xy(f_nn_v_p_s[,1:9], col = f_nn_v_p_s$class, \n           axes = \"off\", cex=0.2,\n           edges = as.matrix(simp$edges),\n           edges.width = 0.05,\n           palette = \"Viridis\")\n\n\n\n\n10. Ways to improve the model\nThere are many ways to improve neural networks. If you have time, read through the approaches taken in the HOML book. It used the digits data, but the approaches will be suitable to apply to the fashion data. Try:\n\nincreasing the number of epochs (don’t think this helps here)\ntry adding batch processing using batch size\nuse a validation set split\ntry a different number of nodes in the hidden layer\nexpand the number of layers\nadd batch normalisation\nuse regularisation at each layer\nadd dropout for each layer\nexperiment with the learning rate"
   },
   {
     "objectID": "week7/tutorialsol.html#finishing-up",
@@ -1484,347 +1484,186 @@
     "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
   },
   {
-    "objectID": "week11/index.html",
-    "href": "week11/index.html",
-    "title": "Week 11: Evaluating your clustering model",
+    "objectID": "week11/tutorial.html",
+    "href": "week11/tutorial.html",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "",
-    "text": "Cook and Laa Ch 12"
+    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(mclust)\nlibrary(kohonen)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(detourr)\nlibrary(crosstalk)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
   },
   {
-    "objectID": "week11/index.html#main-reference",
-    "href": "week11/index.html#main-reference",
-    "title": "Week 11: Evaluating your clustering model",
-    "section": "",
-    "text": "Cook and Laa Ch 12"
+    "objectID": "week11/tutorial.html#objectives",
+    "href": "week11/tutorial.html#objectives",
+    "title": "ETC3250/5250 Tutorial 11",
+    "section": "🎯 Objectives",
+    "text": "🎯 Objectives\nThe goal for this week is practice fitting model-based clustering and self-organising maps."
   },
   {
-    "objectID": "week11/index.html#what-you-will-learn-this-week",
-    "href": "week11/index.html#what-you-will-learn-this-week",
-    "title": "Week 11: Evaluating your clustering model",
-    "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nConfusion tables\nCluster metrics"
-  },
-  {
-    "objectID": "week11/index.html#assignments",
-    "href": "week11/index.html#assignments",
-    "title": "Week 11: Evaluating your clustering model",
-    "section": "Assignments",
-    "text": "Assignments\n\nProject is due on Friday 17 May."
-  },
-  {
-    "objectID": "week10/slides.html#overview",
-    "href": "week10/slides.html#overview",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Overview",
-    "text": "Overview\nWe will cover:\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
-  },
-  {
-    "objectID": "week10/slides.html#model-based-clustering",
-    "href": "week10/slides.html#model-based-clustering",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Model-based clustering",
-    "text": "Model-based clustering"
-  },
-  {
-    "objectID": "week10/slides.html#overview-1",
-    "href": "week10/slides.html#overview-1",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Overview",
-    "text": "Overview\nModel-based clustering makes an assumption about the distribution of the data, primarily\n\nAssumes the data is a sample from a Gaussian mixture model\nRequires the assumption that clusters have an elliptical shape\nThe shape is determined by the variance-covariance of the clusters\nA variety of models is available by using different constraints on the variance-covariance\n\nModel is\n\\[f(x_i) = \\sum_{k=1}^G\\pi_kf_k(x_i; \\mu_k, \\Sigma_k)\\]\nwhere \\(f_k\\) is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC."
-  },
-  {
-    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
-    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Parametrisation of the var-cov matrices (1/2)",
-    "text": "Parametrisation of the var-cov matrices (1/2)\n\n\nConstraints applied on cluster variance-covariance:\n\\[\n\\Sigma_k = \\lambda_kD_kA_kD_k^\\top\n\\]\n\nvolume (\\(\\lambda_k\\)): size of the cluster, ie number of observations\nshape (\\(A_k\\)): difference variances\norientation (\\(D_k\\)): aligned with axes (low covariance) or not (high covariance)\n\n\n\n\\(\\lambda I\\) is model 1, EI\n\\(\\lambda DAD^\\top\\) is model 7, EEE\n\\(\\lambda D_kAD_k^\\top\\) is model 11, EEV\n\n\n\n\n\nModel\nFamily\nVolume\nShape\nOrientation\nIdentifier\n\n\n\n\n1\nSpherical\nEqual\nEqual\nNA\nEII\n\n\n2\nSpherical\nVariable\nEqual\nNA\nVII\n\n\n3\nDiagonal\nEqual\nEqual\nAxes\nEEI\n\n\n4\nDiagonal\nVariable\nEqual\nAxes\nVEI\n\n\n5\nDiagonal\nEqual\nVariable\nAxes\nEVI\n\n\n6\nDiagonal\nVariable\nVariable\nAxes\nVVI\n\n\n7\nGeneral\nEqual\nEqual\nEqual\nEEE\n\n\n8\nGeneral\nEqual\nVariable\nEqual\nEVE\n\n\n9\nGeneral\nVariable\nEqual\nEqual\nVEE\n\n\n10\nGeneral\nVariable\nVariable\nEqual\nVVE\n\n\n11\nGeneral\nEqual\nEqual\nVariable\nEEV\n\n\n12\nGeneral\nVariable\nEqual\nVariable\nVEV\n\n\n13\nGeneral\nEqual\nVariable\nVariable\nEVV\n\n\n14\nGeneral\nVariable\nVariable\nVariable\nVVV"
-  },
-  {
-    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
-    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Parametrisation of the var-cov matrices (2/2)",
-    "text": "Parametrisation of the var-cov matrices (2/2)\n\n\n\nSource: Boehmke (2020) Hands-on machine learning"
-  },
-  {
-    "objectID": "week10/slides.html#example-penguins-12",
-    "href": "week10/slides.html#example-penguins-12",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: penguins (1/2)",
-    "text": "Example: penguins (1/2)\n\n\nLet the model decide on the number of clusters, and parametrisation.\n\np_mc &lt;- mclustBIC(p_std[,2:5], G=2:8)\nsummary(p_mc)\n\nBest BIC values:\n         VEE,4   VEE,5 VEE,3\nBIC      -2497 -2503.7 -2510\nBIC diff     0    -7.2   -14\n\n\n\n\npmc1 &lt;- ggmcbic(p_mc) +\n  scale_x_continuous(breaks=1:7, labels=2:8)\nggplotly(pmc1)"
-  },
-  {
-    "objectID": "week10/slides.html#example-penguins-22",
-    "href": "week10/slides.html#example-penguins-22",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: penguins (2/2)",
-    "text": "Example: penguins (2/2)\n\n\n\n\nCode\npenguins_mc &lt;- Mclust(p_std[,2:5], \n                      G=4, \n                      modelNames = \"VEE\")\npenguins_mce &lt;- mc_ellipse(penguins_mc)\npenguins_cl &lt;- p_std\npenguins_cl$cl &lt;- factor(penguins_mc$classification)\n\npenguins_mc_data &lt;- penguins_cl |&gt;\n  select(bl:bm, cl) |&gt;\n  mutate(type = \"data\") |&gt;\n  bind_rows(bind_cols(penguins_mce$ell,\n                      type=rep(\"ellipse\",\n                               nrow(penguins_mce$ell)))) |&gt;\n  mutate(type = factor(type))\n\n\n\nBest model: VEE, 4\nWhat’s wrong with this fit?\n\n\n\nmodel: VEE, 3\nWhich is the better model? 4 or 3 clusters? Purely based on how well it fits the data?"
-  },
-  {
-    "objectID": "week10/slides.html#summary",
-    "href": "week10/slides.html#summary",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Summary",
-    "text": "Summary\n\nModel-based clustering provides a nice automated clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.\nNon-elliptical clusters could be modeled by combining multiple ellipses.\nIt is affected by nuisance observations, and has a parameter noise to attempt to filter these.\nIt may not function so well if the data hasn’t got separated clusters.\n\\(k\\)-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).\nHaving a functional model for the clusters is useful."
-  },
-  {
-    "objectID": "week10/slides.html#self-organising-maps",
-    "href": "week10/slides.html#self-organising-maps",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Self-organising maps",
-    "text": "Self-organising maps"
-  },
-  {
-    "objectID": "week10/slides.html#overview-2",
-    "href": "week10/slides.html#overview-2",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Overview",
-    "text": "Overview\n\n\n\nA self-organizing map is a constrained \\(k\\)-means algorithm\nA 1D or 2D net is stretched through the data. The knots in the net form the cluster means, and points closest to the knot are considered to belong to that cluster.\nThe net provides a low-dimensional summary of the clustering, nodes (and their corresponding clusters) that are close to each other being more similar than those that are further apart.\n\n\nSource: wikipedia\n\nAlgorithm\n\nScale your data\nInitialize the net defined by the knots (nodes \\(m_k, k=1, ..., K\\)): choose the number of nodes in the horizontal (and vertical directions for 2D), and set initial positions of these \\(K\\) nodes (eg first two PCs) in the data space.\nLoop over data points, \\(x_i, i=1, ..., n\\)\n\nfind the closest node, \\(m_{k^*}\\)\nfor each node, \\(m_k\\) in the neighborhood of \\(m_{k^*}\\) and update it by: \\(m_k = m_k + \\alpha h_k(x_i, m_{k^*}) (x_i-m_{k^*})\\), pulling it closer to \\(x_i\\),\n\n\nwhere \\(\\alpha\\) is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and \\(h_k\\) is a neighbourhood function, e.g. \\(h_k(x_i, m_{k^*})=exp(\\frac{||x_i-m_{k^*}||}{2\\alpha})^2)\\) which is a bubble function (within a distance or not).\nStep 3 is iterated until nodes stop changing position or a stopping rule is satisfied."
-  },
-  {
-    "objectID": "week10/slides.html#example-penguins-12-1",
-    "href": "week10/slides.html#example-penguins-12-1",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: penguins (1/2)",
-    "text": "Example: penguins (1/2)\n\n\n\nset.seed(947)\np_grid &lt;- kohonen::somgrid(xdim = 5, ydim = 5,\n                           topo = 'rectangular')\np_init &lt;- somInit(as.matrix(p_std[,2:5]), 5, 5)\np_som &lt;- som(as.matrix(p_std[,2:5]), \n             rlen=2000,\n             grid = p_grid,\n             init = p_init)\n\nrlen controls the length of the optimisation. Tend to need to run it for longer than default.\n\n\nplot(p_som, type=\"changes\")"
-  },
-  {
-    "objectID": "week10/slides.html#example-penguins-22-1",
-    "href": "week10/slides.html#example-penguins-22-1",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: penguins (2/2)",
-    "text": "Example: penguins (2/2)\n\n\n\n\n\n\n\n\n\n\n\nFrom the map we can see that the clustering has effectively distinguished the species, with some confusion between Chinstrap and Adelie.\n\n\n\n\n The net is stretched and clumped into the three clusters in 4D."
-  },
-  {
-    "objectID": "week10/slides.html#example-surface-12",
-    "href": "week10/slides.html#example-surface-12",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: surface (1/2)",
-    "text": "Example: surface (1/2)\n\n\n\nc3_som &lt;- som(as.matrix(c3), \n  grid = kohonen::somgrid(5, 5, \"hexagonal\"))\n\n\n\nplot(c3_som, type=\"changes\")"
-  },
-  {
-    "objectID": "week10/slides.html#example-surface-22",
-    "href": "week10/slides.html#example-surface-22",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Example: surface (2/2)",
-    "text": "Example: surface (2/2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nthe net stretches into the vertices of the tetrahedron, filling the smaller tetrahedrons\nsee the break so that a 2D net fits the 3D object?\nthe 7 noise dimensions were ignored"
-  },
-  {
-    "objectID": "week10/slides.html#next-evaluating-your-clustering-model",
-    "href": "week10/slides.html#next-evaluating-your-clustering-model",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Next: Evaluating your clustering model",
-    "text": "Next: Evaluating your clustering model\n\n\n\nETC3250/5250 Lecture 10 | iml.numbat.space"
-  },
-  {
-    "objectID": "week1/tutorial.html",
-    "href": "week1/tutorial.html",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorial.html#objectives",
-    "href": "week1/tutorial.html#objectives",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
-  },
-  {
-    "objectID": "week1/tutorial.html#preparation",
-    "href": "week1/tutorial.html#preparation",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorial.html#preparation",
+    "href": "week11/tutorial.html#preparation",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
   },
   {
-    "objectID": "week1/tutorial.html#exercises",
-    "href": "week1/tutorial.html#exercises",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorial.html#exercises",
+    "href": "week11/tutorial.html#exercises",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "Exercises:",
-    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+    "text": "Exercises:\n\n1. Clustering spotify data with model-based\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read and pre-process the data with this code. Variables mode, time_signature and instrumentalness are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\") |&gt;\n  select(-c(mode, time_signature, instrumentalness)) # variables with few values\n\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\n\nFit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.\n\n\nWhy are some variance-covariance parametrisations fitted to less than 15 clusters?\n\n\nMake a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes.\nHow many parameters need to be estimated for the VVE model with 7 and 8 clusters? Compare this to the number of observations, and explain why the model is not estimated for 8 clusters.\n\n\nFit just the best model, and extract the parameter estimates. Write a few sentences describing what can be learned about the way the clusters subset the data.\n\n\n\n2. Clustering simulated data with known cluster structure\n\nIn tutorial of week 10 you clustered c1 from the mulgar package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?\n\n\nFit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not.\n\n\nFit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?\n\n\n\n3. Music similarity\n\nThe music data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package tuneR. Only a subset of the data is provided, with details:\n\n\ntitle: Title of the track\nartist: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya\ntype: rock, classical, or new wave\nlvar, lave, lmax: average, variance, maximum of the frequencies of the left channel\nlfener: an indicator of the amplitude or loudness of the sound\nlfreq: median of the location of the 15 highest peak in the periodogram\n\nYou can read the data into R using:\n\nmusic &lt;- read_csv(\"http://ggobi.org/book/data/music-sub.csv\") |&gt;\n  rename(title = `...1`)\n\nHow many observations in the data? Explain how this should determine the maximum grid size for an SOM.\n\nFit a SOM model to the data using a 4x4 grid, using a large rlen value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).\n\n\nLet’s take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.\n\n\nmusic_som1_shared &lt;- SharedData$new(music_som1_data)\n\nmusic_detour &lt;- detour(music_som1_shared, tour_aes(\n  projection = lvar:lfreq)) |&gt;\n  tour_path(grand_tour(2),\n            max_bases=50, fps = 60) |&gt;\n  show_scatter(alpha = 0.9, axes = FALSE,\n               width = \"100%\", height = \"450px\")\n\nmusic_map &lt;- plot_ly(music_som1_shared,\n     x = ~map1,\n     y = ~map2,\n     text = ~paste(title, artist),\n     marker = list(color=\"black\", size=8),\n     height = 450) |&gt;\n  highlight(on = \"plotly_selected\",\n            off = \"plotly_doubleclick\") |&gt;\n  add_trace(type = \"scatter\",\n            mode = \"markers\")\n\nbscols(\n  music_detour, music_map,\n  widths = c(5, 6)\n)\n\nCan you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece is most like a Beatles song?"
   },
   {
-    "objectID": "week1/tutorial.html#finishing-up",
-    "href": "week1/tutorial.html#finishing-up",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorial.html#finishing-up",
+    "href": "week11/tutorial.html#finishing-up",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "👋 Finishing up",
     "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
   },
   {
-    "objectID": "week1/tutorialsol.html",
-    "href": "week1/tutorialsol.html",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorialsol.html",
+    "href": "week11/tutorialsol.html",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(mclust)\nlibrary(kohonen)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(detourr)\nlibrary(crosstalk)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
   },
   {
-    "objectID": "week1/tutorialsol.html#objectives",
-    "href": "week1/tutorialsol.html#objectives",
-    "title": "ETC53250/5250 Tutorial 1",
-    "section": "",
-    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+    "objectID": "week11/tutorialsol.html#objectives",
+    "href": "week11/tutorialsol.html#objectives",
+    "title": "ETC3250/5250 Tutorial 11",
+    "section": "🎯 Objectives",
+    "text": "🎯 Objectives\nThe goal for this week is practice fitting model-based clustering and self-organising maps."
   },
   {
-    "objectID": "week1/tutorialsol.html#preparation",
-    "href": "week1/tutorialsol.html#preparation",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorialsol.html#preparation",
+    "href": "week11/tutorialsol.html#preparation",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
   },
   {
-    "objectID": "week1/tutorialsol.html#exercises",
-    "href": "week1/tutorialsol.html#exercises",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorialsol.html#exercises",
+    "href": "week11/tutorialsol.html#exercises",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "Exercises:",
-    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe error is\nError in select(penguins, species, flipper_length_mm) : \n  unused arguments (species, flipper_length_mm)\nand is caused by a conflict in functions between the dplyr and MASS packages. If you read the warning messages when the packages were loaded you might have been aware of this before trying to run code.\nYou can fix it by:\n\nPrefacing functions that have conflicts with their package name, eg dplyr::select()\nUse the conflicted package to set your preferences at the start of any document.\n\nTo make the reprex, copy the code to clipboard, and run reprex(). This will generate:\n\n\n\n\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nLibraries are loaded.\nThere are some global options for slides set, and styling of plots.\nConflicts for some common functions are resolved with preferences.\n\n\n\n\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+    "text": "Exercises:\n\n1. Clustering spotify data with model-based\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read and pre-process the data with this code. Variables mode, time_signature and instrumentalness are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\") |&gt;\n  select(-c(mode, time_signature, instrumentalness)) # variables with few values\n\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\n\nFit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\ns_mc &lt;- mclustBIC(spotify_tf[,5:15], G=1:15)\nsummary(s_mc)\n\nBest BIC values:\n          VVE,4    VVE,5  VVE,6\nBIC      -14772 -14773.5 -14775\nBIC diff      0     -1.8     -3\n\nsmc1 &lt;- ggmcbic(s_mc) \nggplotly(smc1)\n\n\n\n\nsmc2 &lt;- ggmcbic(s_mc, top=10) \nggplotly(smc2)\n\n\n\n\n\nThe best parametrisation is the VVE model, and four clusters yields the best BIC.\n\n\n\n\n\nWhy are some variance-covariance parametrisations fitted to less than 15 clusters?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe number of parameters needed is too many for the number of observations.\n\n\n\n\n\nMake a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes.\nHow many parameters need to be estimated for the VVE model with 7 and 8 clusters? Compare this to the number of observations, and explain why the model is not estimated for 8 clusters.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nVVE means the volume and shape are variable, and a common orientation between clusters. It can be written as \\(\\lambda_k D A_k D^\\top\\).\n\\(n=507, p=11, G=7\\text{ or }8\\)\n\n\\(\\widehat{\\mu}_k\\) (7 11-D means): \\(7\\times 11= 77\\)\n\\(\\widehat{A}_k\\) (7 \\(11\\times 11\\)-D diagonal matrices): \\(7\\times 11= 77\\)\n\\(D\\) (one \\(11\\times 11\\)-D matrix, upper and lower triangles the same): \\(\\sum_{i=1}^7 i = 28\\)\n\\(\\lambda_k\\) (7 size parameters): 7\n\\(\\pi\\) (mixing proportions): \\(7-1 = 6\\)\n\nFor 7 clusters 195 parameters are estimated.\n\n\\(\\widehat{\\mu}_k\\) (8 11-D means): \\(8\\times 11= 88\\)\n\\(\\widehat{A}_k\\) (8 \\(11\\times 11\\)-D diagonal matrices): \\(8\\times 11= 88\\)\n\\(D\\) (one \\(11\\times 11\\)-D matrix, upper and lower triangles the same): \\(\\sum_{i=1}^8 i = 36\\)\n\\(\\lambda_k\\) (8 size parameters): 8\n\\(\\pi\\) (mixing proportions): \\(8-1 = 7\\)\n\nFor 8 clusters 227 parameters are used.\nBoth of these are less than the number of observations (507), so it should be possible to fit both. For 8 clusters, though it is about 2 observations per parameter. It’s not much better for 7 clusters, but the model is fitted anyway. It’s not clear why but its interesting.\n\n\n\n\n\nFit just the best model, and extract the parameter estimates. Write a few sentences describing what can be learned about the way the clusters subset the data.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nspotify_mc &lt;- Mclust(spotify_tf[,5:15], \n                      G=4, \n                      modelNames = \"VVI\")\nspotify_mc$parameters$mean\n\n                    [,1]   [,2]    [,3]   [,4]\ndanceability      -0.318 -0.487  0.7005 -0.353\nenergy            -0.753 -1.060  0.2262  0.864\nkey                0.055 -0.092  0.0896 -0.090\nloudness          -0.981 -0.697  0.3228  0.674\nspeechiness        0.882 -0.737  0.0287 -0.166\nacousticness       0.552  0.786 -0.0099 -0.831\nliveness           0.012 -0.342 -0.0882  0.309\nvalence           -0.073 -0.892  0.3801  0.125\ntempo              0.291  0.012 -0.3152  0.188\nduration_ms       -0.087  0.312 -0.1718  0.078\nartist_popularity -0.399  0.101  0.2059 -0.052\n\n# spotify_mc$parameters$variance$sigma\nspotify_var &lt;- bind_rows(\n  diag(spotify_mc$parameters$variance$sigma[,,1]),\n  diag(spotify_mc$parameters$variance$sigma[,,2]),\n  diag(spotify_mc$parameters$variance$sigma[,,3]),\n  diag(spotify_mc$parameters$variance$sigma[,,4]))\nspotify_var[,1:6]\n\n# A tibble: 4 × 6\n  danceability energy   key loudness speechiness acousticness\n         &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;\n1        1.27   1.01  0.813    1.90        1.37         0.415\n2        0.843  0.614 0.880    0.539       0.155        0.254\n3        0.564  0.321 1.09     0.186       0.735        0.520\n4        0.508  0.188 1.06     0.169       0.722        1.15 \n\nspotify_var[,7:11]\n\n# A tibble: 4 × 5\n  liveness valence tempo duration_ms artist_popularity\n     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;\n1    1.06    1.14  1.77        3.56              1.33 \n2    0.228   0.546 1.14        0.491             1.16 \n3    1.04    0.755 0.366       0.355             0.724\n4    1.19    0.796 0.967       0.302             0.853\n\n\nBecause the the data is standardised differences between means and variances from one cluster to another can be compared directly.\nWe could say that cluster 1 has high speechiness, and low energy, loudness. In contrast, cluster 4 has high energy and loudness, but low acousticness.\nOn the variances, cluster 1 has low variance for acousticness, which means all songs in this cluster have similar acousticness. Cluster 4 has small variance on energy and loudness, so these songs have similar values on these variables.\n\n\n\n\n\n\n2. Clustering simulated data with known cluster structure\n\nIn tutorial of week 10 you clustered c1 from the mulgar package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nWe would expect 6 clusters would give the best results. The two big clusters are elliptical but oriented along variable axes, and have no variance in some variables. The four small clusters are spherical in the full 6D.\n\n\n\n\n\nFit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nc1_mc &lt;- mclustBIC(c1, G=3:8)\nsummary(c1_mc)\n\nBest BIC values:\n         VVI,6 VVI,7 VVE,6\nBIC       2814  2757  2735\nBIC diff     0   -56   -78\n\nc1mc1 &lt;- ggmcbic(c1_mc) +\n  scale_x_continuous(breaks=1:6, labels=3:8)\nggplotly(c1mc1)\n\n\n\n\nc1mc2 &lt;- ggmcbic(c1_mc, top=10) +\n  scale_x_continuous(breaks=1:6, labels=3:8)\nggplotly(c1mc2)\n\n\n\n\n\nInterestingly the 6 cluster model is the best, and it uses a VVI parametrisation.\n\n\n\n\n\nFit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nc1_mc &lt;- Mclust(c1, G=6, \n                modelNames = \"VVI\")\nc1_mce &lt;- mc_ellipse(c1_mc)\nc1_cl &lt;- c1\nc1_cl$cl &lt;- factor(c1_mc$classification)\n\nc1_mc_data &lt;- c1_cl |&gt;\n  mutate(type = \"data\") |&gt;\n  bind_rows(bind_cols(c1_mce$ell,\n                      type=rep(\"ellipse\",\n                        nrow(c1_mce$ell)))) |&gt;\n  mutate(type = factor(type))\n\n\nanimate_xy(c1_mc_data[,1:6],\n           col=c1_mc_data$cl,\n           pch=c(4, 20 )[as.numeric(c1_mc_data$type)], \n           axes=\"off\")\n\nWow! It fits the clusters beautifully!\n\n\n\n\n\n\n3. Music similarity\n\nThe music data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package tuneR. Only a subset of the data is provided, with details:\n\n\ntitle: Title of the track\nartist: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya\ntype: rock, classical, or new wave\nlvar, lave, lmax: average, variance, maximum of the frequencies of the left channel\nlfener: an indicator of the amplitude or loudness of the sound\nlfreq: median of the location of the 15 highest peak in the periodogram\n\nYou can read the data into R using:\n\nmusic &lt;- read_csv(\"http://ggobi.org/book/data/music-sub.csv\") |&gt;\n  rename(title = `...1`)\n\nHow many observations in the data? Explain how this should determine the maximum grid size for an SOM.\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are only 62 observations. If you use a 5x5 grid, this is less than 3 observations per cluster. You need to be careful about specifying a model with too many nodes for the number of observations. At the same time and SOM needs to have some flexibility to fit the data shape, and more nodes allows more flexibility.\n\n\n\n\n\nFit a SOM model to the data using a 4x4 grid, using a large rlen value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nset.seed(831)\nmusic_std &lt;- music |&gt;\n  mutate_if(is.numeric, \n            function(x) (x-mean(x))/sd(x))\nmusic_som1 &lt;- som(as.matrix(music_std[,4:8]), \n                 grid = somgrid(4, 4, \"hexagonal\"), rlen=2000)\nmusic_som1_df_net &lt;- som_model(music_som1)\nmusic_som1_data &lt;- music_som1_df_net$data |&gt; \n  mutate(cl = music_som1$unit.classif,\n         title = music_std$title,\n         artist = music_std$artist) |&gt;\n  select(id, title, artist, lvar:distance)\n\nggplot() +\n  geom_segment(data=music_som1_df_net$edges_s, \n               aes(x=x, xend=xend, y=y, \n                   yend=yend)) +\n  geom_point(data=music_som1_data, \n             aes(x=map1, y=map2, label=paste(artist, title)), \n             size=3, alpha=0.5) +\n  xlab(\"map 1\") + ylab(\"map 2\") +\n  theme(legend.position = \"bottom\",\n        legend.title = element_blank(),\n        axis.text = element_blank())\n\n\n\n\n\n\n\n# ggplotly()\n\n# 5D\nmusic_som1_map &lt;- music_som1_df_net$net |&gt;\n  mutate(artist = \"0\", \n         title = \"0\",\n         type=\"net\")\nmusic_som1_data_tour &lt;- music_som1_data |&gt; \n  select(lvar:lfreq, artist, title) |&gt;\n  mutate(type=\"data\") \nmusic_som1_map_data &lt;- bind_rows(\n  music_som1_map, music_som1_data_tour)\nmusic_som1_map_data$type &lt;- factor(music_som1_map_data$type,\n  levels=c(\"net\", \"data\"))\n\n\nanimate_xy(music_som1_map_data[,1:5],\n           pch=music_som1_map_data$type,\n           shapeset=c(46, 16),\n           edges=as.matrix(music_som1_df_net$edges), \n           edges.col = \"black\",\n           axes=\"bottomleft\")\n\n\n\n\n\n\nLet’s take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.\n\n\nmusic_som1_shared &lt;- SharedData$new(music_som1_data)\n\nmusic_detour &lt;- detour(music_som1_shared, tour_aes(\n  projection = lvar:lfreq)) |&gt;\n  tour_path(grand_tour(2),\n            max_bases=50, fps = 60) |&gt;\n  show_scatter(alpha = 0.9, axes = FALSE,\n               width = \"100%\", height = \"450px\")\n\nmusic_map &lt;- plot_ly(music_som1_shared,\n     x = ~map1,\n     y = ~map2,\n     text = ~paste(title, artist),\n     marker = list(color=\"black\", size=8),\n     height = 450) |&gt;\n  highlight(on = \"plotly_selected\",\n            off = \"plotly_doubleclick\") |&gt;\n  add_trace(type = \"scatter\",\n            mode = \"markers\")\n\nbscols(\n  music_detour, music_map,\n  widths = c(5, 6)\n)\n\nCan you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece is most like a Beatles song?"
   },
   {
-    "objectID": "week1/tutorialsol.html#finishing-up",
-    "href": "week1/tutorialsol.html#finishing-up",
-    "title": "ETC53250/5250 Tutorial 1",
+    "objectID": "week11/tutorialsol.html#finishing-up",
+    "href": "week11/tutorialsol.html#finishing-up",
+    "title": "ETC3250/5250 Tutorial 11",
     "section": "👋 Finishing up",
     "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
   },
   {
-    "objectID": "week1/index.html",
-    "href": "week1/index.html",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/tutorial.html",
+    "href": "week10/tutorial.html",
+    "title": "ETC3250/5250 Tutorial 10",
     "section": "",
-    "text": "ISLR 2.1, 2.2"
+    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
   },
   {
-    "objectID": "week1/index.html#main-reference",
-    "href": "week1/index.html#main-reference",
-    "title": "Week 1: Foundations of machine learning",
-    "section": "",
-    "text": "ISLR 2.1, 2.2"
+    "objectID": "week10/tutorial.html#objectives",
+    "href": "week10/tutorial.html#objectives",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "🎯 Objectives",
+    "text": "🎯 Objectives\nThe goal for this week is learn to about clustering data using \\(k\\)-means and hierarchical algorithms."
   },
   {
-    "objectID": "week1/index.html#what-you-will-learn-this-week",
-    "href": "week1/index.html#what-you-will-learn-this-week",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/tutorial.html#preparation",
+    "href": "week10/tutorial.html#preparation",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
+  },
+  {
+    "objectID": "week10/tutorial.html#exercises",
+    "href": "week10/tutorial.html#exercises",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. How would you cluster this data?\n\nHow would you cluster this data?\n\n\n\n\n\n\n\n\n\n\n\nDerive a distance metric that will capture your clusters. Provide some evidence that it satisfies the four distance rules.\nCompute your rule on the data, and establish that it does indeed capture your clusters.\n\n\n\n2. Clustering spotify data with k-means\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read the data with this code. And because for clustering you need to first standardise the data the code will also do this. Variables mode and time_signature are removed because they have just a few values.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\")\nspotify_std &lt;- spotify |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |&gt;\n  select(-c(mode, time_signature)) # variables with few values\n\n\nMake a plot of all of the variables. This could be a density or a jittered dotplot (beeswarm::quasirandom). Many of the variables have skewed distributions. For cluster analysis, why might this be a problem? From the blog post, are any of the anomalies reported ones that can be seen as outliers in a single skewed variable?\n\n\nTransform the skewed variables to be as symmetric as possible, and then fit a \\(k=3\\)-means clustering. Extract and report these metrics: totss, tot.withinss, betweenss. What is the ratio of within to between SS?\n\n\n# Transforming some variables: imperfect\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  select(-c(mode, time_signature, instrumentalness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\nspotify_tf |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \n\n\n\n\n\n\n\n\n\nNow the algorithm \\(k=1, ..., 20\\). Extract the metrics, and plot the ratio of within SS to between SS against \\(k\\). What would be suggested as the best model?\n\n\nDivide the data into 11 clusters, and examine the number of songs in each. Using plotly, mouse over the resulting plot and explore songs belonging to a cluster. (I don’t know much about these songs, but if you are a music fan maybe discussing with other class members and your tutor about the groupings, like which ones are grouped in clusters with high liveness, high tempo or danceability could be fun.)\n\n\n\n3. Clustering several simulated data sets with known cluster structure\n\nIn tutorial of week 3 you used the tour to visualise the data sets c1 and c3 provided with the mulgar package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.\n\n\nCompute \\(k\\)-means and hierarchical clustering on these two data sets, without standardising them. Use a variety of \\(k\\), linkage methods and check the resulting clusters using the cluster metrics. What method produces the best result, relative to what you said in a. (NOTE: Although we said that we should always standardise variables before doing clustering, you should not do this for c3. Why?)\n\n\nThere are five other data sets in the mulgar package. Choose one or two or more to examine how they would be clustered. (I particularly would like to see how c4 is clustered.)"
+  },
+  {
+    "objectID": "week10/tutorial.html#finishing-up",
+    "href": "week10/tutorial.html#finishing-up",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week10/tutorialsol.html",
+    "href": "week10/tutorialsol.html",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "",
+    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
+  },
+  {
+    "objectID": "week10/tutorialsol.html#objectives",
+    "href": "week10/tutorialsol.html#objectives",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "🎯 Objectives",
+    "text": "🎯 Objectives\nThe goal for this week is learn to about clustering data using \\(k\\)-means and hierarchical algorithms."
+  },
+  {
+    "objectID": "week10/tutorialsol.html#preparation",
+    "href": "week10/tutorialsol.html#preparation",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
+  },
+  {
+    "objectID": "week10/tutorialsol.html#exercises",
+    "href": "week10/tutorialsol.html#exercises",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. How would you cluster this data?\n\nHow would you cluster this data?\n\n\n\n\n\n\n\n\n\n\n\nDerive a distance metric that will capture your clusters. Provide some evidence that it satisfies the four distance rules.\nCompute your rule on the data, and establish that it does indeed capture your clusters.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nMy distance will use the radial distance from \\((0, 0)\\). You first convert each point into polar coordinates, but only take the radius. This will always be positive. The distance between two points will be the absolute value of the difference between these values.\n\nmydist &lt;- function(x1, x2) {\n  d &lt;- abs(sqrt(sum(x1^2)) - sqrt(sum(x2^2)))\n  return(d)\n}\nch_dist &lt;- matrix(0, nrow(challenge), nrow(challenge)) \nfor (i in 1:(nrow(challenge)-1)) {\n  for (j in (i+1):nrow(challenge)) {\n    ch_dist[i,j] &lt;- mydist(challenge[i,], challenge[j,])\n    ch_dist[j,i] &lt;- ch_dist[i,j]\n  }\n}\n#x &lt;- as.vector(ch_dist)\n#hist(x, 30) # you can see it is bimodal\nch_dist &lt;- as.dist(ch_dist)\nch_hc &lt;- hclust(ch_dist, method=\"ward.D2\")\nch_cl &lt;- challenge |&gt;\n  mutate(cl = factor(cutree(ch_hc, 2)))\nggplot(ch_cl, aes(x=V1, y=V2, colour=cl)) + \n  geom_point() +\n  scale_color_discrete_divergingx(palette=\"Zissou 1\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n2. Clustering spotify data with k-means\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read the data with this code. And because for clustering you need to first standardise the data the code will also do this. Variables mode and time_signature are removed because they have just a few values.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\")\nspotify_std &lt;- spotify |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |&gt;\n  select(-c(mode, time_signature)) # variables with few values\n\n\nMake a plot of all of the variables. This could be a density or a jittered dotplot (beeswarm::quasirandom). Many of the variables have skewed distributions. For cluster analysis, why might this be a problem? From the blog post, are any of the anomalies reported ones that can be seen as outliers in a single skewed variable?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\np &lt;- spotify_std |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \nggplotly(p)\n\n\n\n\n\nThe skewed variables are speechiness, liveliness, instrumentalness, artist_popularity, accousticness and possible we could mark duration_ms as having some skewness but also some low anomalies.\nYes, for example “Free Bird” and “Sparkle” could be found by simply examining a single variable.\n\n\n\n\n\nTransform the skewed variables to be as symmetric as possible, and then fit a \\(k=3\\)-means clustering. Extract and report these metrics: totss, tot.withinss, betweenss. What is the ratio of within to between SS?\n\n\n# Transforming some variables: imperfect\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  select(-c(mode, time_signature, instrumentalness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\nspotify_tf |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Check that it clusters\nset.seed(131)\nspotify_km3 &lt;- kmeans(spotify_tf[,5:15], 3)\n# Summarise means of each cluster\ntidy(spotify_km3)\n\n# A tibble: 3 × 14\n  danceability energy     key loudness speechiness acousticness liveness valence\n         &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;\n1        0.788  0.128  0.223     0.203       0.359        0.225   -0.139   0.668\n2       -0.409  0.667 -0.192     0.504      -0.168       -0.793    0.317  -0.157\n3       -0.666 -1.19  -0.0761   -1.07       -0.330        0.807   -0.243  -0.846\n# ℹ 6 more variables: tempo &lt;dbl&gt;, duration_ms &lt;dbl&gt;, artist_popularity &lt;dbl&gt;,\n#   size &lt;int&gt;, withinss &lt;dbl&gt;, cluster &lt;fct&gt;\n\nglance(spotify_km3)\n\n# A tibble: 1 × 4\n  totss tot.withinss betweenss  iter\n  &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;\n1 5566.        4377.     1189.     3\n\nspotify_kcl3 &lt;- augment(spotify_km3, spotify_tf)\nspotify_kcl3 |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=.cluster, y=value)) +\n    geom_quasirandom() +\n    facet_wrap(~var, ncol=4)\n\n\n\n\n\n\n\n\nThe differences between clusters is mostly in acousticness, danceability, energy, loudness, valence.\n\n\n\n\n\nNow the algorithm \\(k=1, ..., 20\\). Extract the metrics, and plot the ratio of within SS to between SS against \\(k\\). What would be suggested as the best model?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Run many k\nspotify_km &lt;- \n  tibble(k = 1:20) %&gt;%\n  mutate(\n    kclust = purrr::map(k, ~kmeans(spotify_tf[,5:15], .x)),\n    tidied = purrr::map(kclust, tidy),\n    glanced = purrr::map(kclust, glance),\n    augmented = purrr::map(kclust, augment, spotify_tf)\n  )\n\n# Plot statistics\nspotify_cl &lt;- \n  spotify_km %&gt;%\n  unnest(cols = c(glanced))\nggplot(spotify_cl, aes(x=k, y=tot.withinss)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n\nMaybe 11, but the within SS decays very gradually so it is hard to tell.\n\n\n\n\n\nDivide the data into 11 clusters, and examine the number of songs in each. Using plotly, mouse over the resulting plot and explore songs belonging to a cluster. (I don’t know much about these songs, but if you are a music fan maybe discussing with other class members and your tutor about the groupings, like which ones are grouped in clusters with high liveness, high tempo or danceability could be fun.)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Extract data with different classes labelled\nspotify_assign &lt;- \n  spotify_km %&gt;% \n  unnest(cols = c(augmented))\nspotify_assign_df &lt;- spotify_assign |&gt;\n  select(name:`artist_popularity`, k, .cluster) |&gt;\n  pivot_wider(names_from=k, values_from=.cluster)\n\nspotify_assign_df |&gt;\n  select(name:`artist_popularity`, `7`) |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=`7`, y=value, label=name)) +\n    geom_quasirandom() +\n    facet_wrap(~var, ncol=4) +\n  xlab(\"\") + ylab(\"\")\n\n\n\n\n\n\n\n# ggplotly()\n\n\n\n\n\n\n\n3. Clustering several simulated data sets with known cluster structure\n\nIn tutorial of week 3 you used the tour to visualise the data sets c1 and c3 provided with the mulgar package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nanimate_xy(c1)\nanimate_xy(c3)\n\nWe said:\n\nc1 has 6 clusters, 4 small ones, and two big ones. The two big ones look like planes because they have no variation in some dimensions. We would expect that a clustering analysis divides the data into these 6 clusters.\nc3 has a triangular prism shape, which itself is divided into several smaller triangular prisms. It also has several dimensions with no variation, because the points collapse into a line in some projections. We would expect the clustering analysis to divide the data into four clusters corresponding mostly to the four vertices.\n\n\n\n\n\n\nCompute \\(k\\)-means and hierarchical clustering on these two data sets, without standardising them. Use a variety of \\(k\\), linkage methods and check the resulting clusters using the cluster metrics. What method produces the best result, relative to what you said in a. (NOTE: Although we said that we should always standardise variables before doing clustering, you should not do this for c3. Why?)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe scale of the variables is meaningful for these data sets. Even though some variables have smaller variance than others we would treat them to be measured on the same scale.\n\\(k\\)-means for c1:\n\nc1_km &lt;- \n  tibble(k = 1:10) |&gt;\n  mutate(\n    kclust = map(k, ~kmeans(c1, .x)),\n    tidied = map(kclust, tidy),\n    glanced = map(kclust, glance),\n    augmented = map(kclust, augment, c1)\n  )\n\n# Plot statistics\nc1_cl &lt;- \n  c1_km %&gt;%\n  unnest(cols = c(glanced))\nggplot(c1_cl, aes(x=k, y=tot.withinss)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n# Extract data with different classes labelled\nc1_assign &lt;- \n  c1_km %&gt;% \n  unnest(cols = c(augmented))\nc1_assign_df &lt;- c1_assign |&gt;\n  select(x1:x6, k, .cluster) |&gt;\n  pivot_wider(names_from=k, values_from=.cluster)\n\nThe statistics suggest that 3 clusters is the best solution. If we look at the 6 clusters solution, it is different from what we would expect, one large cluster is divided, as is a small cluster.\n\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$`3`)\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$`6`)\n\nHierarchical for c1:\n\nc1_hc &lt;- hclust(dist(c1), method=\"ward.D2\")\nggdendrogram(c1_hc, size = 4)\n\n\n\n\n\n\n\nf.hc &lt;- NULL; f.hc.stats &lt;- NULL\nfor (i in 2:10) {\n  cl &lt;- cutree(c1_hc, i)\n  x &lt;- cluster.stats(dist(c1), cl)\n  f.hc &lt;- cbind(f.hc, cl)\n  f.hc.stats &lt;- rbind(f.hc.stats, \n                      c(x$within.cluster.ss, \n                        x$wb.ratio, x$ch,\n                        x$pearsongamma, x$dunn, \n                        x$dunn2))\n}\ncolnames(f.hc.stats) &lt;- c(\"within.cluster.ss\",\n                          \"wb.ratio\", \"ch\",\n                          \"pearsongamma\", \"dunn\",\n                          \"dunn2\")\nf.hc.stats &lt;- data.frame(f.hc.stats)\nf.hc.stats$cl &lt;- 2:10\nf.hc.stats.m &lt;- f.hc.stats %&gt;% \n  pivot_longer(`within.cluster.ss`:dunn2,\n               names_to=\"stat\", \n               values_to=\"value\") |&gt;\n  mutate(stat = factor(stat,\n                       levels=colnames(f.hc.stats)))\nggplot(data=f.hc.stats.m) + \n  geom_line(aes(x=cl, y=value)) + xlab(\"# clusters\") + ylab(\"\") +\n  facet_wrap(~stat, ncol=3, scales = \"free_y\") \n\n\n\n\n\n\n\n\nThe dendrogram suggests 3 clusters, and the statistics all agree and suggest 3 clusters. Although, ch possibly suggests 10!\n\ncolnames(f.hc) &lt;- paste0(\"hc\", 2:10)\nf.hc &lt;- data.frame(f.hc) |&gt;\n  mutate_all(as.factor)\nc1_assign_df &lt;- bind_cols(c1_assign_df, f.hc)\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$hc3)\n\nThe solution is the same as for \\(k\\)-means. The algorithms all treat the three small clusters as a single cluster.\nHierarchical for c3:\nIt’s not really clear how the data should be divided so we’ll start with using hierarchical.\n\nc3_hc &lt;- hclust(dist(c3), method=\"ward.D2\")\nggdendrogram(c3_hc, size = 4)\n\n\n\n\n\n\n\nf.hc &lt;- NULL; f.hc.stats &lt;- NULL\nfor (i in 2:10) {\n  cl &lt;- cutree(c3_hc, i)\n  x &lt;- cluster.stats(dist(c3), cl)\n  f.hc &lt;- cbind(f.hc, cl)\n  f.hc.stats &lt;- rbind(f.hc.stats, \n                      c(x$within.cluster.ss, \n                        x$wb.ratio, x$ch,\n                        x$pearsongamma, x$dunn, \n                        x$dunn2))\n}\ncolnames(f.hc.stats) &lt;- c(\"within.cluster.ss\",\n                          \"wb.ratio\", \"ch\",\n                          \"pearsongamma\", \"dunn\",\n                          \"dunn2\")\nf.hc.stats &lt;- data.frame(f.hc.stats)\nf.hc.stats$cl &lt;- 2:10\nf.hc.stats.m &lt;- f.hc.stats %&gt;% \n  pivot_longer(`within.cluster.ss`:dunn2,\n               names_to=\"stat\", \n               values_to=\"value\") |&gt;\n  mutate(stat = factor(stat,\n                       levels=colnames(f.hc.stats)))\nggplot(data=f.hc.stats.m) + \n  geom_line(aes(x=cl, y=value)) + xlab(\"# clusters\") + ylab(\"\") +\n  facet_wrap(~stat, ncol=3, scales = \"free_y\") \n\n\n\n\n\n\n\n\nThe dendrogram suggests 4 clusters, and many of the statistics suggest 4 clusters.\n\ncolnames(f.hc) &lt;- paste0(\"hc\", 2:10)\nf.hc &lt;- data.frame(f.hc) |&gt;\n  mutate_all(as.factor)\nc3_assign_df &lt;- bind_cols(c3, f.hc)\nanimate_xy(c3_assign_df[,1:6], col=c3_assign_df$hc4)\n\nThe four cluster solution is almost what we would expect, that they divide the data on the four vertices of the tetrahedron. One of the vertices is a little confused with one other.\nIf you run \\(k\\)-means, I’d expect it does similarly to this solution. If you choose a different linkage method likely the results will change a lot.\n\n\n\n\n\nThere are five other data sets in the mulgar package. Choose one or two or more to examine how they would be clustered. (I particularly would like to see how c4 is clustered.)"
+  },
+  {
+    "objectID": "week10/tutorialsol.html#finishing-up",
+    "href": "week10/tutorialsol.html#finishing-up",
+    "title": "ETC3250/5250 Tutorial 10",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week10/index.html",
+    "href": "week10/index.html",
+    "title": "Week 10: Model-based clustering and self-organising maps",
+    "section": "",
+    "text": "HOML Ch 22"
+  },
+  {
+    "objectID": "week10/index.html#main-reference",
+    "href": "week10/index.html#main-reference",
+    "title": "Week 10: Model-based clustering and self-organising maps",
+    "section": "",
+    "text": "HOML Ch 22"
+  },
+  {
+    "objectID": "week10/index.html#what-you-will-learn-this-week",
+    "href": "week10/index.html#what-you-will-learn-this-week",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models: training/test splits, optimisation\nMeasuring fit: accuracy, loss\nDiagnostics: residuals\nFeature engineering: combining variables to better match purpose and help the model fitting"
+    "text": "What you will learn this week\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
   },
   {
-    "objectID": "week1/index.html#lecture-slides",
-    "href": "week1/index.html#lecture-slides",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#lecture-slides",
+    "href": "week10/index.html#lecture-slides",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Lecture slides",
     "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
   },
   {
-    "objectID": "week1/index.html#tutorial-instructions",
-    "href": "week1/index.html#tutorial-instructions",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#tutorial-instructions",
+    "href": "week10/index.html#tutorial-instructions",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Tutorial instructions",
     "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
   },
   {
-    "objectID": "week1/index.html#assignments",
-    "href": "week1/index.html#assignments",
-    "title": "Week 1: Foundations of machine learning",
+    "objectID": "week10/index.html#assignments",
+    "href": "week10/index.html#assignments",
+    "title": "Week 10: Model-based clustering and self-organising maps",
     "section": "Assignments",
-    "text": "Assignments"
-  },
-  {
-    "objectID": "project/project-instructions.html",
-    "href": "project/project-instructions.html",
-    "title": "Project",
-    "section": "",
-    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
-  },
-  {
-    "objectID": "project/project-instructions.html#overview",
-    "href": "project/project-instructions.html#overview",
-    "title": "Project",
-    "section": "",
-    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
-  },
-  {
-    "objectID": "project/project-instructions.html#about-the-data",
-    "href": "project/project-instructions.html#about-the-data",
-    "title": "Project",
-    "section": "About the data",
-    "text": "About the data\nThe data is downloaded from https://www.waterpointdata.org and represents a subset from a region in Africa. The actual spatial coordinates are disguised. The data has been cleaned, with missing values (small number) imputed, and only reliable variables included.\nThere files provided:\n\nwater-train.csv: the training set of data\nwater-test.csv: the test set, with no labels, that you need to predict the response variable status_id.\nsample-submissions.csv: the format of the data that you need to use to make a submission to kaggle.\n\nThe website is the best place to learn about the variables provided."
-  },
-  {
-    "objectID": "project/project-instructions.html#rules",
-    "href": "project/project-instructions.html#rules",
-    "title": "Project",
-    "section": "Rules",
-    "text": "Rules\n\nYou need to follow the rules detailed at Maintain academic integrity information for students. If you are concerned about, you can report these to the chief examiner.\nFor any reason, but especially if there is suspicion of violation of academic integrity, the chief examiner can request that you attend an oral exam to explain any of your answers, or to answer related questions on the assignment. Your score will be adjusted based on answers provided during the oral exam.\n\nYou need to make at least 5 kaggle submissions. All are individual submissions.\nThe competition is scored on balanced accuracy because it is an imbalanced classification."
-  },
-  {
-    "objectID": "project/project-instructions.html#submit",
-    "href": "project/project-instructions.html#submit",
-    "title": "Project",
-    "section": "Submit",
-    "text": "Submit\n\nkaggle\n\nThe competition website is https://www.kaggle.com/competitions/maji-safi. It is called maji safi which means clean water in swahili.\nYou have access to submit your predictions from your Monash student email. If for some rare reason, you cannot access the submission system from your Monash email, contact the chief examiner to obtain access from a different email.\nYou can make as many as 2 submissions per day, and you can see your predictions on the private set twice in the entire competition period.\n\n\n\nMoodle\n\nSubmit your (1) R code (R script file, not qmd) that produces what you think is your best model, and (2) a file containing the predictions from this model, the same format as sample-submissions.csv. If you have a specific model that takes an extremely long time to run, you can also submit an rda or folder containing that fitted model (similar to what was done with the penguin-cnn save of the NN model used in class).\n\n\n\nDue dates\n\nCompetition deadline is May 17, 11:55pm. There are no extensions for this, it is controlled entirely by kaggle.\nSubmission of files to moodle is due May 19, 11:55pm.\n\nNote that this is an activity that cannot have deadlines extended. If for some reason you cannot participate in this assessment activity, the option will be to take a 30 minute in-person practical oral exam on May 23, 27, 31 or June 10."
-  },
-  {
-    "objectID": "project/project-instructions.html#etc5250-students",
-    "href": "project/project-instructions.html#etc5250-students",
-    "title": "Project",
-    "section": "ETC5250 students",
-    "text": "ETC5250 students\nAll students enrolled in ETC5250 need to do an additional team activity. Your score for the predictions will be scaled to 6, and the remaining 3 points will be from this activity.\n\nForm a team of up to 4 class members. Complete this form. This needs to be completed by May 17, 11:55pm. If you need help forming a team, your tutors or chief examiner can help.\nYour task is to report three things that are interesting about the data, or about different models. For example, “xgboost always predicts the test set to be all y”, or “most of the n class were installed prior to 2015”.\nAssessment: Each of your three things will be scored in the way that the quiz show Pointless scores their questions. Each item is worth 1 point. If every other team reports the same thing, everyone scores 0. If no other team reports your thing you earn the full 1 point. So a higher score for each thing is awarded for interesting findings that are valid, and few other teams report.\nSubmit: You need to submit an html (self-contained) and qmd file with your three things, and your supporting evidence by May 21, 11:55pm.\nDuring the lecture period on Wednesday May 22, 1-3pm your team presents your findings within 3 minutes. Any team members presenting will get a 10% boost to their score on this part."
-  },
-  {
-    "objectID": "project/project-instructions.html#assessment",
-    "href": "project/project-instructions.html#assessment",
-    "title": "Project",
-    "section": "Assessment",
-    "text": "Assessment\n\nTotal: 10 points\nObtaining balanced accuracy of\n\n70% will earn 6 out of 10 points.\n72% will earn 7 out of 10 points.\n73-75% will earn 8 out of 10 points.\nAbove 75% will earn 9 out of 10 points.\nBeing in the top 10% of the submissions will earn full points.\n\nFailure to submit your R code and prediction file will result in a deduction of 7 points.\nIf your R code cannot be run, does not match your predictions, or provide a balanced accuracy close to any of your submissions to kaggle will result in a 50% reduction of your total.\nFailure to make at least 5 submissions to kaggle earns a 50% reduction of your total."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
-  },
-  {
-    "objectID": "index.html#lecturerchief-examiner",
-    "href": "index.html#lecturerchief-examiner",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "",
-    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
-  },
-  {
-    "objectID": "index.html#tutors",
-    "href": "index.html#tutors",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Tutors",
-    "text": "Tutors\n\nPatrick Li\n\nTutorials: Mon 15:00 (LTB 323), Fri 11:00 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 10:30-12:00 (W9.20)\n\nHarriet Mason\n\nTutorials: Wed 18:00 (LTB G60), Fri 12:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 3:00-4:30 (zoom only)\n\nJayani Lakshika\n\nTutorials: Wed 8:00, 9:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 12:00-1:30 (W9.20)\n\nKrisanat Anukarnsakulchularp\n\nTutorials: Mon 12:00, 13:30 (LTB 323)\nConsultation: Fri 9:30-11:00 (W9.20)"
-  },
-  {
-    "objectID": "index.html#weekly-schedule",
-    "href": "index.html#weekly-schedule",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Weekly schedule",
-    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
-  },
-  {
-    "objectID": "index.html#assessments",
-    "href": "index.html#assessments",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Assessments",
-    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle (9%)\nAssignment 2: Instructions, Submit to moodle (9%)\nAssignment 3: Instructions, Submit to moodle (9%)\nProject: Instructions, Submit predictions to kaggle, Submit files to moodle: 10%\nFinal exam: 60%"
-  },
-  {
-    "objectID": "index.html#software",
-    "href": "index.html#software",
-    "title": "ETC3250/5250 Introduction to Machine Learning",
-    "section": "Software",
-    "text": "Software\nWe will be using the latest versions of R and RStudio.\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
-  },
-  {
-    "objectID": "resources.html",
-    "href": "resources.html",
-    "title": "ETC3250/5250 Resources",
-    "section": "",
-    "text": "Books and articles\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them.\n\nExplanatory Model Analysis\n\nThis book by Biecek and Burzykowski provides useful approaches for making black boxes explainable.\n\nFeature Engineering A-Z\n\nWritten by Emil Hvitfeldt to cover creating new variables as broadly as possibly. Has classical methods such as dummy variables and box-cox transformations, temporal and spatial data and missing value imputation.\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog\nWickham et al (2015) Removing the Blindfold\nProject in Data Analytics for Decision Making"
+    "text": "Assignments\n\nProject is due on Friday 17 May."
   },
   {
     "objectID": "week1/slides.html#welcome-meet-the-teaching-team",
@@ -2114,116 +1953,361 @@
     "text": "Next: Visualisation\n\n\n\nETC3250/5250 Lecture 1 | iml.numbat.space"
   },
   {
-    "objectID": "week10/index.html",
-    "href": "week10/index.html",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "resources.html",
+    "href": "resources.html",
+    "title": "ETC3250/5250 Resources",
     "section": "",
-    "text": "HOML Ch 22"
+    "text": "Books and articles\n\nAn Introduction to Statistical Learning (ISLR)\n\nThis book by James, Witten, Hastie and Tibshirani contains the primary content for the unit. It has the explanations for different methodology, practical labs, and a range of exercises to work through. Use the second edition, with Applications in R.\n\nHands-On Machine Learning with R\n\nThis book by Boehmke & Greenwell is an accessible and practical guide to many aspects of machine learning. It’s coverage of unsupervised classification is very good.\n\nTidy Modeling with R\n\nMachine learning is an active area of research across several disciplines, primarily statistics and computer science. Perhaps because of this there are many ways to define and fit models. The tidy modeling approach coordinates these into a consistent and understandable workflow. It doesn’t interface to all software, but getting started with machine learning using this mind-set helps you get organised despite the fragmented landscape. This book accompanies the software tidymodels.\n\nISLR tidymodels labs\n\nThis book contains the code to do most of the exercises from ISLR using the tidymodels thinking and coding style.\n\nInteractively exploring high-dimensional data and models in R\n\nThis book by Cook and Laa is the primary resource for learning how to visualise high-dimensions, how to explore the data, and to visually examine and diagnose models.\n\nInterpretable Machine Learning\n\nThis book by Christoph Molnar serves as a guide for making black box models explainable. It is an excellent resource for developing your understanding of the different types of models and how to diagnose and interpret them.\n\nExplanatory Model Analysis\n\nThis book by Biecek and Burzykowski provides useful approaches for making black boxes explainable.\n\nFeature Engineering A-Z\n\nWritten by Emil Hvitfeldt to cover creating new variables as broadly as possibly. Has classical methods such as dummy variables and box-cox transformations, temporal and spatial data and missing value imputation.\n\n\nUseful links\n\nTensorFlow for R\nA gentle introduction to deep learning in R using Keras\n(M+C)² Blog\nWickham et al (2015) Removing the Blindfold\nProject in Data Analytics for Decision Making"
   },
   {
-    "objectID": "week10/index.html#main-reference",
-    "href": "week10/index.html#main-reference",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "",
-    "text": "HOML Ch 22"
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
   },
   {
-    "objectID": "week10/index.html#what-you-will-learn-this-week",
-    "href": "week10/index.html#what-you-will-learn-this-week",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "index.html#lecturerchief-examiner",
+    "href": "index.html#lecturerchief-examiner",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "",
+    "text": "Professor Di Cook\n\nEmail: etc3250.clayton-x@monash.edu\nConsultation: Thu 9:00-10:30 (zoom only)"
+  },
+  {
+    "objectID": "index.html#tutors",
+    "href": "index.html#tutors",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Tutors",
+    "text": "Tutors\n\nPatrick Li\n\nTutorials: Mon 15:00 (LTB 323), Fri 11:00 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 10:30-12:00 (W9.20)\n\nHarriet Mason\n\nTutorials: Wed 18:00 (LTB G60), Fri 12:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 3:00-4:30 (zoom only)\n\nJayani Lakshika\n\nTutorials: Wed 8:00, 9:30 (CL_33 Innovation Walk, FG04 Bldg 73P)\nConsultation: Thu 12:00-1:30 (W9.20)\n\nKrisanat Anukarnsakulchularp\n\nTutorials: Mon 12:00, 13:30 (LTB 323)\nConsultation: Fri 9:30-11:00 (W9.20)"
+  },
+  {
+    "objectID": "index.html#weekly-schedule",
+    "href": "index.html#weekly-schedule",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Weekly schedule",
+    "text": "Weekly schedule\n\nLecture: Wed 1:05-2:45pm\nTutorial: 1.5 hours\nWeekly learning quizzes due Mondays 9am\n\n\n\n\nWeek\nTopic\nReference\nAssessments\n\n\n\n\n26 Feb\nFoundations of machine learning\nISLR 2.1, 2.2\n\n\n\n04 Mar\nVisualising your data and models\nCook and Laa Ch 1, 3, 4, 5, 6, 13\n\n\n\n11 Mar\nRe-sampling and regularisation\nISLR 5.1, 5.2, 6.2, 6.4\n\n\n\n18 Mar\nLogistic regression and discriminant analysis\nISLR 4.3, 4.4\nAssignment 1\n\n\n25 Mar\nTrees and forests\nISLR 8.1, 8.2\n\n\n\n01 Apr\nMid-semester break\n\n\n\n\n08 Apr\nNeural networks and deep learning\nISLR 10.1-10.3, 10.7\nAssignment 2\n\n\n15 Apr\nExplainable artificial intelligence (XAI)\nMolnar 8.1, 8.5, 9.2-9.6\n\n\n\n22 Apr\nSupport vector machines and nearest neighbours\nISLR 9.1-9.3\nAssignment 3\n\n\n29 Apr\nK-nearest neighbours and hierarchical clustering\nHOML Ch 20, 21\n\n\n\n06 May\nModel-based clustering and self-organising maps\nHOML Ch 22\n\n\n\n13 May\nEvaluating your clustering model\nCook and Laa Ch 12\nProject\n\n\n20 May\nProject presentations by Masters students"
+  },
+  {
+    "objectID": "index.html#assessments",
+    "href": "index.html#assessments",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Assessments",
+    "text": "Assessments\n\nWeekly learning quizzes: 3%\nAssignment 1: Instructions, Submit to moodle (9%)\nAssignment 2: Instructions, Submit to moodle (9%)\nAssignment 3: Instructions, Submit to moodle (9%)\nProject: Instructions, Submit predictions to kaggle, Submit files to moodle: 10%\nFinal exam: 60%"
+  },
+  {
+    "objectID": "index.html#software",
+    "href": "index.html#software",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Software",
+    "text": "Software\nWe will be using the latest versions of R and RStudio.\nHere is the code to install (most of) the R packages we will be using in this unit.\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\nIf you run into problems completing the full install, the likely culprits are tidyverse and tidymodels. These are bundles of packages, and might fail at individual packages. To resolve the problems, install each package from the bundle individually, and don’t install any that fail on your system.\nIn addition, follow these instructions to set up tensorflow and keras, which requires having python installed.\nIf you are relatively new to R, working through the materials at https://learnr.numbat.space is an excellent way to up-skill. You are epsecially encouraged to work through Chapter 3, on Troubleshooting and asking for help, because at some point you will need help with your coding, and how you go about this matters and impacts the ability of others to help you.\nThe ISLR book also comes with python code, and you are welcome to do most of your work with python instead of R. However, what you submit for marking must be done with R."
+  },
+  {
+    "objectID": "project/project-instructions.html",
+    "href": "project/project-instructions.html",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#overview",
+    "href": "project/project-instructions.html#overview",
+    "title": "Project",
+    "section": "",
+    "text": "Water is a scarce commodity in many parts of the world. Accurately predicting its availability while reducing the need to routinely check would enable lower costs in monitoring that might be better allocated to creating new water resources.\nThis challenge is motivated by an analysis by Julia Silge “Predict availability in #TidyTuesday water sources with random forest models”. It is well-worth reading through this blog post."
+  },
+  {
+    "objectID": "project/project-instructions.html#about-the-data",
+    "href": "project/project-instructions.html#about-the-data",
+    "title": "Project",
+    "section": "About the data",
+    "text": "About the data\nThe data is downloaded from https://www.waterpointdata.org and represents a subset from a region in Africa. The actual spatial coordinates are disguised. The data has been cleaned, with missing values (small number) imputed, and only reliable variables included.\nThere files provided:\n\nwater-train.csv: the training set of data\nwater-test.csv: the test set, with no labels, that you need to predict the response variable status_id.\nsample-submissions.csv: the format of the data that you need to use to make a submission to kaggle.\n\nThe website is the best place to learn about the variables provided."
+  },
+  {
+    "objectID": "project/project-instructions.html#rules",
+    "href": "project/project-instructions.html#rules",
+    "title": "Project",
+    "section": "Rules",
+    "text": "Rules\n\nYou need to follow the rules detailed at Maintain academic integrity information for students. If you are concerned about, you can report these to the chief examiner.\nFor any reason, but especially if there is suspicion of violation of academic integrity, the chief examiner can request that you attend an oral exam to explain any of your answers, or to answer related questions on the assignment. Your score will be adjusted based on answers provided during the oral exam.\n\nYou need to make at least 5 kaggle submissions. All are individual submissions.\nThe competition is scored on balanced accuracy because it is an imbalanced classification."
+  },
+  {
+    "objectID": "project/project-instructions.html#submit",
+    "href": "project/project-instructions.html#submit",
+    "title": "Project",
+    "section": "Submit",
+    "text": "Submit\n\nkaggle\n\nThe competition website is https://www.kaggle.com/competitions/maji-safi. It is called maji safi which means clean water in swahili.\nYou have access to submit your predictions from your Monash student email. If for some rare reason, you cannot access the submission system from your Monash email, contact the chief examiner to obtain access from a different email.\nYou can make as many as 2 submissions per day, and you can see your predictions on the private set twice in the entire competition period.\n\n\n\nMoodle\n\nSubmit your (1) R code (R script file, not qmd) that produces what you think is your best model, and (2) a file containing the predictions from this model, the same format as sample-submissions.csv. If you have a specific model that takes an extremely long time to run, you can also submit an rda or folder containing that fitted model (similar to what was done with the penguin-cnn save of the NN model used in class).\n\n\n\nDue dates\n\nCompetition deadline is May 17, 11:55pm. There are no extensions for this, it is controlled entirely by kaggle.\nSubmission of files to moodle is due May 19, 11:55pm.\n\nNote that this is an activity that cannot have deadlines extended. If for some reason you cannot participate in this assessment activity, the option will be to take a 30 minute in-person practical oral exam on May 23, 27, 31 or June 10."
+  },
+  {
+    "objectID": "project/project-instructions.html#etc5250-students",
+    "href": "project/project-instructions.html#etc5250-students",
+    "title": "Project",
+    "section": "ETC5250 students",
+    "text": "ETC5250 students\nAll students enrolled in ETC5250 need to do an additional team activity. Your score for the predictions will be scaled to 6, and the remaining 3 points will be from this activity.\n\nForm a team of up to 4 class members. Complete this form. This needs to be completed by May 17, 11:55pm. If you need help forming a team, your tutors or chief examiner can help.\nYour task is to report three things that are interesting about the data, or about different models. For example, “xgboost always predicts the test set to be all y”, or “most of the n class were installed prior to 2015”.\nAssessment: Each of your three things will be scored in the way that the quiz show Pointless scores their questions. Each item is worth 1 point. If every other team reports the same thing, everyone scores 0. If no other team reports your thing you earn the full 1 point. So a higher score for each thing is awarded for interesting findings that are valid, and few other teams report.\nSubmit: You need to submit an html (self-contained) and qmd file with your three things, and your supporting evidence by May 21, 11:55pm.\nDuring the lecture period on Wednesday May 22, 1-3pm your team presents your findings within 3 minutes. Any team members presenting will get a 10% boost to their score on this part."
+  },
+  {
+    "objectID": "project/project-instructions.html#assessment",
+    "href": "project/project-instructions.html#assessment",
+    "title": "Project",
+    "section": "Assessment",
+    "text": "Assessment\n\nTotal: 10 points\nObtaining balanced accuracy of\n\n70% will earn 6 out of 10 points.\n72% will earn 7 out of 10 points.\n73-75% will earn 8 out of 10 points.\nAbove 75% will earn 9 out of 10 points.\nBeing in the top 10% of the submissions will earn full points.\n\nFailure to submit your R code and prediction file will result in a deduction of 7 points.\nIf your R code cannot be run, does not match your predictions, or provide a balanced accuracy close to any of your submissions to kaggle will result in a 50% reduction of your total.\nFailure to make at least 5 submissions to kaggle earns a 50% reduction of your total."
+  },
+  {
+    "objectID": "week1/index.html",
+    "href": "week1/index.html",
+    "title": "Week 1: Foundations of machine learning",
+    "section": "",
+    "text": "ISLR 2.1, 2.2"
+  },
+  {
+    "objectID": "week1/index.html#main-reference",
+    "href": "week1/index.html#main-reference",
+    "title": "Week 1: Foundations of machine learning",
+    "section": "",
+    "text": "ISLR 2.1, 2.2"
+  },
+  {
+    "objectID": "week1/index.html#what-you-will-learn-this-week",
+    "href": "week1/index.html#what-you-will-learn-this-week",
+    "title": "Week 1: Foundations of machine learning",
     "section": "What you will learn this week",
-    "text": "What you will learn this week\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
+    "text": "What you will learn this week\n\nFraming the problems\nNotation and math\nBias variance-tradeoff\nFitting your models: training/test splits, optimisation\nMeasuring fit: accuracy, loss\nDiagnostics: residuals\nFeature engineering: combining variables to better match purpose and help the model fitting"
   },
   {
-    "objectID": "week10/index.html#lecture-slides",
-    "href": "week10/index.html#lecture-slides",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#lecture-slides",
+    "href": "week1/index.html#lecture-slides",
+    "title": "Week 1: Foundations of machine learning",
     "section": "Lecture slides",
     "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
   },
   {
-    "objectID": "week10/index.html#tutorial-instructions",
-    "href": "week10/index.html#tutorial-instructions",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#tutorial-instructions",
+    "href": "week1/index.html#tutorial-instructions",
+    "title": "Week 1: Foundations of machine learning",
     "section": "Tutorial instructions",
     "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
   },
   {
-    "objectID": "week10/index.html#assignments",
-    "href": "week10/index.html#assignments",
-    "title": "Week 10: Model-based clustering and self-organising maps",
+    "objectID": "week1/index.html#assignments",
+    "href": "week1/index.html#assignments",
+    "title": "Week 1: Foundations of machine learning",
+    "section": "Assignments",
+    "text": "Assignments"
+  },
+  {
+    "objectID": "week1/tutorialsol.html",
+    "href": "week1/tutorialsol.html",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#objectives",
+    "href": "week1/tutorialsol.html#objectives",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#preparation",
+    "href": "week1/tutorialsol.html#preparation",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+  },
+  {
+    "objectID": "week1/tutorialsol.html#exercises",
+    "href": "week1/tutorialsol.html#exercises",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe error is\nError in select(penguins, species, flipper_length_mm) : \n  unused arguments (species, flipper_length_mm)\nand is caused by a conflict in functions between the dplyr and MASS packages. If you read the warning messages when the packages were loaded you might have been aware of this before trying to run code.\nYou can fix it by:\n\nPrefacing functions that have conflicts with their package name, eg dplyr::select()\nUse the conflicted package to set your preferences at the start of any document.\n\nTo make the reprex, copy the code to clipboard, and run reprex(). This will generate:\n\n\n\n\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nLibraries are loaded.\nThere are some global options for slides set, and styling of plots.\nConflicts for some common functions are resolved with preferences.\n\n\n\n\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+  },
+  {
+    "objectID": "week1/tutorialsol.html#finishing-up",
+    "href": "week1/tutorialsol.html#finishing-up",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week1/tutorial.html",
+    "href": "week1/tutorial.html",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorial.html#objectives",
+    "href": "week1/tutorial.html#objectives",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "",
+    "text": "The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit."
+  },
+  {
+    "objectID": "week1/tutorial.html#preparation",
+    "href": "week1/tutorial.html#preparation",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "🔧 Preparation",
+    "text": "🔧 Preparation\n\nInstall the latest versions of R and RStudio on your computer\n\n\ninstall.packages(c(\"tidyverse\", \"tidymodels\", \"tourr\", \"geozoo\", \"mulgar\", \"ggpcp\", \"plotly\", \"detourr\", \"langevitour\", \"ggbeeswarm\", \"MASS\", \"GGally\", \"ISLR\", \"mvtnorm\", \"rpart\", \"rpart.plot\", \"randomForest\", \"e1071\", \"xgboost\", \"Rtsne\", \"classifly\", \"penalizedLDA\", \"nnet\", \"kernelshap\", \"shapviz\", \"iml\", \"DALEX\", \"cxhull\", \"fpc\", \"mclust\", \"ggdendro\", \"kohonen\", \"aweSOM\", \"patchwork\", \"ggthemes\", \"colorspace\", \"palmerpenguins\"), dependencies = TRUE)\n\n\nCreate a project for this unit called iml.Rproj. All of your tutorial work and assignments should be completed in this workspace."
+  },
+  {
+    "objectID": "week1/tutorial.html#exercises",
+    "href": "week1/tutorial.html#exercises",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "Exercises:",
+    "text": "Exercises:\n\n1. The materials at https://learnr.numbat.space are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error.\n\nlibrary(dplyr)\nlibrary(MASS)\nlibrary(palmerpenguins)\np_sub &lt;- penguins |&gt;\n  select(species, flipper_length_mm) |&gt;\n  filter(species == \"Adelie\")\n\n\nCan you work out why?\nUse the reprex package to create a text where the code and error are visible, and can be shared with someone that might be able to help.\n\n\n\n2. Your turn to write some code that generates an error. Create a reprex, and share with your tutor or neighbour, to see if they can fix the error.\n\n\n3. Follow the guidelines at https://tensorflow.rstudio.com/install/ to setup python and tensorflow on your computer. Then test your installation by following the beginner tutorial.\n\n\n4. Download the slides.qmd file for week 1 lecture.\n\nUse knitr::purl() to extract the R code for the class.\nOpen the resulting slides.R file in your RStudio file browser. What code is in the setup.R file that is sourced at the top?\n\n\nRun the rest of the code in small chunks. Does it all work for you? Do you get any errors? Do you have any suggestions on making it easier to run or understand the code?"
+  },
+  {
+    "objectID": "week1/tutorial.html#finishing-up",
+    "href": "week1/tutorial.html#finishing-up",
+    "title": "ETC53250/5250 Tutorial 1",
+    "section": "👋 Finishing up",
+    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
+  },
+  {
+    "objectID": "week10/slides.html#overview",
+    "href": "week10/slides.html#overview",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\nWe will cover:\n\nModels of multimodality using Gaussian mixtures\nFitting model-based clustering\nDiagnostics for the model fit\nSelf-organising maps and dimension reduction"
+  },
+  {
+    "objectID": "week10/slides.html#model-based-clustering",
+    "href": "week10/slides.html#model-based-clustering",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Model-based clustering",
+    "text": "Model-based clustering"
+  },
+  {
+    "objectID": "week10/slides.html#overview-1",
+    "href": "week10/slides.html#overview-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\nModel-based clustering makes an assumption about the distribution of the data, primarily\n\nAssumes the data is a sample from a Gaussian mixture model\nRequires the assumption that clusters have an elliptical shape\nThe shape is determined by the variance-covariance of the clusters\nA variety of models is available by using different constraints on the variance-covariance\n\nModel is\n\\[f(x_i) = \\sum_{k=1}^G\\pi_kf_k(x_i; \\mu_k, \\Sigma_k)\\]\nwhere \\(f_k\\) is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC."
+  },
+  {
+    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
+    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parametrisation of the var-cov matrices (1/2)",
+    "text": "Parametrisation of the var-cov matrices (1/2)\n\n\nConstraints applied on cluster variance-covariance:\n\\[\n\\Sigma_k = \\lambda_kD_kA_kD_k^\\top\n\\]\n\nvolume (\\(\\lambda_k\\)): size of the cluster, ie number of observations\nshape (\\(A_k\\)): difference variances\norientation (\\(D_k\\)): aligned with axes (low covariance) or not (high covariance)\n\n\n\n\\(\\lambda I\\) is model 1, EI\n\\(\\lambda DAD^\\top\\) is model 7, EEE\n\\(\\lambda D_kAD_k^\\top\\) is model 11, EEV\n\n\n\n\n\nModel\nFamily\nVolume\nShape\nOrientation\nIdentifier\n\n\n\n\n1\nSpherical\nEqual\nEqual\nNA\nEII\n\n\n2\nSpherical\nVariable\nEqual\nNA\nVII\n\n\n3\nDiagonal\nEqual\nEqual\nAxes\nEEI\n\n\n4\nDiagonal\nVariable\nEqual\nAxes\nVEI\n\n\n5\nDiagonal\nEqual\nVariable\nAxes\nEVI\n\n\n6\nDiagonal\nVariable\nVariable\nAxes\nVVI\n\n\n7\nGeneral\nEqual\nEqual\nEqual\nEEE\n\n\n8\nGeneral\nEqual\nVariable\nEqual\nEVE\n\n\n9\nGeneral\nVariable\nEqual\nEqual\nVEE\n\n\n10\nGeneral\nVariable\nVariable\nEqual\nVVE\n\n\n11\nGeneral\nEqual\nEqual\nVariable\nEEV\n\n\n12\nGeneral\nVariable\nEqual\nVariable\nVEV\n\n\n13\nGeneral\nEqual\nVariable\nVariable\nEVV\n\n\n14\nGeneral\nVariable\nVariable\nVariable\nVVV"
+  },
+  {
+    "objectID": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
+    "href": "week10/slides.html#parametrisation-of-the-var-cov-matrices-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Parametrisation of the var-cov matrices (2/2)",
+    "text": "Parametrisation of the var-cov matrices (2/2)\n\n\n\nSource: Boehmke (2020) Hands-on machine learning"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-12",
+    "href": "week10/slides.html#example-penguins-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (1/2)",
+    "text": "Example: penguins (1/2)\n\n\nLet the model decide on the number of clusters, and parametrisation.\n\np_mc &lt;- mclustBIC(p_std[,2:5], G=2:8)\nsummary(p_mc)\n\nBest BIC values:\n         VEE,4   VEE,5 VEE,3\nBIC      -2497 -2503.7 -2510\nBIC diff     0    -7.2   -14\n\n\n\n\npmc1 &lt;- ggmcbic(p_mc) +\n  scale_x_continuous(breaks=1:7, labels=2:8)\nggplotly(pmc1)"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-22",
+    "href": "week10/slides.html#example-penguins-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (2/2)",
+    "text": "Example: penguins (2/2)\n\n\n\n\nCode\npenguins_mc &lt;- Mclust(p_std[,2:5], \n                      G=4, \n                      modelNames = \"VEE\")\npenguins_mce &lt;- mc_ellipse(penguins_mc)\npenguins_cl &lt;- p_std\npenguins_cl$cl &lt;- factor(penguins_mc$classification)\n\npenguins_mc_data &lt;- penguins_cl |&gt;\n  select(bl:bm, cl) |&gt;\n  mutate(type = \"data\") |&gt;\n  bind_rows(bind_cols(penguins_mce$ell,\n                      type=rep(\"ellipse\",\n                               nrow(penguins_mce$ell)))) |&gt;\n  mutate(type = factor(type))\n\n\n\nBest model: VEE, 4\nWhat’s wrong with this fit?\n\n\n\nmodel: VEE, 3\nWhich is the better model? 4 or 3 clusters? Purely based on how well it fits the data?"
+  },
+  {
+    "objectID": "week10/slides.html#summary",
+    "href": "week10/slides.html#summary",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Summary",
+    "text": "Summary\n\nModel-based clustering provides a nice automated clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.\nNon-elliptical clusters could be modeled by combining multiple ellipses.\nIt is affected by nuisance observations, and has a parameter noise to attempt to filter these.\nIt may not function so well if the data hasn’t got separated clusters.\n\\(k\\)-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).\nHaving a functional model for the clusters is useful."
+  },
+  {
+    "objectID": "week10/slides.html#self-organising-maps",
+    "href": "week10/slides.html#self-organising-maps",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Self-organising maps",
+    "text": "Self-organising maps"
+  },
+  {
+    "objectID": "week10/slides.html#overview-2",
+    "href": "week10/slides.html#overview-2",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Overview",
+    "text": "Overview\n\n\n\nA self-organizing map is a constrained \\(k\\)-means algorithm\nA 1D or 2D net is stretched through the data. The knots in the net form the cluster means, and points closest to the knot are considered to belong to that cluster.\nThe net provides a low-dimensional summary of the clustering, nodes (and their corresponding clusters) that are close to each other being more similar than those that are further apart.\n\n\nSource: wikipedia\n\nAlgorithm\n\nScale your data\nInitialize the net defined by the knots (nodes \\(m_k, k=1, ..., K\\)): choose the number of nodes in the horizontal (and vertical directions for 2D), and set initial positions of these \\(K\\) nodes (eg first two PCs) in the data space.\nLoop over data points, \\(x_i, i=1, ..., n\\)\n\nfind the closest node, \\(m_{k^*}\\)\nfor each node, \\(m_k\\) in the neighborhood of \\(m_{k^*}\\) and update it by: \\(m_k = m_k + \\alpha h_k(x_i, m_{k^*}) (x_i-m_{k^*})\\), pulling it closer to \\(x_i\\),\n\n\nwhere \\(\\alpha\\) is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and \\(h_k\\) is a neighbourhood function, e.g. \\(h_k(x_i, m_{k^*})=exp(\\frac{||x_i-m_{k^*}||}{2\\alpha})^2)\\) which is a bubble function (within a distance or not).\nStep 3 is iterated until nodes stop changing position or a stopping rule is satisfied."
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-12-1",
+    "href": "week10/slides.html#example-penguins-12-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (1/2)",
+    "text": "Example: penguins (1/2)\n\n\n\nset.seed(947)\np_grid &lt;- kohonen::somgrid(xdim = 5, ydim = 5,\n                           topo = 'rectangular')\np_init &lt;- somInit(as.matrix(p_std[,2:5]), 5, 5)\np_som &lt;- som(as.matrix(p_std[,2:5]), \n             rlen=2000,\n             grid = p_grid,\n             init = p_init)\n\nrlen controls the length of the optimisation. Tend to need to run it for longer than default.\n\n\nplot(p_som, type=\"changes\")"
+  },
+  {
+    "objectID": "week10/slides.html#example-penguins-22-1",
+    "href": "week10/slides.html#example-penguins-22-1",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: penguins (2/2)",
+    "text": "Example: penguins (2/2)\n\n\n\n\n\n\n\n\n\n\n\nFrom the map we can see that the clustering has effectively distinguished the species, with some confusion between Chinstrap and Adelie.\n\n\n\n\n The net is stretched and clumped into the three clusters in 4D."
+  },
+  {
+    "objectID": "week10/slides.html#example-surface-12",
+    "href": "week10/slides.html#example-surface-12",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: surface (1/2)",
+    "text": "Example: surface (1/2)\n\n\n\nc3_som &lt;- som(as.matrix(c3), \n  grid = kohonen::somgrid(5, 5, \"hexagonal\"))\n\n\n\nplot(c3_som, type=\"changes\")"
+  },
+  {
+    "objectID": "week10/slides.html#example-surface-22",
+    "href": "week10/slides.html#example-surface-22",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Example: surface (2/2)",
+    "text": "Example: surface (2/2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nthe net stretches into the vertices of the tetrahedron, filling the smaller tetrahedrons\nsee the break so that a 2D net fits the 3D object?\nthe 7 noise dimensions were ignored"
+  },
+  {
+    "objectID": "week10/slides.html#next-evaluating-your-clustering-model",
+    "href": "week10/slides.html#next-evaluating-your-clustering-model",
+    "title": "ETC3250/5250 Introduction to Machine Learning",
+    "section": "Next: Evaluating your clustering model",
+    "text": "Next: Evaluating your clustering model\n\n\n\nETC3250/5250 Lecture 10 | iml.numbat.space"
+  },
+  {
+    "objectID": "week11/index.html",
+    "href": "week11/index.html",
+    "title": "Week 11: Evaluating your clustering model",
+    "section": "",
+    "text": "Cook and Laa Ch 12"
+  },
+  {
+    "objectID": "week11/index.html#main-reference",
+    "href": "week11/index.html#main-reference",
+    "title": "Week 11: Evaluating your clustering model",
+    "section": "",
+    "text": "Cook and Laa Ch 12"
+  },
+  {
+    "objectID": "week11/index.html#what-you-will-learn-this-week",
+    "href": "week11/index.html#what-you-will-learn-this-week",
+    "title": "Week 11: Evaluating your clustering model",
+    "section": "What you will learn this week",
+    "text": "What you will learn this week\n\nConfusion tables\nCluster metrics\nNumerical summaries of solution\nVisual summaries\nLow-dimensional representations"
+  },
+  {
+    "objectID": "week11/index.html#lecture-slides",
+    "href": "week11/index.html#lecture-slides",
+    "title": "Week 11: Evaluating your clustering model",
+    "section": "Lecture slides",
+    "text": "Lecture slides\n\nhtml\npdf\nqmd\nR"
+  },
+  {
+    "objectID": "week11/index.html#tutorial-instructions",
+    "href": "week11/index.html#tutorial-instructions",
+    "title": "Week 11: Evaluating your clustering model",
+    "section": "Tutorial instructions",
+    "text": "Tutorial instructions\nInstructions:\n\nhtml\nqmd"
+  },
+  {
+    "objectID": "week11/index.html#assignments",
+    "href": "week11/index.html#assignments",
+    "title": "Week 11: Evaluating your clustering model",
     "section": "Assignments",
     "text": "Assignments\n\nProject is due on Friday 17 May."
-  },
-  {
-    "objectID": "week10/tutorialsol.html",
-    "href": "week10/tutorialsol.html",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "",
-    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
-  },
-  {
-    "objectID": "week10/tutorialsol.html#objectives",
-    "href": "week10/tutorialsol.html#objectives",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "🎯 Objectives",
-    "text": "🎯 Objectives\nThe goal for this week is learn to about clustering data using \\(k\\)-means and hierarchical algorithms."
-  },
-  {
-    "objectID": "week10/tutorialsol.html#preparation",
-    "href": "week10/tutorialsol.html#preparation",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
-  },
-  {
-    "objectID": "week10/tutorialsol.html#exercises",
-    "href": "week10/tutorialsol.html#exercises",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. How would you cluster this data?\n\nHow would you cluster this data?\n\n\n\n\n\n\n\n\n\n\n\nDerive a distance metric that will capture your clusters. Provide some evidence that it satisfies the four distance rules.\nCompute your rule on the data, and establish that it does indeed capture your clusters.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nMy distance will use the radial distance from \\((0, 0)\\). You first convert each point into polar coordinates, but only take the radius. This will always be positive. The distance between two points will be the absolute value of the difference between these values.\n\nmydist &lt;- function(x1, x2) {\n  d &lt;- abs(sqrt(sum(x1^2)) - sqrt(sum(x2^2)))\n  return(d)\n}\nch_dist &lt;- matrix(0, nrow(challenge), nrow(challenge)) \nfor (i in 1:(nrow(challenge)-1)) {\n  for (j in (i+1):nrow(challenge)) {\n    ch_dist[i,j] &lt;- mydist(challenge[i,], challenge[j,])\n    ch_dist[j,i] &lt;- ch_dist[i,j]\n  }\n}\n#x &lt;- as.vector(ch_dist)\n#hist(x, 30) # you can see it is bimodal\nch_dist &lt;- as.dist(ch_dist)\nch_hc &lt;- hclust(ch_dist, method=\"ward.D2\")\nch_cl &lt;- challenge |&gt;\n  mutate(cl = factor(cutree(ch_hc, 2)))\nggplot(ch_cl, aes(x=V1, y=V2, colour=cl)) + \n  geom_point() +\n  scale_color_discrete_divergingx(palette=\"Zissou 1\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n2. Clustering spotify data with k-means\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read the data with this code. And because for clustering you need to first standardise the data the code will also do this. Variables mode and time_signature are removed because they have just a few values.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\")\nspotify_std &lt;- spotify |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |&gt;\n  select(-c(mode, time_signature)) # variables with few values\n\n\nMake a plot of all of the variables. This could be a density or a jittered dotplot (beeswarm::quasirandom). Many of the variables have skewed distributions. For cluster analysis, why might this be a problem? From the blog post, are any of the anomalies reported ones that can be seen as outliers in a single skewed variable?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\np &lt;- spotify_std |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \nggplotly(p)\n\n\n\n\n\nThe skewed variables are speechiness, liveliness, instrumentalness, artist_popularity, accousticness and possible we could mark duration_ms as having some skewness but also some low anomalies.\nYes, for example “Free Bird” and “Sparkle” could be found by simply examining a single variable.\n\n\n\n\n\nTransform the skewed variables to be as symmetric as possible, and then fit a \\(k=3\\)-means clustering. Extract and report these metrics: totss, tot.withinss, betweenss. What is the ratio of within to between SS?\n\n\n# Transforming some variables: imperfect\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  select(-c(mode, time_signature, instrumentalness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\nspotify_tf |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Check that it clusters\nset.seed(131)\nspotify_km3 &lt;- kmeans(spotify_tf[,5:15], 3)\n# Summarise means of each cluster\ntidy(spotify_km3)\n\n# A tibble: 3 × 14\n  danceability energy     key loudness speechiness acousticness liveness valence\n         &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;\n1        0.788  0.128  0.223     0.203       0.359        0.225   -0.139   0.668\n2       -0.409  0.667 -0.192     0.504      -0.168       -0.793    0.317  -0.157\n3       -0.666 -1.19  -0.0761   -1.07       -0.330        0.807   -0.243  -0.846\n# ℹ 6 more variables: tempo &lt;dbl&gt;, duration_ms &lt;dbl&gt;, artist_popularity &lt;dbl&gt;,\n#   size &lt;int&gt;, withinss &lt;dbl&gt;, cluster &lt;fct&gt;\n\nglance(spotify_km3)\n\n# A tibble: 1 × 4\n  totss tot.withinss betweenss  iter\n  &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;\n1 5566.        4377.     1189.     3\n\nspotify_kcl3 &lt;- augment(spotify_km3, spotify_tf)\nspotify_kcl3 |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=.cluster, y=value)) +\n    geom_quasirandom() +\n    facet_wrap(~var, ncol=4)\n\n\n\n\n\n\n\n\nThe differences between clusters is mostly in acousticness, danceability, energy, loudness, valence.\n\n\n\n\n\nNow the algorithm \\(k=1, ..., 20\\). Extract the metrics, and plot the ratio of within SS to between SS against \\(k\\). What would be suggested as the best model?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Run many k\nspotify_km &lt;- \n  tibble(k = 1:20) %&gt;%\n  mutate(\n    kclust = purrr::map(k, ~kmeans(spotify_tf[,5:15], .x)),\n    tidied = purrr::map(kclust, tidy),\n    glanced = purrr::map(kclust, glance),\n    augmented = purrr::map(kclust, augment, spotify_tf)\n  )\n\n# Plot statistics\nspotify_cl &lt;- \n  spotify_km %&gt;%\n  unnest(cols = c(glanced))\nggplot(spotify_cl, aes(x=k, y=tot.withinss)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n\nMaybe 11, but the within SS decays very gradually so it is hard to tell.\n\n\n\n\n\nDivide the data into 11 clusters, and examine the number of songs in each. Using plotly, mouse over the resulting plot and explore songs belonging to a cluster. (I don’t know much about these songs, but if you are a music fan maybe discussing with other class members and your tutor about the groupings, like which ones are grouped in clusters with high liveness, high tempo or danceability could be fun.)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\n# Extract data with different classes labelled\nspotify_assign &lt;- \n  spotify_km %&gt;% \n  unnest(cols = c(augmented))\nspotify_assign_df &lt;- spotify_assign |&gt;\n  select(name:`artist_popularity`, k, .cluster) |&gt;\n  pivot_wider(names_from=k, values_from=.cluster)\n\nspotify_assign_df |&gt;\n  select(name:`artist_popularity`, `7`) |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=`7`, y=value, label=name)) +\n    geom_quasirandom() +\n    facet_wrap(~var, ncol=4) +\n  xlab(\"\") + ylab(\"\")\n\n\n\n\n\n\n\n# ggplotly()\n\n\n\n\n\n\n\n3. Clustering several simulated data sets with known cluster structure\n\nIn tutorial of week 3 you used the tour to visualise the data sets c1 and c3 provided with the mulgar package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nanimate_xy(c1)\nanimate_xy(c3)\n\nWe said:\n\nc1 has 6 clusters, 4 small ones, and two big ones. The two big ones look like planes because they have no variation in some dimensions. We would expect that a clustering analysis divides the data into these 6 clusters.\nc3 has a triangular prism shape, which itself is divided into several smaller triangular prisms. It also has several dimensions with no variation, because the points collapse into a line in some projections. We would expect the clustering analysis to divide the data into four clusters corresponding mostly to the four vertices.\n\n\n\n\n\n\nCompute \\(k\\)-means and hierarchical clustering on these two data sets, without standardising them. Use a variety of \\(k\\), linkage methods and check the resulting clusters using the cluster metrics. What method produces the best result, relative to what you said in a. (NOTE: Although we said that we should always standardise variables before doing clustering, you should not do this for c3. Why?)\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe scale of the variables is meaningful for these data sets. Even though some variables have smaller variance than others we would treat them to be measured on the same scale.\n\\(k\\)-means for c1:\n\nc1_km &lt;- \n  tibble(k = 1:10) |&gt;\n  mutate(\n    kclust = map(k, ~kmeans(c1, .x)),\n    tidied = map(kclust, tidy),\n    glanced = map(kclust, glance),\n    augmented = map(kclust, augment, c1)\n  )\n\n# Plot statistics\nc1_cl &lt;- \n  c1_km %&gt;%\n  unnest(cols = c(glanced))\nggplot(c1_cl, aes(x=k, y=tot.withinss)) +\n  geom_point() +\n  geom_line()\n\n\n\n\n\n\n\n# Extract data with different classes labelled\nc1_assign &lt;- \n  c1_km %&gt;% \n  unnest(cols = c(augmented))\nc1_assign_df &lt;- c1_assign |&gt;\n  select(x1:x6, k, .cluster) |&gt;\n  pivot_wider(names_from=k, values_from=.cluster)\n\nThe statistics suggest that 3 clusters is the best solution. If we look at the 6 clusters solution, it is different from what we would expect, one large cluster is divided, as is a small cluster.\n\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$`3`)\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$`6`)\n\nHierarchical for c1:\n\nc1_hc &lt;- hclust(dist(c1), method=\"ward.D2\")\nggdendrogram(c1_hc, size = 4)\n\n\n\n\n\n\n\nf.hc &lt;- NULL; f.hc.stats &lt;- NULL\nfor (i in 2:10) {\n  cl &lt;- cutree(c1_hc, i)\n  x &lt;- cluster.stats(dist(c1), cl)\n  f.hc &lt;- cbind(f.hc, cl)\n  f.hc.stats &lt;- rbind(f.hc.stats, \n                      c(x$within.cluster.ss, \n                        x$wb.ratio, x$ch,\n                        x$pearsongamma, x$dunn, \n                        x$dunn2))\n}\ncolnames(f.hc.stats) &lt;- c(\"within.cluster.ss\",\n                          \"wb.ratio\", \"ch\",\n                          \"pearsongamma\", \"dunn\",\n                          \"dunn2\")\nf.hc.stats &lt;- data.frame(f.hc.stats)\nf.hc.stats$cl &lt;- 2:10\nf.hc.stats.m &lt;- f.hc.stats %&gt;% \n  pivot_longer(`within.cluster.ss`:dunn2,\n               names_to=\"stat\", \n               values_to=\"value\") |&gt;\n  mutate(stat = factor(stat,\n                       levels=colnames(f.hc.stats)))\nggplot(data=f.hc.stats.m) + \n  geom_line(aes(x=cl, y=value)) + xlab(\"# clusters\") + ylab(\"\") +\n  facet_wrap(~stat, ncol=3, scales = \"free_y\") \n\n\n\n\n\n\n\n\nThe dendrogram suggests 3 clusters, and the statistics all agree and suggest 3 clusters. Although, ch possibly suggests 10!\n\ncolnames(f.hc) &lt;- paste0(\"hc\", 2:10)\nf.hc &lt;- data.frame(f.hc) |&gt;\n  mutate_all(as.factor)\nc1_assign_df &lt;- bind_cols(c1_assign_df, f.hc)\nanimate_xy(c1_assign_df[,1:6], col=c1_assign_df$hc3)\n\nThe solution is the same as for \\(k\\)-means. The algorithms all treat the three small clusters as a single cluster.\nHierarchical for c3:\nIt’s not really clear how the data should be divided so we’ll start with using hierarchical.\n\nc3_hc &lt;- hclust(dist(c3), method=\"ward.D2\")\nggdendrogram(c3_hc, size = 4)\n\n\n\n\n\n\n\nf.hc &lt;- NULL; f.hc.stats &lt;- NULL\nfor (i in 2:10) {\n  cl &lt;- cutree(c3_hc, i)\n  x &lt;- cluster.stats(dist(c3), cl)\n  f.hc &lt;- cbind(f.hc, cl)\n  f.hc.stats &lt;- rbind(f.hc.stats, \n                      c(x$within.cluster.ss, \n                        x$wb.ratio, x$ch,\n                        x$pearsongamma, x$dunn, \n                        x$dunn2))\n}\ncolnames(f.hc.stats) &lt;- c(\"within.cluster.ss\",\n                          \"wb.ratio\", \"ch\",\n                          \"pearsongamma\", \"dunn\",\n                          \"dunn2\")\nf.hc.stats &lt;- data.frame(f.hc.stats)\nf.hc.stats$cl &lt;- 2:10\nf.hc.stats.m &lt;- f.hc.stats %&gt;% \n  pivot_longer(`within.cluster.ss`:dunn2,\n               names_to=\"stat\", \n               values_to=\"value\") |&gt;\n  mutate(stat = factor(stat,\n                       levels=colnames(f.hc.stats)))\nggplot(data=f.hc.stats.m) + \n  geom_line(aes(x=cl, y=value)) + xlab(\"# clusters\") + ylab(\"\") +\n  facet_wrap(~stat, ncol=3, scales = \"free_y\") \n\n\n\n\n\n\n\n\nThe dendrogram suggests 4 clusters, and many of the statistics suggest 4 clusters.\n\ncolnames(f.hc) &lt;- paste0(\"hc\", 2:10)\nf.hc &lt;- data.frame(f.hc) |&gt;\n  mutate_all(as.factor)\nc3_assign_df &lt;- bind_cols(c3, f.hc)\nanimate_xy(c3_assign_df[,1:6], col=c3_assign_df$hc4)\n\nThe four cluster solution is almost what we would expect, that they divide the data on the four vertices of the tetrahedron. One of the vertices is a little confused with one other.\nIf you run \\(k\\)-means, I’d expect it does similarly to this solution. If you choose a different linkage method likely the results will change a lot.\n\n\n\n\n\nThere are five other data sets in the mulgar package. Choose one or two or more to examine how they would be clustered. (I particularly would like to see how c4 is clustered.)"
-  },
-  {
-    "objectID": "week10/tutorialsol.html#finishing-up",
-    "href": "week10/tutorialsol.html#finishing-up",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
-  },
-  {
-    "objectID": "week10/tutorial.html",
-    "href": "week10/tutorial.html",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "",
-    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
-  },
-  {
-    "objectID": "week10/tutorial.html#objectives",
-    "href": "week10/tutorial.html#objectives",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "🎯 Objectives",
-    "text": "🎯 Objectives\nThe goal for this week is learn to about clustering data using \\(k\\)-means and hierarchical algorithms."
-  },
-  {
-    "objectID": "week10/tutorial.html#preparation",
-    "href": "week10/tutorial.html#preparation",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
-  },
-  {
-    "objectID": "week10/tutorial.html#exercises",
-    "href": "week10/tutorial.html#exercises",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. How would you cluster this data?\n\nHow would you cluster this data?\n\n\n\n\n\n\n\n\n\n\n\nDerive a distance metric that will capture your clusters. Provide some evidence that it satisfies the four distance rules.\nCompute your rule on the data, and establish that it does indeed capture your clusters.\n\n\n\n2. Clustering spotify data with k-means\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read the data with this code. And because for clustering you need to first standardise the data the code will also do this. Variables mode and time_signature are removed because they have just a few values.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\")\nspotify_std &lt;- spotify |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) |&gt;\n  select(-c(mode, time_signature)) # variables with few values\n\n\nMake a plot of all of the variables. This could be a density or a jittered dotplot (beeswarm::quasirandom). Many of the variables have skewed distributions. For cluster analysis, why might this be a problem? From the blog post, are any of the anomalies reported ones that can be seen as outliers in a single skewed variable?\n\n\nTransform the skewed variables to be as symmetric as possible, and then fit a \\(k=3\\)-means clustering. Extract and report these metrics: totss, tot.withinss, betweenss. What is the ratio of within to between SS?\n\n\n# Transforming some variables: imperfect\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  select(-c(mode, time_signature, instrumentalness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\nspotify_tf |&gt;\n  pivot_longer(danceability:artist_popularity,\n               names_to=\"var\", values_to=\"value\") |&gt;\n  ggplot(aes(x=var, y=value, label=name)) +\n    geom_quasirandom() + \n    coord_flip() +\n    xlab(\"\") \n\n\n\n\n\n\n\n\n\nNow the algorithm \\(k=1, ..., 20\\). Extract the metrics, and plot the ratio of within SS to between SS against \\(k\\). What would be suggested as the best model?\n\n\nDivide the data into 11 clusters, and examine the number of songs in each. Using plotly, mouse over the resulting plot and explore songs belonging to a cluster. (I don’t know much about these songs, but if you are a music fan maybe discussing with other class members and your tutor about the groupings, like which ones are grouped in clusters with high liveness, high tempo or danceability could be fun.)\n\n\n\n3. Clustering several simulated data sets with known cluster structure\n\nIn tutorial of week 3 you used the tour to visualise the data sets c1 and c3 provided with the mulgar package. Review what you said about the structure in these data sets, and write down your expectations for how a cluster analysis would divide the data.\n\n\nCompute \\(k\\)-means and hierarchical clustering on these two data sets, without standardising them. Use a variety of \\(k\\), linkage methods and check the resulting clusters using the cluster metrics. What method produces the best result, relative to what you said in a. (NOTE: Although we said that we should always standardise variables before doing clustering, you should not do this for c3. Why?)\n\n\nThere are five other data sets in the mulgar package. Choose one or two or more to examine how they would be clustered. (I particularly would like to see how c4 is clustered.)"
-  },
-  {
-    "objectID": "week10/tutorial.html#finishing-up",
-    "href": "week10/tutorial.html#finishing-up",
-    "title": "ETC3250/5250 Tutorial 10",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
   },
   {
     "objectID": "week12/index.html#presentations-from-masters-students",
@@ -3533,75 +3617,5 @@
     "title": "ETC3250/5250 Introduction to Machine Learning",
     "section": "Next: Model-based clustering and self-organising maps",
     "text": "Next: Model-based clustering and self-organising maps\n\n\n\nETC3250/5250 Lecture 9 | iml.numbat.space"
-  },
-  {
-    "objectID": "week11/tutorial.html",
-    "href": "week11/tutorial.html",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "",
-    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(mclust)\nlibrary(kohonen)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(detourr)\nlibrary(crosstalk)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
-  },
-  {
-    "objectID": "week11/tutorial.html#objectives",
-    "href": "week11/tutorial.html#objectives",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "🎯 Objectives",
-    "text": "🎯 Objectives\nThe goal for this week is practice fitting model-based clustering and self-organising maps."
-  },
-  {
-    "objectID": "week11/tutorial.html#preparation",
-    "href": "week11/tutorial.html#preparation",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
-  },
-  {
-    "objectID": "week11/tutorial.html#exercises",
-    "href": "week11/tutorial.html#exercises",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. Clustering spotify data with model-based\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read and pre-process the data with this code. Variables mode, time_signature and instrumentalness are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\") |&gt;\n  select(-c(mode, time_signature, instrumentalness)) # variables with few values\n\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\n\nFit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.\n\n\nWhy are some variance-covariance parametrisations fitted to less than 15 clusters?\n\n\nMake a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes.\nHow many parameters need to be estimated for the VVI model with 8 clusters? (Use the mixture model equation for calculating this, that is, how \\(\\Sigma_k\\) would change, or not, between clusters.) Compare this to the number of observations, and explain why the model cannot be estimated.\n\n\nFit just the best model, and extract the parameter estimates.\n\n\n\n2. Clustering simulated data with known cluster structure\n\nIn tutorial of week 10 you clustered c1 from the mulgar package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?\n\n\nFit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not.\n\n\nFit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?\n\n\n\n4. Music similarity\n\nThe music data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package tuneR. Only a subset of the data is provided, with details:\n\n\ntitle: Title of the track\nartist: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya\ntype: rock, classical, or new wave\nlvar, lave, lmax: average, variance, maximum of the frequencies of the left channel\nlfener: an indicator of the amplitude or loudness of the sound\nlfreq: median of the location of the 15 highest peak in the periodogram\n\nYou can read the data into R using:\n\nmusic &lt;- read_csv(\"http://ggobi.org/book/data/music-sub.csv\") |&gt;\n  rename(title = `...1`)\n\nHow many observations in the data? Explain how this should determine the maximum grid size for an SOM.\n\nFit a SOM model to the data using a 4x4 grid, using a large rlen value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).\n\n\nLet’s take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.\n\n\nmusic_som1_shared &lt;- SharedData$new(music_som1_data)\n\nmusic_detour &lt;- detour(music_som1_shared, tour_aes(\n  projection = lvar:lfreq)) |&gt;\n  tour_path(grand_tour(2),\n            max_bases=50, fps = 60) |&gt;\n  show_scatter(alpha = 0.9, axes = FALSE,\n               width = \"100%\", height = \"450px\")\n\nmusic_map &lt;- plot_ly(music_som1_shared,\n     x = ~map1,\n     y = ~map2,\n     text = ~paste(title, artist),\n     marker = list(color=\"black\", size=8),\n     height = 450) |&gt;\n  highlight(on = \"plotly_selected\",\n            off = \"plotly_doubleclick\") |&gt;\n  add_trace(type = \"scatter\",\n            mode = \"markers\")\n\nbscols(\n  music_detour, music_map,\n  widths = c(5, 6)\n)\n\nCan you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece is most like a Beatles song?"
-  },
-  {
-    "objectID": "week11/tutorial.html#finishing-up",
-    "href": "week11/tutorial.html#finishing-up",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
-  },
-  {
-    "objectID": "week11/tutorialsol.html",
-    "href": "week11/tutorialsol.html",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "",
-    "text": "Load the libraries and avoid conflicts, and prepare data\n# Load libraries used everywhere\nlibrary(tidyverse)\nlibrary(tidymodels)\nlibrary(tidyclust)\nlibrary(purrr)\nlibrary(ggdendro)\nlibrary(fpc)\nlibrary(mclust)\nlibrary(kohonen)\nlibrary(patchwork)\nlibrary(mulgar)\nlibrary(tourr)\nlibrary(geozoo)\nlibrary(ggbeeswarm)\nlibrary(colorspace)\nlibrary(detourr)\nlibrary(crosstalk)\nlibrary(plotly)\nlibrary(ggthemes)\nlibrary(conflicted)\nconflicts_prefer(dplyr::filter)\nconflicts_prefer(dplyr::select)\nconflicts_prefer(dplyr::slice)\nconflicts_prefer(purrr::map)"
-  },
-  {
-    "objectID": "week11/tutorialsol.html#objectives",
-    "href": "week11/tutorialsol.html#objectives",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "🎯 Objectives",
-    "text": "🎯 Objectives\nThe goal for this week is practice fitting model-based clustering and self-organising maps."
-  },
-  {
-    "objectID": "week11/tutorialsol.html#preparation",
-    "href": "week11/tutorialsol.html#preparation",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "🔧 Preparation",
-    "text": "🔧 Preparation\n\nMake sure you have all the necessary libraries installed."
-  },
-  {
-    "objectID": "week11/tutorialsol.html#exercises",
-    "href": "week11/tutorialsol.html#exercises",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "Exercises:",
-    "text": "Exercises:\n\n1. Clustering spotify data with model-based\nThis exercise is motivated by this blog post on using \\(k\\)-means to identify anomalies.\nYou can read and pre-process the data with this code. Variables mode, time_signature and instrumentalness are removed because they have just a few values. We have also transformed some variables to remove skewness, and standardised the data.\n\n# https://towardsdatascience.com/unsupervised-anomaly-detection-on-spotify-data-k-means-vs-local-outlier-factor-f96ae783d7a7\nspotify &lt;- read_csv(\"https://raw.githubusercontent.com/isaacarroyov/spotify_anomalies_kmeans-lof/main/data/songs_atributtes_my_top_100_2016-2021.csv\") |&gt;\n  select(-c(mode, time_signature, instrumentalness)) # variables with few values\n\nspotify_tf &lt;- spotify |&gt;\n  mutate(speechiness = log10(speechiness),\n         liveness = log10(liveness),\n         duration_ms = log10(duration_ms),\n         danceability = danceability^2,\n         artist_popularity = artist_popularity^2,\n         acousticness = log10(acousticness)) |&gt;\n  mutate_if(is.numeric, function(x) (x-mean(x))/sd(x)) \n\n\nFit model-based clustering with number of clusters ranging from 1-15, to the transformed data, and all possible parametrisations. Summarise the best models, and plot the BIC values for the models. You can also simplify the plot, and show just the 10 best models.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\ns_mc &lt;- mclustBIC(spotify_tf[,5:15], G=1:15)\nsummary(s_mc)\n\nBest BIC values:\n          VVE,4    VVE,5  VVE,6\nBIC      -14772 -14773.5 -14775\nBIC diff      0     -1.8     -3\n\nsmc1 &lt;- ggmcbic(s_mc) \nggplotly(smc1)\n\n\n\n\nsmc2 &lt;- ggmcbic(s_mc, top=10) \nggplotly(smc2)\n\n\n\n\n\nThe best parametrisation is the VVE model, and four clusters yields the best BIC.\n\n\n\n\n\nWhy are some variance-covariance parametrisations fitted to less than 15 clusters?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe number of parameters needed is too many for the number of observations.\n\n\n\n\n\nMake a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes.\nHow many parameters need to be estimated for the VVI model with 8 clusters? (Use the mixture model equation for calculating this, that is, how \\(\\Sigma_k\\) would change, or not, between clusters.) Compare this to the number of observations, and explain why the model cannot be estimated.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nVVI means the volume and shape are variable, but there is no covariance between variables, so they are all diagonal. It can be written as \\(\\lamba_k A_k\\).\n\\(n=507, p=11, G=8\\)\n\n\\(\\widehat{\\mu}\\): \\(8\\times 11= 88\\)\n\\(\\widehat{\\Sigma}\\): \\(8\\times 11= 88\\)\n\\(\\pi\\) (mixing proportion): \\(8-1 = 7\\)\n\nThe total number of parameters is 183.\nIf we were to use the decomposition formula, then for \\(\\widehat{\\Sigma}\\) we would have \\(8\\times 8\\times 11= 704\\). Total parameters are 799. We only have 507 observations, so this model cannot be estimated.\n\n\n\n\n\nFit just the best model, and extract the parameter estimates.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nspotify_mc &lt;- Mclust(spotify_tf[,5:15], \n                      G=4, \n                      modelNames = \"VVI\")\nspotify_mc$parameters$mean\n\n                    [,1]   [,2]    [,3]   [,4]\ndanceability      -0.318 -0.487  0.7005 -0.353\nenergy            -0.753 -1.060  0.2262  0.864\nkey                0.055 -0.092  0.0896 -0.090\nloudness          -0.981 -0.697  0.3228  0.674\nspeechiness        0.882 -0.737  0.0287 -0.166\nacousticness       0.552  0.786 -0.0099 -0.831\nliveness           0.012 -0.342 -0.0882  0.309\nvalence           -0.073 -0.892  0.3801  0.125\ntempo              0.291  0.012 -0.3152  0.188\nduration_ms       -0.087  0.312 -0.1718  0.078\nartist_popularity -0.399  0.101  0.2059 -0.052\n\n# spotify_mc$parameters$variance$sigma\nspotify_var &lt;- bind_rows(\n  diag(spotify_mc$parameters$variance$sigma[,,1]),\n  diag(spotify_mc$parameters$variance$sigma[,,2]),\n  diag(spotify_mc$parameters$variance$sigma[,,3]),\n  diag(spotify_mc$parameters$variance$sigma[,,4]))\nspotify_var[,1:6]\n\n# A tibble: 4 × 6\n  danceability energy   key loudness speechiness acousticness\n         &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;\n1        1.27   1.01  0.813    1.90        1.37         0.415\n2        0.843  0.614 0.880    0.539       0.155        0.254\n3        0.564  0.321 1.09     0.186       0.735        0.520\n4        0.508  0.188 1.06     0.169       0.722        1.15 \n\nspotify_var[,7:11]\n\n# A tibble: 4 × 5\n  liveness valence tempo duration_ms artist_popularity\n     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;\n1    1.06    1.14  1.77        3.56              1.33 \n2    0.228   0.546 1.14        0.491             1.16 \n3    1.04    0.755 0.366       0.355             0.724\n4    1.19    0.796 0.967       0.302             0.853\n\n\nBecause the the data is standardised differences between means and variances from one cluster to another can be compared directly.\nWe could say that cluster 1 has high speechiness, and low energy, loudness. In contrast, cluster 4 has high energy and loudness, but low acousticness.\nOn the variances, cluster 1 has low variance for acousticness, which means all songs in this cluster have similar acousticness. Cluster 4 has small variance on energy and loudness, so these songs have similar values on these variables.\n\n\n\n\n\n\n2. Clustering simulated data with known cluster structure\n\nIn tutorial of week 10 you clustered c1 from the mulgar package, after also examining this data using the tour in week 3. We know that there are 6 clusters, but with different sizess. For a model-based clustering, what would you expect is the best variance-covariance parametrisation, based on what you know about the data thus far?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nWe would expect 6 clusters would give the best results. The two big clusters are elliptical but oriented along variable axes, and have no variance in some variables. The four small clusters are spherical in the full 6D.\n\n\n\n\n\nFit a range of models for a choice of clusters that you believe will cover the range needed to select the best model for this data. Make your plot of the BIC values, and summarise what you learn. Be sure to explain whether this matches what you expected or not.\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nc1_mc &lt;- mclustBIC(c1, G=3:8)\nsummary(c1_mc)\n\nBest BIC values:\n         VVI,6 VVI,7 VVE,6\nBIC       2814  2757  2735\nBIC diff     0   -56   -78\n\nc1mc1 &lt;- ggmcbic(c1_mc) +\n  scale_x_continuous(breaks=1:6, labels=3:8)\nggplotly(c1mc1)\n\n\n\n\nc1mc2 &lt;- ggmcbic(c1_mc, top=10) +\n  scale_x_continuous(breaks=1:6, labels=3:8)\nggplotly(c1mc2)\n\n\n\n\n\nInterestingly the 6 cluster model is the best, and it uses a VVI parametrisation.\n\n\n\n\n\nFit the best model, and examine the model in the data space using a tour. How well does it fit? Does it capture the clusters that we know about?\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nc1_mc &lt;- Mclust(c1, G=6, \n                modelNames = \"VVI\")\nc1_mce &lt;- mc_ellipse(c1_mc)\nc1_cl &lt;- c1\nc1_cl$cl &lt;- factor(c1_mc$classification)\n\nc1_mc_data &lt;- c1_cl |&gt;\n  mutate(type = \"data\") |&gt;\n  bind_rows(bind_cols(c1_mce$ell,\n                      type=rep(\"ellipse\",\n                        nrow(c1_mce$ell)))) |&gt;\n  mutate(type = factor(type))\n\n\nanimate_xy(c1_mc_data[,1:6],\n           col=c1_mc_data$cl,\n           pch=c(4, 20 )[as.numeric(c1_mc_data$type)], \n           axes=\"off\")\n\nWow! It fits the clusters beautifully!\n\n\n\n\n\n\n3. Music similarity\n\nThe music data was collected by extracting the first 40 seconds of each track from CDs using the music editing software Amadeus II, saved as a WAV file and analysed using the R package tuneR. Only a subset of the data is provided, with details:\n\n\ntitle: Title of the track\nartist: Abba, Beatles, Eels, Vivaldi, Mozart, Beethoven, Enya\ntype: rock, classical, or new wave\nlvar, lave, lmax: average, variance, maximum of the frequencies of the left channel\nlfener: an indicator of the amplitude or loudness of the sound\nlfreq: median of the location of the 15 highest peak in the periodogram\n\nYou can read the data into R using:\n\nmusic &lt;- read_csv(\"http://ggobi.org/book/data/music-sub.csv\") |&gt;\n  rename(title = `...1`)\n\nHow many observations in the data? Explain how this should determine the maximum grid size for an SOM.\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThere are only 62 observations. If you use a 5x5 grid, this is less than 3 observations per cluster. You need to be careful about specifying a model with too many nodes for the number of observations. At the same time and SOM needs to have some flexibility to fit the data shape, and more nodes allows more flexibility.\n\n\n\n\n\nFit a SOM model to the data using a 4x4 grid, using a large rlen value. Be sure to standardise your data prior to fitting the model. Make a map of the results, and show the map in both 2D and 5D (using a tour).\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\nset.seed(831)\nmusic_std &lt;- music |&gt;\n  mutate_if(is.numeric, \n            function(x) (x-mean(x))/sd(x))\nmusic_som1 &lt;- som(as.matrix(music_std[,4:8]), \n                 grid = somgrid(4, 4, \"hexagonal\"), rlen=2000)\nmusic_som1_df_net &lt;- som_model(music_som1)\nmusic_som1_data &lt;- music_som1_df_net$data |&gt; \n  mutate(cl = music_som1$unit.classif,\n         title = music_std$title,\n         artist = music_std$artist) |&gt;\n  select(id, title, artist, lvar:distance)\n\nggplot() +\n  geom_segment(data=music_som1_df_net$edges_s, \n               aes(x=x, xend=xend, y=y, \n                   yend=yend)) +\n  geom_point(data=music_som1_data, \n             aes(x=map1, y=map2, label=paste(artist, title)), \n             size=3, alpha=0.5) +\n  xlab(\"map 1\") + ylab(\"map 2\") +\n  theme(legend.position = \"bottom\",\n        legend.title = element_blank(),\n        axis.text = element_blank())\n\n\n\n\n\n\n\n# ggplotly()\n\n# 5D\nmusic_som1_map &lt;- music_som1_df_net$net |&gt;\n  mutate(artist = \"0\", \n         title = \"0\",\n         type=\"net\")\nmusic_som1_data_tour &lt;- music_som1_data |&gt; \n  select(lvar:lfreq, artist, title) |&gt;\n  mutate(type=\"data\") \nmusic_som1_map_data &lt;- bind_rows(\n  music_som1_map, music_som1_data_tour)\nmusic_som1_map_data$type &lt;- factor(music_som1_map_data$type,\n  levels=c(\"net\", \"data\"))\n\n\nanimate_xy(music_som1_map_data[,1:4],\n           pch=music_som1_map_data$type,\n           shapeset=c(46, 16),\n           edges=as.matrix(music_som1_df_net$edges), \n           edges.col = \"black\",\n           axes=\"bottomleft\")\n\n\n\n\n\n\nLet’s take a look at how it has divided the data into clusters. Set up linked brushing between detourr and map view using the code below.\n\n\nmusic_som1_shared &lt;- SharedData$new(music_som1_data)\n\nmusic_detour &lt;- detour(music_som1_shared, tour_aes(\n  projection = lvar:lfreq)) |&gt;\n  tour_path(grand_tour(2),\n            max_bases=50, fps = 60) |&gt;\n  show_scatter(alpha = 0.9, axes = FALSE,\n               width = \"100%\", height = \"450px\")\n\nmusic_map &lt;- plot_ly(music_som1_shared,\n     x = ~map1,\n     y = ~map2,\n     text = ~paste(title, artist),\n     marker = list(color=\"black\", size=8),\n     height = 450) |&gt;\n  highlight(on = \"plotly_selected\",\n            off = \"plotly_doubleclick\") |&gt;\n  add_trace(type = \"scatter\",\n            mode = \"markers\")\n\nbscols(\n  music_detour, music_map,\n  widths = c(5, 6)\n)\n\nCan you see a small cluster of Abba songs? Which two songs are outliers? Which Beethoven piece is most like a Beatles song?"
-  },
-  {
-    "objectID": "week11/tutorialsol.html#finishing-up",
-    "href": "week11/tutorialsol.html#finishing-up",
-    "title": "ETC3250/5250 Tutorial 11",
-    "section": "👋 Finishing up",
-    "text": "👋 Finishing up\nMake sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult."
   }
 ]

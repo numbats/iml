@@ -21,6 +21,23 @@ schedule |>
 
 * Confusion tables
 * Cluster metrics
+* Numerical summaries of solution
+* Visual summaries
+* Low-dimensional representations
+
+## Lecture slides
+
+- [html](https://iml.numbat.space/week11/slides.html)
+- [pdf](https://iml.numbat.space/week11/slides.pdf)
+- [qmd](https://iml.numbat.space/week11/slides.qmd)
+- [R](https://iml.numbat.space/week11/slides.R)
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week11/tutorial.html)
+- [qmd](https://iml.numbat.space/week11/tutorial.qmd)
 
 ```{r}
 #| output: asis

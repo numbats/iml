@@ -29,7 +29,7 @@ schedule |>
 - [html](https://iml.numbat.space/week10/slides.html)
 - [pdf](https://iml.numbat.space/week10/slides.pdf)
 - [qmd](https://iml.numbat.space/week10/slides.qmd)
-- [R](https://iml.numbat.space/week19/slides.R)
+- [R](https://iml.numbat.space/week10/slides.R)
 
 ## Tutorial instructions
 

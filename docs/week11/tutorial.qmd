@@ -144,24 +144,35 @@ The number of parameters needed is too many for the number of observations.
 
 c. Make a 2D sketch that would illustrate what the best variance-covariance parametrisation looks like conceptually for cluster shapes. 
 
-d. How many parameters need to be estimated for the VVI model with 8 clusters? (Use the mixture model equation for calculating this, that is, how $\Sigma_k$ would change, or not, between clusters.) Compare this to the number of observations, and explain why the model cannot be estimated.
+d. How many parameters need to be estimated for the VVE model with 7 and 8 clusters? Compare this to the number of observations, and explain why the model is not estimated for 8 clusters.
 
 ::: unilur-solution
 
-VVI means the volume and shape are variable, but there is no covariance between variables, so they are all diagonal. It can be written as  $\lamba_k A_k$.
+VVE means the volume and shape are variable, and a common orientation between clusters. It can be written as $\lambda_k D A_k D^\top$.
 
-$n=507, p=11, G=8$
+$n=507, p=11, G=7\text{ or }8$
 
-- $\widehat{\mu}$: $8\times 11= 88$
-- $\widehat{\Sigma}$: $8\times 11= 88$
-- $\pi$ (mixing proportion): $8-1 = 7$
+- $\widehat{\mu}_k$ (7 11-D means): $7\times 11= 77$
+- $\widehat{A}_k$ (7 $11\times 11$-D diagonal matrices): $7\times 11= 77$
+- $D$ (one $11\times 11$-D matrix, upper and lower triangles the same): $\sum_{i=1}^7 i = 28$
+- $\lambda_k$ (7 size parameters): 7
+- $\pi$ (mixing proportions): $7-1 = 6$
 
-The total number of parameters is 183.
+For 7 clusters 195 parameters are estimated. 
 
-If we were to use the decomposition formula, then for $\widehat{\Sigma}$ we would have  $8\times 8\times 11= 704$. Total parameters are 799. We only have 507 observations, so this model cannot be estimated.
+- $\widehat{\mu}_k$ (8 11-D means): $8\times 11= 88$
+- $\widehat{A}_k$ (8 $11\times 11$-D diagonal matrices): $8\times 11= 88$
+- $D$ (one $11\times 11$-D matrix, upper and lower triangles the same): $\sum_{i=1}^8 i = 36$
+- $\lambda_k$ (8 size parameters): 8
+- $\pi$ (mixing proportions): $8-1 = 7$
+
+For 8 clusters 227 parameters are used. 
+
+Both of these are less than the number of observations (507), so it should be possible to fit both. For 8 clusters, though it is about 2 observations per parameter. It's not much better for 7 clusters, but the model is fitted anyway. It's not clear why but its interesting.
+
 :::
 
-d. Fit just the best model, and extract the parameter estimates. 
+d. Fit just the best model, and extract the parameter estimates. Write a few sentences describing what can be learned about the way the clusters subset the data.
 
 ::: unilur-solution
 
@@ -323,7 +334,7 @@ music_som1_map_data$type <- factor(music_som1_map_data$type,
 
 ```{r}
 #| eval: false
-animate_xy(music_som1_map_data[,1:4],
+animate_xy(music_som1_map_data[,1:5],
            pch=music_som1_map_data$type,
            shapeset=c(46, 16),
            edges=as.matrix(music_som1_df_net$edges), 
