@@ -39,6 +39,7 @@ library(ggdendro)
 library(mclust)
 library(kohonen)
 library(aweSOM)
+library(cxhull)
 
 # Locations
 current_file <- knitr::current_input()
