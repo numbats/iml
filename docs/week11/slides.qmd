@@ -669,6 +669,7 @@ pd1hs <- ggplot() +
   scale_shape_manual(values = c(16, 3)) +
   scale_colour_manual(values = c("#3B99B1", "black")) +
   scale_size(limits=c(0,17)) +
+  xlab("x1") + ylab("x2") +
   theme_minimal() +
   theme(aspect.ratio=1, legend.position="none")
 
@@ -712,6 +713,7 @@ pd1hw <- ggplot() +
   scale_shape_manual(values = c(16, 3)) +
   scale_colour_manual(values = c("#3B99B1", "black")) +
   scale_size(limits=c(0,17)) +
+  xlab("x1") + ylab("x2") +
   theme_minimal() +
   theme(aspect.ratio=1, legend.position="none")
 
