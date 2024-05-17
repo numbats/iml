@@ -19,6 +19,14 @@ schedule |>
 
 ## Presentations from Masters students
 
+The goal here is to learn interesting aspects of the data and model.
+
+## Tutorial instructions
+
+Instructions:
+
+- [html](https://iml.numbat.space/week12/tutorial.html)
+- [qmd](https://iml.numbat.space/week12/tutorial.qmd)
 
 ```{r}
 #| output: asis

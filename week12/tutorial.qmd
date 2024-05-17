@@ -1,0 +1,917 @@
+---
+title: "ETC3250/5250 Tutorial 12"
+subtitle: "Evaluating your clustering model"
+author: "Prof. Di Cook"
+date: "2024-05-20"
+quarto-required: ">=1.3.0"
+format:
+    unilur-html:
+        output-file: tutorial.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+    unilur-html+solution:
+        output-file: tutorialsol.html
+        embed-resources: true
+        css: "../assets/tutorial.css"
+unilur-solution: true
+---
+
+```{r echo=FALSE}
+# Set up chunk for all slides
+knitr::opts_chunk$set(
+  fig.width = 4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  code.line.numbers = FALSE,
+  fig.retina = 3,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  dev.args = list(pointsize = 11)
+)
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Load the libraries and avoid conflicts, and prepare data"
+# Load libraries used everywhere
+library(tidyverse)
+library(tidymodels)
+library(tidyclust)
+library(patchwork)
+library(mulgar)
+library(ggdendro)
+library(fpc)
+library(tourr)
+library(geozoo)
+library(colorspace)
+library(ggbeeswarm)
+library(visdat)
+library(missForest)
+library(ggthemes)
+library(conflicted)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::slice)
+```
+
+```{r}
+#| echo: false
+# Set plot theme
+theme_set(theme_bw(base_size = 14) +
+   theme(
+     aspect.ratio = 1,
+     plot.background = element_rect(fill = 'transparent', colour = NA),
+     plot.title.position = "plot",
+     plot.title = element_text(size = 24),
+     panel.background = element_rect(fill = 'transparent', colour = NA),
+     legend.background = element_rect(fill = 'transparent', colour = NA),
+     legend.key = element_rect(fill = 'transparent', colour = NA)
+   )
+)
+
+```
+
+## `r emo::ji("target")` Objectives
+
+The goal for this week is work on a realistic clustering problem.  
+
+## `r emo::ji("wrench")` Preparation 
+
+- Make sure you have all the necessary libraries installed. 
+
+## Exercises: 
+
+
+
+<!--
+#### 1. Re-do Julia Silge's post on hierarchical clustering
+
+Have a read through [Julia's post on clustering Health Care Indicators](https://juliasilge.com/blog/health-care-indicators/). This activity is to repeat her analysis, handling missing values prior to clustering and examining the results. However the R code is a bit old style, so we will update it, too.
+
+
+```{r}
+#| eval: false
+library(RSocrata)
+health_all <- read.socrata("https://opendata.utah.gov/resource/qmsu-gki4.csv")
+#health_all[,3:67] <- lapply(health_all[,3:67], as.numeric)
+#health_all <- health_all[c(-1),]
+health_all <- make_clean_names(health_all)
+
+# Notice the missing values
+vis_dat(health_all)
+
+# Clean names, standardise
+health <- health_all[,c(2,4:5,18,22,24,27,31,34,
+                       36,38,42,44,48,51,55,
+                       60,63,64)]
+colnames(health) <- c("County", 
+              "PercentUnder18",
+              "PercentOver65",
+              "DiabeticRate", 
+              "HIVRate",
+              "PrematureMortalityRate",
+              "InfantMortalityRate",
+              "ChildMortalityRate",
+              "LimitedAccessToFood",
+              "FoodInsecure", 
+              "MotorDeathRate",
+              "DrugDeathRate",
+              "Uninsured", 
+              "UninsuredChildren",
+              "HealthCareCosts", 
+              "CouldNotSeeDr",
+              "MedianIncome",
+              "ChildrenFreeLunch",
+              "HomicideRate")
+health_std <- health |>
+  mutate_if(is.numeric, 
+            function(x) (x-mean(x, na.rm=TRUE))/
+              sd(x, na.rm=TRUE))
+
+# Impute missing values
+health_std_imputed <- missForest(health_std[,-1])
+```
+-->
+
+**Risk taking behavior of tourists in Australia**
+
+Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The `risk_MSA.rds` data was collected in Australia in 2015 [@risk-survey] and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book ["Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful" by Sara Dolnicar, Bettina Grün and Friedrich Leisch](https://homepage.boku.ac.at/leisch/MSA/). The data can be obtained using the following code:
+
+```{r}
+risk <- read_csv("https://homepage.boku.ac.at/leisch/MSA/datasets/risk.csv")
+```
+
+#### a. What is the shape of the data in 6D?
+
+Using the tour, examine the data, and explain where there are separated clusters, linear or non-linear dependencies. 
+
+::: unilur-solution
+
+```{r}
+#| eval: false
+# Take a look at the data
+animate_xy(risk)
+```
+
+- There are no separated clusters. 
+- The predominant pattern is discreteness, stemming from the survey responses being limited to integer values 1 through 5.
+- There is some skewness, with higher concentration of observations at low values on most variables, and few observations at high values. This makes sense because most people would be inclined to less risk.
+- There is also no strong correlation between variables. (You could calculation the correlation to check this.)
+
+```{r}
+cor(risk)
+```
+
+All correlations are under 0.5. Even though 0.5 is considered to be moderate correlation, we can see here that it corresponds pretty large spread of values.
+:::
+
+#### b. What method is going to partition this data best?
+
+How do you think $k$-means would partition this data? What about Wards linkage or single linkage? Why wouldn't model-based be recommended?
+
+::: unilur-solution
+- $k$-means will divide it roughly into equal sized chunks, although it's not clear in what directions. Maybe one chunk where all values are low, and other chunks extending towards each axis. We might want to consider $k=7$ clusters to allow for this partitioning. 
+- Model-based is not so useful because there are no separated clusters and it likely will suggest a single spherical cluster.
+- Wards linkage should partition similarly to $k$-means. Single linkage will struggle, and put most observations into a single cluster, and the "outliers" into singleton clusters.
+:::
+
+#### c. Fit the $k$-means clustering. 
+
+Using $k=7$ fit the model, and examine the results with a tour. 
+
+::: unilur-solution
+
+```{r}
+# k-means + tour with cluster means
+r_km <- kmeans(risk, centers=7, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- as_tibble(risk) |>
+  mutate(cl = factor(r_km$cluster))
+r_km_means <- data.frame(r_km$centers) |>
+  mutate(cl = factor(rownames(r_km$centers)))
+r_km_means <- r_km_means |>
+  mutate(type = "mean")
+r_km_d <- r_km_d |>
+  mutate(type = "data")
+r_km_all <- bind_rows(r_km_means, r_km_d)
+r_km_all$type <- factor(r_km_all$type,
+                        levels=c("mean", "data"))
+r_cex <- c(3, 1)[as.numeric(r_km_all$type)]
+```
+
+```{r}
+#| eval: false
+animate_xy(r_km_all[,1:6], col=r_km_all$cl, 
+           pch=r_km_all$type, 
+           shapeset = c(3, 16),
+           cex=r_cex)
+```
+:::
+
+It's pretty difficult to see how it has partitioned the data. It has definitely created a cluster of small values but it's not clear whether the cluster of the larger values are concentrated on different variables. 
+
+Try making a simpler plot as follows:
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+r_km_d |>
+  pivot_longer(Recreational:Social, 
+               names_to = "var", 
+               values_to = "response") |>
+  ggplot(aes(x=cl, y=response, colour=cl)) +
+    geom_quasirandom(alpha=0.5) +
+    facet_wrap(~var, ncol=4) +
+    scale_color_discrete_divergingx(palette="Zissou 1") +
+  coord_flip() +
+  theme(legend.position = "none")
+```
+
+It still divides the data more messily than anticipated. Cluster 1 though does have small values on all variables. This is the low risk group. Cluster 2 seems to have high values on Recreation and somewhat high on Social but low values on other variables. So it might be considered a cluster of high recreational risk takers. Now your turn to describe the other clusters.
+
+::: unilur-solution
+Cluster 3 has high values on Health and Recreational and mostly high on all variables. These are the general risk takers.
+
+Cluster 4 has high values on Safety but relatively low on other variables.
+
+Cluster 5 is generally low values on all variables, but maybe slightly higher than cluster 1.
+
+Cluster 6 has high values on Health. 
+
+Cluster 7 has relatively low values on all variables, but slightly higher on Safety.
+
+The 7 cluster solution is not super easy to explain, at least it is not cleanly as expected. We need to examine different $k$.
+:::
+
+#### d. Conduct hierarchical clustering.
+
+Use Euclidean distance with Wards linkage to cluster the data and plot the dendrogram. How many clusters are suggested by the dendrogram?
+
+::: unilur-solution
+
+```{r}
+# hierarchical clustering
+risk_h_ew <- hclust(
+  dist(risk, method = "euclidean"),
+  method = "ward.D2")
+
+# drawing 2D dendrogram
+ggplot() +
+  geom_segment(data=dendro_data(risk_h_ew)$segments, 
+               aes(x = x, y = y, 
+                   xend = xend, yend = yend)) + 
+  theme_dendro()
+
+# adding the cluster solutions to the data
+risk_clw <- risk |>
+  as_tibble() |>
+  mutate(
+    cl2 = factor(cutree(risk_h_ew, 2)),
+    cl3 = factor(cutree(risk_h_ew, 3)),
+    cl4 = factor(cutree(risk_h_ew, 4)),
+    cl5 = factor(cutree(risk_h_ew, 5)),
+    cl6 = factor(cutree(risk_h_ew, 6)),
+    cl7 = factor(cutree(risk_h_ew, 7))
+    )
+```
+
+:::
+
+Compute the cluster metrics for the range of cluster numbers between 2 and 7. Which $k$ would be considered the best, according to `within.cluster.ss`? Why not be concerned about the other metrics?
+
+::: unilur-solution
+
+```{r}
+#| code-fold: true
+f.hc <- NULL; f.hc.stats <- NULL
+for (i in 2:7) {
+  cl <- cutree(risk_h_ew, i)
+  x <- cluster.stats(dist(risk), cl)
+  f.hc <- cbind(f.hc, cl)
+  f.hc.stats <- rbind(f.hc.stats, 
+                      c(x$within.cluster.ss, 
+                        x$wb.ratio, x$ch,
+                        x$pearsongamma, x$dunn, 
+                        x$dunn2))
+}
+colnames(f.hc.stats) <- c("within.cluster.ss",
+                          "wb.ratio", "ch",
+                          "pearsongamma", "dunn",
+                          "dunn2")
+f.hc.stats <- data.frame(f.hc.stats)
+f.hc.stats$cl <- 2:7
+ggplot(data=f.hc.stats) + 
+  geom_line(aes(x=cl, y=within.cluster.ss)) +
+  xlab("")
+```
+
+The within cluster SS declines slowly with each additional cluster created. It's not clear which is the better partitioning.
+
+Note that the sizes of the clusters is is variable. The three cluster solution creates a new small cluster, which may not be ideal for this data.
+
+```{r}
+#| eval: false
+risk_clw |> count(cl2)
+risk_clw |> count(cl3)
+```
+
+:::
+
+Make a plot of the cluster summary statistics, like slide 11 of week 11 to examine how clustering with different numbers of clusters partitions the data.
+
+::: unilur-solution
+
+
+```{r}
+#| fig-width: 12
+#| fig-height: 6
+#| code-fold: true
+# Compute summary statistics
+# k=2
+risk_clw_m <- risk_clw |>
+  group_by(cl2) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl2) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl2) |>
+  mutate(var = factor(var))
+hc2 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=2") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=3
+risk_clw_m <- risk_clw |>
+  group_by(cl3) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl3) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl3) |>
+  mutate(var = factor(var))
+hc3 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=3") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=4
+risk_clw_m <- risk_clw |>
+  group_by(cl4) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl4) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl4) |>
+  mutate(var = factor(var))
+hc4 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=4") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=5
+risk_clw_m <- risk_clw |>
+  group_by(cl5) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl5) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl5) |>
+  mutate(var = factor(var))
+hc5 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=5") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=6
+risk_clw_m <- risk_clw |>
+  group_by(cl6) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl6) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl6) |>
+  mutate(var = factor(var))
+hc6 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=6") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=7
+risk_clw_m <- risk_clw |>
+  group_by(cl7) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+risk_clw_s <- risk_clw |>
+  group_by(cl7) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+risk_clw_pcp <- bind_cols(risk_clw_m,
+                          risk_clw_s[,3]) |>
+  rename(cluster=cl7) |>
+  mutate(var = factor(var))
+hc7 <- ggplot(risk_clw_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(risk_clw_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=7") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+hc2 + hc3 + hc4 + hc5 + hc6 + hc7 + plot_layout(ncol=3)
+```
+
+What we learn:
+
+- Breaking the data into each additional cluster reduces the within cluster SS. The benefit does get less with increasing number of clusters.
+- The 2 cluster solution is low risk, and high risk. The 3 cluster solution is low, medium, high risk. Up to three clusters, the division is essentially along a single overall axis of variation. (You could check this by plotting clusters on PC1.)
+- The 4, 5, 6, 7 cluster solutions still have low, medium and high risk clusters. The additional clusters are high Health risk (4), high Safety and Recreational (5), Health and Safety (6), high Safety (7). That is, each additional cluster used breaks out a cluster that collect high risk takers on a smaller set of items.  
+
+:::
+
+#### d. Conduct $k$-means clustering with a range of $k$.
+
+Fit $k$ ranging from 2 through 7. Compute the cluster metrics. Which $k$ would be considered the best, according to `within.cluster.ss`? Why not be concerned about the other metrics?
+
+::: unilur-solution
+
+```{r}
+#| code-fold: true
+set.seed(958)
+r_km <- kmeans(risk, centers=2, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- as_tibble(risk) |>
+  mutate(cl2 = r_km$cluster)
+r_km <- kmeans(risk, centers=3, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- r_km_d |>
+  mutate(cl3 = r_km$cluster)
+r_km <- kmeans(risk, centers=4, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- r_km_d |>
+  mutate(cl4 = r_km$cluster)
+r_km <- kmeans(risk, centers=5, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- r_km_d |>
+  mutate(cl5 = r_km$cluster)
+r_km <- kmeans(risk, centers=6, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- r_km_d |>
+  mutate(cl6 = r_km$cluster)
+r_km <- kmeans(risk, centers=7, 
+                     iter.max = 500, nstart = 5)
+r_km_d <- r_km_d |>
+  mutate(cl7 = r_km$cluster)
+
+
+f.km <- NULL; f.km.stats <- NULL
+for (i in 2:7) {
+  cl <- as.matrix(r_km_d[,i+5])
+  x <- cluster.stats(dist(risk), cl)
+  f.km <- cbind(f.km, cl)
+  f.km.stats <- rbind(f.km.stats, 
+                      c(x$within.cluster.ss, 
+                        x$wb.ratio, x$ch,
+                        x$pearsongamma, x$dunn, 
+                        x$dunn2))
+}
+colnames(f.km.stats) <- c("within.cluster.ss",
+                          "wb.ratio", "ch",
+                          "pearsongamma", "dunn",
+                          "dunn2")
+f.km.stats <- data.frame(f.km.stats)
+f.km.stats$cl <- 2:7
+ggplot(data=f.km.stats) + 
+  geom_line(aes(x=cl, y=within.cluster.ss)) +
+  xlab("")
+```
+
+The within cluster SS declines rapidly to 4 cluster, and slightly more slowly with each additional cluster created. It's not clear which is the better partitioning.
+
+Note that the sizes of the clusters is reasonably large. That the additional division roughly halves numbers in a cluster. 
+
+```{r}
+#| eval: false
+r_km_d |> count(cl2)
+r_km_d |> count(cl3)
+```
+
+:::
+
+
+Make a plot of the cluster summary statistics, like slide 11 of week 11 to examine how clustering with different numbers of clusters partitions the data.
+
+::: unilur-solution
+
+
+```{r}
+#| fig-width: 12
+#| fig-height: 6
+#| code-fold: true
+# Compute summary statistics
+# k=2
+r_km_d_m <- r_km_d |>
+  group_by(cl2) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl2) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl2) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc2 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=2") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=3
+r_km_d_m <- r_km_d |>
+  group_by(cl3) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl3) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl3) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc3 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=3") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=4
+r_km_d_m <- r_km_d |>
+  group_by(cl4) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl4) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl4) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc4 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=4") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=5
+r_km_d_m <- r_km_d |>
+  group_by(cl5) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl5) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl5) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc5 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=5") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=6
+r_km_d_m <- r_km_d |>
+  group_by(cl6) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl6) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl6) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc6 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=6") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+# k=7
+r_km_d_m <- r_km_d |>
+  group_by(cl7) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), mean) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="mean")
+r_km_d_s <- r_km_d |>
+  group_by(cl7) |>
+  dplyr::summarise_at(
+    vars(Recreational:Social), sd) |>
+  ungroup() |>
+  pivot_longer(Recreational:Social,
+               names_to="var", values_to="sd")
+
+r_km_d_pcp <- bind_cols(r_km_d_m,
+                          r_km_d_s[,3]) |>
+  rename(cluster=cl7) |>
+  mutate(var = factor(var),
+         cluster = factor(cluster))
+hc7 <- ggplot(r_km_d_pcp) +
+  geom_ribbon(aes(x=as.numeric(var), 
+                  ymin=mean-sd, 
+                  ymax=mean+sd, 
+                  fill=cluster), alpha=0.5) +
+  geom_line(aes(x=as.numeric(var), 
+                y=mean, 
+                colour=cluster)) +
+  scale_x_continuous("", breaks=1:6,
+      labels=levels(r_km_d_pcp$var)) +
+  ylab("") +
+  scale_color_discrete_divergingx(palette="Zissou 1") +
+  scale_fill_discrete_divergingx(palette="Zissou 1") +
+  ggtitle("k=7") +
+  theme(aspect.ratio=0.7, 
+        legend.position = "none") +
+  coord_flip()
+
+hc2 + hc3 + hc4 + hc5 + hc6 + hc7 + plot_layout(ncol=3)
+```
+
+What we learn:
+
+- The result is a little different from hierarchical clustering results.
+- The 2 cluster solution is low risk, and high risk. 
+- But the 3 cluster solution is low, high risk, and high on Health only. 
+- The 4 cluster solution has low, medium, high groups, and the high Health risk group.
+- The 5 cluster solution adds a medium high Recreational risk group. 
+- The 6 cluster solution has low, low medium, high medium, and high risk groups, and two clusters specially with high risk takes in Health, and the other on Recreational.
+- The 7 cluster solution adds a cluster of high risk takes on Health and Safety.  
+
+:::
+
+#### e. Which is the best result?
+
+Have a conversation with your tutor and class members about which result, or some other might be the best to use for, say, and ensuring that there are enough tourist opportunities for all types of preferences. 
+
+<!--
+You wonder what high risk means? For Health, say? Look at the full data on Australian travel motives, and it's not very clear. But maybe its related to doing healthy activities, more healthy like hiking might be considered high risk.
+
+From Prof Cook's opinion, the best solution is simply breaking the data into low, medium and high. That Health appears specially is due to it having slightly more high number responses than other variables.
+
+Or specifically, one group that is low risk overall, and then groups that are medium high risk on any single activity. The correlation between these variables is small, so not much is gained by considered combinations of them.
+
+-->
+
+## `r emo::ji("wave")` Finishing up
+
+Make sure you say thanks and good-bye to your tutor. This is a time to also report what you enjoyed and what you found difficult.
