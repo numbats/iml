@@ -5008,23 +5008,18 @@ color: #C8008F;
 <summary>Load the libraries and avoid conflicts, and prepare data</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries used everywhere</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyclust)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mulgar)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdendro)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpc)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tourr)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geozoo)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(colorspace)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visdat)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(missForest)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>select)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>slice)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mulgar)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdendro)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpc)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tourr)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(colorspace)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>select)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>slice)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="objectives" class="level2">
@@ -5039,61 +5034,8 @@ color: #C8008F;
 </section>
 <section id="exercises" class="level2">
 <h2 class="anchored" data-anchor-id="exercises">Exercises:</h2>
-<!--
-#### 1. Re-do Julia Silge's post on hierarchical clustering
-
-Have a read through [Julia's post on clustering Health Care Indicators](https://juliasilge.com/blog/health-care-indicators/). This activity is to repeat her analysis, handling missing values prior to clustering and examining the results. However the R code is a bit old style, so we will update it, too.
-
-
-
-::: {.cell layout-align="center"}
-
-```{.r .cell-code}
-library(RSocrata)
-health_all <- read.socrata("https://opendata.utah.gov/resource/qmsu-gki4.csv")
-#health_all[,3:67] <- lapply(health_all[,3:67], as.numeric)
-#health_all <- health_all[c(-1),]
-health_all <- make_clean_names(health_all)
-
-# Notice the missing values
-vis_dat(health_all)
-
-# Clean names, standardise
-health <- health_all[,c(2,4:5,18,22,24,27,31,34,
-                       36,38,42,44,48,51,55,
-                       60,63,64)]
-colnames(health) <- c("County", 
-              "PercentUnder18",
-              "PercentOver65",
-              "DiabeticRate", 
-              "HIVRate",
-              "PrematureMortalityRate",
-              "InfantMortalityRate",
-              "ChildMortalityRate",
-              "LimitedAccessToFood",
-              "FoodInsecure", 
-              "MotorDeathRate",
-              "DrugDeathRate",
-              "Uninsured", 
-              "UninsuredChildren",
-              "HealthCareCosts", 
-              "CouldNotSeeDr",
-              "MedianIncome",
-              "ChildrenFreeLunch",
-              "HomicideRate")
-health_std <- health |>
-  mutate_if(is.numeric, 
-            function(x) (x-mean(x, na.rm=TRUE))/
-              sd(x, na.rm=TRUE))
-
-# Impute missing values
-health_std_imputed <- missForest(health_std[,-1])
-```
-:::
-
--->
 <p><strong>Risk taking behavior of tourists in Australia</strong></p>
-<p>Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The <code>risk_MSA.rds</code> data was collected in Australia in 2015 <span class="citation" data-cites="risk-survey">[@risk-survey]</span> and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book <a href="https://homepage.boku.ac.at/leisch/MSA/">“Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful” by Sara Dolnicar, Bettina Grün and Friedrich Leisch</a>. The data can be obtained using the following code:</p>
+<p>Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The <code>risk</code> data was collected in Australia in 2015 and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book <a href="https://homepage.boku.ac.at/leisch/MSA/">“Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful” by Sara Dolnicar, Bettina Grün and Friedrich Leisch</a>. The data can be obtained using the following code:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>risk <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://homepage.boku.ac.at/leisch/MSA/datasets/risk.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -5116,20 +5058,21 @@ health_std_imputed <- missForest(health_std[,-1])
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">&quot;var&quot;</span>, </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">&quot;response&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cl, <span class="at">y=</span>response, <span class="at">colour=</span>cl)) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_quasirandom</span>(<span class="at">alpha=</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>var, <span class="at">ncol=</span><span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_quasirandom</span>(<span class="at">alpha=</span><span class="fl">0.3</span>, <span class="at">size=</span><span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>var, <span class="at">ncol=</span><span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_discrete_divergingx</span>(<span class="at">palette=</span><span class="st">&quot;Zissou 1&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Response&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">&quot;Cluster&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tutorial_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+<p><img src="tutorial_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>It still divides the data more messily than anticipated. Cluster 1 though does have small values on all variables. This is the low risk group. Cluster 2 seems to have high values on Recreation and somewhat high on Social but low values on other variables. So it might be considered a cluster of high recreational risk takers. Now your turn to describe the other clusters.</p>
+<p>It still divides the data more messily than anticipated. Cluster 4 though does have small values on all variables, and cluster 5 has moderately small values on all variables. These are the low risk groups. Cluster 7 has high values on most variables, and is a high risk group Cluster 2 seems to have high values on Recreation, and low values on other variables. So it might be considered a cluster of high recreational risk takers. Now your turn to describe the other clusters.</p>
 </section>
 <section id="d.-conduct-hierarchical-clustering." class="level4">
 <h4 class="anchored" data-anchor-id="d.-conduct-hierarchical-clustering.">d. Conduct hierarchical clustering.</h4>

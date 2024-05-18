@@ -39,18 +39,13 @@ knitr::opts_chunk$set(
 #| code-summary: "Load the libraries and avoid conflicts, and prepare data"
 # Load libraries used everywhere
 library(tidyverse)
-library(tidymodels)
-library(tidyclust)
 library(patchwork)
 library(mulgar)
 library(ggdendro)
 library(fpc)
 library(tourr)
-library(geozoo)
 library(colorspace)
 library(ggbeeswarm)
-library(visdat)
-library(missForest)
 library(ggthemes)
 library(conflicted)
 conflicts_prefer(dplyr::filter)
@@ -87,59 +82,10 @@ The goal for this week is work on a realistic clustering problem.
 
 
 
-<!--
-#### 1. Re-do Julia Silge's post on hierarchical clustering
-
-Have a read through [Julia's post on clustering Health Care Indicators](https://juliasilge.com/blog/health-care-indicators/). This activity is to repeat her analysis, handling missing values prior to clustering and examining the results. However the R code is a bit old style, so we will update it, too.
-
-
-```{r}
-#| eval: false
-library(RSocrata)
-health_all <- read.socrata("https://opendata.utah.gov/resource/qmsu-gki4.csv")
-#health_all[,3:67] <- lapply(health_all[,3:67], as.numeric)
-#health_all <- health_all[c(-1),]
-health_all <- make_clean_names(health_all)
-
-# Notice the missing values
-vis_dat(health_all)
-
-# Clean names, standardise
-health <- health_all[,c(2,4:5,18,22,24,27,31,34,
-                       36,38,42,44,48,51,55,
-                       60,63,64)]
-colnames(health) <- c("County", 
-              "PercentUnder18",
-              "PercentOver65",
-              "DiabeticRate", 
-              "HIVRate",
-              "PrematureMortalityRate",
-              "InfantMortalityRate",
-              "ChildMortalityRate",
-              "LimitedAccessToFood",
-              "FoodInsecure", 
-              "MotorDeathRate",
-              "DrugDeathRate",
-              "Uninsured", 
-              "UninsuredChildren",
-              "HealthCareCosts", 
-              "CouldNotSeeDr",
-              "MedianIncome",
-              "ChildrenFreeLunch",
-              "HomicideRate")
-health_std <- health |>
-  mutate_if(is.numeric, 
-            function(x) (x-mean(x, na.rm=TRUE))/
-              sd(x, na.rm=TRUE))
-
-# Impute missing values
-health_std_imputed <- missForest(health_std[,-1])
-```
--->
 
 **Risk taking behavior of tourists in Australia**
 
-Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The `risk_MSA.rds` data was collected in Australia in 2015 [@risk-survey] and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book ["Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful" by Sara Dolnicar, Bettina Grün and Friedrich Leisch](https://homepage.boku.ac.at/leisch/MSA/). The data can be obtained using the following code:
+Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The `risk` data was collected in Australia in 2015 and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book ["Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful" by Sara Dolnicar, Bettina Grün and Friedrich Leisch](https://homepage.boku.ac.at/leisch/MSA/). The data can be obtained using the following code:
 
 ```{r}
 risk <- read_csv("https://homepage.boku.ac.at/leisch/MSA/datasets/risk.csv")
@@ -187,6 +133,7 @@ Using $k=7$ fit the model, and examine the results with a tour.
 
 ```{r}
 # k-means + tour with cluster means
+set.seed(1033)
 r_km <- kmeans(risk, centers=7, 
                      iter.max = 500, nstart = 5)
 r_km_d <- as_tibble(risk) |>
@@ -218,31 +165,29 @@ Try making a simpler plot as follows:
 
 ```{r}
 #| fig-width: 8
-#| fig-height: 5
+#| fig-height: 6
+#| out-width: 100%
 r_km_d |>
   pivot_longer(Recreational:Social, 
                names_to = "var", 
                values_to = "response") |>
   ggplot(aes(x=cl, y=response, colour=cl)) +
-    geom_quasirandom(alpha=0.5) +
-    facet_wrap(~var, ncol=4) +
+    geom_quasirandom(alpha=0.3, size=3) +
+    facet_wrap(~var, ncol=3) +
     scale_color_discrete_divergingx(palette="Zissou 1") +
+  ylab("Response") + xlab("Cluster") +
   coord_flip() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") 
 ```
 
-It still divides the data more messily than anticipated. Cluster 1 though does have small values on all variables. This is the low risk group. Cluster 2 seems to have high values on Recreation and somewhat high on Social but low values on other variables. So it might be considered a cluster of high recreational risk takers. Now your turn to describe the other clusters.
+It still divides the data more messily than anticipated. Cluster 4 though does have small values on all variables, and cluster 5 has moderately small values on all variables. These are the low risk groups. Cluster 7 has high values on most variables, and is a high risk group Cluster 2 seems to have high values on Recreation, and low values on other variables. So it might be considered a cluster of high recreational risk takers. Now your turn to describe the other clusters.
 
 ::: unilur-solution
-Cluster 3 has high values on Health and Recreational and mostly high on all variables. These are the general risk takers.
+Cluster 1 has high values on Health. 
 
-Cluster 4 has high values on Safety but relatively low on other variables.
+Cluster 3 has high values on Social.
 
-Cluster 5 is generally low values on all variables, but maybe slightly higher than cluster 1.
-
-Cluster 6 has high values on Health. 
-
-Cluster 7 has relatively low values on all variables, but slightly higher on Safety.
+Cluster 6 has high values on Career and moderate values on all others.
 
 The 7 cluster solution is not super easy to explain, at least it is not cleanly as expected. We need to examine different $k$.
 :::
