@@ -18,6 +18,14 @@ echo: true
 cache: false
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 1 folder in the terminal in R
+quarto install extension ginolhac/unilur
+-->
+
 ## `r emo::ji("target")` Objectives
 
 The goal for this week is for you to get up and running with the computing environment needed to successfully complete this unit. 
@@ -37,7 +45,7 @@ install.packages(c("tidyverse", "tidymodels", "tourr", "geozoo", "mulgar", "ggpc
 ## Exercises: 
 
 
-#### 1. The materials at [https://learnr.numbat.space](https://learnr.numbat.space) are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error. 
+#### 1. The materials at [https://startr.numbat.space/](https://startr.numbat.space/) are an especially good way to check your R skills are ready for the unit. Regardless how advanced you are, at some point you will need help. How you ask for help is a big factor in getting your problem fixed. The following code generates an error. 
 
 ```{r}
 #| eval: false
