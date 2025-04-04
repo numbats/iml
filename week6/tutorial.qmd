@@ -16,6 +16,19 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 6 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week6
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week6
+quarto install extension ginolhac/unilur
+-->
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -304,9 +317,7 @@ p_fit_rf
 ```
 :::
 
-c. Use linked brushing to learn which was the Gentoo penguin that the model was confused about. When we looked at the data in a tour, there was one Gentoo penguin that was an outlier, appearing to be away from the other Gentoos and closer to the Chinstrap group. We would expect this to be the penguin that the forest model is confused about. Is it?
-
-![](../images/p_forest_detourr.png)
+c. Combine a tour with a confusion matrix (known as linked brushing) to learn which was the Gentoo penguin that the model was confused about. When we looked at the data in a tour, there was one Gentoo penguin that was an outlier, appearing to be away from the other Gentoos and closer to the Chinstrap group. We would expect this to be the penguin that the forest model is confused about. Is it?
 
 Have a look at the other misclassifications, to understand whether they are ones we'd expect to misclassify, or whether the model is not well constructed.
 
@@ -342,6 +353,41 @@ bscols(
   widths = c(5, 6)
 )
 ```
+
+::: unilur-solution
+```{r eval=TRUE, cache=TRUE}
+p_cl <- p_tr2 |>
+  mutate(pspecies = p_fit_rf$fit$predicted) |>
+  dplyr::select(bl:bm, species, pspecies) |>
+  mutate(sp_jit = jitter(as.numeric(species)),
+         psp_jit = jitter(as.numeric(pspecies)))
+p_cl_shared <- SharedData$new(p_cl)
+
+detour_plot <- detour(p_cl_shared, tour_aes(
+  projection = bl:bm,
+  colour = species)) |>
+  tour_path(grand_tour(2),
+            max_bases=50, fps = 60) |>
+  show_scatter(alpha = 0.9, axes = FALSE,
+               width = "100%", height = "450px")
+
+conf_mat <- plot_ly(p_cl_shared,
+                    x = ~psp_jit,
+                    y = ~sp_jit,
+                    color = ~species,
+                    colors = viridis_pal(option = "D")(3),
+                    height = 450) |>
+  highlight(on = "plotly_selected",
+            off = "plotly_doubleclick") |>
+  add_trace(type = "scatter",
+            mode = "markers")
+
+bscols(
+  detour_plot, conf_mat,
+  widths = c(5, 6)
+)
+```
+:::
 
 #### 3. Deciding on variables in a large data problem
 
@@ -391,6 +437,8 @@ labels <- c("accident" , "arson",
                 "burning_off", "lightning", 
                 rep("", nrow(bf_rf_v_p)))
 ```
+
+Notice here that we use the `ranger` package engine rather than `randomForest` as this has functionality for permutation importance. An advantage of the `tidymodels` formulation is that you cna use a different engine and the rest of your code stays the same. 
 
 ```{r eval=FALSE}
 # Examine votes matrix with bounding simplex
