@@ -16,6 +16,19 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 9 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week9
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week9
+quarto install extension ginolhac/unilur
+-->
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -115,15 +128,18 @@ Simulate two toy data sets as follows.
 set.seed(1125)
 n1 <- 162
 vc1 <- matrix(c(1, -0.7, -0.7, 1), ncol=2, byrow=TRUE)
-c1 <- rmvn(n=n1, p=2, mn=c(-2, -2), vc=vc1)
+#c1 <- rmvn(n=n1, p=2, mn=c(-2, -2), vc=vc1)
+c1 <- rmvn(n=n1, p=2, mn=c(-1.5, -1.5), vc=vc1)
 vc2 <- matrix(c(1, -0.4, -0.4, 1)*2, ncol=2, byrow=TRUE)
 n2 <- 138
-c2 <- rmvn(n=n2, p=2, mn=c(2, 2), vc=vc2)
+#c2 <- rmvn(n=n2, p=2, mn=c(2, 2), vc=vc2)
+c2 <- rmvn(n=n2, p=2, mn=c(1.5, 1.5), vc=vc2)
 df1 <- data.frame(x1=mulgar:::scale2(c(c1[,1], c2[,1])), 
                  x2=mulgar:::scale2(c(c1[,2], c2[,2])), 
                  cl = factor(c(rep("A", n1), 
                                rep("B", n2))))
-c1 <- sphere.hollow(p=2, n=n1)$points*3 + 
+#c1 <- sphere.hollow(p=2, n=n1)$points*3 + 
+c1 <- sphere.hollow(p=2, n=n1)$points*1.2 + 
   c(rnorm(n1, sd=0.3), rnorm(n1, sd=0.3))
 c2 <- sphere.solid.random(p=2, n=n2)$points
 df2 <- data.frame(x1=mulgar:::scale2(c(c1[,1], c2[,1])), 
@@ -179,7 +195,7 @@ df2_ts <- testing(df2_split)
 ```
 :::
 
-d. Fit the svm model. Try changing the cost parameter to explore the number of support vectors used. Choose the value that gives you the smallest number. You can use code like this (`scaled = FALSE` indicates that the variables are already scaled and no further standardising is needed):
+d. Fit the linear svm model to the first data set. Try changing the cost parameter to explore the number of support vectors used and the size of the margin. You can use code like this (`scaled = FALSE` indicates that the variables are already scaled and no further standardising is needed):
 
 ```{r}
 #| eval: false
@@ -197,19 +213,32 @@ svm_fit2 <- svm_spec2 |>
 
 ::: unilur-solution
 
-A `cost=1.5` gives the fewest support vectors, 4 for the linear fit. For the radial basis fit, `cost=2` seems to give the fewest.
+A small cost gives a large margin with severl supprot vectors
 
 ```{r}
-svm_spec1 <- svm_linear(cost=1.5) |>
+svm_spec1 <- svm_linear(cost=0.5) |>
   set_mode("classification") |>
   set_engine("kernlab", scaled = FALSE)
 svm_fit1 <- svm_spec1 |> 
   fit(cl ~ ., data = df1_tr)
-svm_spec2 <- svm_rbf(cost=2) |>
+svm_fit1 |>
+  extract_fit_engine() |>
+  plot(data=df1_tr)
+
+```
+
+A larger cost gives a smaller margin with fewer supprot vectors
+
+```{r}
+svm_spec1 <- svm_linear(cost=5) |>
   set_mode("classification") |>
   set_engine("kernlab", scaled = FALSE)
-svm_fit2 <- svm_spec2 |> 
-  fit(cl ~ ., data = df2_tr)
+svm_fit1 <- svm_spec1 |> 
+  fit(cl ~ ., data = df1_tr)
+svm_fit1 |>
+  extract_fit_engine() |>
+  plot(data=df1_tr)
+
 ```
 
 :::
@@ -229,11 +258,59 @@ The equation of the separating hyperplane would be `r round(svm_fit1$fit@b, 2)` 
 #| fig-width: 4
 #| fig-height: 4
 #| out-width: 50%
-s1 + geom_abline(intercept=svm_fit1$fit@b, slope = -1)
+s1 + geom_abline(intercept=svm_fit1$fit@b, slope = -sv_betas[1]/sv_betas[2])
 ```
 :::
 
-f. Compute the confusion table, and the test error for each model.
+
+f. Fit a non-linear svm model with the rbf kernel to the second data set. Try changing the cost parameter and kernel parameter sigma to explore the shape of the non-linear classifier. You can use code like this (`scaled = FALSE` indicates that the variables are already scaled and no further standardising is needed):
+
+```{r}
+#| eval: false
+svm_spec2 <- svm_rbf(cost=1, rbf_sigma = 1) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = df2_tr)
+```
+
+::: unilur-solution
+
+
+```{r}
+svm_spec2 <- svm_rbf(cost=2, rbf_sigma = 0.5) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = df2_tr) 
+
+svm_fit2 |>
+  extract_fit_engine() |>
+  plot(data=df2_tr)
+```
+
+```{r}
+svm_spec2 <- svm_rbf(cost=2, rbf_sigma = 5) |>
+  set_mode("classification") |>
+  set_engine("kernlab", scaled = FALSE)
+svm_fit2 <- svm_spec2 |> 
+  fit(cl ~ ., data = df2_tr) 
+
+svm_fit2 |>
+  extract_fit_engine() |>
+  plot(data=df2_tr)
+```
+
+For fixed cost the larger value of the `rbf_sigma` fits a smoother non-linear classiifer.
+
+:::
+
+
+
+
+
+
+g. Compute the confusion table, and the test error for each model.
 
 ::: unilur-solution
 
@@ -265,7 +342,7 @@ df2_pts |>
 ```
 :::
 
-g. Which observations would you expect to be the support vectors? Overlay indications of the support vectors from each model to check whether the model thinks the same as you.
+h. Which observations would you expect to be the support vectors? Overlay indications of the support vectors from each model to check whether the model thinks the same as you.
 
 ::: unilur-solution
 ```{r}
@@ -287,7 +364,7 @@ s1 + s2 + plot_layout(ncol=2)
 ```
 :::
 
-h. Think about whether a neural network might be able to fit the second data set? Have a discussion with your neighbour and tutor about what would need to be done to make a neural network architecture.x
+i. Think about whether a neural network might be able to fit the second data set? Have a discussion with your neighbour and tutor about what would need to be done to make a neural network architecture.x
 
 ## `r emo::ji("wave")` Finishing up
 
