@@ -113,6 +113,96 @@ The goal for this week is learn to fit, diagnose, assess assumptions, and predic
 
 ## Exercises: 
 
+#### 4. In the lecture slides from week 1 on bias vs variance, these four images were shown. 
+
+![](/images/bias-large.png){width=200}
+![](images/bias-small.png){width=200}
+
+![](images/variance-small.png){width=200}
+![](images/variance-large.png){width=200}
+
+Mark the images with the labels "true model", "fitted model", "bias". Then explain in your own words why the different model shown in each has (potentially) large bias or small bias, and small variance or large variance.
+
+::: unilur-solution
+
+The linear model will be very similar regardless of the training sample, so it has small variance. But because it misses the curved nature of the true model, it has large bias, missing critical parts of the two classes that are different.
+
+The non-parametric model which captures the curves thus has small bias, but the fitted model might vary a lot from one training sample to another which would result in it being considered to have large variance.
+
+![](images/bias-large-annotated.png){width=200}
+![](images/bias-small-annotated.png){width=200}
+:::
+
+
+#### 6. This question relates to feature engineering, creating better variables on which to build your model.
+
+a. The following `spam` data has a heavily skewed distribution for the size of the email message. How would you transform this variable to better see differences between spam and ham emails?
+
+```{r}
+library(ggplot2)
+library(ggbeeswarm)
+spam <- read_csv("http://ggobi.org/book/data/spam.csv")
+ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none")
+```
+
+::: unilur-solution
+```{r}
+ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none") +
+  scale_y_log10()
+```
+:::
+
+b. For the following data, how would you construct a new single variable which would capture the difference between the two classes using a linear model?
+
+```{r}
+olive <- read_csv("http://ggobi.org/book/data/olive.csv") |>
+  dplyr::filter(region != 1) |>
+  dplyr::select(region, arachidic, linoleic) |>
+  mutate(region = factor(region))
+ggplot(olive, aes(x=linoleic, 
+                  y=arachidic, 
+                  colour=region)) +
+  geom_point() +
+  scale_color_brewer("", palette = "Dark2") + 
+   theme(legend.position="none", 
+        aspect.ratio=1)
+```
+
+::: unilur-solution
+```{r}
+olive <- olive |>
+  mutate(linoarch = 0.377 * linoleic + 
+           0.926 * arachidic)
+ggplot(olive, aes(x=region, 
+                  y=linoarch, 
+                  colour=region)) +
+  geom_quasirandom() +
+  scale_color_brewer("", palette = "Dark2") + 
+  coord_flip() +
+  theme(legend.position="none") 
+```
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
 Open your project for this unit called `iml.Rproj`. For all the work we will use the penguins data. Start with splitting it into a training and test set, as follows. 
 
 ```{r}
@@ -175,6 +265,8 @@ accuracy(p_ts_pred, species, pspecies)$.estimate
 :::
 
 c. Check the logistic regression model fit. First plot the data-in-the-model-space. Separate the observations by their true class label and produce box-plots of the model probabilities assigned to being in the correct class. Do this for both the training and testing observations. You can use this code to make the predictions.
+
+*MAKE THESE TERNARY PLOTS NEXT YEAR*
 
 ```{r}
 p_tr_pred_prob <- log_fit |> 
