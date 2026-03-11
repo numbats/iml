@@ -5,10 +5,10 @@ title-slide-attributes:
   data-background-size: 100%
 subtitle: "Week 9: K-means and hierarchical clustering"
 author: 
- - name: "Professor Di Cook"
-   email: "etc3250.clayton-x@monash.edu"
+ - name: "Jack Jewson"
+   email: "Jack.Jewson@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 9 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 9"
 format:
   revealjs:
     multiplex: false
@@ -29,17 +29,64 @@ source("../setup.R")
 
 We will cover:
 
+::: {.incremental}
+
 * Defining distance measure
 * $k$-means algorithm
 * Hierarchical algorithms
 * Making and using dendrograms
 
+:::
+
+
+## Supervised vs Unsupervised Learning
+
+:::: {.columns}
+::: {.column style="font-size: 90%;"}
+
+**Classification**
+
+::: {.incremental}
+
++ Given response $\{y_i\}_{i=1}^n$ with each $y_i \in \{1, \ldots, K\}$ and predictors $\{x_i\}_{i=1}^n$ with each $x_i\in\mathbb{R}^p$
++ Classification seeks to learn the relationship $x\mapsto y$
++ Supervised learning as we are given $y$'s
+
+:::
+
+:::
+::: {.column .fragment style="font-size: 90%;"}
+
+**Clustering**
+
+::: {.incremental}
+
++ Given predictors $\{x_i\}_{i=1}^n$ with each $x_i\in\mathbb{R}^p$
++ Clustering tries to learn $y_i\in \{1, \ldots, K\}$ for each observation $i = 1, \ldots, n$
++ i.e. learn about unlabeled groups in the data
++ Unsupervised learning as we are not given the $y$'s
++ Similar idea to PCA, 
+  + Have $x\in\mathbb{R}^p$ and we want to learn a lower dimensional representation $z\in\mathbb{R}^k$ 
+  + We were not given these $z$'s
+
+:::
+
+:::
+::::
+
+
 ## Cluster analysis
 
 <br>
 
-- The aim of cluster analysis is to [group cases (objects) according to their similarity]{.monash-blue2} on the variables. It is also often called unsupervised classification, meaning that classification is the ultimate goal, but the classes (groups) are not known ahead of time. 
-- Hence the first task in cluster analysis is to construct the class information. To determine closeness we start with [measuring the interpoint distances]{.monash-blue2}.
+::: {.incremental}
+
+- The aim of cluster analysis is to [group cases (objects) according to their similarity]{.monash-blue2} on the variables. 
+- It is also often called unsupervised classification, meaning that classification is the ultimate goal, but the classes (groups) are not known ahead of time. 
+- Cluster analysis works by grouping close observations together 
+- To determine closeness we start with [measuring the interpoint distances]{.monash-blue2}.
+
+:::
 
 ## Cluster these!
 
@@ -185,7 +232,11 @@ kp4 <- ggplot(d_odd_shapes, aes(x=x1, y=x2, colour=cl)) +
 print(kp1 + kp2 + kp3 + kp4 + plot_layout(ncol=2))
 ```
 
+::: {.fragment}
+
 It's *easy* if we can [see the clusters]{.monash-blue2}, but what an [algorithm sees]{.monash-orange2} might be quite different. 
+
+:::
 
 :::
 :::
@@ -206,6 +257,25 @@ detour(p_std[,2:5],
                     axes = FALSE)
 ```
 
+::: {.fragment}
+
+If you see a cluster in any projection of the data then it exists in high dimensions
+
+:::
+
+
+::: {.fragment}
+
+You have enough clusters when you don't see any more groups break out 
+
+:::
+
+::: {.fragment}
+
+Can use to see if your clusters agree with an algorithm's
+
+:::
+
 
 ## How do you measure "close"? {.transition-slide .center}
 
@@ -214,47 +284,129 @@ detour(p_std[,2:5],
 :::: {.columns}
 ::: {.column style="font-size: 70%;"}
 
-Let $A=(x_{a1}, x_{a2}, ..., x_{ap})$ and $B=(x_{b1}, x_{b2}, ..., x_{bp})$.
+Let $X_A=(x_{a1}, x_{a2}, ..., x_{ap})$ and $X_B=(x_{b1}, x_{b2}, ..., x_{bp})$.
+
+::: {.fragment}
 
 [Euclidean]{.monash-blue2}
 
 \begin{align*}
-d_{EUC}(A, B) &= \sqrt{\sum_{j=1}^p (x_{aj}-x_{bj})^2} &\\
+d_{EUC}(X_A, X_B) &= \sqrt{\sum_{j=1}^p (x_{aj}-x_{bj})^2} &\\
 &= \sqrt{((X_A-X_B)^\top (X_A-X_B))}&
 \end{align*}
 
+:::
+
+::: {.fragment}
+
 [Other distance metrics]{.monash-blue2}
 
+::: {.incremental}
+
 - Mahalanobis (or statistical) distance: $\sqrt{((X_A-X_B)^\top S^{-1} (X_A-X_B))}$
+
 
 - Manhattan: $\sum_{j=1}^p|(X_{aj}-X_{bj})|$
 
 - Minkowski: $(\sum_{j=1}^p|(X_{aj}-X_{bj})|^m)^{1/m}$
 
+:::
+
+:::
+
 ::: 
 
-::: {.column style="font-size: 60%;"}
+::: {.column style="font-size: 60%;" .fragment}
 
 [Count data]{.monash-blue2}
+
+::: {.incremental}
 
 - Canberra: $\frac{1}{n_z}\sum_{j=1}^p\frac{X_{aj}-X_{bj}}{X_{aj}+X_{bj}}$
 
 - Bray-Curtis: $\frac{\sum_{j=1}^p|X_{aj}-X_{bj}|}{\sum_{j=1}^p(X_{aj}+X_{bj})}$
 
+:::
+
+::: {.fragment}
+
 [Categorical variables]{.monash-blue2}
+
+::: {.incremental}
 
 - 1- simple matching coefficient: $1-(\text{#matches})/p$
 - Convert to dummy variables, and use Euclidean distance
 
+:::
+
+:::
+
+::: {.fragment}
+
 [Mixed variable types]{.monash-blue2}
+
+::: {.incremental}
 
 - Gower's distance
 
+:::
+
+:::
+
+::: {.fragment}
+
 [Other]{.monash-blue2}
+
+::: {.incremental}
 
 - Hamming: all binary variables, number of variables at which values are different.
 
 - Cosine: $\frac{\sum_{j=1}^p X_{aj}X_{bj}}{||X_a|| ||X_b||}$ (How does this compare to a calculation of correlation??)
+
+:::
+
+:::
+
+:::
+::::
+
+## Mahalanobis distance 
+
+:::: {.columns}
+::: {.column}
+
+Mahalanobis (or statistical) distance: $\sqrt{((X_A-X_B)^\top S^{-1} (X_A-X_B))}$
+
+
+
+::: {.fragment}
+
+
+```{r}
+#| echo: false
+#| out-width: 100%
+set.seed(3)
+
+library(mvtnorm)
+X <- rmvnorm(100, rep(0, 2), diag(0.1,2) + matrix(0.9, nrow = 2, ncol = 2))
+data <- tibble("x1" = X[,1],
+               "x2" = X[,2])
+
+ggplot(data, aes(x = x1, y = x2)) + 
+  geom_point() +
+  annotate("point", x= -1, y = -1, col = "blue") + 
+  annotate("point", x= 1, y = 1, col = "red") +
+  annotate("point", x= -1.5, y = 0, col = "green")
+
+```
+
+:::
+:::
+::: {.column .incremental}
+
++ The green and blue are closest in Euclidean distance 
++ But the red and blue are closest in Mahalanobis distance 
++ as they are both more consistent with the structure of the data
 
 :::
 ::::
@@ -294,16 +446,100 @@ pscat
 
 Compute Euclidean distance between $a_1$ and $a_2$.
 
-<br><br><br>
+::: {.fragment}
+
+```{r}
+
+(x[1,1:4] - x[2,1:4])^2
+sum((x[1,1:4] - x[2,1:4])^2)
+sqrt(sum((x[1,1:4] - x[2,1:4])^2))
+
+```
+
+:::
+
+::: {.fragment}
+
+between $a_1$ and $a_3$
+
+
+```{r}
+sqrt(sum((x[1,1:4] - x[3,1:4])^2))
+
+```
+:::
 
 ::: {.fragment}
 🔑 [Standardise your variables!!!!]{.monash-blue2}
 
 :::
+
+
+:::
+::::
+
+## Distance calculations
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| message: FALSE
+#| warning: false
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 70%
+x <- data.frame(V1 = c(7.3, 7.4, 4.1),
+                    V2 = c(7.6, 7.2, 4.6),
+                    V3 = c(7.7, 7.3, 4.6),
+                    V4 = c(8.0, 7.2, 4.8),
+                    point = factor(c("a1", "a2", "a3")))
+x
+pscat <- ggpairs(x, columns=1:4,
+                 upper=list(continuous="points"),
+                 diag=list(continuous="blankDiag"),
+                 axisLabels="internal",
+                 ggplot2::aes(colour=point)) +
+    scale_colour_discrete_divergingx(
+      palette = "Zissou 1", nmax=4) +
+    xlim(3.7, 8.5) + ylim(3.7, 8.5) + 
+    theme_minimal() +
+    theme(aspect.ratio=1)
+pscat
+```
+:::
+::: {.column}
+
 ::: {.fragment}
-Could you compute a correlation distance? $d_{cor} = 1-|r|$
+Could you compute a correlation distance? $d_{cor}(A, B) = 1-|r(x_A, x_B)|$. 
+
+:::
+
+::: {.fragment}
+
+Where $r(x_1, x_2)$ is the correlation between vectors $x_1$ and $x_2$
+
+:::
+
+::: {.fragment}
+
 Is $a_1$ close to $a_3$ than $a_2$?
 :::
+
+::: {.fragment}
+
+```{r}
+
+1 - abs(cor(t(x[1:2,1:4]))[1,2])
+1 - abs(cor(t(x[c(1, 3),1:4]))[1,2])
+
+
+```
+:::
+
+
+
 :::
 ::::
 
@@ -314,12 +550,20 @@ Is $a_1$ close to $a_3$ than $a_2$?
 
 Anything can be a distance if it follows these rules:
 
+
+::: {.incremental}
+
 1. $d(A, B) \geq 0$
 2. $d(A, A) = 0$
 3. $d(A, B) = d(B, A)$
 4. Metric dissimilarity satisfies 
 $d(A, B) \leq d(A, C) + d(C, B)$
+
 :::
+
+:::
+
+<!---
 ::: {.column style="font-size: 70%;"}
 ::: {.fragment}
 
@@ -332,26 +576,62 @@ $d(A, B) \leq d(A, C) + d(C, B)$
 - Does this satisfy the rules?
 :::
 :::
+--->
 ::::
 
 ## Dissimilarity vs similarity
 
+<br>
+
+::: {.incremental}
+
 - [Distance is a **dissimilarity**]{.monash-blue2} measure because small means close and large means far.
 
-- [Correlation is a **similarity**]{.monash-blue2} measure because the larger the value the closer the objects. It can be converted to a dissimilarity with a transformation.
+- [Correlation is a **similarity**]{.monash-blue2} measure because the larger the value the closer the objects. It can be converted to a dissimilarity with a transformation (hence why we took $d_{cor}(A, B) = 1-|r(x_A, x_B)|$.
+
+:::
 
 ## $k$-means clustering {.transition-slide .center}
 
 ## k-means clustering - algorithm [(1/8)]{.smallest}
 
-This is an [iterative]{.monash-blue2} procedure. To use it the number of clusters, $k$, must be decided first.  The stages of the iteration are:
+This is an [iterative]{.monash-blue2} clustering algorithm. 
 
-1. [Initialize]{.monash-blue2} by either (a) partitioning the data into k groups, and compute the $k$ group means or (b) an [initial set of $k$ points]{.monash-blue2} as the first estimate of the [cluster means]{.monash-blue2} (seed points).
+::: {.fragment}
+
+To use it the number of clusters, $k$, must be decided first.  
+
+:::
+
+::: {.incremental style="font-size: 90%;"}
+
+1. [Initialize]{.monash-blue2} by either
+  + partitioning the data into k groups, and compute the $k$ group means or 
+  + an [initial set of $k$ points]{.monash-blue2} as the first estimate of the [cluster means]{.monash-blue2} (seed points).
 2. [Loop]{.monash-blue2} over all observations reassigning them to the group with the [closest mean]{.monash-blue2}.
 3. [Recompute]{.monash-blue2} group [means]{.monash-blue2}.
-4. Iterate steps 2 and 3 until [convergence]{.monash-blue2}.
+4. Iterate steps 2 and 3 (estimating the cluster means and reassigning each observation to the cluster with the closest mean) until [convergence]{.monash-blue2}.
+
+:::
+
+::: {.fragment style="font-size: 90%;"}
+
+[Convergence]{.monash-blue2} means that the cluster means don't change from one iteration to the next
+
+:::
+
+::: {.fragment style="font-size: 80%;"}
 
 [Thean C. Lim's blog post](https://theanlim.rbind.io/post/clustering-k-means-k-means-and-gganimate/)
+
+:::
+
+::: {.fragment}
+
+**Do not confuse with k-nearest neighbours!**
+
+:::
+
 
 ## k-means clustering - algorithm [(2/8)]{.smallest}
 
@@ -375,7 +655,7 @@ kable(df) %>%
 ```
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r out.width="100%", fig.width=4, fig.height=4}
 #| echo: false
@@ -399,12 +679,20 @@ xb <- data.frame(cl = factor(c(1, 2)), x1 = c(10,11), x2 = c(11, 9))
 
 <br><br><br>
 
-Select $k=2$, and set initial seed means <br>
+Select $k=2$, 
+
+<br>
+
+::: {.fragment}
+
+and set initial seed means <br>
 $\bar{x}_1=$ (`r xb[1,-1]`) ,
 $\bar{x}_2=$ (`r xb[2,-1]`) <br>
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r out.width="100%", fig.width=4, fig.height=4}
 #| echo: false
@@ -438,7 +726,7 @@ $\bar{x}_2=$ (`r xb[2,-1]`) <br>
 
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| echo: false
@@ -465,13 +753,9 @@ df.km %>%
 :::: {.columns}
 ::: {.column}
 
-<br><br><br><br>
 Assign each observation to a cluster, based on which mean is closest.
 
-:::
-::: {.column}
-
-
+<br>
 
 ```{r}
 #| echo: false
@@ -485,6 +769,27 @@ kable(df.km) %>%
   column_spec(4:6, color="#7570B3")
 
 ```
+
+:::
+::: {.column .fragment}
+
+
+
+```{r out.width="100%", fig.width=4, fig.height=4}
+#| echo: false
+mn <- data.frame(cl=xb$cl, lbl=c("m1", "m2"), 
+                 x1=xb$x1, x2=xb$x2)
+ggplot() + 
+  geom_text(data=df.km, aes(x=x1, y=x2, label=lbl, color=cl)) + 
+  geom_point(data=mn, aes(x=x1, y=x2, color=cl), 
+             shape=3, size=3) + 
+  scale_colour_brewer("", palette="Dark2") +
+  xlab("") + ylab("") + theme_bw() +
+  xlim(c(1,22)) + ylim(c(1,22)) +
+  theme(aspect.ratio=1, legend.position="None") 
+```
+
+
 :::
 ::::
 
@@ -506,6 +811,8 @@ xb2 <- data.frame(x1=xb$x1[2], x2=xb$x2[2])
 $\bar{x}_1=$ (`r round(xb[1,-1], 0)`) ,
 $\bar{x}_2=$ (`r round(xb[2,-1], 0)`) <br>
 
+::: {.fragment}
+
 ```{r}
 #| echo: false
 d1 <- apply(df[,2:3], 1, function(x) round(sqrt(sum((x-xb[1,2:3])^2)),1))
@@ -525,7 +832,9 @@ kable(df.km) %>%
 ```
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r out.width="100%", fig.width=4, fig.height=4}
 #| echo: false
@@ -562,6 +871,8 @@ xb2 <- data.frame(x1=xb$x1[2], x2=xb$x2[2])
 $\bar{x}_1=$ (`r round(xb[1,-1], 0)`) ,
 $\bar{x}_2=$ (`r round(xb[2,-1], 0)`) <br>
 
+::: {.fragment}
+
 ```{r}
 #| echo: false
 d1 <- apply(df[,2:3], 1, function(x) round(sqrt(sum((x-xb[1,2:3])^2)),1))
@@ -579,8 +890,11 @@ kable(df.km) %>%
   column_spec(4:6, color="#7570B3")
 
 ```
+
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r out.width="100%", fig.width=4, fig.height=4}
 #| echo: false
@@ -614,7 +928,11 @@ xb2 <- data.frame(x1=xb$x1[2], x2=xb$x2[2])
 ```
 
 $\bar{x}_1=$ (`r round(xb[1,-1], 0)`) ,
-$\bar{x}_2=$ (`r round(xb[2,-1], 0)`) <br>
+$\bar{x}_2=$ (`r round(xb[2,-1], 0)`) 
+
+The means didn't change so we have [converged]{.monash-blue2}
+
+::: {.fragment}
 
 ```{r}
 #| echo: false
@@ -633,8 +951,10 @@ kable(df.km) %>%
   column_spec(4:6, color="#7570B3")
 
 ```
+
 :::
-::: {.column}
+:::
+::: {.column .fragment}
 
 ```{r out.width="100%", fig.width=4, fig.height=4}
 #| echo: false
@@ -655,16 +975,20 @@ ggplot() +
 ## Example: penguins
 
 :::: {.columns}
-::: {.column}
+::: {.column .incremental}
+
 - We know there are three clusters, but generally [we don't know this]{.monash-orange2}. 
-- Will $k=3$-means clustering see three?
+- Will $k=3$-means clustering see the clusters that we knoew the data has?
 - Fit for various values of $k$. Add cluster label to data.
 - Examine [solution in plots]{.monash-blue2} of the data.
 - Compute [cluster metrics]{.monash-blue2}.
 
 - NOTE: `set.seed()` because results can depend on initialisation.
+
 :::
-::: {.column style="font-size: 70%;"}
+::: {.column style="font-size: 70%;" .fragment}
+
+[kmeans](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/kmeans)
 
 ```{r}
 set.seed(712)
@@ -695,12 +1019,24 @@ render_gif(p_std_km[,2:5],
 ## Choosing $k$ with cluster statistics [(1/2)]{.smallest}
 
 
+::: {.fragment}
+
+We want [within cluster]{.monash-orange2} distance to be [small]{.monash-orange2}, and [between cluster]{.monash-blue2} distance to be [big]{.monash-blue2}
+
+:::
+
+::: {.incremental}
 
 - [within.cluster.ss]{.monash-blue2}: sum of distances within cluster. Want it to be [low]{.monash-orange2}, but always drops for each additional cluster so look for large drops.
 - [WBRatio]{.monash-blue2}: average within/average between distances. Want it to be [low]{.monash-orange2}, but always drops for each additional cluster so look for large drops.
-- [Hubert Gamma]{.monash-blue2}: (s+ - s-)/(s+ + s-) where $s+=$sum of number of within $<$ between, $s-=$ sum of number within $>$ between. Want this to be [high]{.monash-orange2}.
+- [Hubert Gamma]{.monash-blue2}: $\frac{(s^{+} - s^{-})}{(s^{+} + s^{-})}$ where $s^{+}$ is the sum of number of within $<$ between, $s-$ is sum of number within $>$ between. Want this to be [high]{.monash-orange2}.
+<!--- Think about randomly picking two obs in the same or different cluster--->
 - [Dunn]{.monash-blue2}: ratio of (smallest distance between points from different clusters) to (maximum distance of points within any cluster). Want this to be [high]{.monash-orange2}.
 - [Calinski-Harabasz Index]{.monash-blue2}: $\frac{\sum_{i=1}^p B_{ii}/(k-1)}{\sum_{i=1}^p W_{ii}/(n-k)}$. Want this to be [high]{.monash-orange2}.
+
+:::
+
+
 
 
 ## Choosing $k$ with cluster statistics [(2/2)]{.smallest}
@@ -743,33 +1079,56 @@ ggplot(data=f.km.stats.m) +
   theme_bw()
 ```
 :::
-::: {.column width=30%}
+::: {.column width=30% .fragment}
+
+Maybe there are subspecies of each penguin...
+
+<br>
+
+::: { .incremental}
+
+
 - Results are inconclusive. No agreement between metrics. 
 - Not unusual. Stay tuned for nuisance variables and observations. 
+
+
+:::
+
 :::
 
 ::::
 
 ## Hierarchical clustering {.transition-slide .center}
 
-## Hierarchical clustering [1/4]{.smallest}
+## Hierarchical clustering [1/5]{.smallest}
 
 <br>
 
+::: {.incremental}
+
 - [Agglomeration]{.monash-orange2}: Begin with all observations in singleton clusters. Sequentially [join]{.monash-orange2} points into clusters, until all are in one cluster. 
-- [Divisive]{.monash-orange2}: Begin with all observtions in one cluster, adn sequentially [divide]{.monash-orange2} until all observations are in singleton clusters. 
+- [Divisive]{.monash-orange2}: Begin with all observations in one cluster, and sequentially [divide]{.monash-orange2} until all observations are in singleton clusters. 
 - Produces a tree diagram illustrating the process, called a [dendrogram]{.monash-orange2}.
 
-## Hierarchical clustering [2/4]{.smallest}
+:::
+
+## Hierarchical clustering [2/5]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
 
-$n\times n$ distance matrix `r set.seed(1)`
+Don't need to decide on the number of clusters ahead of time
+
+::: {.fragment}
+
+$n\times n$ distance matrix `r set.seed(1)` - [dist](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/dist)
 
 ```{r}
-#| echo: false
+#| echo: true
 d <- as.matrix(round(dist(df[,2:3], diag=TRUE, upper=TRUE),1))
+```
+```{r}
+#| echo: false
 colnames(d) <- df$lbl
 rownames(d) <- df$lbl
 kable(d) %>%
@@ -782,7 +1141,9 @@ kable(d) %>%
 ```
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r out.width="60%", fig.width=4, fig.height=4}
 #| echo: false
@@ -794,7 +1155,47 @@ ggplot(data=df, aes(x1, x2)) + geom_text(aes(label=lbl)) +
 :::
 ::::
 
-## Hierarchical clustering [3/4]{.smallest}
+## Hierarchical clustering [3/5]{.smallest}
+
+::: {.incremental}
+
+1) Input the pairwise distance between all points
+2) Cluster the two closest points together
+3) Recalculate distance between the cluster and all of the other observations
+4) Repeat 2) and 3) until all of the observations are in the same cluster
+
+
+:::
+
+## Hierarchical clustering [4/5]{.smallest}
+
+Cluster `d` and `b` together and `i` and `j` together at distance 1
+
+::: {.fragment}
+
+```{r}
+#| echo: false
+d2 <- as.matrix(round(dist(rbind(colMeans(df[c(2, 4),2:3]), colMeans(df[c(9, 10),2:3]), df[-c(2, 4, 9, 10),2:3]), diag=TRUE, upper=TRUE),1))
+colnames(d2) <- c("b,d", "i,j", df$lbl[-c(2, 4, 9, 10)])
+rownames(d2) <- c("b,d", "i,j", df$lbl[-c(2, 4, 9, 10)])
+kable(d2) %>%
+  kable_styling("striped", position = "center", 
+                row_label_position = "c", 
+                font_size=18) %>%
+  row_spec(0, color = "white", background = "#3F9F7A") %>%
+  column_spec(1, color = "white", background = "#3F9F7A") %>%
+  column_spec(1:10, border_right=TRUE, width="1cm") 
+```
+
+:::
+
+::: {.fragment}
+
+Then we could cluster `a` and `c` together at distance 2
+
+:::
+
+## Hierarchical clustering [5/5]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
@@ -809,8 +1210,10 @@ ggplot(data=df, aes(x1, x2)) + geom_text(aes(label=lbl)) +
 :::
 ::: {.column}
 
+[hclust](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust)
+
 ```{r out.width="100%", fig.width=4, fig.height=4}
-#| echo: false
+#| echo: true
 df_hc <- hclust(as.dist(d), method="average")
 ggdendrogram(df_hc, rotate = TRUE, size = 4)
 ```
@@ -818,7 +1221,9 @@ ggdendrogram(df_hc, rotate = TRUE, size = 4)
 :::
 ::::
 
-## Hierarchical clustering [4/4]{.smallest}
+<!---
+
+## Hierarchical clustering [6/6]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -841,6 +1246,8 @@ ggdendrogram(df_hc, rotate = TRUE, size = 4)
 :::
 ::::
 
+--->
+
 
 ## Linkage
 
@@ -848,14 +1255,19 @@ ggdendrogram(df_hc, rotate = TRUE, size = 4)
 ::: {.column}
 What is the [distance]{.monash-orange2} between the new [cluster (d,b)]{.monash-orange2} and all of the other observations?
 :::
-::: {.column}
+::: {.column .fragment}
 Between points [in]{.monash-orange2} the cluster to points [not in]{.monash-orange2} the cluster. 
+
+::: {.incremental}
 
 - [Single]{.monash-orange2}: minimum distance between points in the different clusters
 - [Complete]{.monash-orange2}: maximum distance between points in the different clusters
 - [Average]{.monash-orange2}: average of distances between points in the different clusters
 - [Centroid]{.monash-orange2}: distances between the average of the different clusters
 - [Wards]{.monash-orange2}: minimizes the total within-cluster variance
+
+:::
+
 :::
 ::::
 
@@ -884,8 +1296,10 @@ kable(d) %>%
   row_spec(c(1,3), color="#7570B3")
 ``` 
 
-Distance (b,d): <br>
-Distance (a,c):
+$a\mapsto b$ = 5 <br>
+$a\mapsto b$ = 5.8<br>
+$c\mapsto b$ = 6.4<br>
+$c\mapsto b$ = 7.1<br>
 
 :::
 ::: {.column style="font-size: 80%;"}
@@ -902,10 +1316,10 @@ ggplot(data=df, aes(x=x1, y=x2, colour=cl11)) +
 
 Linkage between (b,d) and (a,c)
 
-Single:  <br>
-Complete:  <br>
-Average:  <br>
-Centroid:  <br>
+Single:  $min(a\mapsto b, a\mapsto b, c\mapsto b, c\mapsto b)$ <br>
+Complete: $max(a\mapsto b, a\mapsto b, c\mapsto b, c\mapsto b)$ <br>
+Average: $mean(a\mapsto b, a\mapsto b, c\mapsto b, c\mapsto b)$ <br>
+Centroid: $(\frac{1}{2}(a+c)\mapsto \frac{1}{2}(b+c))$ <br>
 
 
 :::
@@ -935,18 +1349,102 @@ grid.arrange(p1, p2, p3, p4, p5, p6, ncol=3)
 ## Dendrogram
 
 :::: {.columns}
-::: {.column}
+::: {.column .incremental}
+
+<br> 
 
 - Each [leaf]{.monash-orange2} of the dendrogram represents one observation
 - Leaves [fuse]{.monash-orange2} into branches and branches fuse, either with leaves or other branches.	
 - Fusions [lower in the tree]{.monash-orange2} mean the groups of observations are more similar to each other. 
 
 :::
-::: {.column}
+::: {.column .fragment}
+
+<br><br>
+
 [Cut the tree]{.monash-orange2} to partition the data into $k$ clusters.
+
+<br><br>
+
+::: {.fragment}
+
+Look for large distances between fusions to estimate the number of clusters
+
+:::
 
 :::
 ::::
+
+## Cutting the Tree
+
+```{r out.width="80%", fig.width=10, fig.height=6}
+#| echo: false
+df_hc5 <- hclust(as.dist(d), method="ward.D2")
+df$cl5_k2 <- factor(cutree(df_hc5, 2))
+p5_k2_dendogram <- ggdendrogram(df_hc5, rotate = TRUE, size = 4) + ggtitle("wards, k = 2") + geom_hline(yintercept = 29, linetype = "dashed")
+p5_k2_clusters <- ggplot(data=df, aes(x=x1, y=x2, colour=cl5_k2)) +
+  geom_text(aes(label=lbl)) + 
+  scale_color_brewer("", palette="Dark2") +
+  xlab("") + ylab("") + theme_bw() + 
+  theme(aspect.ratio=1, legend.position="none") + 
+  ggtitle("wards, k = 2")
+
+df$cl5_k3 <- factor(cutree(df_hc5, 3))
+p5_k3_dendogram <- ggdendrogram(df_hc5, rotate = TRUE, size = 4) + ggtitle("wards, k = 3") + geom_hline(yintercept = 18, linetype = "dashed")
+p5_k3_clusters <- ggplot(data=df, aes(x=x1, y=x2, colour=cl5_k3)) +
+  geom_text(aes(label=lbl)) + 
+  scale_color_brewer("", palette="Dark2") +
+  xlab("") + ylab("") + theme_bw() + 
+  theme(aspect.ratio=1, legend.position="none") + 
+  ggtitle("wards, k = 3")
+
+df$cl5_k4 <- factor(cutree(df_hc5, 4))
+p5_k4_dendogram <- ggdendrogram(df_hc5, rotate = TRUE, size = 4) + ggtitle("wards, k = 4") + geom_hline(yintercept = 9.5, linetype = "dashed")
+p5_k4_clusters <- ggplot(data=df, aes(x=x1, y=x2, colour=cl5_k4)) +
+  geom_text(aes(label=lbl)) + 
+  scale_color_brewer("", palette="Dark2") +
+  xlab("") + ylab("") + theme_bw() + 
+  theme(aspect.ratio=1, legend.position="none") + 
+  ggtitle("wards, k = 4")
+
+
+#grid.arrange(p5_k2_dendogram, p5_k2_clusters, p5_k3_dendogram, p5_k3_clusters, p5_k4_dendogram, p5_k4_clusters, ncol=3)
+
+```
+
+:::: {.columns}
+::: {.column width="33%"}
+
+```{r out.width="80%", fig.width=3.33, fig.height=6}
+#| echo: false
+grid.arrange(p5_k2_dendogram, p5_k2_clusters, ncol=1)
+
+```
+
+:::
+::: {.column .fragment width="33%"}
+
+```{r out.width="80%", fig.width=3.33, fig.height=6}
+#| echo: false
+grid.arrange(p5_k3_dendogram, p5_k3_clusters, ncol=1)
+
+```
+
+:::
+::: {.column .fragment width="33%"}
+
+```{r out.width="80%", fig.width=3.33, fig.height=6}
+#| echo: false
+#| 
+grid.arrange(p5_k4_dendogram, p5_k4_clusters, ncol=1)
+
+```
+
+:::
+::::
+
+
+
 
 ## Results from different linkage choices
 
@@ -994,22 +1492,46 @@ grid.arrange(p1, p2, p3, p4, p5, ncol=3)
 ## Example: penguins
 
 :::: {.columns}
-::: {.column}
+::: {.column .incremental}
+
 - We know there are three clusters, but generally [we don't know this]{.monash-orange2}. 
-- Will $k=3$-means clustering see three?
+- Will $k=3$-means clustering see the clusters that we knoew the data has?
 - Fit for various values of $k$. Add cluster label to data.
 - Examine [solution in plots]{.monash-blue2} of the data.
 - Compute [cluster metrics]{.monash-blue2}.
 
 - NOTE: No need for `set.seed()` because results are deterministic.
+
 :::
-::: {.column style="font-size: 70%;"}
+::: {.column style="font-size: 70%;" .fragment}
 
 ```{r}
 p_hc_w3 <- hclust(dist(p_std[,2:5]), method="ward.D2")
+
+ggdendrogram(p_hc_w3, rotate = TRUE, size = 4)
+
+```
+
+
+:::
+::::
+
+## Example: penguins
+
+:::: {.columns}
+::: {.column}
+
+<br>
+
+```{r}
 p_std_hc_w3 <- p_std |>
   mutate(cl = factor(cutree(p_hc_w3, 3)))
 ```
+
+:::
+::: {.column style="font-size: 70%;" .fragment}
+
+
 
 ```{r}
 #| echo: false
@@ -1069,10 +1591,12 @@ ggplot(data=f.hc.stats.m) +
   theme_bw()
 ```
 :::
-::: {.column width=30%}
+::: {.column width=30% .incremental}
+
 - `within.cluster.ss` and `wb.ratio` suggest 3, and 5
 - `pearsongamma` (Hubert) suggests 2-3
 - `dunn`, `dunn2`, `ch` all 2?
+
 :::
 
 ::::
