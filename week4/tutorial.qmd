@@ -16,6 +16,19 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 4 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week4
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week4
+quarto install extension ginolhac/unilur
+-->
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -96,12 +109,14 @@ Open your project for this unit called `iml.Rproj`.
 
 #### 1. Assess the significance of PC coefficients using bootstrap
 
+In Moodle, under Learning -> Getting Started you will find a data folder. Download this folder and you will it that contains the `womens_track.csv` data.
+
 In the lecture, we used bootstrap to examine the significance of the coefficients for the second principal component from the womens' track PCA. Do this computation for PC1. The question for you to answer is: *Can we consider all of the coefficients to be equal?*
 
 The data can be read using:
 
 ```{r echo=TRUE}
-track <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/womens_track.csv")
+track <- read_csv("../data/womens_track.csv")
 ```
 
 ::: unilur-solution
