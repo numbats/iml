@@ -16,6 +16,15 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 1 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\S12026\week3
+quarto install extension ginolhac/unilur
+-->
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -86,36 +95,124 @@ The goal for this week is for you to learn and practice visualising high-dimensi
 
 Open your project for this unit called `iml.Rproj`. 
 
-#### 1. The sparseness of high dimensions
+#### 1. Answer the following questions for this data matrix, 
 
-Randomly generate data points that are uniformly distributed in a hyper-cube of 3, 5 and 10 dimensions, with 500 points in each sample, using the `cube.solid.random` function of the `geozoo` package. What differences do we expect to see? Now visualise each set in a grand tour and describe how they differ, and whether this matched your expectations? 
+$$
+\begin{align*}
+{\mathbf X} = \left[\begin{array}{rrrrr} 
+2 & -2 & -8 & 6 & -7 \\
+6 & 6 & -4 & 9 & 6 \\
+5 & 4 & 3 & -7 & 8 \\
+1 & -7 & 6 & 7 & -1
+\end{array}\right]
+\end{align*}
+$$
 
-The code to generate and view the cubes is:
+a. Write a projection matrix which would generate a 2D projection where the first data projection has variables 1 and 4 combined equally, and the second data projection has variables 2 and 5 combined with variable 5 having greater weight.
 
-```{r eval=FALSE}
-#| code-fold: true
-#| code-summary: "Code to generate the data and show in a tour"
-library(tourr)
-library(geozoo)
-set.seed(1234)
-cube3 <- cube.solid.random(3, 500)$points
-cube5 <- cube.solid.random(5, 500)$points
-cube10 <- cube.solid.random(10, 500)$points
+::: unilur-solution
 
-animate_xy(cube3, axes="bottomleft")
-animate_xy(cube5, axes="bottomleft")
-animate_xy(cube10, axes="bottomleft")
-```
+$$
+\begin{align*}
+{\mathbf A} = \left[\begin{array}{rr} 
+\frac{1}{\sqrt{2}} & 0 \\
+0 & \frac{1}{\sqrt{3}} \\ 
+0 & 0  \\
+\frac{1}{\sqrt{2}} & 0  \\
+0 & \frac{\sqrt{2}}{\sqrt{3}} \\
+\end{array}\right]
+\end{align*}
+$$
+
+Note that there are several solutions for the second column, but this is one that satisfies the requirements of the question.
+:::
+
+b. Why can't the following matrix considered a projection matrix?
+
+$$
+\begin{align*}
+{\mathbf A} = \left[\begin{array}{rr} 
+-1/\sqrt{2} & 1/\sqrt{3} \\ 
+0 & 0  \\
+1/\sqrt{2} & 0 \\
+0 & \sqrt{2}/\sqrt{3} \\
+\end{array}\right]
+\end{align*}
+$$
+
+::: unilur-solution
+The columns are not orthonormal. The cross-product is not equal to 0. 
+:::
+
+
+#### 2. Graph Theory
+
+a. Explain what is meant by plotting the 'data-in-the-model-space' and plotting the 'model-in-the-data-space'
 
 
 ::: unilur-solution
 
-Each of the projections has a boxy shape, which gets less distinct as the dimension increases. 
+data-in-the-model-space corresponds to plotting the model and trying to visualise the data in this space. This is convenient as the model usually produces a low dimensional output which we can plot. Examples of this would be plotting the probabilities or predictions estimated by a model. However, a plot like this doesn't provide an explanation of why the model is behaving the way that it is.
 
-As the dimension increases, the points tend to concentrate in the centre of the plot window, with a smattering of points in the edges. 
+model-in-the-data-space corresponds to plotting the data and trying to visualise the model on top of the data. This is often harder as the data is general high dimensional, however it can provide a lot more information about why a model is or is not performing well
+
+
+
 :::
 
-#### 2. Detecting clusters
+b. Describe one advantage and one disadvantage of using a scatterplot matrix to visualise moderate to high dimensional data
+
+::: unilur-solution
+
+Advantage 
+
++ As long as the dimension is not too big scatterplot matrix allows us to view all pairwise relationships in the data in one plot
+
+Disadvantage 
+
++ Can't plot more than a handful fo variables together
++ Only looks at the data pairwise so can't see relationships in more than 2-dimensions
+
+
+:::
+
+c. Describe one advantage and one disadvantage of using a parallel coordinates plot to visualise moderate to high dimensional data
+
+::: unilur-solution
+
+Advantage 
+
++ Allows for plotting more variables on a single page than scatterplot matrix
+
+Disadvantage 
+
++ The order that the variables matters
++ It can be hard to discern patterns between variables that are not plotted next to each other
+
+
+:::
+
+d. Below is a screenshot taken from a tour of the penguins data. Which two variables are projected the most in this view of the data?
+
+![](../images/penguins_tour_1.png){width=700}
+
+::: unilur-solution
+
+In the bottom left corner we see that `bm` and `fl` have the longest arrows which suggests that these two variables are projected the most in this view
+
+:::
+
+e. Below is another screenshot taken from a tour of the penguins data. In this view of the tour we see evidence that there are at least two clusters in the data. Which variable appears to be driving the clustering structure that we see here the most?
+
+![](../images/penguins_tour_2.png){width=700}
+
+::: unilur-solution
+
+The clustering can be seen most along the vertical axis, with a slight tilt to the right. We see from the bottom left that variable `bm` is encoded to a large degree in this direction and so it is this variable that appears to be driving the clustering we see here.
+
+:::
+
+#### 3. Detecting clusters
 
 For the data sets, `c1`, `c3` from the `mulgar` package, use the grand tour to view and try to identify structure (outliers, clusters, non-linear relationships). 
 
@@ -134,7 +231,7 @@ The second data set `c3` has a triangular prism shape, which itself is divided i
 
 :::
 
-#### 3. Effect of covariance
+#### 4. Effect of covariance
 
 Examine 5D multivariate normal samples drawn from populations with a range of variance-covariance matrices.  (You can use the `mvtnorm` package to do the sampling, for example.) Examine the data using a grand tour. What changes when you change the correlation from close to zero to close to 1?  Can you see a difference between strong positive correlation and strong negative correlation?
 
@@ -175,9 +272,9 @@ The points in data `d1` are pretty spread in every projection.
 For the data `d2`, `d3` have some projections where the data is concentrated along a line. This should be seen to be when variables 3 and 4 are contributing to the projection in `d2`, and when variables 1, 2, 3, 4 contributing to the projection in `d3`.
 :::
 
-#### 4. Principal components analysis on the simulated data
+#### 5. Principal components analysis on the simulated data
 
-🧐 For data sets `d2` and `d3` what would you expect would be the number of PCs suggested by PCA?
+🧐 For data sets `d2` and `d3` from Q4 what would you expect would be the number of PCs suggested by PCA?
 
 👨🏽‍💻👩‍💻Conduct the PCA. Report the variances (eigenvalues), and cumulative proportions of total variance, make a scree plot, and the PC coefficients.
 
@@ -216,13 +313,15 @@ For `d3` it's harder to make this call because the first two PCs are combination
 Often understanding the variance that is explained by the PCs is hard to interpret.
 :::
 
-#### 5. PCA on cross-currency time series
+#### 6. PCA on cross-currency time series
 
-The `rates.csv` data has 152 currencies relative to the USD for the period of Nov 1, 2019 through to Mar 31, 2020. Treating the dates as variables, conduct a PCA to examine how the cross-currencies vary, focusing on this subset: ARS, AUD, BRL, CAD, CHF, CNY, EUR, FJD, GBP, IDR, INR, ISK, JPY, KRW, KZT, MXN, MYR, NZD, QAR, RUB, SEK, SGD, UYU, ZAR. 
+In Moodle, under Learning -> Getting Started you will find a data folder. Download this folder and you will it that contains the `rates_Nov19_Mar20.csv.csv` data.
+
+The `rates_Nov19_Mar20.csv.csv` data has 152 currencies relative to the USD for the period of Nov 1, 2019 through to Mar 31, 2020. Treating the dates as variables, conduct a PCA to examine how the cross-currencies vary, focusing on this subset: ARS, AUD, BRL, CAD, CHF, CNY, EUR, FJD, GBP, IDR, INR, ISK, JPY, KRW, KZT, MXN, MYR, NZD, QAR, RUB, SEK, SGD, UYU, ZAR. 
 
 ```{r}
 #| message: false
-rates <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/rates_Nov19_Mar20.csv") |>
+rates <- read_csv("../data/rates_Nov19_Mar20.csv") |>
   select(date, ARS, AUD, BRL, CAD, CHF, CNY, EUR, FJD, GBP, IDR, INR, ISK, JPY, KRW, KZT, MXN, MYR, NZD, QAR, RUB, SEK, SGD, UYU, ZAR)
 ```
 
@@ -243,7 +342,8 @@ p <- rates_std |>
   ggplot(aes(x=date, y=rate, 
              group=currency, label=currency)) +
     geom_line() 
-ggplotly(p, width=400, height=300)
+#ggplotly(p, width=400, height=300)
+p
 ```
 
 ::: unilur-solution
@@ -373,7 +473,8 @@ p2 <- rates_pca$x |>
   ggplot(aes(x=PC1, y=PC2, label=date)) +
     geom_point() +
     geom_path()
-ggplotly(p2, width=400, height=400)
+#ggplotly(p2, width=400, height=400)
+p2
 ```
 
 ::: unilur-solution
@@ -385,7 +486,7 @@ ggplotly(p2, width=400, height=400)
 The pattern in PC1 vs PC2 follows time. Prior to the pandemic there is a tangle of values on the left. Towards the end of February, when the world was starting to realise that COVID was a major health threat, there is a dramatic reaction from the world currencies, at least in relation to the USD. Currencies such as EUR, JPY, CHF reacted first, gaining strength relative to USD, and then they lost that strength. Most other currencies reacted later, losing value relative to the USD.
 :::
 
-#### 6. Write a simple question about the week's material and test your neighbour, or your tutor. 
+#### 7. Write a simple question about the week's material and test your neighbour, or your tutor. 
 
 ## `r emo::ji("wave")` Finishing up
 
