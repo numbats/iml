@@ -16,6 +16,29 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 7 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week7
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week7
+quarto install extension ginolhac/unilur
+-->
+
+```{r echo = FALSE, include = FALSE, eval = TRUE}
+### JACK: I had to do this becuase of monash machine file structure
+### Anyone else knitting should set eval = FALSE
+Sys.setenv(WORKON_HOME = "C:/Users/jjew0003/Documents/.virtualenvs")
+library(reticulate)
+library(keras3)
+reticulate::use_virtualenv("C:/Users/jjew0003/Documents/.virtualenvs/r-tensorflow")
+
+```
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -45,7 +68,7 @@ library(mulgar)
 library(GGally)
 library(tourr)
 library(geozoo)
-library(keras)
+library(keras3)
 library(uwot)
 library(colorspace)
 library(ggthemes)
@@ -122,7 +145,8 @@ dim(test_images)
 dim(test_labels)
 
 # Choose an image randomly
-img <- as.data.frame(train_images[sample(1:60000, 1), , ])
+ind <- sample(1:60000, 1)
+img <- as.data.frame(train_images[ind, , ])
 colnames(img) <- seq_len(ncol(img))
 img$y <- seq_len(nrow(img))
 img <- img |>
@@ -139,6 +163,7 @@ ggplot(img, aes(x = x, y = y, fill = value)) +
   scale_y_reverse() +
   theme_map() +
   theme(legend.position = "none")
+
 ```
 
 ::: unilur-solution
@@ -182,6 +207,7 @@ model_fashion_mnist |>
   layer_dense(units = 128, activation = 'relu') |>
   # output layer for 10 categories
   layer_dense(units = 10, activation = 'softmax')
+summary(model_fashion_mnist)
 ```
 
 Set the optimizer to be `adam`, loss function to be `sparse_categorical_crossentropy` and `accuracy` as the metric. What other optimizers could be used? What is the `sparse_catgorical_crossentropy`?
@@ -210,7 +236,7 @@ https://keras.io/api/optimizers/ has a list of optimizers available.
 model_fashion_mnist |> fit(train_images,
               train_labels,
               epochs = 5,
-              verbose = 0)
+              verbose = 1)
 ```
 
 #### 6. Evaluate the model
@@ -322,7 +348,8 @@ ggplot(images_pc,
        aes(PC1, PC2, color = test_tags)) +
   geom_point(size = 0.1) +
   scale_color_discrete_qualitative(palette = "Dynamic") +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) +
+  guides(color = guide_legend(override.aes = list(size = 2)))
 ```
 
 ```{r eval=FALSE}
@@ -356,7 +383,8 @@ ggplot(fashion_umap_df, aes(x = UMAP1,
                             colour = label)) +
   geom_point(size = 0.3, alpha=0.5) +
   scale_color_discrete_qualitative(palette = "Dynamic") +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank())  +
+  guides(color = guide_legend(override.aes = list(size = 2)))
 ```
 
 ::: unilur-solution
@@ -376,7 +404,7 @@ There are multiple well-separated clusters in the representation. Mostly these a
 #| label: PCA-activations
 #| eval: false
 activations_model_fashion <- keras_model(
-  inputs = model_fashion_mnist$input,
+  inputs = model_fashion_mnist$layers[[1]]$input,
   outputs = model_fashion_mnist$layers[[2]]$output
 )
 activations_fashion <- predict(
@@ -393,7 +421,8 @@ ggplot(activations_pc,
        aes(PC1, PC2, color = test_tags)) +
   geom_point(size = 0.1) +
   ggtitle("Activations") +
-  scale_color_discrete_qualitative(palette = "Dynamic") 
+  scale_color_discrete_qualitative(palette = "Dynamic")  +
+  guides(color = guide_legend(override.aes = list(size = 2)))
 ```
 
 ```{r eval=FALSE}
@@ -425,7 +454,8 @@ ggplot(fashion_umap_df, aes(x = UMAP1,
                             y = UMAP2,
                             colour = label)) +
   geom_point(size = 0.5, alpha=0.5) +
-  scale_color_discrete_qualitative(palette = "Dynamic")
+  scale_color_discrete_qualitative(palette = "Dynamic") +
+  guides(color = guide_legend(override.aes = list(size = 2)))
 ```
 
 ::: unilur-solution

@@ -5,10 +5,10 @@ title-slide-attributes:
   data-background-size: 100%
 subtitle: "Week 7: Explainable artificial intelligence (XAI)"
 author: 
- - name: "Professor Di Cook"
-   email: "etc3250.clayton-x@monash.edu"
+ - name: "Jack Jewson"
+   email: "Jack.Jewson@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 7 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 7"
 format:
   revealjs:
     multiplex: false
@@ -23,20 +23,132 @@ format:
 
 ```{r, include = FALSE}
 source("../setup.R")
+library(ggpubr)
+library(kableExtra)
+
+#my.dir <- "C:/Users/jjew0003/Documents/Monash Teaching/ETC3250-5250/2025"
+
+knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
+#https://www.pmassicotte.com/posts/2022-08-15-removing-whitespace-around-figures-quarto/
+```
+
+```{r echo = FALSE, include = FALSE, eval = TRUE}
+### JACK: I had to do this becuase of monash machine file structure
+### Anyone else knitting should set eval = FALSE
+Sys.setenv(WORKON_HOME = "C:/Users/jjew0003/Documents/.virtualenvs")
+library(reticulate)
+library(keras3)
+reticulate::use_virtualenv("C:/Users/jjew0003/Documents/.virtualenvs/r-tensorflow")
+
 ```
 
 ## Overview
 
 We will cover:
 
-* Global explainability
-* Local explainability
-    * LIME
-    * Counterfactuals
-    * Anchors
-    * Shapley values
+::: {.incremental}
+
+* Global explainability - what is the affect of this variable on the response?
+  * Variable Importance
+  * Partial dependence profiles
+* Local explainability - Why was this observation predicted like that?
+  * LIME
+  * Counterfactuals
+  * Anchors
+  * Shapley values
+    
+    
+:::    
+
+## Black-Box Machine learning {.transition-slide .center}
+
+
+## Black-Box Machine learning
+
+:::: {.columns}
+::: {.column .fragment}
+
+**Interpretable Models**
+
+::: {.incremental}
+
++ Logistic regression, LDA and (a single) Decision Tree are interpretable machine learning models
++ It is easy to see why any one observation was predicted the way it was (local)
++ and understand the effect any one variable has on the model's prediction (global)
++ In logistic regression and LDA this comes from looking at the model coefficients
++ In Decision trees we can look at the tree structure (as long as it is not too complex)
+
+
+:::
+:::
+::: {.column .fragment}
+
+**Un-Interpretable Models**
+
+::: {.incremental}
+
++ Random Forests and Boosting models with many trees,
++ and Neural Networks with many hidden nodes or layers 
++ are not interpretable 
++ It is not obvious why any observation was predicted how it was
++ or what the affect of any variable was on the response variable
+
+
+:::
+:::
+::::
+
+## Tradeoff
+
+:::: {.columns}
+::: {.column .fragment}
+
+::: {.incremental}
+
++ We need complex models to fit complex dataset
++ But the model is not being used by us (data scientists/machine learners)
++ It is used by some decision maker to help make a decision
+
+
+:::
+:::
+::: {.column .fragment}
+
+::: {.incremental}
+
++ They are unlikely to blindly trust you and use your model 
++ Saying it has a 0.95 out of sample AUC is unlikely to convince them
++ They will only trust your model if they can explain what it is doing
+
+
+:::
+
+:::
+::::
+
+
+
+
+## Local vs Global Explainability
+
+::: {.incremental}
+
++ *Local*: Any question related to how a particular prediction for a particular observation was made;
++ *Why for this particular patient did the model recommend not to treat?*
+
+:::
+
+<br>
+
+::: {.incremental}
+
++ *Global*: How the model behaves overall, or for a particular target feature of subset.
++ *How does certain increase in GDP would affect the labor rate?*
+
+:::
 
 ## Global explainability {.transition-slide .center}
+*How does certain increase in GDP would affect the labor rate?*
 
 ## Variable importance [(1/3)]{.smaller}
 
@@ -45,10 +157,27 @@ We will cover:
 
 Remember:
 
-- Model coefficients on standardised data
-- Effect of [collinearity]{.monash-orange2}
+::: {.incremental}
+
+- In Logistic regression and LDA (when we standardise the predictors) the larger the model coefficient the more important that variable for the prediction
+- In DTs and RFs we had the gini index
 - Importance from permutation
 
+:::
+
+<br>
+
+::: {.fragment}
+
+However
+
+::: {.incremental}
+
+- Effect of [collinearity]{.monash-orange2}
+
+
+:::
+:::
 :::
 ::: {.column}
 
@@ -79,7 +208,7 @@ lda_fit
 
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 `bl` and `bd` are the most important variables
 
@@ -105,6 +234,8 @@ When [predictors are strongly linearly associated]{.monash-blue2}, [interpreting
 
 <br>
 
+::: {.fragment}
+
 Original
 
 ```{r}
@@ -123,6 +254,7 @@ ggscatmat(p_std, columns=2:5, color="species", alpha=0.5) +
         axis.text = element_blank())
 ```
 
+:::
 
 :::
 
@@ -140,14 +272,6 @@ p_std_cor <- p_std |>
          bd2 = bd + runif(nrow(p_std), -0.1, 0.1)) |>
   select(species, bl, bl2, bd2, bd, fl, bm)
 
-lda_spec <- discrim_linear() |>
-  set_mode("classification") |>
-  set_engine("MASS", prior = c(1/3, 1/3, 1/3))
-lda_fit2 <- lda_spec |> 
-  fit(species ~ ., data = p_std_cor)
-
-lda_fit2$fit$scaling
-
 ```
 
 ```{r}
@@ -160,6 +284,26 @@ ggscatmat(p_std_cor, columns=2:5, color="species", alpha=0.5) +
   theme(legend.position="none", 
         axis.text = element_blank())
 ```
+
+
+::: {.fragment}
+
+```{r}
+#| echo: false
+
+lda_spec <- discrim_linear() |>
+  set_mode("classification") |>
+  set_engine("MASS", prior = c(1/3, 1/3, 1/3))
+lda_fit2 <- lda_spec |> 
+  fit(species ~ ., data = p_std_cor)
+
+lda_fit2$fit$scaling
+
+```
+
+:::
+
+
 :::
 
 :::
@@ -167,14 +311,22 @@ ggscatmat(p_std_cor, columns=2:5, color="species", alpha=0.5) +
 
 ## Permutation variable importance [(1/2)]{.smaller}
 
+::: {.fragment}
+
 For trained model $\widehat{f}$, which depends on data ${\mathbf X}$ to predict response $y$, with loss function $L(y, \widehat{f})$ (e.g. misclassification rate, error),
 
+:::
+
+::: {.incremental}
+
 1. Estimate $L(y, \widehat{f})$ on the data, $L^{\text{orig}}$.
-2. For each variable $j \in {1, ..., p}$,
+2. For each variable $j \in {1, \ldots, p}$,
     - Generate data matrix ${\mathbf X}^{\text{perm}}$ by [permuting]{.monash-orange2} variable $j$. [This breaks the association]{.monash-blue2} between variable $j$ and observed $y$.
     - Compute the $L(y, \widehat{f})$ on the permuted data, $L^{\text{perm}}$.
     - Compare $L^{\text{orig}}$ and $L^{\text{perm}}$, e.g. $|L^{\text{orig}}-L^{\text{perm}}|$
 3. Most important variables have larger values.    
+
+:::
 
 ## Permutation variable importance [(2/2)]{.smaller}
 
@@ -182,9 +334,15 @@ For trained model $\widehat{f}$, which depends on data ${\mathbf X}$ to predict 
 ::: {.column style="width: 40%; font-size: 80%;"}
 Random forests have this baked into the model fitting (using the out-of-bag cases).
 
-Generally, should be conducted on the test set.
+::: {.fragment}
+
+Generally, should be conducted on the test set 9out of sample).
+
+:::
 
 <br>
+
+::: {.fragment}
 
 ```{r}
 # Using DALEX with tidymodels
@@ -206,10 +364,10 @@ explainer_lda <-
 vip_lda <- model_parts(explainer_lda,
                        B=100)
 ```
-
+:::
 
 :::
-::: {.column style="width: 30%; font-size: 70%;"}
+::: {.column style="width: 30%; font-size: 70%;" .fragment}
 
 <br>
 ```{r}
@@ -270,8 +428,12 @@ vip_lda2 |>
     xlab("") + ylab("importance")
 ```
 
+::: {.incremental}
+
 - Variables with correlation still can affect results.
 - Variables can mask the importance of others. 
+
+:::
 
 :::
 
@@ -285,7 +447,27 @@ vip_lda2 |>
 
 Partial dependence profiles show how the model prediction changes across different values of an explanatory variable.
 
-<br>
+
+::: {.fragment}
+
+Computes 
+$$
+\begin{aligned}
+&\hat{p}(Y = k \mid X_j = x) = \\
+&\frac{1}{n}\sum_{i=1}^n \hat{p}(Y = k \mid X_j = x, X_{-j} = x_{i-j})
+\end{aligned}
+$$
+
+:::
+
+::: {.fragment}
+
+Where $x_{i-j} = x(x_{i1}, \ldots, x_{i, j-1}, x_{i, j+1}, \ldots, x_{ip})$
+
+:::
+
+
+::: {.fragment}
 
 ```{r}
 # With DALEX
@@ -294,12 +476,17 @@ pdp_lda <- model_profile(
             N=100)
 ```
 
-<br>
+:::
+
+
+::: {.fragment}
 
 Shows what the model sees.
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| label: PDP-lda
@@ -331,19 +518,6 @@ pdp_lda$agr_profiles |>
 
 :::: {.columns}
 ::: {.column}
-PDP suggests LDA sees
-
-```{r}
-#| label: PDP-lda
-#| echo: false
-#| out-width: 75%
-#| fig-width: 5
-#| fig-height: 5.5
-```
-
-:::
-
-::: {.column}
 What do we see?
 
 ```{r}
@@ -371,9 +545,64 @@ p_std |>
 
 :::
 
+::: {.column .fragment}
+
+PDP suggests LDA sees
+
+```{r}
+#| label: PDP-lda
+#| echo: false
+#| out-width: 75%
+#| fig-width: 5
+#| fig-height: 5.5
+```
+
+:::
+
 :::
 
 ## Local explainability {.transition-slide .center}
+*Why for this particular patient did the model recommend not to treat?*
+
+## Why should I know about local explainers?
+
+<br>
+<br>
+
+If you deploy a complex model, you [**may** need to be able to explain any decision]{.monash-blue2} made from it. 
+
+<br>
+<br>
+
+::: {.fragment}
+
+If the decisions affect people or organisations, they might be [challenged in court]{.monash-orange2}. You as the analyst may be expected to justify the decision, that it was made [fairly, without bias]{.monash-orange2}, and based on specific measurements collected for the model.
+
+:::
+
+## The goal
+
+![](../images/LocalExplainability.png){width=80%}
+
+## Global vs Local
+
+::: {.incremental}
+
++ Linear models are global models, the affect of one variable is the same whatever the affect of the other variables 
+$$
+P(Y = 1\mid X) = \frac{1}{1+\exp(-\beta_0 - \beta_1x_1 - \beta_2x_2 - \cdots - \beta_px_p )}
+$$
++ When the model is non-linear, the effect of different variables changes [locally]{.monash-orange2}
++ Take for example a decision tree
+  + Iteratively split on a single variable
+  + If first split on $x_1$ and then on both sides split on $x_2$, the effect of $x_2$ will be different depending on what $x_1$ was
++ The same can be said in NN's
+  + Take the ReLU activation ReLU$(x) = \max(x, 0)$
+  + One variable may causes a neuron to fire with some combination of the other variables, but with other combinations it may not
+  
+
+:::
+
 
 ## Linear vs non-linear separation
 
@@ -418,6 +647,7 @@ write_csv(dx2, file="data/sine-rotated.csv")
 
 :::: {.columns}
 ::: {.column}
+
 ```{r}
 #| fig-width: 4
 #| fig-height: 4
@@ -430,32 +660,41 @@ ggplot(w, aes(x1, x2, colour=cl)) +
     palette = "Zissou 1") +
   theme(legend.position = "none")
 ```
+
 :::
 ::: {.column}
 
-<br>
-When the difference between classes is non-linear, [variable importance changes locally]{.monash-orange2}.
+::: {.fragment}
+
+Mark a point where `x1` is most important in distinguishing the classes.
+
+:::
+
+::: {.fragment}
+
+Around about (0, 0), if $x_2 = 0$ then $x_1 < 0$ is blue and $x_1 > 0$ is red (also aroud $(0.75, 0.5)$)
+
+:::
 
 <br>
-Mark a point where `x1` is most important in distinguishing the classes.
 
 ::: {.fragment}
 Mark a point where `x2` is most important in distinguishing the classes.
 :::
 
+::: {.fragment}
+
+Around about (0, -0.5), if $x_1 = 0$ then $x_2 > -0.5$ is blue and $x_2 < -0.5$ is red
+
+:::
+
+
+
+
 :::
 ::::
 
-## Why should I know about local explainers?
 
-<br>
-<br>
-
-If you deploy a complex model, you [**may** need to be able to explain any decision]{.monash-blue2} made from it. 
-
-<br>
-<br>
-If the decisions affect people or organisations, they might be [challenged in court]{.monash-orange2}. You as the analyst may be expected to justify the decision, that it was made [fairly, without bias]{.monash-orange2}, and based on specific measurements collected for the model.
 
 ## Selected points to use for illustration
 
@@ -484,18 +723,147 @@ ggplot() +
 ```
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 Which variable is most important?
 
 |obs | expect |
 |----|--------|
-| 1  | x1     |
-| 2  | x2     |
-| 3  | x2 ?   |
+| 1  | x2     |
+| 2  | x1     |
+| 3  | x1, x2 |
 | 4  | x1, x2 |
 | 5  | x1, x2 |
-| 6  | x2 |
+| 6  | x1 |
+
+:::
+::::
+
+## LIME
+
+Fit a [linear regression in the local neighbourhood]{.monash-blue2} of observation of interest.
+
+::: {.incremental}
+
+1. Introduce distance $d(\cdot,\cdot)$ and calculate the distance between all features $x_i$ and $x_{i^{\prime}}$.
+2. For each observation $i \in {1, \ldots, n}$,
+    - Fit a linear model (logistic or linear regression ) estimating $\beta^{(i)}$ maximising the log-likelihood where the contribution of each observation $i^{\prime}$ is weighted by $w_{i^{\prime}} = \exp(-d(x_i, x_{i^{\prime}}))$
+3. If the data is standardised the magnitude of the $\beta^{(i)}_j$'s tells us how important variable $j$ was to the prediction of variance $i$   
+
+:::
+
+## LIME
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: sine-selected2
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+w_new <- data.frame(
+  x1=c(-0.5, 0, 0.2, -0.8, 0.8, 0.8), 
+  x2=c(-0.25, 0, -0.5, 0.8, -0.8, 0.5),
+  cl=factor(c("A", "B", "B", "A", "B", "A"),
+                      levels=c("A", "B")))
+ggplot() +
+    geom_point(data=w, aes(x1, x2, colour=cl), 
+               alpha=0.6, shape=1) +
+  scale_color_discrete_divergingx(
+    palette = "Zissou 1") +
+  geom_text(data=w_new, aes(x1, x2, colour=cl, 
+                            label=1:6),
+            size=4, fontface="bold") +
+  theme(legend.position = "none")
+```
+:::
+
+::: {.column .fragment}
+
+Weighted according to closeness to (2)
+
+```{r}
+#| label: sine-selected-weighted
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+
+target_obs <- 2
+gamma <- 0.1
+
+w_obs2 <- w |> 
+mutate(d2 = exp(-(x1 - w_new$x1[target_obs])^2/(2*gamma) - (x2 - w_new$x2[target_obs])^2/(2*gamma)))
+
+ggplot() +
+    geom_point(data=w_obs2, aes(x1, x2, colour=cl, size = d2), 
+               alpha=0.6, shape=1) +
+  scale_color_discrete_divergingx(
+    palette = "Zissou 1") +
+  geom_text(data=w_new, aes(x1, x2, colour=cl, 
+                            label=1:6),
+            size=4, fontface="bold") +
+  theme(legend.position = "none")
+```
+
+:::
+::::
+
+## LIME
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: sine-selected3
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+w_new <- data.frame(
+  x1=c(-0.5, 0, 0.2, -0.8, 0.8, 0.8), 
+  x2=c(-0.25, 0, -0.5, 0.8, -0.8, 0.5),
+  cl=factor(c("A", "B", "B", "A", "B", "A"),
+                      levels=c("A", "B")))
+ggplot() +
+    geom_point(data=w, aes(x1, x2, colour=cl), 
+               alpha=0.6, shape=1) +
+  scale_color_discrete_divergingx(
+    palette = "Zissou 1") +
+  geom_text(data=w_new, aes(x1, x2, colour=cl, 
+                            label=1:6),
+            size=4, fontface="bold") +
+  theme(legend.position = "none")
+```
+:::
+
+::: {.column .fragment}
+
+Weighted according to closeness to (1)
+
+```{r}
+#| label: sine-selected-weighted2
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+
+target_obs <- 1
+gamma <- 0.1
+
+w_obs2 <- w |> 
+mutate(d2 = exp(-(x1 - w_new$x1[target_obs])^2/(2*gamma) - (x2 - w_new$x2[target_obs])^2/(2*gamma)))
+
+ggplot() +
+    geom_point(data=w_obs2, aes(x1, x2, colour=cl, size = d2), 
+               alpha=0.6, shape=1) +
+  scale_color_discrete_divergingx(
+    palette = "Zissou 1") +
+  geom_text(data=w_new, aes(x1, x2, colour=cl, 
+                            label=1:6),
+            size=4, fontface="bold") +
+  theme(legend.position = "none")
+```
 
 :::
 ::::
@@ -505,7 +873,7 @@ Which variable is most important?
 :::: {.columns}
 ::: {.column}
 
-Fit a [linear regression in the local neighbourhood]{.monash-blue2} of observation of interest.
+::: {.fragment}
 
 ```{r}
 #| results: hide
@@ -521,24 +889,27 @@ predict_model.dalex_explainer <-
   DALEXtra::predict_model.dalex_explainer
 w_lime <- predict_surrogate(
   explainer = w_rf_exp, 
-              new_observation = w_new, 
+              new_observation = w_new[,1:2], 
               n_features = 2, 
-              n_permutations = 100,
+              n_permutations = 1000,
               type = "lime")
 
 ```
+
+
+::: {.fragment}
+
+$P(Y = 1 \mid X) = \frac{1}{1+\exp(-\beta_0 - x_1\beta_1 - x_2\beta_2)}$
+
+Class 1 = 'A' = Blue
+
+:::
+
+:::
 :::
 ::: {.column}
 
 ::: {.fragment}
-
-```{r}
-#| label: sine-selected
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 65%
-```
 
 ::: {style="font-size: 70%;"}
 
@@ -556,6 +927,17 @@ w_lime_coef
 
 :::
 
+
+```{r}
+#| label: sine-selected
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 65%
+```
+
+
+
 :::  
 :::
 ::::
@@ -566,7 +948,16 @@ w_lime_coef
 ::: {.column}
 
 ::: {style="font-size: 60%;"}
-Find the [closest observation (counterfactual)]{.monash-blue2} that has the [different class]{.monash-blue2}. What values of the variables would you need to change to change the observation of interest into the counterfactual.
+
+Find the [closest observation (counterfactual)]{.monash-blue2} that has the [different class]{.monash-blue2}. 
+
+::: {.fragment}
+
+What values of the variables would you need to change to change the observation of interest into the counterfactual.
+
+:::
+
+::: {.fragment}
 
 ```{r}
 library(iml)
@@ -591,9 +982,11 @@ for (i in 1:nrow(w_new)) {
   w_new_cf[i, 2] <- w_cf$data$x2
 }
 ```
+
+:::
 :::
 
-::: {.fragment style="font-size: 100%;"}
+::: {style="font-size: 100%;" .fragment}
 ```{r}
 #| echo: false
 w_new_cf_all <- w_new |>
@@ -646,14 +1039,21 @@ Note: If case is misclassified, the desired class needs to be the true class.
 ::: {.column}
 How far can you [extend from the value of the observation in each direction]{.monash-blue2} and still have all observations be the same class.
 
-::: {style="font-size: 60%;"}
+::: {.fragment}
+
+How big is a rectangle that contains each observation and only other observations of the same class
+
+:::
+
+
+::: {style="font-size: 60%;" .fragment}
 
 <br><br><br><br>
 Note: No working R package to calculate these.
 :::
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| echo: false
@@ -690,7 +1090,77 @@ ggplot() +
 
 :::: {.columns}
 ::: {.column}
-A Shapley value is computed from the [change in prediction when all combinations of presence or absence of other variables]{.monash-blue2}. In the computation, for each combination, the prediction is computed by substituting absent variables with their average value.
+
+Intuitively, a variable is important if the model's predictions change a lot if I take that variable away 
+
+<br>
+
+::: {.fragment}
+
+Let $g(X_1, \ldots, X_p)$ be the machine learning model
+
+:::
+
+::: {.fragment}
+
+Then variable $j$ is important for observation $i$ if 
+$$
+\begin{aligned}
+&\left|g(x_{i1}, \ldots, x_{ip})\right.\\
+&\left.- g(x_{i1}, \ldots, x_{ij-1}, x_{ij+1}, \ldots, x_{ip})\right|
+\end{aligned}
+$$
+is large
+
+:::
+
+:::
+::: {.column .fragment}
+
+However, if variable $j$ is correlated with another variable then it can be important and this distance can look small
+
+<br>
+
+::: {.fragment}
+
+Therefore we need to consider the model with an without variable $j$, alongside all other combinations of the variables
+
+:::
+
+::: {.fragment}
+
+e.g. 
+
+$$
+\left|g(x_{ij}\cap x_{iS}) - g(x_{iS})\right|
+$$
+where $S$ is all subsets of $\{1, \ldots, p\}\setminus j$
+
+:::
+
+::: {.fragment}
+
+Averaged across all sets $S$ is a Shapley value
+
+:::
+
+
+
+
+:::
+::::
+
+## Shapley values
+
+:::: {.columns}
+::: {.column}
+
+A Shapley value is computed from the [change in prediction when all combinations of presence or absence of other variables]{.monash-blue2}. 
+
+::: {.fragment}
+
+In the computation, for each combination, the prediction is computed by substituting absent variables with their average value.
+
 
 ```{r}
 #| eval: false
@@ -711,7 +1181,9 @@ save(w_explain, file="data/w_explain.rda")
 ```
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| echo: false
@@ -750,23 +1222,31 @@ Which variable is most important?
 
 |obs | expect | LIME | CF | SHAP |
 |----|--------|------|----|------|
-| 1  | x1     | x1   | x2 | x1   |
-| 2  | x2     | x1   | x1 |x1, x2|
-| 3  | x2 ?   | x2   | x1 | x2   |
+| 1  | x2     | x1   | x2 | x1   |
+| 2  | x1     | x1   | x1 |x1, x2|
+| 3  | x1 x2   | x2   | x1 | x2   |
 | 4  | x1, x2 |x1, x2|x1, x2|x1, x2|
 | 5  | x1, x2 | x2   |x1, x2|x1, x2|
-| 6  | x2     | x2   | x1 | x2   |
+| 6  | x1     | x2   | x1 | x2   |
 :::
-::: {.column}
+::: {.column .fragment}
 They don't all agree.
 <br>
 <br>
 
+::: {.fragment}
+
 You [need good visualisation of the model in the data space]{.monash-orange2} to fully digest the importance of the variables.
+
+:::
 
 <br>
 
+::: {.fragment}
+
 NOTE: We can use [magnitude]{.monash-orange2} when interpreting the local explainers because we used [standardised data]{.monash-orange2}. The interpretations are more complicated otherwise.
+
+:::
 
 :::
 ::::
@@ -781,21 +1261,21 @@ Compute SHAP values for the neural network model
 ```{r echo=FALSE}
 #| message: false
 set.seed(821)
-p_split <- p_std %>% 
+p_split <- p_std |> 
   initial_split(prop = 2/3, 
                 strata=species)
 p_train <- training(p_split)
 p_test <- testing(p_split)
 
-p_train_x <- p_train %>%
-  select(bl:bm) %>%
+p_train_x <- p_train |>
+  select(bl:bm) |>
   as.matrix()
-p_train_y <- p_train %>% pull(species) %>% as.numeric() 
+p_train_y <- p_train |> pull(species) |> as.numeric() 
 p_train_y <- p_train_y-1 # Needs to be 0, 1, 2
-p_test_x <- p_test %>%
-  select(bl:bm) %>%
+p_test_x <- p_test |>
+  select(bl:bm) |>
   as.matrix()
-p_test_y <- p_test %>% pull(species) %>% as.numeric() 
+p_test_y <- p_test |> pull(species) |> as.numeric() 
 p_test_y <- p_test_y-1 # Needs to be 0, 1, 2
 
 ```
@@ -803,8 +1283,9 @@ p_test_y <- p_test_y-1 # Needs to be 0, 1, 2
 ```{r}
 #| message: false
 #| eval: false
-library(keras)
-p_nn_model <- load_model_tf("../data/penguins_cnn")
+library(keras3)
+#p_nn_model <- load_model_tf("../data/penguins_cnn")
+p_nn_model <- keras3::load_model("../data/penguins_nn.h5")
 p_nn_model
 
 # Explanations
@@ -820,14 +1301,24 @@ p_explain <- kernelshap(
 p_exp_sv <- shapviz(p_explain)
 save(p_exp_sv, file="../data/p_exp_sv.rda")
 ```
+
+
+::: {.fragment}
+
+Highlight SHAP values for a misclassified Gentoo penguin
+
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 ```{r}
 #| echo: false
-library(keras)
-p_nn_model <- load_model_tf("../data/penguins_cnn")
+library(keras3)
+#p_nn_model <- load_model_tf("../data/penguins_cnn")
+p_nn_model <- keras3::load_model("../data/penguins_nn.h5")
 
-p_train_pred <- p_nn_model %>% 
+
+p_train_pred <- p_nn_model |> 
   predict(p_train_x, verbose = 0)
 p_train_pred_cat <- levels(p_train$species)[
   apply(p_train_pred, 1,
@@ -838,22 +1329,22 @@ p_train_pred_cat <- factor(
 
 ```
 
-Highlight SHAP values for a misclassified Gentoo penguin
-
 ```{r}
 #| echo: false
+#| crop: true
+#| out-width: 80%
 load("../data/p_exp_sv.rda")
 p_exp_gentoo <- p_exp_sv$Class_3$S
-p_exp_gentoo <- p_exp_gentoo %>%
-  as_tibble() %>%
+p_exp_gentoo <- p_exp_gentoo |>
+  as_tibble() |>
   mutate(species = p_train$species,
          pspecies = p_train_pred_cat,
-  ) %>%
+  ) |>
   mutate(error = ifelse(species == pspecies, 0, 1))
 library(ggpcp)
-p_exp_gentoo %>%
-  filter(species == "Gentoo") %>%
-  pcp_select(1:4) %>%
+p_exp_gentoo |>
+  filter(species == "Gentoo") |>
+  pcp_select(1:4) |>
   ggplot(aes_pcp()) +
     geom_pcp_axes() + 
     geom_pcp_boxes(fill="grey80") + 
@@ -864,9 +1355,12 @@ p_exp_gentoo %>%
   theme_minimal() + 
   theme(legend.position = "none")
 ```
-<br>
 
-Note: the SHAP value is much lower than values for all other penguins on `bm`. 
+::: {.fragment}
+
+Note: the SHAP values for misclassified penguins are much lower than values for all other penguins on `bm` and are higher than `bl`. i.e. `bm` is less important and `bl` is more important for those observations' prediction 
+
+:::
 
 :::
 ::::
@@ -880,16 +1374,20 @@ Weights from hidden layer
 
 ```{r}
 #| echo: false
-p_nn_wgts <- keras::get_weights(p_nn_model, trainable=TRUE)
-p_nn_wgts_on <- tourr::orthonormalise(p_nn_wgts[[1]])
-p_nn_wgts_on
+p_nn_wgts <- keras3::get_weights(p_nn_model, trainable=TRUE)
+p_nn_wgts[[1]]
+c("bl", "bd", "fl", "bm")
 ```
 
 <br>
+
+::: {.fragment}
+
 Model uses mostly `bl` and `bm`.
 
+:::
 
-::: {style="font-size: 60%;"}
+::: {style="font-size: 60%;" .fragment}
 
 <br>
 Note: this analysis used the [training set]{.monash-orange2} because this Gentoo penguin was misclassified as an Adelie in the training set.
@@ -901,7 +1399,7 @@ table(p_train$species, p_train_pred_cat)
 :::
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| echo: false
@@ -909,16 +1407,16 @@ table(p_train$species, p_train_pred_cat)
 #| fig-height: 5
 #| out-width: 70%
 # Check position on bm
-shap_proj <- p_exp_gentoo %>%
-  filter(species == "Gentoo", error == 1) %>%
+shap_proj <- p_exp_gentoo |>
+  filter(species == "Gentoo", error == 1) |>
   select(bl:bm)
 shap_proj <- as.matrix(shap_proj/sqrt(sum(shap_proj^2)))
-p_exp_gentoo_proj <- p_exp_gentoo %>%
+p_exp_gentoo_proj <- p_exp_gentoo |>
   rename(shap_bl = bl, 
          shap_bd = bd,
          shap_fl = fl, 
-         shap_bm = bm) %>%
-  bind_cols(as_tibble(p_train_x)) %>%
+         shap_bm = bm) |>
+  bind_cols(as_tibble(p_train_x)) |>
   mutate(shap1 = shap_proj[1]*bl+
            shap_proj[2]*bd+
            shap_proj[3]*fl+
@@ -965,6 +1463,24 @@ sp1 + sp2 + plot_layout(ncol=1, guides = "collect") &
 
 :::
 ::::
+
+
+## Other Uses
+
+:::: {.columns}
+::: {.column .incremental}
+
++ XAI methods also gives **YOU** the data scientist/machine learner a way to understand your model
++ Gives you a method do understand why your model is or is not working 
++ Which in turn allows you to think about how to improve it
+
+:::
+::: {.column}
+
+
+:::
+::::
+
 
 ## Next: Support vector machines and nearest neighbours {.transition-slide .center}
 
