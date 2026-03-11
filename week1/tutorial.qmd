@@ -23,6 +23,11 @@ devtools::install_github("koncina/unilur")
 devtools::install_github("hadley/emo")
 
 Had to run this in the week 1 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week1
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12026\week1
 quarto install extension ginolhac/unilur
 -->
 

@@ -3,12 +3,12 @@ title: "ETC3250/5250 Introduction to Machine Learning"
 title-slide-attributes: 
   data-background-image: "../images/bg.png"
   data-background-size: 100%
-subtitle: "Week 1: Foundations of machine learning"
+subtitle: "Week 1: Foundations of machine learning and the kNN model"
 author: 
- - name: "Professor Di Cook"
-   email: "etc3250.clayton-x@monash.edu"
+ - name: "Jack Jewson"
+   email: "Jack.Jewson@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 1 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 1"
 format:
   revealjs:
     multiplex: false
@@ -23,6 +23,8 @@ format:
 
 ```{r, include = FALSE}
 source("../setup.R")
+
+#my.dir <- "C:/Users/jjew0003/Documents/Monash Teaching/ETC3250-5250/2025"
 ```
 
 ## Welcome! Meet the teaching team 
@@ -30,19 +32,50 @@ source("../setup.R")
 
 <br>
 
-Chief examiner: [Professor Dianne Cook]{.monash-fuchsia2}
+::: {.fragment}
 
-Communication: All questions need to be communicated through the Discussion forum. Any of a private matter can be addressed to [etc3250.clayton-x@monash.edu]{.monash-orange2} or through a private message on the **edstem** forum. **Emails should never be sent directly to tutors or the instructor.**
+Chief examiner: [Jack Jewson]{.monash-fuchsia2}
 
-<br>
+:::
+
+::: {.fragment}
+
+Communication: All questions need to be communicated through the Moodle Discussion forum. **I will not respond to emails about module content.** Any of a private matter can be addressed to [etc3250-etc5250@monash.edu]{.monash-orange2}.
+
+:::
+
+. . .
+
 Tutors: 
 
-- [Patrick]{.monash-green2}: 3rd year PhD student working on computer vision for reading residual plots
-- [Harriet]{.monash-red2}: 2nd year PhD student working on visualisation of uncertainty
-- [Jayani]{.monash-blue2}: 2nd year PhD student working on methods for understanding how non-linear dimension reduction warps your data
-- [Krisanat]{.monash-ruby2}: MBAt graduate, aspiring to be PhD student in 2025
+::: {.incremental}
+
+- [Joyn]{.monash-ruby2}: Head Tutor, MBAt graduate
+- [Floyd]{.monash-green2}: 3rd year PhD student working on election auditing
+- [Harriet]{.monash-red2}: 4th year PhD student working on visualisation of uncertainty
+- [Jayani]{.monash-blue2}: 4th year PhD student working on methods for understanding how non-linear dimension reduction warps your data
+
+
+:::
+
+## Oraganisation 
+
+<br>
+
+::: {.incremental}
+
+- Wednesdays 5pm-7pm - Lecture: Covering the lecture slides
+- Mondays 3pm-4pm - Online Workshop: Finishing off the lecture slides, covering assignment solutions and tutorial questions
+- Monday, Tuesday, Wednesday - Tutorials: **Your chance** to implement for yourselves
+- Wednesdays 10am-11am - Consultation: Chance to ask me for **clarifications**
+
+:::
 
 ## What this course is about
+
+<br>
+
+::: {.incremental}
 
 -	select and develop appropriate models for clustering, prediction or classification.
 - estimate and simulate from a variety of statistical models.
@@ -51,39 +84,139 @@ Tutors:
 - manage very large data sets in a modern software environment.
 - explain and interpret the analyses undertaken clearly and effectively.
 
+:::
+
 ## Assessment
 
-* [Weekly learning quizzes](https://learning.monash.edu/course/view.php?id=9453&section=20): 3% DUE: Mondays 9am
-* [Assignment 1](https://learning.monash.edu/course/view.php?id=9453&section=20): 9% 
-* [Assignment 2](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
-* [Assignment 3](https://learning.monash.edu/course/view.php?id=9453&section=20): 9%
-* [Project](https://learning.monash.edu/course/view.php?id=9453&section=20): 10%
+<br>
+
+::: {.incremental}
+
+* Assignment 1: 10% (Due 29th March)
+* Assignment 2: 10% (Due 19th April) 
+* Project: 20% (Due 24th May),  ETC5250 student will present their project in the Week 12 class
 * Final exam: 60%
 
+:::
+
+. . .
+
+Weekly learning quizzes: Unassessed. Posted on Fridays
+
+
+## Generative AI
+
+<br>
+
+::: {.incremental}
+
+- Can be used for Assignments 1 and  2 and the Project as long as you acknowledge it correctly
+- GenAI are Large Language Models, they are trained to produce text, not to do/understand statistical concepts and math
+- You may find it helps you in coding exercises 
+- Use this as a tool to help improve your coding
+- But make sure you check and understand it first
+
+:::
+
+## Reading
+
+<br>
+
+::: {.incremental}
+
+- As well as a tutorial each week I will post a little *required* reading
+- This will augment what I tell you in lectures
+- Everything you need to pass the course will be in the lectures, but the reading will give you another perspective and deepen your understanding
+
+:::
+
+. . .
+
+* [An Introduction to Statistical Learning](https://www.statlearning.com/)
+* [Interactively exploring high-dimensional data and models in R](https://dicook.github.io/mulgar_book/)
+* [Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/)
+* [Hands-On Machine Learning with R](https://bradleyboehmke.github.io/HOML/)
+
+
 ## How to do well
+
+<br>
+
+::: {.incremental}
 
 - **Keep up-to-date** with content: 
     - **participate** in the lecture each week
     - **attend tutorials**
     - complete **weekly learning quiz** to check your understanding
     - **read** the relevant sections of the resource material
-    - **run the code** from lectures in the `qmd` files
+    - **run the code** from lectures in the `qmd` files (DEMO)
 - Begin assessments **early**, when posted, map out a plan to complete it on time
 - **Ask** questions
 
+:::
+
+
+
+## Looking forward
+
+<!--
 ## {.center}
+-->
+
+<br>
 
 [*Machine learning is a big, big area. This semester is like the tip of the iceberg, there's a lot more, and interesting methods and problems, than what we can cover. Take this as a challenge to get you started, and become hungry to learn more!*]{.monash-blue2}
+
+<br>
+
+::: {.incremental}
+
+- This class is an Introduction to Machine Learning
+- I will also Lecture **ETC3555/5555 Statistical Machine Learning** next semester where we will have a chance to dive deeper into some topics
+
+:::
+
+
+## In todays class
+
+<br>
+
+::: {.incremental}
+
+- Look at different types of learning problems
+- Consider what data looks like, both mathematically and on your computer
+- Discuss some basic mathematical concepts that will be useful for the rest of this course
+- Introduce your first machine learning model - k-nearest neighbours
+- Establish a framework for good machine learning modelling
+
+:::
+
+<br>
+
+::: {.fragment}
+
+We will continually refer back to the topics introduced in this class throughout the semester
+
+:::
+
 
 ## Types of problems {.transition-slide .center}
 
 ## Framing the problem
 
-1. **Supervised classification**: categorical $y_i$ is [available]{.monash-orange2} for all $x_i$
-2. **Unsupervised learning**: $y_i$ [unavailable]{.monash-orange2} for all $x_i$ 
+::: {.incremental}
+
+1. **Supervised classification**: categorical $y_i\in\{1, \ldots, C\}$ is [available]{.monash-orange2} for all $x_i\in\mathbb{R}^d$
+  - Your task is to learn the relationship between *predictors/features* $x$ and *response* $y$
+  - So that you could well predict a future unknown $y^{\prime}$ from known $x^{\prime}$ 
+  
+:::
+
+::: {.fragment}
 
 ```{r fig.width=6, fig.height=4, fig.align='center', echo=FALSE}
-#| label: overview-methods
+#| label: overview-methods1
+#| out-width: 50%
 library(tidyverse)
 library(gapminder)
 library(gridExtra)
@@ -91,38 +224,123 @@ flea <- read_csv("http://www.ggobi.org/book/data/flea.csv")
 p1 <- ggplot(flea, aes(x=tars1, y=aede1, colour = species)) + 
   geom_point() + 
   scale_colour_brewer(palette = "Dark2") +
-  xlab("Var 1") + ylab("Var 2") +
+  xlab("x1") + ylab("x2") +
   ggtitle("Classification") +
-  theme(legend.position="None")
+  theme(legend.position="None") +
+  geom_point(aes(x = 150, y = 125), color = "black", size = 3, pch = 4)
+
+grid.arrange(p1, ncol=1)
+```
+
+:::
+
+## Framing the problem
+
+::: {.incremental}
+
+2. **Supervised regression**: continious $y_i\in\mathbb{R}$ is [available]{.monash-orange2} for all $x_i\in\mathbb{R}^d$
+  - Your task is to learn the relationship between *predictors/features* $x$ and *response* $y$
+  - So that you could well predict a future unknown $y^{\prime}$ from known $x^{\prime}$ 
+  
+:::
+
+::: {.fragment}
+
+```{r fig.width=6, fig.height=4, fig.align='center', echo=FALSE}
+#| label: overview-methods2
+#| out-width: 50%
+library(tidyverse)
+library(gapminder)
+library(gridExtra)
+flea <- read_csv("http://www.ggobi.org/book/data/flea.csv")
+p1 <- ggplot(flea, aes(x=tars1, y=aede2)) + 
+  geom_point() + 
+  scale_colour_brewer(palette = "Dark2") +
+  xlab("x1") + ylab("y") +
+  ggtitle("Regression") +
+  theme(legend.position="None") +
+  geom_vline(aes(xintercept = 210), color = "black", linewidth = 1.1, linetype = "dashed")
+
+grid.arrange(p1, ncol=1)
+```
+
+:::
+
+
+## Framing the problem
+
+::: {.incremental}
+
+3. **Unsupervised learning**: $y_i$ [unavailable]{.monash-orange2} for all $x_i$ 
+  - Your task is to learn what the $y_i$'s could have been for each $x_i$
+  - Uncover some latent structure (e.g. clustering)
+  
+:::
+
+::: {.fragment}
+
+
+```{r fig.width=6, fig.height=4, fig.align='center', echo=FALSE}
+#| label: overview-methods3
+#| out-width: 50%
+library(tidyverse)
+library(gapminder)
+library(gridExtra)
+flea <- read_csv("http://www.ggobi.org/book/data/flea.csv")
 p2 <- ggplot(flea, aes(x=tars1, y=aede1)) + 
   geom_point() + xlab("Var 1") + ylab("Var 2") +  
   ggtitle("Clustering") 
-grid.arrange(p1, p2, ncol=2)
+#grid.arrange(p1, p2, ncol=2)
+grid.arrange(p2, ncol=1)
 ```
+
+:::
+
 
 ## What type of problem is this? (1/3)
 
-Food servers' tips in restaurants may be influenced by many factors, including the nature of the restaurant, size of the party, and table locations in the restaurant. Restaurant managers need to know which factors matter when they assign tables to food servers.  For the sake of staff morale, they usually want to avoid either the substance or the appearance of unfair treatment of the servers, for whom tips (at least in restaurants in the United States) are a major component of pay.
+::: {.incremental}
 
-In one restaurant, a food server recorded the following data on all
+- Food servers' tips in restaurants may be influenced by many factors e.g. the nature of the restaurant, size of the party, and table locations in the restaurant. 
+- Restaurant manager cannot directly control the size of the tips
+- Instead they need to know which factors matter when they assign tables to food servers.  
+- For the sake of staff morale, they usually want to avoid unfair treatment of the servers, for whom tips (in the U.S.) are a major component of pay.
+
+- In one restaurant, a food server recorded data on all
 customers they served during an interval of two and a half months in
-early 1990. The restaurant, located in a suburban shopping mall, was
-part of a national chain and served a varied menu. In observance of
-local law the restaurant offered seating in a non-smoking section to
-patrons who requested it. Each record includes a day and time, and
+early 1990. 
+- Each record includes a day and time, and
 taken together, they show the server's work schedule.
 
+:::
+
+. . .
+
 What is $y$? What is $x$?
+
 
 ## What type of problem is this? (2/3)
 
-Every person monitored their email for a week and recorded information about each email message; for example, whether it was spam, and what day of the week and time of day the email arrived. We want to use this information to build a spam filter, a classifier that will catch spam with high probability but will never classify good email as spam.
+<br>
+
+::: {.incremental}
+
+- Every person monitored their email for a week and recorded information about each email message; for example, whether it was spam, and what day of the week and time of day the email arrived. 
+- We want to use this information to build a spam filter, a classifier that will catch spam with high probability but will never classify good email as spam.
+
+:::
+
+::: {.fragment}
 
 What is $y$? What is $x$?
+
+:::
 
 ## What type of problem is this? (3/3)
 
 A health insurance company collected the following information about households:
+
+::: {.incremental}
 
 - Total number of doctor visits per year
 - Total household size
@@ -132,20 +350,44 @@ A health insurance company collected the following information about households:
 - Use of physiotherapy and chiropractic services
 - Total number of optometrist visits
 
+:::
+
+. . .
+
 The health insurance company wants to provide a small range of products, containing different bundles of services and for different levels of cover, to market to customers.
+
+. . .
 
 What is $y$? What is $x$?
 
-## Math and computing {.transition-slide .center}
 
-## Data: math
+## What type of problem is this? Summary
 
-$n$ number of observations or sample points
+<br>
 
-$p$ number of variables or the dimension of the data
+::: {.incremental}
 
-A data matrix is denoted as:
+- Problem 1 was a regression problem. We wanted to predict a continuous response, i.e. the size of the tip in USD, from data
+- Problem 2 was a classification problem. We wanted to predict a discrete response, i.e. whether an email was spam or not, from data
+- Problem 3 was an unsupervised clustering problem. We wanted to identify different attributes of different sections of the population in order to tailor different products to them
 
+:::
+
+## Math and computing foundations {.transition-slide .center}
+
+## Predictors: math
+
+$n$ number of observations or sample points (different tables in the restaurant)
+
+. . .
+
+$p$ number of variables or the dimension of the data (the number of things we measured about each table)
+
+. . .
+
+We can represent this data matrix as:
+
+$$
 \begin{align*}
 {\mathbf X}_{n\times p}= ({\mathbf x}_1 ~ {\mathbf x}_2 ~ \dots  ~ {\mathbf x}_p) = \left(\begin{array}{cccc} 
 x_{11} & x_{12} & \dots & x_{1p} \\
@@ -153,14 +395,28 @@ x_{21} & x_{22} & \dots & x_{2p} \\
 \vdots & \vdots & \ddots & \vdots \\
 x_{n1} & x_{n2} & \dots & x_{np} \end{array} \right)
 \end{align*}
+$$
+
+. . .
+
+Where ${\mathbf x}_{i1}$ might be whether it was lunch or dinner, ${\mathbf x}_{i2}$ the size fo the party etc.
+
+. . .
 
 This is also considered the matrix of predictors, or explanatory or independent variables, features, attributes, or input.
 
-## Data: computing
+. . . 
+
+We will define $\mathcal{X}\subset \mathbb{R}^p$ as the set in which the predictors live. 
+
+
+## Predictors: computing
+
+<br>
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| label: generate-mv-data
@@ -176,10 +432,14 @@ x <- rmvnorm(5,
 x
 ```
 
+::: {.fragment}
+
 What's the dimension of the data?
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| label: load-penguins
@@ -193,15 +453,77 @@ p_tidy <- penguins |>
 p_tidy |> slice_head(n=10)
 ```
 
+<!--
+Selects species and bill_length_mm to body_mass_g and renames
+
+penguins |>
+  select(species, bill_length_mm:body_mass_g)
+  
+is the same as 
+select(penguins, species, bill_length_mm:body_mass_g)
+
+It's basically the dot in python 
+-->
+
+::: {.fragment}
+
 What's the dimension of the data?
+
+:::
+
 :::
 :::
 
-## Observations and variables: math
+## R's pipe
+
+A reminder for anyone who is not familiar with R's pipe
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
+
+```{r}
+#| label: load-penguins-pipe
+library(palmerpenguins)
+p_tidy1 <- penguins |>
+  select(species, bill_length_mm:body_mass_g) |>
+  rename(bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g)
+p_tidy1 |> slice_head(n=10)
+```
+
+:::
+::: {.column .fragment}
+
+```{r}
+#| label: load-penguins-nopipe
+library(palmerpenguins)
+p_tidy1 <- select(penguins, species, bill_length_mm:body_mass_g)
+p_tidy2 <- rename(p_tidy1, 
+         bl=bill_length_mm,
+         bd=bill_depth_mm,
+         fl=flipper_length_mm,
+         bm=body_mass_g)
+slice_head(p_tidy2, n=10)
+```
+
+:::
+:::
+
+. . .
+
+
+The *pipe* will tidy up your code if you are going to be applying multiple steps to the same data
+
+## Observations and variables: math
+
+<br>
+
+::: {.columns}
+
+::: {.column .fragment}
 The $i^{th}$ observation is denoted as
 
 \begin{align*}
@@ -211,7 +533,7 @@ x_{i1} & x_{i2} & \dots & x_{ip} \\
 \end{align*}
 :::
 
-::: {.column}
+::: {.column .fragment}
 The $j^{th}$ variable is denoted as
 
 \begin{align*}
@@ -225,9 +547,11 @@ x_{1j} \\ x_{2j} \\ \vdots \\ x_{nj} \\
 
 ## Observations and variables: computing
 
+<br>
+
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 Observations - rows
 
@@ -237,12 +561,28 @@ x[2,]
 
 <br>
 
+::: { .fragment}
+
 ```{r}
 p_tidy |> slice_sample()
 ```
 
 :::
-::: {.column}
+<!--
+A randomly selected row
+-->
+
+::: { .fragment}
+
+```{r}
+p_tidy |> slice(2)
+```
+
+:::
+
+
+:::
+::: {.column .fragment}
 
 Variables - columns
 
@@ -252,17 +592,23 @@ x[,1]
 
 <br>
 
+::: { .fragment}
+
 ```{r}
 p_tidy |> pull(fl)
 ```
 
+:::
+
 
 :::
 :::
 
-# Response: math
+## Response: math
 
 The response variable (or target variable, output, outcome measurement), when it exists, is denoted as:
+
+. . . 
 
 \begin{align*}
 {\mathbf y} = \left(\begin{array}{c}
@@ -270,17 +616,25 @@ y_{1} \\ y_{2} \\ \vdots \\ y_{n} \\
 \end{array} \right)
 \end{align*}
 
-An observation can also be written as 
+. . .
 
-$$\mathcal{D} = \{(y_i, x_i)\}_{i = 1}^n = \{(y_1, x_1), (y_2, x_2), \dots, (y_n, x_n)\}$$ 
+We will define $\mathcal{Y}$ as the set in which the responses live. 
+
+. . . 
+
+The whole dataset can also be written as 
+
+$$\mathcal{D} = \{(y_i, x_i)\}_{i = 1}^n = \{(y_1, x_1), (y_2, x_2), \dots, (y_n, x_n)\} \in \{\mathcal{X}\times \mathcal{Y}\}^n$$ 
 
 where $x_i$ is a vector with $p$ elements.
 
-# Response: computing
+## Response: computing
+
+<br>
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 
 `species` is the response variable, and it is categorical.
@@ -292,7 +646,7 @@ p_tidy |> slice_sample(n=10)
 
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 A binary matrix format is sometimes useful.
 
@@ -305,11 +659,19 @@ model.matrix(~ 0 + species, data = p_tidy) |>
 :::
 :::
 
-# Linear algebra
+<br>
+
+. . . 
+
+This is often refferred to as *one-hot-encoding* or creating *dummy* variables
+
+## Linear algebra
+
+<br>
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 
 A transposed data matrix is denoted as
@@ -322,7 +684,7 @@ x_{1p} & x_{2p} & \dots & x_{np} \end{array} \right)_{p\times n}
 \end{align*}
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 x
@@ -335,11 +697,15 @@ t(x)
 
 ## Matrix multiplication: math
 
+<br>
+
 \begin{align*}
 {\mathbf A}_{2\times 3} = \left(\begin{array}{ccc} 
 a_{11} & a_{12} & a_{13} \\
 a_{21} & a_{22} & a_{23} \\ \end{array} \right)
 \end{align*}
+
+. . . 
 
 \begin{align*}
 {\mathbf B}_{3\times 4} = \left(\begin{array}{cccc} 
@@ -347,6 +713,8 @@ b_{11} & b_{12} & b_{13} & b_{14}\\
 b_{21} & b_{22} & b_{23} & b_{24}\\
 b_{31} & b_{32} & b_{33} & b_{34}\\ \end{array} \right)
 \end{align*}
+
+. . .
 
 then 
 
@@ -356,47 +724,64 @@ then
 \sum_{j=1}^3 a_{2j}b_{j1} & \sum_{j=1}^3 a_{2j}b_{j2} & \sum_{j=1}^3 a_{2j}b_{j3} & \sum_{j=1}^3 a_{2j}b_{j4} \end{array} \right)
 \end{align*}
 
-*Pour the rows into the columns.* Note: You can't do ${\mathbf B}{\mathbf A}$!
+. . .
+
+*Pour the rows into the columns.* 
+
+<br>
+
+. . .
+
+Note: You can't do ${\mathbf B}{\mathbf A}$!
 
 ## Matrix multiplication: computing
 
+<br>
+
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 ```{r}
 x
-proj <- matrix(c(1/sqrt(2), 1/sqrt(2), 0, 
+B <- matrix(c(1/sqrt(2), 1/sqrt(2), 0, 
                  0, 0, 1), ncol=2, byrow=FALSE)
-proj
-x %*% proj
+B
+x %*% B
 ```
 
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 Try this:
 
 ```{r eval=FALSE}
-t(x) %*% proj
+t(x) %*% B
 ```
 
 It produces an error because it can't be done
 
 ```
-Error in t(x) %*% proj : non-conformable arguments
+Error in t(x) %*% B : non-conformable arguments
 ```
 
 <br><br>
+
+::: { .fragment}
+
 Notice: `%*%` uses a `*` so it is NOT the tidyverse pipe.
+
+:::
 :::
 :::
 
 ## Identity matrix
 
+<br>
+
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 \begin{align*}
 I = \left(\begin{array}{cccc}
@@ -408,7 +793,7 @@ I = \left(\begin{array}{cccc}
 \end{align*}
 :::
 
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 diag(1, 8, 8)
@@ -418,11 +803,23 @@ diag(1, 8, 8)
 
 :::
 
+<br>
+
+. . . 
+
+This is the matrix equivalent of 1
+
+<br>
+
+. . . 
+
+$AI = A$ and $IA = A$ (as long as $A$ was conformable with these matrix multiplications)
+
 ## Inverting a matrix: math
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
 Suppose that ${\mathbf A}$ is square 
 
@@ -432,6 +829,8 @@ a & b  \\
 c & d \\ \end{array} \right)
 \end{align*}
 
+::: { .fragment}
+
 then the inverse is (if $ad-bc \neq 0$)
 
 \begin{align*}
@@ -439,6 +838,10 @@ then the inverse is (if $ad-bc \neq 0$)
 d & -b \\
 -c & a \\ \end{array} \right)
 \end{align*}
+
+:::
+
+::: { .fragment}
 
 and ${\mathbf A}{\mathbf A}^{-1} = I$ where
 
@@ -448,9 +851,10 @@ and ${\mathbf A}{\mathbf A}^{-1} = I$ where
 0 & 1 \\ \end{array} \right)
 \end{align*}
 
+:::
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 If $AB=I$, then $B=A^{-1}$.
 
@@ -462,62 +866,502 @@ vc_i
 
 vc %*% vc_i
 ```
-:::
+
+::: {.fragment}
+
+We see issues with numerical precision here. This is something you should be aware of but do not need to worry about
 
 :::
+
+
+:::
+
+
+:::
+
+<!---
 
 ## Projections
 
 ::: {.columns}
 
-::: {.column}
+::: {.column .fragment}
 
-$d (\leq p)$ is used to denote the number of variables in a lower dimensional space, usually by taking a projection.
+$d$ $(\leq p)$ is used to denote the number of variables in a lower dimensional space.
 
-$A$ is a $p\times d$ orthonormal basis, $A^\top A=I_d$ ( $A'A=I_d$ ).
+<br>
 
-The projection of ${\mathbf x_i}$ onto $A$ is $A^\top{\mathbf x}_i$.
+::: {.fragment}
+
+A projection takes our data from the original $p$ dimensional space to the lower $d$ dimensional space
 
 :::
-::: {.column}
+
+::: {.fragment}
+
+$A$ is a $p\times d$ orthonormal basis if $A^\top A=I_d$.
+
+:::
+
+::: {.fragment}
+
+i.e. $\sum_{i=1}^pA_{ij}^2 = 1$ for $j = 1\ldots, d$ and $\sum_{i=1}^pA_{ij}A_{ik} = 0$ for $k \neq j$
+
+:::
+
+<br>
+
+::: {.fragment}
+
+The projection of ${\mathbf x_i}\in\mathbb{R}^p$ onto $A$ is $A^\top{\mathbf x}_i\in\mathbb{R}^d$.
+
+:::
+
+:::
+::: {.column .fragment}
 
 ```{r}
+proj <- matrix(c(1/sqrt(2), 1/sqrt(2), 0, 
+                 0, 0, 1), ncol=2, byrow=FALSE)
+
 proj
 sum(proj[,1]^2)
 sum(proj[,2]^2)
 sum(proj[,1]*proj[,2])
+t(proj)%*%proj
 ```
 
-`proj` would be considered to be a orthonormal projection matrix.
+`proj` is an orthonormal projection matrix.
 
 :::
 
 :::
 
-## Conceptual framework {.transition-slide .center}
+--->
+
+## k-nearest neighbours {.transition-slide .center}
+
+<!---
+
+Talk about out of sample (as nearest neighbour in-sample is always its own observation - have to at lkeast leave that observation out)
+
+Can also talk about performance metrics
+
+potentially standardisation, but only if that is already mentioned here 
+
+Can leave setting K for when we discuss resampling
+
+--->
 
 
-## Accuracy vs interpretability
+## $k$-nearest neighbours
 
-::: {.columns}
+:::: {.columns}
 
 ::: {.column}
-[Predictive accuracy]{.monash-blue2}
 
-The primary purpose is to be able to [predict]{.monash-orange2} $\widehat{Y}$ for new data. And we'd like to do that well! That is, [accurately]{.monash-orange2}. 
+<br>
 
-![From XKCD](https://imgs.xkcd.com/comics/precision_vs_accuracy.png){style="font-size: 50%;"}
+$k$-nearest neighbours (kNN) is possibly the simplest [non-linear]{.monash-blue2} [non-parametric]{.monash-orange2} supervised learning model
+
+<br>
+
+::: {.fragment}
+
+**Idea**: For any new observation $x^{\prime}$ with unknown response (class or value),
+
 :::
+
+::: {.fragment}
+
+predict its response based on the average responses $\{y_i\}_{i=1}^n$ of $K$ training set observations, 
+
+:::
+
+::: {.fragment}
+
+whose features $\{x_i\}_{i=1}^n$ are closest to $x^{\prime}$
+
+:::
+
+:::
+::: {.column .fragment}
+
+More like a recipe/algorithm for prediction than a model 
+
+<br>
+
+::: {.fragment}
+
+All you need to specify is 
+
+:::
+
+::: {.incremental}
+
++ A distance $d(x, x_k)$
++ A number of neighbours $K$
+
+:::
+:::
+::::
+
+## Recipe for prediction
+
+::: {.incremental}
+
++ Specify a distance metric $d(\cdot, \cdot)$ (usually defaults to $d(x_1, x_2) = \sqrt{\sum_{j=1}^p(x_{1j} - x_{2j})^2}$) and a number of neighbours $K$
++ When predicting new observation $x^{\prime}$
+  + for $i = 1, \ldots, n$ evaluate $d(x^{\prime}, x_i)$
+  + select the $K$ observations with the smallest $d(x^{\prime}, x_i)$
+  + Predict the response as the average of the $y_i$ of the K nearest neighbours
+    + In regression predict $\frac{1}{K}\sum_{k=1}^Ky_{n_k}$
+    + In classification predict $P(y = C) = \frac{1}{K}\sum_{k=1}^K\mathbb{I}(y_{n_k} = C)$
+
+:::
+
+## Predicting Probabilities
+
+<br>
+
+In classification, the majority of machine learning models will not be a functions that directly produces prediction - $\widehat{y}:\mathcal{X}\mapsto\{1, \ldots, C\}$
+
+<br>
+
+. . .
+
+We will see in this class that it is much better to estimate probabilities of being in each class.
+
+. . . 
+
+Let these probabilities be $\widehat{p}:\mathcal{X}\mapsto (0, 1)^C$ with $\sum_{c=1}^C\widehat{p}(x_i)_c = 1$ where $\widehat{p}(x_i)_c = \mathbb{P}(y = c\mid x_i)$
+
+<br>
+
+. . .
+
+We can always turn these probabilities into class prediction i.e. $\widehat{y}(x_i) = \arg\max \widehat{p}(x_i)_c$
+
+. . .
+
+But the probabilities themselves contain much more information than just a class labels
+
+. . . 
+
+And it is easier to train a model to learn them
+
+
+
+## $k$-nearest neighbours
+
+Predict $y$ using the $k-$ nearest neighbours from observation of interest.
+
+:::: {.columns}
+::: {.column .fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+#| crop: true
+p_tiny <- p_std[c(1:10, 152:161, 275:284),]
+obs1 <- 28  
+p_tiny_dst <- dist(p_tiny[,2:3])
+# sort(as.matrix(p_tiny_dst)[obs1,])
+kn3 <- c(22, 23, 25)
+kn3_lines <- tibble(x=rep(p_tiny$bl[obs1], 3), 
+                    xend=p_tiny$bl[kn3], 
+                    y=rep(p_tiny$bd[obs1], 3), 
+                    yend=p_tiny$bd[kn3], 
+                    species=p_tiny$species[kn3])
+p1 <- ggplot(p_tiny, aes(x=bl, y=bd, colour=species)) +
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_tiny[obs1,], shape=1, size=4) +
+  geom_segment(data=kn3_lines, aes(x=x, xend=xend,
+                                   y=y, yend=yend)) +
+  ggtitle("K=3") + xlim(c(-2,2)) + ylim(c(-2,2))
+obs2 <- 12  
+# sort(as.matrix(p_tiny_dst)[obs2,])
+kn5 <- c(14,  18,  20,  15,  21) 
+kn5_lines <- tibble(x=rep(p_tiny$bl[obs2], 5), 
+                    xend=p_tiny$bl[kn5], 
+                    y=rep(p_tiny$bd[obs2], 5), 
+                    yend=p_tiny$bd[kn5], 
+                    species=p_tiny$species[kn5])
+
+p1
+```
+
+
+
+:::
+::: {.column .fragment}
+
+$\hat{P}(y = \text{Chinstrap}) = 1$
+
+::: {.fragment}
+
+$\hat{P}(y = \text{Gentoo}) = 0$
+
+:::
+
+::: {.fragment}
+
+$\hat{P}(y = \text{Adelie}) = 0$
+
+:::
+
+:::
+
+::::
+
+## $k$-nearest neighbours
+
+Predict $y$ using the $k-$ nearest neighbours from observation of interest.
+
+:::: {.columns}
+::: {.column .fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+#| crop: true
+
+p2 <- ggplot(p_tiny, aes(x=bl, y=bd, colour=species)) +
+  geom_point() +
+  scale_colour_discrete_divergingx(palette = "Zissou 1") +
+  geom_point(data=p_tiny[obs2,], shape=1, size=4) +
+  geom_segment(data=kn5_lines, aes(x=x, xend=xend,
+                                   y=y, yend=yend)) +
+  ggtitle("K=5") + xlim(c(-2,2)) + ylim(c(-2,2))
+p2
+
+```
+
+:::
+::: {.column .fragment}
+
+
+
+
+$\hat{P}(y = \text{Chinstrap}) = \frac{1}{5}$
+
+::: {.fragment}
+
+$\hat{P}(y = \text{Gentoo}) = \frac{4}{5}$
+
+:::
+
+::: {.fragment}
+
+$\hat{P}(y = \text{Adelie}) = 0$
+
+:::
+
+:::
+
+
+
+::::
+
+<!---
+
+## Details
+
+::: {.incremental}
+
++ Use cross-validation to learn the $K$ that best predicts out of sample data
++ No good at looking at in-sample predictions as each observation is its own neighbour
++ Can also use cross-validation to learn the distance metric e.g. using $d(x_1, x_2) = \sum_{j=1}^p|x_{1j} - x_{2j}|$
++ Important to standardise the features so that each has an equal weight on the distance $d(\cdot, \cdot)$
++ Rather than just returning the average of the response of the neighbours, it is often preferable to use a weighted average
+  + Set $w_{n_k}(x) \propto 1/d(x, x_{n_k})$
+  + In regression predict $\frac{1}{K}\sum_{k=1}^Kw_{n_k}(x)y_{n_k}$
+  + In classification predict $P(y = C) = \frac{1}{K}\sum_{k=1}^Kw_{n_k}(x)\mathbb{I}(y_{n_k} = C)$
+
+
+:::
+
+--->
+
+## Implementation
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| out-width: 100%
+set.seed(1)
+sim_data2 <- tibble(
+  x1 = rnorm(200) + rep(c(2, -2, 0), c(100, 50, 50)),
+  x2 = rnorm(200) + rep(c(2, -2, 0), c(100, 50, 50)),
+  y  = factor(rep(c(1, 2), c(150, 50)))
+)
+
+sim_data2 %>%
+  ggplot(aes(x1, x2, color = y)) +
+  geom_point()
+```
+
+:::
+::: {.column .fragment}
+
+```{r}
+set.seed(3)
+sim_data2 |> slice_sample(n = 5)
+```
+
+:::
+::::
+
+## Implementation
+
+
+
+:::: {.columns}
+::: {.column}
+
+Throughout this course we are going to use the `tidymodels` syntax for fitting our machine learning models
+
+
+::: {.fragment}
+
+[https://parsnip.tidymodels.org/reference/nearest_neighbor.html](https://parsnip.tidymodels.org/reference/nearest_neighbor.html)
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| echo: true
+
+K <- 5
+
+```
+
+:::
+
+
+::: {.fragment}
+
+```{r}
+#| echo: true
+
+knn_spec <- nearest_neighbor(neighbors = K, weight_func = "rectangular", dist_power = 2) |> #specify the model type
+  set_mode("classification") |>
+  set_engine("kknn") #specify how to learn the parameters
+```
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| echo: true
+knn_fit <- knn_spec |> ## apply the data
+  fit(y ~ ., data = sim_data2)
+
+```
+
+:::
+
+
+:::
+
+
+::::
+
+## Results
+
+:::: {.columns}
 
 ::: {.column}
-[Interpretability]{.monash-blue2}
 
-Almost equally important is that we want to [understand the relationship]{.monash-orange2} between ${\mathbf X}$ and $Y$. The simpler model that is (almost) as accurate is the one we choose, always.
+::: {.fragment}
 
-![From Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/images/iml.png){ style="font-size: 50%;"}
+```{r}
+#| echo: true
+
+sim_data2_grid <- tibble(
+  x1 = runif(10000, -5, 5),
+  x2 = runif(10000, -5, 5))
+
+
+sim_data2_grid <- sim_data2_grid |>
+  mutate(cl_knn = factor(predict(knn_fit$fit,
+                             sim_data2_grid)))
+  #mutate(prob_knn = predict(knn_fit$fit,
+  #                           sim_data2_grid, type = "prob")[,1])
+```
+:::
+
+
+:::
+::: {.column .fragment}
+
+```{r}
+#| message: false
+#| results: hide
+#| echo: false
+#| fig-width: 4
+#| fig-height: 4
+#| out-width: 100%
+
+ggplot(sim_data2_grid, aes(x=x1, y=x2, 
+                    colour=cl_knn)) +
+  geom_point(alpha=0.05, size=2) +
+  geom_point(data=sim_data2, aes(colour=y),
+             shape=16, size=2) +
+  scale_color_discrete_divergingx(palette = "Zissou 1") +
+  theme(legend.position = "none") + 
+  ggtitle("kNN")
+
+```
+
+:::
+
+::::
+
+
+
+
+## Pros and Cons
+
+:::: {.columns}
+::: {.column }
+
+**Pros**
+
+::: {.incremental}
+
+- Very simple, 
+- Very few hyper parameters to 'tune' (we will come back to this)
+- Good at picking up local structure in your data
+
 :::
 :::
+::: {.column .fragment}
 
+**Cons**
+
+::: {.incremental}
+
+- Distance gives all features the same weight,
+- There is no automatic way to give important features  increased weight or learn feature importance
+- Fails in high dimensions because data is too sparse - in these cases the model needs some structure (assumptions)
+
+:::
+
+:::
+::::
+
+
+## Evaluating your classification model {.transition-slide .center}
 
 ## Training vs test splits
 
@@ -525,13 +1369,52 @@ Almost equally important is that we want to [understand the relationship]{.monas
 When data are reused for multiple tasks, instead of carefully *spent* from the finite data budget, certain risks increase, such as the risk of accentuating bias or compounding effects from methodological errors. [*Julia Silge*](https://www.tmwr.org/splitting)
 :::
 
-- [Training set]{.monash-blue2}: Used to fit the model, might be also broken into a validation set for frequent assessment of fit. 
-- [Test set]{.monash-blue2}: Purely used to assess final models performance on future data.
+. . . 
+
+Therefore we split the data and conduct different tasks on different subsets of data
+
+::: {.incremental}
+
+- [Training set]{.monash-blue2} $\approx 80\%$: Used to fit the model. This might  also be broken into a validation set(s) for hyperparameter tuning and/or frequent assessment of fit. 
+- [Test set]{.monash-blue2} $\approx 20\%$: Purely used to assess final models performance on future data.
+
+:::
+
+<br>
+
 
 ## Training vs test splits
 
+<br>
+
+**DO NOT** only evaluate your model on the training set. 
+
+. . . 
+
+The model was estimated on that training set so it is designed to predict that set well. (kNN with $K = 1$ predicts the training data perfectly)
+
+. . . 
+
+Therefore this will give you a **BIASED** estimate of its performance.
+
+<br>
+
+. . . 
+
+In particular a more complex model will always *APPEAR* to predict the training set better 
+
+## Training vs test splits
+
+
+![From 'Pattern Recognition and Machine Learning' by Christopher Bishop](../images/bishop_overfit.png){ style="font-size: 50%;"}
+
+
+## Training vs test splits
+
+<br>
+
 ::: {.columns}
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| label: balanced-data
@@ -544,8 +1427,16 @@ training(d_bal_split)$y
 testing(d_bal_split)$y
 ```
 
+<br>
+
+::: {.fragment}
+
+Setting the seed ensures that if we reproduce this *random* split, we would get the same trainign and testing sets.
+
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| label: unbalanced-data
@@ -558,8 +1449,41 @@ training(d_unb_split)$y
 testing(d_unb_split)$y
 ```
 
-::: {.fragment}
+<br>
+
+
+
+:::
+:::
+
+## Training vs test splits
+
+<br>
+
+::: {.columns}
+::: {.column .fragment}
+
+```{r}
+#| label: unbalanced-data2
+d_unb <- tibble(y=c(rep("A", 2), rep("B", 10)),
+                x=c(runif(12)))
+d_unb$y
+set.seed(132)
+d_unb_split <- initial_split(d_unb, prop = 0.70)
+training(d_unb_split)$y
+testing(d_unb_split)$y
+```
+
+:::
+::: {.column .fragment}
+
+
+
+<br>
+
 Always [stratify splitting]{.monash-orange2} by sub-groups, especially response variable classes.
+
+::: {.fragment}
 
 ```{r}
 #| label: unbalanced-split
@@ -567,22 +1491,101 @@ d_unb_strata <- initial_split(d_unb, prop = 0.70, strata=y)
 training(d_unb_strata)$y
 testing(d_unb_strata)$y
 ```
-:::
+
 
 :::
-:::
-
-## Measuring accuracy for categorical response
-
-Compute $\widehat{y}$ from [training data]{.monash-orange2}, $\{(y_i, {\mathbf x}_i)\}_{i = 1}^n$. The error rate ([fraction of misclassifications]{.monash-orange2}) to get the [Training Error Rate]{.monash-green2}
-
-$$\text{Error rate} = \frac{1}{n}\sum_{i=1}^n I(y_i \ne \widehat{y}({\mathbf x}_i))$$
-
-A better estimate of future [accuracy]{.monash-orange2} is obtained using [test data]{.monash-orange2} to get the [Test Error Rate]{.monash-green2}. 
 
 <br>
 
-::: {.info}
+::: {.fragment}
+
+This ensure that your training set adequately resembles your testing set.
+
+:::
+
+:::
+:::
+
+## Probabilities to prediction 
+
+While it is easier, and more informative, to model probabilities, eventually a decision/prediction must be made.
+
+. . .
+
+Consider **binary** classification, i.e. $\mathcal{Y} = \{0, 1\}$
+
+. . .
+
+Then a decision/prediction rule would be to set $\hat{y}(x_i) = 1$ if $\hat{p}(x_i) > \alpha$
+
+<br>
+
+. . . 
+
+One logical value for $\alpha = 0.5$
+
+. . .
+
+However if the probability that a relative has cancer is 0.45, do you want the doctor to predict they don't have cancer??
+
+<br>
+
+. . .
+
+The value of $\alpha$ is problem specific and depends on the consequences of missclassification.
+
+. . .
+
+It is not our job as data scientists to decide on $\alpha$, we model the probabilities and let a domain expert turn this into a decision.
+
+## Measuring accuracy for categorical response
+
+<br>
+
+For a supervised learning problem, our machine learning model is a function that we have learned from the training data that allows us to produce a prediction for a new observation 
+
+. . .
+
+Let $\widehat{y}:\mathcal{X}\mapsto\mathcal{Y}$ be the model estimated from [training data]{.monash-orange2}, $\{(y_i, {\mathbf x}_i)\}_{i = 1}^n$. 
+
+. . . 
+
+Consider a classification problem i.e. $\mathcal{Y} = \{1, \ldots, K\}$, a number for each class. 
+
+. . . 
+
+
+We can evaluate this model using the error rate ([fraction of misclassifications]{.monash-orange2})
+
+. . .
+
+We can look at this in the training data, $\{(y_i, {\mathbf x}_i)\}_{i = 1}^n$ to get the [Training Error Rate]{.monash-green2}
+
+. . .
+
+$$\text{Error rate} = \frac{1}{n}\sum_{i=1}^n I(y_i \ne \widehat{y}({\mathbf x}_i))$$
+
+
+## Measuring accuracy for categorical response
+
+
+$$\text{Error rate} = \frac{1}{n}\sum_{i=1}^n I(y_i \ne \widehat{y}({\mathbf x}_i))$$
+
+. . .
+
+But, a better estimate of future [accuracy]{.monash-orange2} is obtained using [test data]{.monash-orange2} to get the [Test Error Rate]{.monash-green2}. 
+
+
+. . .
+
+Learn $\widehat{y}$ using $\{(y_i, {\mathbf x}_i)\}_{i = 1}^{n_{train}}$
+
+. . .
+
+And evaluate the error rate using $\{(y_i, {\mathbf x}_i)\}_{i = n_{train}}^{n}$
+
+
+::: {.info .fragment}
 Training error will usually be [smaller]{.monash-orange2} than test error. When it is much smaller, it indicates that the model is too well fitted to the training data to be accurate on future data (over-fitted).
 :::
 
@@ -590,8 +1593,12 @@ Training error will usually be [smaller]{.monash-orange2} than test error. When 
 
 ## Confusion (misclassification) matrix
 
+<br>
+
+You can visualise this classification performance using a confusion matrix 
+
 ::: {.columns}
-::: {.column}
+::: {.column .fragment}
 
 <center>
 <table>
@@ -602,7 +1609,13 @@ Training error will usually be [smaller]{.monash-orange2} than test error. When 
 </table>
 </center>
 
+::: {.fragment}
+
 Consider `1`=positive (P), `0`=negative (N). 
+
+:::
+
+::: {.incremental}
 
 - True positive (TP): `a`
 - True negative (TN): `d`
@@ -610,13 +1623,19 @@ Consider `1`=positive (P), `0`=negative (N).
 - False negative (FN): `b` (Type II error)
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
+
+::: {.incremental}
 
 - Sensitivity, recall, hit rate, or true positive rate (TPR): TP/P = `a`/(`a`+`b`)
 - Specificity, selectivity or true negative rate (TNR): TN/N = `d`/(`c`+`d`)
 - Prevalence: P/(P+N) = (`a`+`b`)/(`a`+`b`+`c`+`d`)
 - Accuracy: (TP+TN)/(P+N) = (`a`+`d`)/(`a`+`b`+`c`+`d`)
 - Balanced accuracy: (TPR + TNR)/2 (or average class errors)
+
+:::
 
 
 :::
@@ -625,7 +1644,7 @@ Consider `1`=positive (P), `0`=negative (N).
 ## Confusion (misclassification) matrix: computing
 
 ::: {.columns}
-::: {.column}
+::: {.column .fragment}
 
 Two classes
 
@@ -677,7 +1696,7 @@ conf_mat(a2, pred, y, dnn=c("Truth", "Pred"))
 ```{r}
 # Write out the confusion matrix in standard form
 #| label: oconfusion-matrix-tidy
-cm <- a2 %>% count(y, pred) |>
+cm <- a2 |> dplyr::count(y, pred) |>
   group_by(y) |>
   mutate(cl_acc = n[pred==y]/sum(n)) 
 cm |>
@@ -686,22 +1705,26 @@ cm |>
   select(y, bilby, quokka, cl_acc)
 ```
 
+::: {.fragment}
+
 ```{r}
-accuracy(a2, y, pred) |> pull(.estimate)
+accuracy(a2, y, pred) |> pull(.estimate) ## pull selects the column called ".estimate"
 bal_accuracy(a2, y, pred) |> pull(.estimate)
 sens(a2, y, pred) |> pull(.estimate)
 specificity(a2, y, pred) |> pull(.estimate)
 ```
 :::
 
-::: {.column}
+:::
+
+::: {.column .fragment}
 
 More than two classes
 
 
 ```{r}
 # Write out the confusion matrix in standard form
-cm3 <- a3 %>% count(y, pred) |>
+cm3 <- a3 |> dplyr::count(y, pred) |>
   group_by(y) |>
   mutate(cl_err = n[pred==y]/sum(n)) 
 cm3 |>
@@ -710,29 +1733,121 @@ cm3 |>
   select(y, bilby, quokka, numbat, cl_err)
 ```
 
+::: {.fragment}
+
 ```{r}
 accuracy(a3, y, pred) |> pull(.estimate)
 bal_accuracy(a3, y, pred) |> pull(.estimate)
 ```
+
+<!---
+
+https://yardstick.tidymodels.org/articles/multiclass.html
+
+--->
+
+```{r}
+#| include: FALSE
+av_TPR <- (9/12 + 6/8 + 10/15)/3
+av_TPR
+TNR_b_vs_qn <- 18/23
+TNR_q_vs_bn <- 15/20
+TNR_n_vs_bq <- 27/27
+av_TNR <- (TNR_b_vs_qn + TNR_q_vs_bn + TNR_n_vs_bq)/3
+av_TNR
+
+(av_TPR + av_TNR)/2 
+```
+
 :::
 
 :::
+
+:::
+
+
 
 ## Receiver Operator Curves (ROC)
 
+However $\hat{y}$ required a value of $\alpha$, and we said this was problem dependent and not our job to set
+
+. . .
+
+Therefore we need to be able to evaluate our models for any value of $\alpha$
+
 ::: {.columns}
-::: {.column}
+::: {.column .fragment}
 
-The balance of getting it right, without predicting everything as positive.
+Evaluate TPR and FPR for different $\alpha$
 
-![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Roc_curve.svg/440px-Roc_curve.svg.png){style="font-size: 50%;"}
+::: {.fragment}
 
-Need [predictive probabilities]{.monash-orange2}, probability of being each class. 
+If $\alpha$ = 1, $\hat{p}(x_i)$ can never be greater than 1
+
 :::
-::: {.column}
+
+::: {.fragment}
+
+TPR = 0, FPR = 0
+
+:::
+
+<br>
+
+::: {.fragment}
+
+If $\alpha$ = 0, $\hat{p}(x_i)$ always greater than 0
+
+:::
+
+::: {.fragment}
+
+TPR = 1, FPR = 1
+
+:::
+
+<br>
+
+::: {.fragment}
+
+For a good classifier, as we increase $\alpha$ the TPR should go up faster than the FPR
+
+:::
+
+
+:::
+::: {.column .fragment}
+
+![From wikipedia](../Images/Roc_curve.svg.png){style="font-size: 50%;"}
+
+:::
+:::
+
+::: {.fragment}
+
+The ROC curve allows you to evaluate the accuracy for all values of $\alpha$
+:::
+
+
+## Receiver Operator Curves (ROC)
+
+<br>
+
+Therefore we need to be able to evaluate our models for any value of $\alpha$
+
+::: {.columns}
+::: {.column .fragment}
+
+
+![From wikipedia](../Images/Roc_curve.svg.png){style="font-size: 50%;"}
+
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| label: roc-curve
+#| out-width: 75%
 a2 |> slice_head(n=3)
 roc_curve(a2, y, bilby) |>
   autoplot()
@@ -740,439 +1855,81 @@ roc_curve(a2, y, bilby) |>
 :::
 :::
 
-## Parametric vs non-parametric
+
+<!---
+
+Keep a minimal amount of what's to come, 
+
+Not sure where to put it
+
+--->
+
+## Conceptual framework {.transition-slide .center}
+
+
+## Accuracy vs interpretability
+
+Why are we learning from data?
 
 ::: {.columns}
-::: {.column}
 
-[Parametric]{.monash-purple2} methods
-
-- [Assume]{.monash-purple2} that the model takes a specific form
-- Fitting then is a matter of [estimating the parameters]{.monash-purple2} of the model
-- Generally considered to be [less flexible]{.monash-purple2}
-- If assumptions are [wrong]{.monash-purple2}, performance likely to be [poor]{.monash-purple2}
-    
-:::
-::: {.column}
-
-[Non-parametric]{.monash-pink2} methods 
-
-- [No]{.monash-pink2} specific assumptions
-- Allow the [data to specify]{.monash-pink2} the model form, without being too rough or wiggly
-- More [flexible]{.monash-pink2}
-- Generally needs [more observations]{.monash-pink2}, and not [too many variables]{.monash-pink2}
-- Easier to [over-fit]{.monash-pink2}
-    
-:::
-:::
-
-## 
-
-::: {.columns}
-::: {.column width=30%}
-
-![From XKCD](https://imgs.xkcd.com/comics/curve_fitting.png){width=500 style="font-size: 50%;"}
-:::
-::: {.column width=33%}
-
-```{r}
-#| echo: false
-#| eval: false
-#| label: sine-curve-data
-# Generate the sine-curve data
-set.seed(1259)
-x1 <- runif(340)
-x2 <- runif(340)
-y <- 3*x1+sin(x1*15)
-y <- (y-min(y))/(max(y)-min(y))
-d <- tibble(x1, x2, y)
-d$cl <- ifelse(x2 > y, "A", "B")
-d$cl[sample(1:340, 25)] <- sample(c("A", "B"), 25, replace=TRUE)
-write_csv(d, file="data/sine-curve.csv")
-# Test set
-x1 <- runif(212)
-x2 <- runif(212)
-y <- 3*x1+sin(x1*15)
-y <- (y-min(y))/(max(y)-min(y))
-d <- tibble(x1, x2, y)
-d$cl <- ifelse(x2 > y, "A", "B")
-d$cl[sample(1:212, 18)] <- sample(c("A", "B"), 18, replace=TRUE)
-write_csv(d, file="data/sine-curve-test.csv")
-```
-
-```{r}
-#| label: sine-curve-plot
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 100%
-#w <- read_csv(here::here("data/wiggly.csv")) |>
-#  rename(x1=x, x2=y) |>
-#  mutate(class = factor(class))
-w <- read_csv(here::here("data/sine-curve.csv")) |>
-  mutate(cl = factor(cl))
-ggplot(w, aes(x=x1, y=x2, colour = cl)) +
-  geom_point(size=2.5, alpha=0.8) +
-  geom_line(aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("Observed data") + 
-  theme(legend.position = "none")
-```
-
-[Black line [is true boundary]{.monash-blue2}.]{.smaller}
-
-<br>
-
-[[Grids]{.monash-pink2} (right) show [boundaries]{.monash-pink2} for two different models.]{.smaller}
-
-:::
-::: {.column width=30%}
-
-```{r}
-#| label: sin-curve-models
-#| echo: false
-#| fig-width: 4
-#| fig-height: 8
-library(geozoo)
-w_grid <- cube.solid.random(p=2)$points
-colnames(w_grid) <- c("x1", "x2")
-w_grid <- w_grid |> as_tibble() |>
-  mutate(x1 = x1*(max(w$x1)-min(w$x1)+min(w$x1)),
-         x2 = x2*(max(w$x2)-min(w$x2)+min(w$x2)))
-w_lda <- lda(cl~x1+x2, data=w)
-w_lda_pred <- predict(w_lda, w_grid)$class
-w_rf <- randomForest(cl~x1+x2, data=w, ntree=2)
-w_rf_pred <- predict(w_rf, w_grid)
-w_grid <- w_grid |>
-  mutate(plda = w_lda_pred,
-         prf = w_rf_pred)
-p1 <- ggplot(w_grid, aes(x=x1, y=x2, colour = plda)) +
-  geom_point(alpha=0.5, size=2) +
-  geom_line(data=w, aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("Parametric") +
-  theme(legend.position = "none",
-        axis.text = element_blank())
-p2 <- ggplot(w_grid, aes(x=x1, y=x2, colour = prf)) +
-  geom_point(alpha=0.5, size=2) +
-  geom_line(data=w, aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("Non-parametric") +
-  theme(legend.position = "none",
-        axis.text = element_blank())
-#p1 + p2 + plot_layout(ncol=1)
-grid.arrange(p1, p2)
-```
-
-:::
-:::
-
-## Reducible vs irreducible error
-
-::: {.columns}
-::: {.column width=10%}
-:::
-
-::: {.column width=30%}
-```{r}
-#| label: model-errors1
-#| echo: false
-#| fig-width: 5
-#| fig-height: 5
-w <- w |>
-  mutate(plda = predict(w_lda, w)$class,
-         prf = predict(w_rf, w)) |>
-  mutate(lda_err = ifelse(cl != plda, "1", "0"),
-         rf_err = ifelse(cl != prf, "1", "0"))
-
-ggplot(w, aes(x=x1, y=x2, 
-                   colour = cl, 
-                   shape=lda_err)) +
-  geom_point(size=5, alpha=0.8) +
-  geom_line(aes(x=x1, y=y), 
-            inherit.aes = FALSE, 
-            colour="black") +
-  scale_color_discrete_qualitative() +
-  scale_shape_manual(values=c(1, 19)) +
-  ggtitle("Parametric errors") + 
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.title = element_blank())
-```
-
-:::
-
-::: {.column width=10%}
-:::
-
-::: {.column width=30%}
-
-```{r}
-#| label: model-errors2
-#| echo: false
-#| fig-width: 5
-#| fig-height: 5
-ggplot(w, aes(x=x1, y=x2, 
-                   colour = cl, 
-                   shape=rf_err)) +
-  geom_point(size=5, alpha=0.8) +
-  geom_line(aes(x=x1, y=y), 
-            inherit.aes = FALSE,
-            colour="black") +
-  scale_color_discrete_qualitative() +
-  scale_shape_manual(values=c(1, 19)) +
-  ggtitle("Non-parametric errors") + 
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.title = element_blank())
-```
-
-:::
-::: {.column width=10%}
-:::
-:::
-
-If the [model form is incorrect]{.monash-umber2}, the error (solid circles) may arise from wrong shape, and is thus [reducible]{.monash-umber2}. [Irreducible]{.monash-olive2} means that we have got the right model and mistakes (solid circles) are [random noise]{.monash-olive2}. 
-
-## Flexible vs inflexible
-
-```{r}
-#| label: flexible-model
-#| echo: false
-#| fig-width: 9
-#| fig-height: 3
-p1 <- ggplot(w_grid, aes(x=x1, y=x2, colour = plda)) +
-  geom_point(size=2, alpha=0.5) +
-  geom_line(data=w, aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("Less flexible") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.title = element_blank())
-w_rf <- randomForest(cl~x1+x2, data=w, ntree=4)
-w_rf_pred <- predict(w_rf, w_grid)
-w_grid <- w_grid |>
-  mutate(prf = w_rf_pred)
-p2 <- ggplot(w_grid, aes(x=x1, y=x2, colour = prf)) +
-  geom_point(size=2, alpha=0.5) +
-  geom_line(data=w, aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("<--------------->") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.title = element_blank())
-w_rf <- randomForest(cl~x1+x2, data=w, ntree=100)
-w_rf_pred <- predict(w_rf, w_grid)
-w_grid <- w_grid |>
-  mutate(prf = w_rf_pred)
-p3 <- ggplot(w_grid, aes(x=x1, y=x2, colour = prf)) +
-  geom_point(size=2, alpha=0.5) +
-  geom_line(data=w, aes(x=x1, y=y), colour="black") +
-  scale_color_discrete_qualitative() +
-  ggtitle("More flexible") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.title = element_blank())
-
-#p1 + p2 + p3 + plot_layout(ncol=3)
-grid.arrange(p1, p2, p3, ncol=3)
-```
-
-[Parametric]{.monash-orange2} models tend to be [less flexible]{.monash-orange2} but [non-parametric]{.monash-blue2}  models can be flexible or less flexible depending on [parameter settings]{.monash-blue2}.
-
-## Bias vs variance
-
-::: {.columns}
-::: {.column}
-
-[Bias]{.monash-orange2} is the error that is introduced by modeling a 
-complicated problem by a simpler problem.
-
-- For example, linear regression assumes a linear relationship and perhaps the relationship is not exactly linear.
-- In general, but not always, the [more flexible]{.monash-orange2} a method is, the [less bias]{.monash-orange2} it will have because it can fit a complex shape better. 
-
-
-:::
-::: {.column}
-
-::: {.fragment}
-[Variance]{.monash-orange2}
-refers to how much your estimate would change if you had different training data. Its measuring how much your model depends on the data you have, to the neglect of future data.
-
-
-- In general, the [more flexible]{.monash-orange2} a method is, the [more variance]{.monash-orange2} it has. 
-- The [size]{.monash-orange2} of the training data can impact on the variance.
-:::
-
-:::
-:::
-
-## Bias 
-
-::: {.columns}
-::: {.column}
-
-```{r}
-#| label: bias1
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 60%
-p1 + ggtitle("Large bias")
-```
-
-[When you impose too many assumptions with a parametric model, or use an inadequate non-parametric model, such as not letting an algorithm converge fully.]{.smaller}
-
-:::
-::: {.column}
-
-```{r}
-#| label: bias2
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 60%
-p3 + ggtitle("Small bias")
-```
-
-[When the model closely captures the true shape, with a parametric model or a flexible model.]{.smaller} 
-
-:::
-:::
-
-## Variance
-
-::: {.columns}
-::: {.column}
-
-```{r}
-#| label: variance1
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 60%
-p1 + ggtitle("Small variance")
-```
-
-[This fit will be virtually identical even if we had a different training sample.]{.smaller}
-
-:::
-::: {.column}
-
-```{r}
-#| label: variance2
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 60%
-p3 + ggtitle("Large variance")
-```
-
-[Likely to get a very different model if a different training set is used.]{.smaller} 
-
-:::
-:::
-
-## Bias-variance tradeoff
-
-![Fig 2.16 from ISLR](../images/2.16.png){width=800 style="font-size: 50%;"}
-![Fig 2.16 from ISLR](../images/2.15.png){width=450 style="font-size: 50%;"}
-
-Goal: Without knowing what the true structure is, fit the signal and ignore the noise. [Be flexible but not too flexible.]{.monash-blue2}
-
-[Images 2.16, 2.15 from ISLR]{style="font-size: 50%;"}
-
-## Trade-off between accuracy and interpretability
-
-```{r}
-#| label: tradeoff-acc-interp
-#| echo: false
-#| fig-width: 5
-#| fig-height: 5
-#| out-width: 60%
-ai <- tibble(flexibility=c(5, 1, 4, 2, 3), 
-             interpretability=c(1, 5, 4, 5, 3), 
-             name=c("neural network", "LDA", "random forests", "trees", "SVM"))
-library(ggrepel)
-ggplot(ai, aes(x=flexibility, 
-               y=interpretability, 
-               label=name, colour=name)) +
-  geom_text(hjust = 1, vjust=0) +
-  scale_x_continuous("flexibility/accuracy", 
-                     limits=c(0, 5), 
-                     breaks = c(1, 5), 
-                     labels=c("low", "high")) +
-  scale_y_continuous(
-                     limits=c(1, 5), 
-                     breaks = c(1, 5), 
-                     labels=c("low", "high")) +
-  theme(legend.position="none", panel.grid = element_blank())
-```
-
-
-## Diagnosing the fit
-
-::: {.columns}
-::: {.column}
-
-Compute and examine the [usual diagnostics]{.monash-blue2}, some methods have more
-
-- fit statistics: accuracy, sensitivity, specificity
-- errors/misclassifications
-- variable importance
-- plot residuals, examine the misclassifications
-- [check test set is similar to training]{.monash-pink2}
-
-[Go beyond ...]{.monash-orange2} Look at the data and the model together!
-
-[[Wickham et al (2015) Removing the Blindfold](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/abstract)]{.smaller}
-:::
-::: {.column}
+::: {.column .fragment}
+[Predictive accuracy]{.monash-blue2}
 
 ::: {.fragment}
 
-[*Training - plusses; Test - dots*]{.smaller .center}
+The primary purpose is to be able to [predict]{.monash-orange2} $\hat{y}$ for new data $x^{\prime}$. And we'd like to do that well! That is, [accurately]{.monash-orange2}.
 
-```{r}
-#| label: training-test
-#| echo: false
-#| fig-width: 4
-#| fig-height: 4
-#| out-width: 80%
-w_test <- read_csv(here::here("data/sine-curve-test.csv"))
-ggplot() +
-  geom_point(data=w_grid, aes(x=x1, y=x2, 
-                              colour = prf), 
-             alpha=0.05, size=4) +
-  geom_point(data=w, aes(x=x1, y=x2, colour = cl), 
-             shape=3, size=3) +
-  geom_point(data=w_test, aes(x=x1, y=x2, colour = cl), 
-             shape=19, size=3) +
-  scale_color_discrete_qualitative() +
-  theme(legend.position = "none",
-        axis.text = element_blank())
-```
+:::
+
+::: {.fragment}
+
+![From XKCD](https://imgs.xkcd.com/comics/precision_vs_accuracy.png){style="font-size: 50%;"}
+:::
+:::
+
+::: {.column .fragment}
+[Interpretability]{.monash-blue2}
+
+::: {.fragment}
+
+Almost equally important is that we want to [understand the relationship]{.monash-orange2} between ${\mathbf x}$ and $y$.
+
+:::
+
+::: {.fragment}
+
+Simpler models are easier to understand.
+
+:::
+
+::: {.fragment}
+
+The simpler model that is (almost) as accurate is the one we choose, always.
+
+:::
+
+::: {.fragment}
+
+![From Interpretable Machine Learning](../images/iml.jpg){ style="font-size: 50%;"}
+
+
 
 :::
 
 :::
 :::
 
-## Feature engineering
 
-Creating new variables to get better fits is a special skill! Sometimes automated by the method. All are transformations of the original variables. (See `tidymodels` steps.)
 
-- scaling, centering, sphering (`step_pca`)
-- log or square root or box-cox transformation (`step_log`)
-- ratio of values (`step_ratio`)
-- polynomials or splines: $x_1^2, x_1^3$ (`step_ns`)
-- dummy variables: categorical predictors expanded into multiple new binary variables (`step_dummy`)
-- Convolutional Neural Networks: neural networks but with pre-processing of images to combine values of neighbouring pixels; flattening of images
+
 
 ## The big picture
 
 ::: {.columns}
 ::: {.column}
+
+::: {.incremental}
 
 1. Know your data
     - Categorical response or no response
@@ -1183,9 +1940,14 @@ Creating new variables to get better fits is a special skill! Sometimes automate
 2.  Plot your data
     - What are the shapes (distribution and variance)?
     - Are there gaps or separations (centres)?
+    
+:::
+
 :::
 
 ::: {.column}
+
+::: {.incremental}
 
 3. Fit a model or two
     - Compute fit statistics
@@ -1196,6 +1958,9 @@ Creating new variables to get better fits is a special skill! Sometimes automate
     - Is there a simpler model?
     - Are the errors reducible or systematic?
     - Are you confident that your bias is low and variance is low?
+    
+:::    
+    
 :::
 :::
 
