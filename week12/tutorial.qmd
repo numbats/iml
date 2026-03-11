@@ -8,12 +8,26 @@ format:
     unilur-html:
         output-file: tutorial.html
         css: "../assets/tutorial.css"
+        embed-resources: true
     unilur-html+solution:
         output-file: tutorialsol.html
         embed-resources: true
         css: "../assets/tutorial.css"
 unilur-solution: true
 ---
+
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 12 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week12
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week12
+quarto install extension ginolhac/unilur
+-->
 
 ```{r echo=FALSE}
 # Set up chunk for all slides
@@ -79,15 +93,25 @@ The goal for this week is work on a realistic clustering problem.
 
 ## Exercises: 
 
-
-
-
 **Risk taking behavior of tourists in Australia**
 
-Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The `risk` data was collected in Australia in 2015 and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often). It isone of the examples in the book ["Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful" by Sara Dolnicar, Bettina Grün and Friedrich Leisch](https://homepage.boku.ac.at/leisch/MSA/). The data can be obtained using the following code:
+Most of the time your data will not neatly separate into clusters, but partitioning it into groups of similar observations can still be useful. This is the case for the survey data here, that examines the risk taking behavior of tourists. The `risk` data was collected in Australia in 2015 and includes six types of risks (recreational, health, career, financial, safety and social) with responses on a scale from 1 (never) to 5 (very often).
+<!---
+It is one of the examples in the book ["Market Segmentation Analysis: Understanding It, Doing It, and Making It Useful" by Sara Dolnicar, Bettina Grün and Friedrich Leisch](https://homepage.boku.ac.at/leisch/MSA/). 
+
+The data can be obtained using the following code:
+--->
+
+
+
+```{r, include=FALSE}
+#risk <- read_csv("https://homepage.boku.ac.at/leisch/MSA/datasets/risk.csv")
+```
+
+Download the data from moodle, place it in the same folder as this `tutorial.qmd` and laod it by running
 
 ```{r}
-risk <- read_csv("https://homepage.boku.ac.at/leisch/MSA/datasets/risk.csv")
+risk <- readRDS("risk_MSA.rds")
 ```
 
 #### a. What is the shape of the data in 6D?
@@ -100,6 +124,21 @@ Using the tour, examine the data, and explain where there are separated clusters
 #| eval: false
 # Take a look at the data
 animate_xy(risk)
+```
+
+or 
+
+```{r}
+#| eval: false
+# Take a look at the data
+library(detourr)
+set.seed(645)
+detour(as.tibble(risk), 
+       tour_aes(projection = 1:6)) |>
+       tour_path(grand_tour(2), fps = 60, 
+                 max_bases=40) |>
+       show_scatter(alpha = 0.7, 
+                    axes = TRUE)
 ```
 
 - There are no separated clusters. 
