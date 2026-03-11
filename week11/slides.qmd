@@ -5,10 +5,10 @@ title-slide-attributes:
   data-background-size: 100%
 subtitle: "Week 11: Evaluating your clustering model"
 author: 
- - name: "Professor Di Cook"
-   email: "etc3250.clayton-x@monash.edu"
+ - name: "Jack Jewson"
+   email: "Jack.Jewson@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 11 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 11"
 format:
   revealjs:
     multiplex: false
@@ -23,11 +23,18 @@ format:
 
 ```{r, include = FALSE}
 source("../setup.R")
+
+knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
+#https://www.pmassicotte.com/posts/2022-08-15-removing-whitespace-around-figures-quarto/
 ```
 
 ## Overview
 
 We will cover:
+
+
+::: {.incremental}
+
 
 * Confusion tables
 * Cluster metrics
@@ -35,21 +42,18 @@ We will cover:
 * Visual summaries
 * Low-dimensional representations
 
+:::
+
 ## Evaluating your clustering {.transition-slide .center}
 
-## Confusion tables: comparing results [(1/3)]{.smallest}
+## Confusion tables: comparing results [(1/4)]{.smallest}
 
-:::: {.columns}
-::: {.column}
-
-- Two clusterings can be compared with a confusion matrix, similarly to supervised classification.
-- The main difference though is [cluster labels are not consistent]{.monash-blue2} between methods. Comparison is better if the labels are matched optimally, as a first step.
-
-:::
+:::: {.columns  style="font-size: 80%;"}
 ::: {.column}
 
 ```{r}
 #| echo: false
+#| crop: true
 set.seed(20190512)
 df <- data.frame(x1=scale(c(rnorm(50, -4), rnorm(50, 4))),
                    x2=scale(c(rnorm(100))))
@@ -66,16 +70,76 @@ pd2 <- ggdendrogram(df_hc2) +
 pd1 + pd2 + plot_layout(ncol=2)
 ```
 
+::: {.fragment}
+
 The dendrograms look similar. Are the clusters similar?
 
+:::
+
+::: {.incremental}
+
++ Both have reasonable support for 2 clusters
++ M1 has support for 3 clusters while M2 supports 4
++ M2 has support for 6 clusters and M1 support 9
+
+:::
+
+:::
+::: {.column .incremental}
+
+- Is the 2-cluster solution from M1 and M2 the same?
+- Two clusterings can be compared with a confusion matrix, similarly to supervised classification.
+- However, here we are comparing methods to each opther rather than to the truth
+- The main difference though is [cluster labels are not consistent]{.monash-blue2} between methods. Comparison is better if the labels are matched optimally, as a first step.
+
+:::
+
+::::
+
+## Confusion tables: comparing results [(2/4)]{.smallest}
+
+:::: {.columns}
+:::{.column}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190514)
+x <- (runif(20)-0.5)*4
+y <- x
+df0 <- data.frame(x1=scale(c(rnorm(50, -3), rnorm(50, 3), x)),
+                   x2=scale(c(rnorm(50, -3), rnorm(50, 3), y)))
+
+df0_mc <- Mclust(df0, G = 2)
+
+df0 <- df0 |> mutate(cl = as.factor(df0_mc$classification))
+
+
+ggplot(data=df0, aes(x1, x2, color = cl)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+:::
+:::{.column .fragment}
+```{r}
+#| echo: false
+#| out-width: 80%
+
+df0 <- df0 |> mutate(cl = as.factor((2-df0_mc$classification) + 1))
+
+
+ggplot(data=df0, aes(x1, x2, color = cl)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
 :::
 ::::
 
 
-## Confusion tables: comparing results [(2/3)]{.smallest}
+## Confusion tables: comparing results [(3/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
+
+We compare the 2-cluster solutions
 
 ```{r}
 #| echo: false
@@ -92,6 +156,10 @@ df_cl |> count(cl1, cl2) |>
 ::: {.fragment}
 [Match labels]{.monash-blue2}: What method 1 calls cluster `1`, method 2 calls cluster `2`. Rearrange the confusion matrix, or re-label one methods clusters, so that [large counts are on (top-left to bottom-right) diagonal]{.monash-blue2}.
 
+:::
+
+::: {.fragment}
+
 ```{r}
 #| echo: false
 df_cl |> count(cl1, cl2) |>
@@ -101,6 +169,9 @@ df_cl |> count(cl1, cl2) |>
 ```
 :::
 
+::: {.fragment}
+Do we now think these clusters are similar or different?
+:::
 
 :::
 ::: {.column}
@@ -127,10 +198,12 @@ pd3 + pd4 + plot_layout(ncol=2)
 :::
 ::::
 
-## Confusion tables: comparing results [(3/3)]{.smallest}
+## Confusion tables: comparing results [(4/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
+
+For the penguins data
 
 ```{r}
 #| echo: false
@@ -153,12 +226,17 @@ p_std_cl <- p_std |>
     cl2 = factor(cutree(p_hc2, 5), levels=1:5))
 ```
 
+::: {.incremental}
 
-- Method 1: 2 or 5 clusters?
-- Method 2: 2, 3, 4 or 5 clusters?
+- Average Linkage: 2 or 5 clusters?
+- Wards Linkage: 2, 3 or 5 clusters?
 
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
+
+Comparing the 5 cluster solutions (note reordering)
 
 ```{r}
 #| echo: false
@@ -171,12 +249,15 @@ p_std_cl |> count(cl1, cl2) |>
   ungroup()
 ```
 
-::: {.fragment style="font-size: 80%;"}
 <br>
+
+::: {.incremental style="font-size: 80%;"}
+
 
 - You might think that average linkage would give similar results to Wards linkage, but [results here are very different]{.monash-orange2}.
 - Average divides the data into three large clusters with two clusters with few observations.
 - Wards divides the data into five large clusters, with one having twice the points as the others.
+
 :::
 
 :::
@@ -188,6 +269,8 @@ p_std_cl |> count(cl1, cl2) |>
 ::: {.column style="font-size: 70%;"}
 We covered: within.cluster.ss, WBRatio, Hubert Gamma, Dunn, Calinski-Harabasz Index.
 
+
+::: {.fragment}
 They measure:
 
 ```{r}
@@ -221,7 +304,13 @@ ggplot() +
   
 ```
 
+:::
+
+::: {.fragment}
+
 In an [idealistic setting]{.monash-orange2}, these are all [perfect]{.monash-orange2} metrics.
+
+:::
 
 :::
 ::: {.column style="font-size: 70%;"}
@@ -314,6 +403,8 @@ p1 + p2 + p3 + p4 + plot_layout(ncol=2)
 ::: {.column}
 Clustering algorithms not primarily looking for gaps. Gaps can be local or global in size, or just not exist. Clustering that partitions data can still be useful. Know how an algorithm will partition.
 
+::: {.fragment}
+
 [What would happen to these data sets?]{.monash-blue2}
 
 ```{r}
@@ -338,6 +429,9 @@ b3 <- ggplot(blob3, aes(V1, V2)) +
         axis.title = element_blank())
 b1 + b2 + b3 + plot_layout(ncol=3)
 ```
+
+:::
+
 :::
 ::: {.column}
 
@@ -378,8 +472,19 @@ b6 <- ggplot(blob3_cl, aes(V1, V2, colour=cl)) +
 b4 + b5 + b6 + plot_layout(ncol=3)
 ```
 
+:::
+
 <br><br>
+
+::: {.fragment}
+
 The shape (strictly correlation here) strongly affects how an algorithm divides or partitions a blob.
+:::
+
+::: {.fragment}
+
+$k$-means is always drawing circles 
+
 :::
 
 :::
@@ -387,15 +492,17 @@ The shape (strictly correlation here) strongly affects how an algorithm divides 
 ## Numerical summaries
 
 :::: {.columns}
-::: {.column width=30%}
+::: {.column width=30% .incremental}
 
-- Means
-- Standard deviations
+- Means: which variables differentiate that variable from another
+- Standard deviations: how tightly packed is that cluster 
 - Variances and covariances: but unwieldy to print all
 - Cluster size
 
 :::
-::: {.column width=70% style="font-size: 70%;"}
+::: {.column width=70% style="font-size: 70%;" .fragment}
+
+Wards linkage hierarchical clustering
 
 ```{r}
 #| echo: false
@@ -451,23 +558,31 @@ kable(p_std_cl_smry,
 
 ## Visual summaries
 
+::: {.incremental}
+
 - [Statistics]{.monash-blue2}: Show the mean and variances for each cluster, as a parallel coordinate plot.
 - [Model in the data space]{.monash-blue2}: 
-    - Colour observations by their cluster label, and use multivariate plots.
+    - Colour observations by their cluster label, and use multivariate plots: Scatterplot matrix, parallel coordinates and tours
     - [Dendrograms]{.monash-blue2}: Draw the connections of points being joined to form clusters as a high-d graph.
     - [Ellipses]{.monash-blue2}: As done in summarising model-based fit.
     - [Net]{.monash-blue2}: As done for SOM.
 - [Convex hulls]{.monash-blue2}: Bounding shapes of each cluster, can be done in high-D, too.
 
+
+:::
+
+
 ## Statistics
 
 :::: {.columns}
 ::: {.column}
+<br>
 
 ```{r}
 #| echo: false
 #| fig-width: 8
 #| fig-height: 4
+#| crop: true
 p_std_cl_m <- p_std_cl_m |>
   pivot_longer(m1:m3, names_to = "cluster", 
                values_to = "mean") |>
@@ -493,8 +608,14 @@ ggplot(p_std_cl_pcp) +
   theme(aspect.ratio=0.7)
 ```
 
+::: {.fragment}
+
+Shading represents 1 standard deviation above and below the mean
+
 :::
-::: {.column}
+
+:::
+::: {.column .incremental}
 
 - Cluster 1 has [high values]{.monash-green2} of `bl` and [low values]{.monash-green2} of `bd`, `fl` and `bm`. 
 - Cluster 2 has [low values]{.monash-green2} of `bl`,  and [high values]{.monash-green2} on `bd`, `fl` and `bm`. 
@@ -502,7 +623,7 @@ ggplot(p_std_cl_pcp) +
 :::
 ::::
 
-## Model-in-the-data-space [(1/3)]{.smallest}
+## Model-in-the-data-space [(1/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 70%;"}
@@ -517,8 +638,10 @@ ggscatmat(p_std_cl, columns=1:4, color = "cl") +
 ```
 
 The clusters are neatly distinguished in different pairs of variables.
+
+
 :::
-::: {.column style="font-size: 70%;"}
+::: {.column style="font-size: 70%;" .fragment}
 
 ```{r}
 #| echo: false
@@ -541,16 +664,13 @@ Cluster 2 is neatly separated. Clusters 1 and 3 are distinct but there is no gap
 :::
 ::::
 
-## Model-in-the-data-space [(2/3)]{.smallest}
+## Model-in-the-data-space [(2/4)]{.smallest}
 
 :::: {.columns}
-::: {.column style="font-size: 60%;"}
+::: {.column style="font-size: 100%;"}
 
 The dendrogram can be drawn in the data space. 
 
-- Add extra points at average between clusters indicating joins.
-- Create variable specifying point type, "data" or "node".
-- Add edges data, specifying which points are connected to make dendrogram.
 
 ```{r}
 #| echo: false
@@ -620,13 +740,31 @@ pc <- ggplot(simple_clusters) +
 pd + ph + pdh + pc + plot_layout(ncol=2)
 ```
 
+
 :::
-::: {.column style="font-size: 60%;"}
+::: {.column}
+
+::: {.incremental}
+
+- Add extra points at average between clusters indicating joins.
+- Create variable specifying point type, "data" or "node".
+- Add edges data, specifying which points are connected to make dendrogram.
+
+:::
+:::
+::::
+
+
+## Model-in-the-data-space [(3/4)]{.smallest}
 
 Why?
 
+::: {.fragment}
+
+
 ```{r}
 #| echo: false
+#| out-width: 70%
 # Nuisance observations
 set.seed(20190514)
 x <- (runif(20)-0.5)*4
@@ -733,12 +871,16 @@ pd1s + pd1hs + pc_d1s +
   plot_layout(ncol=3)
 ```
 
-Because it shows us how the algorithm is sequentially joining the observations, relative to their values. 
+:::
+
+::: {.fragment}
+
+Because it shows us how the algorithm is sequentially joining the observations, relative to their values.
 
 :::
-::::
 
-## Model-in-the-data-space [(3/3)]{.smallest}
+
+## Model-in-the-data-space [(4/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column width=30%}
@@ -810,7 +952,27 @@ ps_dd + pw_dd + plot_layout(ncol=1)
 :::: {.columns}
 ::: {.column style="font-size: 70%;"}
 
-Convex hulls are a common method for visually displaying the region in the data space corresponding to each cluster. It avoids making any assumption about the shapes.
+A set $S\subset \mathbb{R}^d$ is convex if for any $x\in S$, $y\in S$ and $\alpha\in [0, 1]$ then $\alpha x + (1-\alpha)y\in S$ 
+
+
+::: {.fragment}
+
+Convex hulls are a common method for visually displaying the region in the data space corresponding to each cluster. 
+
+:::
+
+<br>
+
+::: {.fragment}
+
+It avoids making any assumption about the shapes.
+
+:::
+
+
+:::
+::: {.column style="font-size: 70%;"}
+::: {.fragment}
 
 ```{r}
 #| echo: false
@@ -874,11 +1036,22 @@ ggplot() +
   theme(aspect.ratio = 1)
 
 ```
+
+
+:::
+:::
+::::
+
+## Convex hulls
+
+:::: {.columns}
+::: {.column style="font-size: 70%;"}
+
+Convex hulls are defined in $p$ dimensions also.
+
 :::
 ::: {.column style="font-size: 70%;"}
 ::: {.fragment}
-
-Convex hulls are defined in $p$ dimensions also.
 
 ```{r}
 #| echo: false
@@ -917,7 +1090,7 @@ render_gif(penguins_cl[,2:5],
 ```
 
 <center>
-![](https://dicook.github.io/mulgar_book/gifs/penguins_chull.gif){width=400}
+![](https://dicook.github.io/mulgar_book/gifs/penguins_chull.gif){width=500}
 </center>
 
 Are clusters 1 and 3 separated/distinct?
@@ -926,16 +1099,27 @@ Are clusters 1 and 3 separated/distinct?
 :::
 ::::
 
+
 ## Low-dimensional representations
 
 :::: {.columns}
 ::: {.column}
 
+::: {.incremental}
+
 - PCA, but not PCA
-- Perhaps, projection pursuit
+- Perhaps, projection pursuit (guided tour)
 - Nonlinear dimension reduction
 - Self-organising map
-- When you have a clustering, linear discriminant analysis
+
+:::
+
+::: {.fragment}
+
+Lets look at the `c1` data from the `mulgar` package
+
+:::
+
 :::
 ::: {.column style="font-size: 70%;"}
 
@@ -946,9 +1130,14 @@ options(digits=2, width=100)
 c1_pca <- prcomp(c1, scale = FALSE)
 summary(c1_pca)
 ```
+:::
 
+::: {.fragment}
 Proportion of total variance is 0.97 with 2 PCs. But if you only used 2 PCs, you would miss the clusters visible only with PC4. 
+:::
 
+
+::: {.fragment}
 ```{r}
 #| echo: false
 #| fig-width: 6
@@ -959,6 +1148,19 @@ ggscatmat(c1_pca_df) +
   theme(axis.text = element_blank())
 ```
 
+```{r}
+#| include: false
+#| eval: false
+library(detourr)
+set.seed(645)
+detour(c1, 
+       tour_aes(projection = 1:6)) |>
+       tour_path(grand_tour(2), fps = 60, 
+                 max_bases=40) |>
+       show_scatter(alpha = 0.7, 
+                    axes = TRUE)
+```
+
 :::
 :::
 ::::
@@ -967,20 +1169,33 @@ ggscatmat(c1_pca_df) +
 
 *All "models" are wrong by some are useful.*
 
-- Are the subsets useful, eg if you market differently to the different subsets do you get more purchases than marketing the same way to all.
+::: {.fragment}
+
+Your clustering model is 'right', if it was useful 
+
+:::
+
+<br>
+
+::: {.incremental}
+
+- Are the subsets useful, e.g. if you market differently to the different subsets do you get more purchases than marketing the same way to all.
 - Can you reduce the number of parameters needed in a high-dimensional regression model, by grouping genomes into a smaller set?
 - Does it match the shape of the data?
 - Bootstrap or CV
 - Domain knowledge and interpretability
 
+:::
+
 ## Wrapping up {.transition-slide .center}
 
 ## What we have covered
 
-:::: {.columns}
-::: {.column}
-- [Computational and statistical models for a categorical response]{.monash-blue2}: logistic, discriminant, trees, forests, support vectors, multilayer perceptron neural network
-- [Discovering class labels by clustering]{.monash-blue2}: $k$-means, hierarchical, model-based, self-organising
+:::: {.columns  style="font-size: 90%;"}
+::: {.column .incremental}
+
+- [Computational and statistical models for a categorical response]{.monash-blue2}: logistic regression, LDA, decision trees, forests, support vector machines, kNN, neural networks
+- [Discovering class labels by clustering]{.monash-blue2}: $k$-means, hierarchical, model-based, self-organising maps
 - [Dimension reduction]{.monash-blue2}: princi**pal** components, multidimensional scaling t-SNE, UMAP
 - [Visualising your high-dimensional data and models]{.monash-blue2}
 
@@ -990,19 +1205,125 @@ ggscatmat(c1_pca_df) +
 ::: {.fragment}
 **Not covered**
 
+::: {.incremental}
+
 - *Continuous, numerical response*: $\longrightarrow$ ETC2420/5242, ETC3580/5580
     - Fit statistics easier: MSE, AIC, $R^2$, but not all applicable for categorical response
     - Visualisation a little harder
-- *Full range of neural networks*: convolutional, recurrent, autoencoder, generative adversarial, recursive, ... $\longrightarrow$ ETC5555
+- *Algorithms for model fitting*: Logistic regression, neural networks and SVM $\longrightarrow$ ETC3555/5555    
+- *Full range of neural networks*: how to prevent overfitting, convolutional, recurrent, word embeddings $\longrightarrow$ ETC3555/5555
+
+
+:::
+
 :::
 :::
 ::::
 
-## Philosophy {.center}
+## Philosophy 
+
+::: {.fragment}
 
 <br><br><br>
 Some technicians brag that they can pull an appliance into parts. That is not as impressive as the technician who can put it back together, and make it work. I would hire this person in a heartbeat. [*~Raymond Bruce Cook*]{.smallest}
 <br><br>
+
+:::
+
+
+## The exam
+
+:::: {.columns  }
+::: {.column}
+End of semester exam counts for 60\% of the module grade 
+
+<br>
+
+::: {.fragment}
+
+You will have 2hrs and 10 mins to answer 6 Questions
+
+:::
+
+::: {.fragment}
+
+This is a closed-book eExam with Specifically permitted items
+
+:::
+
+::: {.incremental}
+
++ Physical Calculator
++ Double Sided sheet of A4 (must be physical)
+
+:::
+:::
+:::{.column}
+
+::: {.fragment}
+
+The exam will be in supervised exam conditions
+
+:::
+
+<br>
+
+::: {.fragment}
+
+Make sure you read the question carefully!
+
+:::
+:::
+::::
+
+## Exam
+
+:::: {.columns style="font-size: 70%;"}
+::: {.column}
+
+3 questions, each made up of approx 4 short essay questions
+
+e.g.
+
+::: {.incremental}
+
++ Here is the output of this model in R, what is it telling us?
++ What do we learn about the structure in our data from this image?
++ Why is this bit of methodology important for this model?
++ What do you need to do to this data to fit this model?
++ What's the difference between this model and this model?
++ What complications are there fitting this model in stead of this model?
++ What are the benefits of using this methodology over that methodology? 
++ Based on this output which model would you choose?
+
+:::
+
+::: {.fragment}
+
+Short typed answers in eAssessment platform 
+
+:::
+:::
+::: {.column .fragment}
+
+3 hybrid questions, longer and made up of stages
+
+e.g.
+
+::: {.incremental}
+
++ Implement one iteration of this algorithm on this toy data
++ Define this model
++ Sketch this model
++ Explain how this algorithm works and why its preferable to another algorithm
++ Explain the process with which you would learn these parameters or hyperparameters
+
+
+:::
+
+
+:::
+::::
 
 
 
@@ -1012,31 +1333,47 @@ Some technicians brag that they can pull an appliance into parts. That is not as
 ::: {.column}
 [The exam is like]{.monash-orange2} the [quizzes]{.monash-blue2}, [tutorial]{.monash-blue2} and [assignment exercises]{.monash-blue2} all together, without the programming elements. 
 
-<br>
-<br>
-It is open. You can use whatever resources you like during the exam, including AI. 
 
 <br>
-It is supervised. You can only take one device.
 
-<br>
-Open exams need solid preparation.
+::: {.fragment}
+
+Continue to use the forum 
+
 :::
+
+<br>
+
+::: {.fragment}
+
+Exam consultation Thursday 12th April 9:30am-11:30am
+
+:::
+
+:::
+
 ::: {.column style="font-size: 80%;"}
 
 ::: {.fragment}
 Ways to prepare:
+
+::: {.incremental}
 
 - *Review your quizzes*.
 - *Review the tutorial and assignment materials*: what results mean, what problems are detected in the model, conceptual thinking, and explanations of results and diagnostics.
 - [Resources](https://iml.numbat.space/resources.html) provided have several books with exercises at the end of chapters. Work your way through some where you feel you don't know the topic well enough.
 - *Form a small study group*: make up questions for each other to tackle, compare and contrast your answers.
 - *Try asking GAI questions*, and evaluate the answers as useful or misguided based on your learning.
+
+
+:::
+
 :::
 
 :::
 
 ::::
+
 ## Next: What the ETC5250 students have learned from the kaggle challenge {.transition-slide .center}
 
 
