@@ -7,12 +7,28 @@ quarto-required: ">=1.3.0"
 format:
     unilur-html:
         output-file: tutorial.html
+        embed-resources: true
         css: "../assets/tutorial.css"
     unilur-html+solution:
         output-file: tutorialsol.html
+        embed-resources: true
         css: "../assets/tutorial.css"
 unilur-solution: true
 ---
+
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 1 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week2
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12026\week2
+quarto install extension ginolhac/unilur
+
+-->
 
 ```{r echo=FALSE}
 # Set up chunk for all slides
@@ -79,6 +95,7 @@ Open your project for this unit called `iml.Rproj`.
 
 #### 1. Answer the following questions for this data matrix, 
 
+$$
 \begin{align*}
 {\mathbf X} = \left[\begin{array}{rrrrr} 
 2 & -2 & -8 & 6 & -7 \\
@@ -87,6 +104,7 @@ Open your project for this unit called `iml.Rproj`.
 1 & -7 & 6 & 7 & -1
 \end{array}\right]
 \end{align*}
+$$
 
 a. What is $X_1$ (variable 1)?
 
@@ -115,6 +133,7 @@ $5$
 e. What is $X^\top$?
 
 ::: unilur-solution
+$$
 \begin{align*}
 {\mathbf X}^\top = \left[\begin{array}{rrrr} 
 2 & 6 & 5 & 1\\
@@ -124,35 +143,7 @@ e. What is $X^\top$?
 -7 & 6 & 8 & -1
 \end{array}\right]
 \end{align*}
-:::
-
-f. Write a projection matrix which would generate a 2D projection where the first data projection has variables 1 and 4 combined equally, and the second data projection has one third of variable 2 and two thirds of 5.
-
-::: unilur-solution
-\begin{align*}
-{\mathbf A} = \left[\begin{array}{rr} 
-\frac{1}{\sqrt{2}} & 0 \\
-0 & \frac{1}{\sqrt{3}} \\ 
-0 & 0  \\
-\frac{1}{\sqrt{2}} & 0  \\
-0 & \frac{\sqrt{2}}{\sqrt{3}} \\
-\end{array}\right]
-\end{align*}
-:::
-
-g. Why can't the following matrix considered a projection matrix?
-
-\begin{align*}
-{\mathbf A} = \left[\begin{array}{rr} 
--1/\sqrt{2} & 1/\sqrt{3} \\ 
-0 & 0  \\
-1/\sqrt{2} & 0 \\
-0 & \sqrt{2}/\sqrt{3} \\
-\end{array}\right]
-\end{align*}
-
-::: unilur-solution
-The columns are not orthonormal. The cross-product is not equal to 0. 
+$$
 :::
 
 #### 2. Which of these statements is the most accurate? And which is the most precise?
@@ -189,158 +180,298 @@ testing(bushfires_split) |> count(cause)
 ```
 :::
 
-#### 4. In the lecture slides from week 1 on bias vs variance, these four images were shown. 
+#### 4. Consider the following supervised classification data. Answer the questions below for this data.
 
-![](images/bias-large.png){width=200}
-![](images/bias-small.png){width=200}
-
-![](images/variance-small.png){width=200}
-![](images/variance-large.png){width=200}
-
-Mark the images with the labels "true model", "fitted model", "bias". Then explain in your own words why the different model shown in each has (potentially) large bias or small bias, and small variance or large variance.
-
-::: unilur-solution
-
-The linear model will be very similar regardless of the training sample, so it has small variance. But because it misses the curved nature of the true model, it has large bias, missing critical parts of the two classes that are different.
-
-The non-parametric model which captures the curves thus has small bias, but the fitted model might vary a lot from one training sample to another which would result in it being considered to have large variance.
-
-![](images/bias-large-annotated.png){width=200}
-![](images/bias-small-annotated.png){width=200}
-:::
-
-#### 5. The following data contains `true` class and predictive probabilities for a model fit. Answer the questions below for this data.
-
-```{r eval=FALSE, echo=FALSE}
+```{r }
 # This code provides a data set to use for the question
 library(palmerpenguins)
 library(MASS)
-p_sub <- penguins |>
+p_sub_std <- penguins |>
   dplyr::filter(species != "Gentoo") |>
-  rename(bl = bill_length_mm,
-         bm = body_mass_g,
-         fl = flipper_length_mm,
-         bd = bill_depth_mm) |>
+  rename(
+    bl = bill_length_mm,
+    bm = body_mass_g,
+    fl = flipper_length_mm,
+    bd = bill_depth_mm
+  ) |>
   dplyr::select(species, bl, bd, fl, bm) |>
-  mutate(species = factor(species))
-p_lda <- lda(species~., data=p_sub)
-p_pred <- predict(p_lda, 
-                  p_sub, 
-                  method="predictive")
-p_sub |> count(species)
-set.seed(922)
-idx <- sort(c(sample(1:152, 30), sample(153:220, 5)))
-pred_data <- tibble(true = p_sub$species[idx],
-     adelie = p_pred$posterior[idx, 1],
-     chinstrap = p_pred$posterior[idx, 2])
-write_csv(pred_data, file="data/tutorial_pred_data.csv")
-```
+  mutate(species = factor(species)) |>
+  tidyr::drop_na() |>
+  mutate(across(!species, ~ as.numeric(scale(.x))))
 
-```{r}
-pred_data <- read_csv("https://raw.githubusercontent.com/numbats/iml/master/data/tutorial_pred_data.csv") |>
-  mutate(true = factor(true))
+
 ```
 
 a. How many classes?
 
 ::: unilur-solution
 ```{r}
-pred_data |> count(true)
+p_sub_std |> count(species)
 ```
 :::
 
-b. Compute the confusion table, using the maximum predictive probability to label the observation.
+b. Create a 80:20 train test split stratifying by species
 
 ::: unilur-solution
+```{r}
+set.seed(1156)
+p_sub_std_split <- initial_split(p_sub_std, prop = 0.80, strata=species)
+p_sub_std_train <- training(p_sub_std_split)
+p_sub_std_test <- testing(p_sub_std_split)
+```
+:::
+
+c. Fit a kNN model with K = 5 to the training set and predict the test set. Add your first model's probabilistic predictions to the test data
+
+::: unilur-solution
+
+First we specify the kNN model with $K = 5$
+
+```{r}
+
+K1 <- 5
+
+knn_spec_1 <- nearest_neighbor(neighbors = K1, weight_func = "rectangular", dist_power = 2) |> #specify the model type
+  set_mode("classification") |>
+  set_engine("kknn") #specify how to learn the parameters
+```
+
+Then we fit it to data
+
+```{r}
+
+knn_fit_1 <- knn_spec_1 |> ## apply the data
+  fit(species ~ ., data = p_sub_std_train)
+
+```
+
+Then we predict the test set
+
+```{r}
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(knn1 = predict(knn_fit_1$fit,
+                             p_sub_std_test, type = "prob")[,1])
+
+
+p_sub_std_test$knn1
+```
+
+
+:::
+
+d. Fit a kNN model with K = 10 to the training set and predict the test set. Add your second model's probabilistic predictions to the test data
+
+::: unilur-solution
+
+First we specify the kNN model with $K = 10$
+
+```{r}
+
+K2 <- 10
+
+knn_spec_2 <- nearest_neighbor(neighbors = K2, weight_func = "rectangular", dist_power = 2) |> #specify the model type
+  set_mode("classification") |>
+  set_engine("kknn") #specify how to learn the parameters
+```
+
+Then we fit it to data
+
+```{r}
+
+knn_fit_2 <- knn_spec_2 |> ## apply the data
+  fit(species ~ ., data = p_sub_std_train)
+
+```
+
+Then we predict the test set
+
+```{r}
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(knn2 = predict(knn_fit_2$fit,
+                             p_sub_std_test, type = "prob")[,1])
+
+
+p_sub_std_test$knn2
+```
+
+
+:::
+
+e. Lastly, fit a kNN model with K = 20 to the training set and predict the test set. Add your third model's probabilistic predictions to the test data
+
+::: unilur-solution
+
+First we specify the kNN model with $K = 20$
+
+```{r}
+
+K3 <- 20
+
+knn_spec_3 <- nearest_neighbor(neighbors = K3, weight_func = "rectangular", dist_power = 2) |> #specify the model type
+  set_mode("classification") |>
+  set_engine("kknn") #specify how to learn the parameters
+```
+
+Then we fit it to data
+
+```{r}
+
+knn_fit_3 <- knn_spec_3 |> ## apply the data
+  fit(species ~ ., data = p_sub_std_train)
+
+```
+
+Then we predict the test set
+
+```{r}
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(knn3 = predict(knn_fit_3$fit,
+                             p_sub_std_test, type = "prob")[,1])
+
+
+p_sub_std_test$knn3
+```
+
+
+:::
+
+#### 5. We will now analyse the fit of our three kNN models. Answer the questions below for this data.
+
+
+a. For each model compute the confusion table, using whether the predictive probability was greater than 0.5 to label the observation.
+
+::: unilur-solution
+
+Model 1
+
 ```{r}
 library(tidyr)
-pred_data <- pred_data |>
-  mutate(pred = levels(pred_data$true)[apply(pred_data[,-1], 1, which.max)])
-pred_data |> count(true, pred) |>  
-  group_by(true) |>
-  mutate(cl_err = n[pred==true]/sum(n)) |>
-  pivot_wider(names_from = pred, 
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(pred1 = ifelse(knn1 > 0.5, "Adelie", "Chinstrap"))
+p_sub_std_test |> dplyr::count(species, pred1) |>  
+  group_by(species) |>
+  mutate(cl_err = n[pred1==species]/sum(n)) |>
+  pivot_wider(names_from = pred1, 
               values_from = n,
               values_fill = 0) |>
-  dplyr::select(true, Adelie, Chinstrap, cl_err)
+  dplyr::select(species, Adelie, Chinstrap, cl_err)
 
 ```
-:::
 
-c. Compute the accuracy, and accuracy if all observations were classified as Adelie. Why is the accuracy almost as good when all observations are predicted to be the majority class?
-
-::: unilur-solution
-Accuracy = 33/35 = 0.94
-
-Accuracy when all predicted to be Adelie = 30/35 = 0.86
-
-There are only 5 observations in the Chinstrap class. So accuracy remains high, if we simply ignore this class.
-:::
-
-d. Compute the balanced accuracy, by averaging the class errors. Why is it lower than the overall accuracy? Which is the better accuracy to use to reflect the ability to classify this data?
-
-::: unilur-solution
-The balanced accuracy is `r (1+0.6)/2`. This is a better reflection on the predictive ability of the model for this data because it reflects the difficulty in predicting the Chinstrap group.
-:::
-
-#### 6. This question relates to feature engineering, creating better variables on which to build your model.
-
-a. The following `spam` data has a heavily skewed distribution for the size of the email message. How would you transform this variable to better see differences between spam and ham emails?
+Model 2
 
 ```{r}
-library(ggplot2)
-library(ggbeeswarm)
-spam <- read_csv("http://ggobi.org/book/data/spam.csv")
-ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
-  geom_quasirandom() +
-  scale_color_brewer("", palette = "Dark2") + 
-  coord_flip() +
-  theme(legend.position="none")
+library(tidyr)
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(pred2 = ifelse(knn2 > 0.5, "Adelie", "Chinstrap"))
+p_sub_std_test |> dplyr::count(species, pred2) |>  
+  group_by(species) |>
+  mutate(cl_err = n[pred2==species]/sum(n)) |>
+  pivot_wider(names_from = pred2, 
+              values_from = n,
+              values_fill = 0) |>
+  dplyr::select(species, Adelie, Chinstrap, cl_err)
+
 ```
 
-::: unilur-solution
+Model 3
+
 ```{r}
-ggplot(spam, aes(x=spam, y=size.kb, colour=spam)) +
-  geom_quasirandom() +
-  scale_color_brewer("", palette = "Dark2") + 
-  coord_flip() +
-  theme(legend.position="none") +
-  scale_y_log10()
+library(tidyr)
+
+p_sub_std_test <- p_sub_std_test |>
+  mutate(pred3 = ifelse(knn3 > 0.5, "Adelie", "Chinstrap"))
+p_sub_std_test |> dplyr::count(species, pred3) |>  
+  group_by(species) |>
+  mutate(cl_err = n[pred3==species]/sum(n)) |>
+  pivot_wider(names_from = pred3, 
+              values_from = n,
+              values_fill = 0) |>
+  dplyr::select(species, Adelie, Chinstrap, cl_err)
+
 ```
 :::
 
-b. For the following data, how would you construct a new single variable which would capture the difference between the two classes using a linear model?
-
-```{r}
-olive <- read_csv("http://ggobi.org/book/data/olive.csv") |>
-  dplyr::filter(region != 1) |>
-  dplyr::select(region, arachidic, linoleic) |>
-  mutate(region = factor(region))
-ggplot(olive, aes(x=linoleic, 
-                  y=arachidic, 
-                  colour=region)) +
-  geom_point() +
-  scale_color_brewer("", palette = "Dark2") + 
-   theme(legend.position="none", 
-        aspect.ratio=1)
-```
+b. which value for $K$ seems best so far?
 
 ::: unilur-solution
-```{r}
-olive <- olive |>
-  mutate(linoarch = 0.377 * linoleic + 
-           0.926 * arachidic)
-ggplot(olive, aes(x=region, 
-                  y=linoarch, 
-                  colour=region)) +
-  geom_quasirandom() +
-  scale_color_brewer("", palette = "Dark2") + 
-  coord_flip() +
-  theme(legend.position="none") 
-```
+
+Either $K = 5$ or $K = 20$ get better tets set accuracy than $K = 10$
+
 :::
 
-#### 7. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
+c. Compute the roc-auc for each value of $K$
+
+::: unilur-solution
+
+```{r}
+#| echo: false
+
+p_sub_std_test |>
+  roc_auc(species, knn1) |>
+  pull(.estimate)
+
+p_sub_std_test |>
+  roc_auc(species, knn2) |>
+  pull(.estimate)
+
+p_sub_std_test |>
+  roc_auc(species, knn3) |>
+  pull(.estimate)
+
+```
+
+:::
+
+
+d. Plot the roc-auc curves for each value of $K$
+
+::: unilur-solution
+
+```{r}
+#| echo: false
+
+d_roc1 <- p_sub_std_test |>
+  roc_curve(species, knn1) |>
+  mutate(model = "K = 5") 
+
+d_roc2 <- p_sub_std_test |>
+  roc_curve(species, knn2) |>
+  mutate(model = "K = 10") 
+
+d_roc3 <- p_sub_std_test |>
+  roc_curve(species, knn3) |>
+  mutate(model = "K = 20") 
+
+
+
+d_roc <- bind_rows(d_roc1, d_roc2, d_roc3)
+ggplot(d_roc, aes(x=1-specificity, 
+                  y=sensitivity, 
+                  colour=model)) +
+geom_path()
+```
+
+:::
+
+e. Which value for $K$ seems better now
+
+
+::: unilur-solution
+
+While accuracy only looks at one cut-off, the roc-auc looks at all cutoff and provides a better idea of the accuracy of the predicted probabilities. 
+
+Based on the roc-auc curves K = 20 appears to be the best model
+
+
+:::
+
+#### 6. Discuss with your neighbour, what you found the most difficult part of last week's content. Find some material (from resources or googling) together that gives alternative explanations that make it clearer. 
 
 ## `r emo::ji("wave")` Finishing up
 
