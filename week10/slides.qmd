@@ -5,10 +5,10 @@ title-slide-attributes:
   data-background-size: 100%
 subtitle: "Week 10: Model-based clustering and self-organising maps"
 author: 
- - name: "Professor Di Cook"
-   email: "etc3250.clayton-x@monash.edu"
+ - name: "Jack Jewson"
+   email: "Jack.Jewson@monash.edu"
 institute: "Department of Econometrics and Business Statistics"
-footer: "ETC3250/5250 Lecture 10 | [iml.numbat.space](iml.numbat.space)"
+footer: "ETC3250/5250 Lecture 10"
 format:
   revealjs:
     multiplex: false
@@ -23,56 +23,137 @@ format:
 
 ```{r, include = FALSE}
 source("../setup.R")
+
+knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
+#https://www.pmassicotte.com/posts/2022-08-15-removing-whitespace-around-figures-quarto/
 ```
 
 ## Overview
 
 We will cover:
 
+::: {.incremental}
+
 * Models of multimodality using Gaussian mixtures
 * Fitting model-based clustering
 * Diagnostics for the model fit
 * Self-organising maps and dimension reduction
 
+:::
+
 ## Model-based clustering {.transition-slide .center}
+
+## From algorithm to models 
+
+::: {.incremental}
+
++ Last week we saw two clustering algorithms - $k$-means and hierarchical
++ These were recipes for clustering observations rather than models that explain  the data
++ Similar to how k-nearest neighbours was a recipe for supervised learning prediction...
++ ... and Logistic regression or LDA where models
+
+
+
+:::
+
+## Remembering LDA
+
+::: {.incremental}
+
++ In supervised classification $y_i\in \{1, \ldots, K\}$ and $x_i \in \mathbb{R}^d$
++ LDA assumed the distribution of the features for each **known** class was multivariate normal with [class specific]{.monash-blue2} mean $\mu_k$ and [pooled]{.monash-blue2} covariance $\Sigma$
++ i.e. for $i$ with $y_i = k$ $x_i \sim f_k(\cdot; \mu_k, \Sigma)$ with 
+$$
+f_k(x; \mu_k, \Sigma) = \frac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}} \exp\{-\frac{1}{2}(x-\mu_k)^\top\Sigma^{-1}(x-\mu_k)\}
+$$
++ used Bayes rule to produce a classification probability $P(y_i = k)$
++ Estimated $\mu_k$ and $\Sigma$ via maximum likelihood (class wise column means and pooled covariances) 
++ QDA relaxed equal variance and estimated [class specific]{.monash-blue2} covariance $\Sigma_k$
+
+:::
+
+## Mixtures and Clusters
+
+```{r}
+#| echo: false
+ggscatmat(c7[,1:3], alpha=0.2)
+
+```
 
 ## Overview
 
-Model-based clustering makes an assumption about the distribution of the data, primarily
+Model-based clustering makes the same assumption about the distribution of the features, except it doesn't know the class labels, primarily
 
-- Assumes the data is a sample from a Gaussian mixture model
+::: {.incremental}
+
+- Assumes the data in each **unknown** cluster is a sample from a Gaussian distribution
+- Results in a Gaussian Mixture Model to account for the cluster labels being **unknown**
 - Requires the assumption that clusters have an elliptical shape
 - [The shape is determined by the variance-covariance of the clusters]{.monash-blue2}
-- [A variety of models is available by using different constraints on the variance-covariance]{.monash-blue2}
+- [A variety of models is available using different constraints on the variance-covariance]{.monash-blue2}
 
-Model is
+:::
 
-$$f(x_i) = \sum_{k=1}^G\pi_kf_k(x_i; \mu_k, \Sigma_k)$$
 
-where $f_k$ is usually a multivariate normal distribution. The parameters are estimated by maximum likelihood, and choice between models is made using BIC. 
+## The model
+
+
+Model assumes that the distribution of the observed data has density
+
+$$f(x_i; \{\pi_k, \mu_k, \Sigma_k\}_{k=1}^K) = \sum_{k=1}^K\pi_kf_k(x_i; \mu_k, \Sigma_k)$$
+
+where $f_k$ is usually a multivariate normal distribution.
+
+
+::: {.fragment}
+
+The parameters are estimated by maximum likelihood, and choice between models is made using BIC. 
+
+:::
+
+::: {.fragment}
+
+$\pi_k\in(0, 1)$ with $\sum_{k=1}^K\pi_k = 1$ allows us to estimate the proportion of observations in each cluster and account for unbalanced clusters
+
+:::
 
 ## Parametrisation of the var-cov matrices [(1/2)]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
+
+The covariance matrix $\Sigma_k$ has $d(d+1)/2$ parameters (i.e. for $d = 10$, has 55 parameters per cluster, for $d = 50$, has 1225 parameters per cluster)
+
+::: {.fragment}
+
 Constraints applied on cluster variance-covariance:
 
 $$
 \Sigma_k = \lambda_kD_kA_kD_k^\top
 $$
 
-- [volume ($\lambda_k$)]{.monash-blue2}: size of the cluster, ie number of observations
-- [shape ($A_k$)]{.monash-blue2}: difference variances
-- [orientation ($D_k$)]{.monash-blue2}: aligned with axes (low covariance) or not (high covariance)
+:::
+
+::: {.incremental}
+
+- [volume ($\lambda_k\in\mathbb{R}$)]{.monash-blue2}: size of the cluster, i.e. one cluster could be half the size of another
+- [shape ($A_k \in diag(d)$)]{.monash-blue2}: difference variances in each dimension
+- [orientation ($D_k \in \mathbb{R}^{d\times d}$)]{.monash-blue2}: aligned with axes (low covariance) or not (high covariance)
+
+:::
 
 <br>
 
-- $\lambda I$ is model 1, EI
-- $\lambda DAD^\top$ is model 7, EEE
-- $\lambda D_kAD_k^\top$ is model 11, EEV
+::: {.incremental}
+
+- $\Sigma_k = \lambda I$ for all $k$ is model 1, EII
+- $\Sigma_k = \lambda DAD^\top$ for all $k$ is model 7, EEE
+- $\Sigma_k = \lambda D_kAD_k^\top$ is model 11, EEV
 
 :::
-::: {.column style="font-size: 70%;"}
+
+:::
+::: {.column style="font-size: 70%;" .fragment}
 
 |Model|Family|Volume|Shape|Orientation|Identifier|
 |---|---|---|---|---|---|
@@ -101,7 +182,106 @@ $$
 
 [Source: [Boehmke (2020) Hands-on machine learning](https://bradleyboehmke.github.io/HOML/model-clustering.html)]{.smallest}
 
-# Example: nuisance variable [(1/3)]{.smallest}
+## Reduction in the number of parameters to estimate
+
+:::: {.columns }
+::: {.column style="font-size: 90%;"}
+
+$$
+\Sigma_k = \lambda_kD_kA_kD_k^\top
+$$
+
+::: {.incremental}
+
++ VVV estimates a full covariance matrix $\Sigma_k$ for each cluster, the covariance matrix has $d(d+1)/2$ parameters and so we have [$K\times d(d+1)/2$ parameters]{.monash-orange}
++ EII estimates $\Sigma_k = \lambda I$ for all $k$ and so only has [$1$ parameter]{.monash-orange2}
++ EEE estimates a full covariance matrix $\Sigma$ but fixes this across clusters i.e. $\Sigma_k = \Sigma$ for all $k$ so has  [$d(d+1)/2$ parameters]{.monash-orange2}
+
+
+:::
+
+:::
+::: {.column .fragment style="font-size: 90%;"}
+
+**NOT EXAMENABLE**
+
+::: {.incremental}
+
++  EVE estimates $\Sigma_k = \lambda DA_kD^\top$ so we have
+  + 1 $\lambda$ across all clusters 
+  + 1 matrix $D$ across all of the clusters, which to be a valid orientation/rotation has $d(d-1)/2$ elements and 
+  + An $A_k$ per cluster, $A_k$ has $(d-1)$ elements as all of the other axes width  are relative to the first axes width.    
+  + In total we have [$1 + d(d-1)/2 + K(d-1)$ parameters]{.monash-orange2} 
+
+:::
+
+:::
+
+::::
+
+
+## Reduction in the number of parameters to estimate
+
+:::: {.columns }
+::: {.column }
+
+$$f(x_i; \{\pi_k, \mu_k, \Sigma_k\}_{k=1}^K) = \sum_{k=1}^K\pi_kf_k(x_i; \mu_k, \Sigma_k)$$
+
+In addition to $\Sigma_k$ we must also estimate 
+
+::: {.incremental}
+
++ A $\mu_k\in\mathbb{R}^d$ for each cluster $k$ (i.e. [$K\times d$ parameters]{.monash-orange2} )
++ Cluster weights $\pi_k\in\mathbb{R}^K$, while we have $K$ clusters $\sum_{k=1}^K\pi_k = 1$ so $\pi_K = 1- \sum_{k=1}^{K-1}\pi_k$ so there are only [$K-1$ parameters]{.monash-orange2} 
+
+:::
+
+
+:::
+::: {.column .fragment}
+
+<br><br><br>
+
+
+**You can't estimate a model with more parameters than observations!**
+
+::: {.fragment}
+
+*Unless you regularise...*
+
+:::
+
+
+:::
+
+::::
+
+
+## Maximum likelihood 
+
+::: {.incremental  style="font-size: 90%;"}
+
++ Once a form/constraint for the covariance matrices has been decided (more on this later)
++ We learn the parameters $\mu_k$, $\Sigma_k$, $k = 1,\ldots, K$ by maximising the likelihood
++ Remember, the likelihood is the probability under the model of the observed data
++ For the Gaussian mixture model
+$$
+\begin{aligned}
+\mathcal{l}_n(\{\mu_k, \Sigma_k\}_{k=1}^K) &= f(x_1, x_2, \ldots, x_n; \{\mu_k, \Sigma_k\}_{k=1}^K) \\
+&= \prod_{i=1}^n f(x_i; \{\mu_k, \Sigma_k\}_{k=1}^K)\\
+&=  \prod_{i=1}^n\sum_{k=1}^K\pi_kf_k(x_i; \mu_k, \Sigma_k)
+\end{aligned}
+$$
++ The Maximum likelihood estimates are the parameter that made the observed data as likely as possible
+$$
+\begin{aligned}
+\{\hat{\mu}_k, \hat{\Sigma}_k\}_{k=1}^K := \arg\max\mathcal{l}_n(\{\mu_k, \Sigma_k\}_{k=1}^K)
+\end{aligned}
+$$
+
+:::
+
+## Example: nuisance variable [(1/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -115,19 +295,119 @@ df <- data.frame(x1=scale(c(rnorm(50, -4), rnorm(50, 4))),
 ggplot(data=df, aes(x1, x2)) + geom_point() +
     theme_bw() + theme(aspect.ratio=1)
 ```
+
+::: {.fragment}
+
+$X_2$ is a 'nuisance' variable that is not useful for clustering
+
 :::
+
+::: {.fragment}
+
+Could cause a problem for k-means or hierarchical clustering
+
+:::
+
+:::
+::: {.column .fragment}
+
+::: {.fragment}
+
+```{r}
+set.seed(712)
+df_km2 <- kmeans(df, 2)
+df_km <- df |>
+  mutate(cl = factor(df_km2$cluster))
+
+ggplot(data=df_km, aes(x1, x2, color = cl)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+
+:::
+
+:::
+::::
+
+## Example: nuisance variable [(2/4)]{.smallest}
+
+:::: {.columns}
 ::: {.column}
 
 ```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190512)
+df <- data.frame(x1=scale(c(rnorm(50, -4), rnorm(50, 4))),
+                   x2=scale(c(rnorm(100))))
+ggplot(data=df, aes(x1, x2)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+
+::: {.fragment}
+
+$X_2$ is a 'nuisance' variable that is not useful for clustering
+
+:::
+
+::: {.fragment}
+
+Could cause a problem for k-means or hierarchical clustering
+
+:::
+
+:::
+::: {.column .fragment}
+
+[Mclust](https://www.rdocumentation.org/packages/mclust/versions/6.1/topics/Mclust)
+
+see also [vignettes/mclust](https://cran.r-project.org/web/packages/mclust/vignettes/mclust.html)
+
+::: {.fragment}
+
+```{r}
 #| echo: true
+#| output-location: fragment
 df_mc <- Mclust(df, G = 2)
 summary(df_mc)
 ```
 
 :::
+
+:::
 ::::
 
-# Example: nuisance variable [(2/3)]{.smallest}
+
+## BIC
+
+::: {.incremental  style="font-size: 90%;"}
+
++ The BIC stands for Bayesian Information Criteria
++ For any variance/covariance constraints we use Maximum Likelihood to estimate the parameters $\hat{\mu}_k, \hat{\Sigma}_k$
++ We can't use the likelihood to choose between models though, as the likelihood will always favour more complex models 
++ Information Criteria use the log-likelihood but also penalise model complexity 
+
+:::
+
+::: {.fragment}
+
+$$
+BIC = (\#parameters)\log(n) - 2\log(\mathcal{l}_n(\{\hat{\mu}_k, \hat{\Sigma}_k\}_{k=1}^K))
+$$
+
+
+:::
+
+::: {.incremental}
+
++ $(\#parameters)$ counts the number of separate parameter reqired for $\{\hat{\mu}_k, \hat{\Sigma}_k\}_{k=1}^K$
++ $\{\hat{\mu}_k, \hat{\Sigma}_k\}_{k=1}^K$ are the maximum likelihood estimators
++ $n$ is the number of observations 
++ $\mathcal{l}_n$ is the likelihood of observations for given parameters 
+
+:::
+
+
+## Example: nuisance variable [(3/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -136,23 +416,31 @@ summary(df_mc)
 #| echo: true
 #| out-width: 80%
 #| fig-width: 4
+#| crop: true
 plot(df_mc, what = "density")
 ```
 
+::: {.fragment}
+
+Each of those circles is a set with the same density (i.e. equally likely within each cluster)
+
 :::
-::: {.column}
+
+:::
+::: {.column .fragment}
 
 ```{r}
 #| echo: true
 #| out-width: 80%
 #| fig-width: 4
+#| crop: true
 plot(df_mc, what = "uncertainty")
 ```
 
 :::
 ::::
 
-# Example: nuisance variable [(3/3)]{.smallest}
+## Example: nuisance variable [(4/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -166,7 +454,7 @@ df_mc$parameters$mean
 ```
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 Cluster variance-covariances
 
@@ -178,7 +466,7 @@ df_mc$parameters$variance$sigma
 :::
 ::::
 
-# Example: nuisance cases [(1/3)]{.smallest}
+## Example: nuisance cases [(1/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -194,11 +482,104 @@ df <- data.frame(x1=scale(c(rnorm(50, -3), rnorm(50, 3), x)),
 ggplot(data=df, aes(x1, x2)) + geom_point() +
     theme_bw() + theme(aspect.ratio=1)
 ```
+
+::: {.fragment}
+
+The observations that 'join' the two clusters make hierarchical clustering hard 
+
 :::
+
+
+:::
+::: {.column .fragment}
+
+
+```{r}
+
+df_hc_w3 <- hclust(dist(df), method="single")
+
+ggdendrogram(df_hc_w3, rotate = TRUE, size = 4)
+
+
+```
+
+
+
+:::
+::::
+
+## Example: nuisance cases [(1/4)]{.smallest}
+
+:::: {.columns}
 ::: {.column}
 
 ```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190514)
+x <- (runif(20)-0.5)*4
+y <- x
+df <- data.frame(x1=scale(c(rnorm(50, -3), rnorm(50, 3), x)),
+                   x2=scale(c(rnorm(50, -3), rnorm(50, 3), y)))
+ggplot(data=df, aes(x1, x2)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+
+The observations that 'join' the two clusters make hierarchical clustering hard 
+
+
+
+:::
+::: {.column}
+
+
+```{r}
+
+df_hc <- hclust(dist(df), method="single")
+
+df_hc_w2 <- df |>
+  mutate(cl = factor(cutree(df_hc, 2)))
+
+ggplot(data=df_hc_w2, aes(x1, x2, color = cl)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+
+```
+
+
+
+:::
+::::
+
+## Example: nuisance cases [(2/4)]{.smallest}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| out-width: 80%
+set.seed(20190514)
+x <- (runif(20)-0.5)*4
+y <- x
+df <- data.frame(x1=scale(c(rnorm(50, -3), rnorm(50, 3), x)),
+                   x2=scale(c(rnorm(50, -3), rnorm(50, 3), y)))
+ggplot(data=df, aes(x1, x2)) + geom_point() +
+    theme_bw() + theme(aspect.ratio=1)
+```
+
+::: {.fragment}
+
+The observations that 'join' the two clusters make hierarchical clustering hard 
+
+:::
+
+
+:::
+::: {.column .fragment}
+
+```{r}
 #| echo: true
+#| output-location: fragment
 df_mc <- Mclust(df, G = 2)
 summary(df_mc)
 ```
@@ -206,7 +587,7 @@ summary(df_mc)
 :::
 ::::
 
-# Example: nuisance cases [(2/3)]{.smallest}
+## Example: nuisance cases [(3/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -219,7 +600,7 @@ plot(df_mc, what = "density")
 ```
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 #| echo: true
@@ -230,7 +611,7 @@ plot(df_mc, what = "uncertainty")
 :::
 ::::
 
-# Example: nuisance cases [(3/3)]{.smallest}
+## Example: nuisance cases [(4/4)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
@@ -243,7 +624,7 @@ df_mc$parameters$mean
 ```
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 Cluster variance-covariances
 
@@ -260,36 +641,72 @@ df_mc$parameters$variance$sigma
 :::: {.columns}
 ::: {.column}
 
+As well as selecting the covariace matrix constraints, BIC can be used to select the number of clusters 
+
+::: {.fragment}
+
 Let the model decide on the number of clusters, and parametrisation.
 
 ```{r echo=TRUE}
 #| echo: true
+#| output-location: fragment
 p_mc <- mclustBIC(p_std[,2:5], G=2:8)
 summary(p_mc)
 ```
+
+::: 
+
+::: {.fragment}
+
+Maybe there really is another sub-species of penguin...
+
+:::
+
+
 :::
 ::: {.column style="font-size: 80%;"}
 
+:::
+::::
+
+## Example: penguins [(1/2)]{.smallest}
+
+
 ```{r}
-#| out-width: 80%
 pmc1 <- ggmcbic(p_mc) +
   scale_x_continuous(breaks=1:7, labels=2:8)
 ggplotly(pmc1)
 ```
 
+<br>
+
 ::: {.fragment}
+
+The model with the smallest BIC is the best. However, `mclust` negates the BIC so we look for the maximum.
+
+
+:::
+
+
+
+## Example: penguins [(1/2)]{.smallest}
+
+
+
 ```{r}
-#| echo: false
-#| out-width: 80%
 pmc2 <- ggmcbic(p_mc, top=6) +
   scale_x_continuous(breaks=1:7, labels=2:8)
 ggplotly(pmc2)
 
 ```
-:::
+
+
+::: {.fragment}
+
+Adopting a fully probabilistic modelling approach gives more satisfying results than the 'fit statistics' we had last week
 
 :::
-::::
+
 
 ## Example: penguins [(2/2)]{.smallest}
 
@@ -342,6 +759,8 @@ model: VEE, 3
 
 ## Summary
 
+::: {.incremental}
+
 - Model-based clustering provides a nice [automated]{.monash-blue2} clustering, if the data has neatly separated clusters, even in the presence of nuisance variables.
 - Non-elliptical clusters could be modeled by combining multiple ellipses.
 - It is [affected by nuisance observations]{.monash-blue2}, and has a parameter `noise` to attempt to filter these.
@@ -349,44 +768,70 @@ model: VEE, 3
 - $k$-means and Wards linkage hierarchical would yield similar results to constraining the variance-covariance model to EEI (or VII, EEE).
 - Having a [functional model]{.monash-blue2} for the clusters is useful.
 
+:::
+
 ## Self-organising maps {.transition-slide .center}
 
 ## Overview
 
 :::: {.columns}
-::: {.column style="font-size: 80%;"}
+::: {.column style="font-size: 100%;"}
+
+::: {.incremental}
 
 - A self-organizing map is a [constrained $k$-means]{.monash-blue2} algorithm
 - A 1D or 2D net is stretched through the data. The knots in the net form the cluster means, and points closest to the knot are considered to belong to that cluster.
 - The [net provides a low-dimensional summary]{.monash-blue2} of the clustering, nodes (and their corresponding clusters) that are close to each other being more similar than those that are further apart.
 
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/TrainSOM.gif/440px-TrainSOM.gif){width=200}
+:::
 
-[Source: wikipedia]{.smallest}
 
 :::
-::: {.column style="font-size: 60%;"}
+::: {.column style="font-size: 60%;" .fragment}
 
-**Algorithm**
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/TrainSOM.gif/440px-TrainSOM.gif){width=600}
 
-1. Scale your data
-2. Initialize the net defined by the knots (nodes $m_k, k=1, ..., K$): choose the number of nodes in the
-horizontal (and vertical directions for 2D), and set initial positions of these $K$ nodes (eg first two PCs) in the data space.
-3. Loop over data points, $x_i, i=1, ..., n$
-    i. find the closest node, $m_{k^*}$
-    ii. for each node, $m_k$ in the neighborhood of $m_{k^*}$ and update it by: $m_k = m_k + \alpha h_k(x_i, m_{k^*}) (x_i-m_{k^*})$, pulling it closer to $x_i$,
-    
-where $\alpha$ is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and $h_k$ is a neighbourhood function, e.g. $h_k(x_i, m_{k^*})=exp(\frac{||x_i-m_{k^*}||}{2\alpha})^2)$ which is a bubble function (within a distance or not).
-
-Step 3 is iterated until nodes stop changing position or a stopping rule is satisfied.
+[Source: wikipedia]{.smallest}
     
 :::
 ::::
+
+## The Algorithm 
+
+::: {.incremental style="font-size: 90%;"}
+
+1. Scale your data
+2. Initialize the net defined by the knots (nodes $m_k, k=1, ..., K$): choose the number of nodes in the horizontal (and vertical directions for 2D), and set initial positions of these $K$ nodes (eg first two PCs) in the data space.
+3. Loop over data points, $x_i, i=1, ..., n$
+    i. find the closest node, $m_{k^*}$
+    ii. for each node, $m_k$ in the neighborhood of $m_{k^*}$ and update it by: $m_k = m_k + \alpha h_k(x_i, m_{k^*})\cdot (x_i-m_{k^*})$, pulling it closer to $x_i$,
+    
+:::
+
+::: {.fragment style="font-size: 90%;"}
+    
+where $\alpha$ is a learning rate function that linearly shrinks from 1 to 0, or function with decreasing value as the number of iterations increases, and $h_k$ is a neighbourhood function, e.g. $h_k(x_i, m_{k^*})=exp(\frac{||x_i-m_{k^*}||}{2\alpha})^2)$ which is a bubble function (within a distance or not).
+
+:::
+
+::: {.fragment style="font-size: 90%;"}
+
+Step 3 is iterated until nodes stop changing position or a stopping rule is satisfied.
+
+:::
+    
+
 
 ## Example: penguins [(1/2)]{.smallest}
 
 :::: {.columns}
 ::: {.column}
+
+[kohonen](https://cran.r-project.org/web/packages/kohonen/index.html)
+
+[somInit](https://www.rdocumentation.org/packages/aweSOM/versions/1.3/topics/somInit)
+
+[som](https://stat.ethz.ch/R-manual/R-devel/library/class/html/SOM.html)
 
 ```{r}
 set.seed(947)
@@ -399,11 +844,14 @@ p_som <- som(as.matrix(p_std[,2:5]),
              init = p_init)
 ```
 
+::: {.fragment}
+
 `rlen` controls the length of the optimisation. Tend to need to run it for longer than default.
 
+:::
 
 :::
-::: {.column}
+::: {.column .fragment}
 
 ```{r}
 plot(p_som, type="changes")
@@ -456,7 +904,7 @@ p_col <- c("black", hcl.colors(3, "Zissou 1"))[as.numeric(p_som_map_data$species
 From the map we can see that the clustering has effectively distinguished the species, with some confusion between Chinstrap and Adelie.
 
 :::
-::: {.column style="font-size: 80%;"}
+::: {.column style="font-size: 80%;" .fragment}
 
 ```{r}
 #| eval: false
@@ -479,7 +927,38 @@ The net is stretched and clumped into the three clusters in 4D.
 :::
 ::::
 
-## Example: surface [(1/2)]{.smallest}
+
+## Example: surface [(1/3)]{.smallest}
+
+```{r}
+#| echo: true
+#| eval: false
+library(detourr)
+set.seed(645)
+detour(c3, 
+       tour_aes(projection = 1:10)) |>
+       tour_path(grand_tour(2), fps = 60, 
+                 max_bases=40) |>
+       show_scatter(alpha = 0.7, 
+                    axes = TRUE)
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+library(detourr)
+set.seed(645)
+detour(c3, 
+       tour_aes(projection = 1:4)) |>
+       tour_path(grand_tour(2), fps = 60, 
+                 max_bases=40) |>
+       show_scatter(alpha = 0.7, 
+                    axes = TRUE)
+```
+
+
+## Example: surface [(2/3)]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
@@ -489,7 +968,7 @@ c3_som <- som(as.matrix(c3),
   grid = kohonen::somgrid(5, 5, "hexagonal"))
 ```
 :::
-::: {.column style="font-size: 80%;"}
+::: {.column style="font-size: 80%;" .fragment}
 
 ```{r}
 plot(c3_som, type="changes")
@@ -498,7 +977,7 @@ plot(c3_som, type="changes")
 :::
 ::::
 
-## Example: surface [(2/2)]{.smallest}
+## Example: surface [(3/3)]{.smallest}
 
 :::: {.columns}
 ::: {.column style="font-size: 80%;"}
@@ -519,7 +998,7 @@ ggplot() +
 ```
 
 :::
-::: {.column style="font-size: 80%;"}
+::: {.column style="font-size: 80%;" .fragment}
 
 ```{r}
 #| echo: false
@@ -563,9 +1042,14 @@ render_gif(c3_som_map_data[,1:3],
 ![](../gifs/c3_som.gif)
 </center>
 
+::: {.incremental}
+
 - the net stretches into the vertices of the tetrahedron, filling the smaller tetrahedrons
 - see the break so that a 2D net fits the 3D object?
 - the 7 noise dimensions were ignored
+
+:::
+
 :::
 ::::
 
