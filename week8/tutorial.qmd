@@ -16,6 +16,19 @@ format:
 unilur-solution: true
 ---
 
+<!--
+devtools::install_github("koncina/unilur")
+devtools::install_github("hadley/emo")
+
+Had to run this in the week 8 folder in the terminal in R
+cd C:\Users\jjew0003\Documents\Monash Teaching\ETC3250-5250\2025\week8
+quarto install extension ginolhac/unilur
+
+or 
+cd C:\Users\jjew0003\Documents\Monash_Yr1\ETC3250\S12025\S12025\week8
+quarto install extension ginolhac/unilur
+-->
+
 ```{r echo=FALSE}
 # Set up chunk for all slides
 knitr::opts_chunk$set(
@@ -276,6 +289,7 @@ p_explain <- kernelshap(
     p_rf,
     p_new[,2:5], 
     p_new[,2:5],
+    type = "prob",
     verbose = FALSE
   )
 p_shap <- p_new |>
